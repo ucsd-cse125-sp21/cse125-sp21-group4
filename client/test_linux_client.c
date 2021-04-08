@@ -17,6 +17,12 @@ const int BUFLEN = sizeof(PlayerPosition);
 
 int main(int argc, char * argv[]) {
     
+    if(argc != 2) {
+        printf("Requires 1 args for SERVER_IP  \n");
+        exit(1);
+    }
+
+    char* SERVER_IP = argv[1];
 
     int result, server_socket;
 
@@ -61,7 +67,7 @@ int main(int argc, char * argv[]) {
     player->y = 0;
     PlayerPosition * player2 = malloc(sizeof(PlayerPosition));
 
-    printf("Connected to server.");
+    printf("Connected to server.\n");
     while(1) {
         char c = getchar();
         switch(c) {
@@ -78,7 +84,7 @@ int main(int argc, char * argv[]) {
                 player->x++;
                 break;
         }
-        printf("After keypress: Player %d is on x: %d, y: %d", player->id, player->x, player->y);
+        printf("After keypress: Player %d is on x: %d, y: %d\n", player->id, player->x, player->y);
 
         // Send a word to server
         result = write(server_socket, player, BUFLEN);
@@ -86,7 +92,7 @@ int main(int argc, char * argv[]) {
         // Read a word from server
         result = read(server_socket, player2, BUFLEN);
 
-        printf("Returned: Player %d is on x: %d, y: %d", player2->id, player2->x, player2->y);
+        printf("Returned: Player %d is on x: %d, y: %d\n", player2->id, player2->x, player2->y);
 
     }
 
