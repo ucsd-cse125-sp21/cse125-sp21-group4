@@ -1,1 +1,3 @@
 # nothing yet
+*.exe
+.vscode
