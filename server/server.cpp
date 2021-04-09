@@ -22,74 +22,15 @@
 #pragma comment (lib, "Ws2_32.lib")
 // #pragma comment (lib, "Mswsock.lib")
 
-#define DEFAULT_PORT "27015"
-#define MAX_PLAYERS 4
+#include "../common/constants.h"
+#include "../common/PlayerPosition.h"
+#include "server.h"
 
-#include "PlayerPosition.h"
+const int BUFLEN = sizeof(CLIENT_INPUT);
+PlayerPosition playerPositions[MAX_PLAYERS];
+bool playerSlots[MAX_PLAYERS];
+int player_id = 0;
 
-const int BUFLEN = sizeof(PlayerPosition);
-
-// Handles the player thread
-DWORD WINAPI handlePlayerThread(LPVOID lpParam) { 
-
-    // Gets the socket id 
-    SOCKET clientSocket = *(SOCKET *)lpParam;
-
-    printf("ClientSocket1: %d\n", clientSocket);
-    
-    // The buffer that is received from the client and sent back (Echo)
-    char buf[BUFLEN + 1];
-    buf[BUFLEN] = '\0';
-    int iRecvResult, iSendResult;
-
-
-
-
-    // 5. Once accepted, the server and client can just keep talking to each other
-    do {
-
-        // Accepts data from sender
-        iRecvResult = recv(clientSocket, buf, BUFLEN, 0);
-        if (iRecvResult > 0) {
-            // printf("%s\n", buf);
-            PlayerPosition* player = (PlayerPosition *)buf;
-            printf("Player %d is on x: %d, y: %d\n", player->id, player->x, player->y);
-
-            // Sends to the client the data back
-            iSendResult = send(clientSocket, buf, BUFLEN, 0);
-            if (iSendResult == SOCKET_ERROR) {
-                printf("error with send(): %d\n", WSAGetLastError());
-                closesocket(clientSocket);
-                return 1;
-            }
-        }
-        
-        // If the connection is closing
-        else if (iRecvResult == 0) {
-            printf("Connection closing...\n");
-        }
-
-        // There was a recieve error.
-        else {
-            printf("error with recv(): %d\n", WSAGetLastError());
-            closesocket(clientSocket);
-            return 1;
-        }
-    } while (iRecvResult > 0);
-
-    // https://docs.microsoft.com/en-us/windows/win32/winsock/disconnecting-the-server
-    // shutdown the send half of the connection since no more data will be sent
-    int iResult = shutdown(clientSocket, SD_SEND);
-    if (iResult == SOCKET_ERROR) {
-        printf("error with shutdown(): %d\n", WSAGetLastError());
-        closesocket(clientSocket);
-        return 1;
-    }
-
-    // cleanup
-    closesocket(clientSocket);
-    return 0;
-}
 
 
 int main(void)
@@ -177,7 +118,7 @@ int main(void)
             WSACleanup();
             return 1;
         }
-        printf("ClientSocket2: %d\n", *clientSocketPtr);
+        printf("ClientSocket: %d\n", *clientSocketPtr);
     
 
         // Create thread for this player.
@@ -187,4 +128,148 @@ int main(void)
     }
     WSACleanup();
     return 0;
+}
+
+// Handles the player thread
+DWORD WINAPI handlePlayerThread(LPVOID lpParam) { 
+
+    // Gets the socket id 
+    SOCKET * clientSocketPtr = (SOCKET *)lpParam;
+    SOCKET clientSocket = *clientSocketPtr;
+
+    // Check if we have room
+    int assigned_player_id = -1;
+
+    // Get an empty slot
+    for(int i = 0; i < MAX_PLAYERS; i++) {
+        if(!playerSlots[i]) {
+            playerSlots[i] = true;
+            assigned_player_id = i;
+            break;
+        }
+    }
+
+    // No more slots, clean up the socket and kick the player
+    if(assigned_player_id == -1) {
+        cleanUpSocket(clientSocketPtr);
+        return 1;
+    }
+    playerPositions[assigned_player_id].id = assigned_player_id;
+
+    printf("Player Thread Launched with Socket: %d and ID: %d\n", clientSocket, assigned_player_id);
+    
+    // The buffer that is received from the client
+    char buf[BUFLEN + 1];
+    buf[BUFLEN] = '\0';
+
+    // We want to create a player state for this client and give it one of the ID's.
+
+    int iRecvResult, iSendResult;
+
+    // 5. Once accepted, the server and client can just keep talking to each other
+    /**
+     * Basic server architecture:
+     *  1. Receive client input
+     *  2. Update the game state
+     *  3. Send the updated state to clients
+     *  4. Wait until tick ends
+     */
+    while(1) {
+
+        // 1. Receive client input
+        iRecvResult = recv(clientSocket, buf, BUFLEN, 0);
+        if (iRecvResult > 0) {
+            printf("Player %d is was on x: %d, y: %d\n", assigned_player_id, playerPositions[assigned_player_id].x,  playerPositions[assigned_player_id].y);
+            
+            // 2. Update the game state
+            CLIENT_INPUT input = *(CLIENT_INPUT *) buf;
+            processInput(assigned_player_id, input);
+        }
+
+        
+        // If the connection is closing
+        else if (iRecvResult == 0) {
+            printf("Connection closing...\n");
+            cleanUpSocket(clientSocketPtr);
+            return 1;
+        }
+
+        // There was a receive error.
+        else {
+            printf("error with recv(): %d\n", WSAGetLastError());
+            cleanUpSocket(clientSocketPtr);
+            return 1;
+        }
+
+        // Prints out to the server console the states of the clients.
+        for(int i = 0; i < MAX_PLAYERS; i++) {
+            printf("Player %d is now on x: %d, y: %d\n", i, playerPositions[i].x,  playerPositions[i].y); 
+        }
+        
+
+        // 3. Send the updated state to client
+        iSendResult = send(clientSocket, (char *) &playerPositions, sizeof(playerPositions), 0);
+        if (iSendResult == SOCKET_ERROR) {
+            printf("error with send(): %d\n", WSAGetLastError());
+            cleanUpSocket(clientSocketPtr);
+            return 1;
+        }
+
+        // 4. Wait until tick ends
+    }
+
+
+    // cleanup
+    cleanUpSocket(clientSocketPtr);
+    return 0;
+}
+
+// Process the client's input
+void processInput(int assigned_player_id, CLIENT_INPUT input) {
+    switch(input) {
+        case MOVE_FORWARD:
+            playerPositions[assigned_player_id].y++;
+            break;
+        case MOVE_LEFT:
+            playerPositions[assigned_player_id].x--;
+            break;
+        case MOVE_BACKWARD:
+            playerPositions[assigned_player_id].y--;
+            break;
+        case MOVE_RIGHT:
+            playerPositions[assigned_player_id].x++;
+            break;
+    }
+
+    // Check if x and y are in bounds
+    playerPositions[assigned_player_id].y = checkBounds(playerPositions[assigned_player_id].y, MAP_LOWER_BOUND, MAP_HIGHER_BOUND);
+    playerPositions[assigned_player_id].x = checkBounds(playerPositions[assigned_player_id].x, MAP_LOWER_BOUND, MAP_HIGHER_BOUND);
+}
+
+// Used to clean up the socket
+void cleanUpSocket(SOCKET* clientSocketPtr) {
+    printf("Shutting down and cleaning socket");
+
+    // https://docs.microsoft.com/en-us/windows/win32/winsock/disconnecting-the-server
+    // shutdown the send half of the connection since no more data will be sent
+    int iResult = shutdown(*clientSocketPtr, SD_SEND);
+    if (iResult == SOCKET_ERROR) {
+        printf("error with shutdown(): %d\n", WSAGetLastError());
+        cleanUpSocket(clientSocketPtr);
+        return;
+    }
+    closesocket(*clientSocketPtr);
+    free(clientSocketPtr);
+}
+
+// Check Bounds of position and if outside of bounds, set it to the bound
+int checkBounds(int pos, int lower, int upper) {
+    if(pos < lower) {
+        return lower;
+    }
+    else if (pos > upper) {
+        return upper;
+    } 
+
+    return pos;
 }
