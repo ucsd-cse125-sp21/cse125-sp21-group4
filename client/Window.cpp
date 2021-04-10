@@ -53,24 +53,17 @@ void Window::cleanUp()
 {
 	// Deallcoate the objects.
 
-	// Delete the shader program.
 	glDeleteProgram(shaderProgram);
 }
 
-// for the Window
 GLFWwindow* Window::createWindow(int width, int height)
 {
-	// Initialize GLFW.
 	if (!glfwInit())
 	{
 		std::cerr << "Failed to initialize GLFW" << std::endl;
 		return NULL;
 	}
-
-	// 4x antialiasing.
 	glfwWindowHint(GLFW_SAMPLES, 4);
-
-	// Create the GLFW window.
 	GLFWwindow* window = glfwCreateWindow(width, height, windowTitle, NULL, NULL);
 
 	// Check if the window could not be created.
@@ -84,20 +77,15 @@ GLFWwindow* Window::createWindow(int width, int height)
 	// Make the context of the window.
 	glfwMakeContextCurrent(window);
 
-#ifndef __APPLE__
-	// On Windows and Linux, we need GLEW to provide modern OpenGL functionality.
-
 	// Initialize GLEW.
-	if (glewInit())
+	/*if (glewInit())
 	{
 		std::cerr << "Failed to initialize GLEW" << std::endl;
 		return NULL;
-	}
-#endif
+	}*/
 
 	// Set swap interval to 1.
 	glfwSwapInterval(0);
-
 
 	// Call the resize callback to make sure things get drawn immediately.
 	Window::resizeCallback(window, width, height);
@@ -121,11 +109,8 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 	}
 }
 
-// update and draw functions
 void Window::idleCallback()
 {
-	// Perform any updates as necessary. 
-
 }
 
 void Window::displayCallback(GLFWwindow* window)
@@ -143,7 +128,6 @@ void Window::displayCallback(GLFWwindow* window)
 	}
 
 	glfwPollEvents();
-	// Swap buffers.
 	glfwSwapBuffers(window);
 }
 
@@ -181,8 +165,6 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	MouseX = (int)currX;
 	MouseY = (int)currY;
 
-	// Move camera
-	// NOTE: this should really be part of Camera::Update()
 	if (LeftDown) {
 		return;
 	}
