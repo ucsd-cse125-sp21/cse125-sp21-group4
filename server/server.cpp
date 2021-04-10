@@ -28,7 +28,7 @@ int main(void)
         auto start = std::chrono::steady_clock::now();
 
         // 1. Receive client input
-        std::vector<CLIENT_INPUT> inputs;
+        std::vector<std::pair<int,CLIENT_INPUT>> inputs;
         commServer->getClientInputs(inputs);
         
 

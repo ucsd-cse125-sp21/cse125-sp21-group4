@@ -106,7 +106,7 @@ int __cdecl main(int argc, char **argv)
         // 1. Handle input (keyboard input here)
 
         // Checks if the keyboard has been hit, otherwise sendInput should be NO_MOVE
-        if (_kbhit()) {
+        while (_kbhit()) {
             char input = _getch();
             switch (input) {
                 case 'w':
@@ -124,21 +124,19 @@ int __cdecl main(int argc, char **argv)
                 case 3:
                     exit(1);
             }
-        } else {
-            sendInput = NO_MOVE;
-        }
-        usleep(25000);
+        } 
 
 
         // 2. Send input to server (if any)
-        iResult = send( ConnectSocket, (char *)&sendInput, sizeof(CLIENT_INPUT), 0 );
-        if (iResult == SOCKET_ERROR) {
-            printf("send failed with error: %d\n", WSAGetLastError());
-            closesocket(ConnectSocket);
-            WSACleanup();
-            return 1;
+        if(sendInput != NO_MOVE) {
+            iResult = send( ConnectSocket, (char *)&sendInput, sizeof(CLIENT_INPUT), 0 );
+            if (iResult == SOCKET_ERROR) {
+                printf("send failed with error: %d\n", WSAGetLastError());
+                closesocket(ConnectSocket);
+                WSACleanup();
+                return 1;
+            }
         }
-
 
         // 3. Receive until the peer closes the connection
         iResult = recv(ConnectSocket, (char *) &playerPositions, sizeof(playerPositions), 0);
@@ -151,10 +149,21 @@ int __cdecl main(int argc, char **argv)
         }
         else if ( iResult == 0 ) {
             printf("Connection closed\n");
+            closesocket(ConnectSocket);
+            WSACleanup();
+            return 1;
         }
         else {
             printf("recv failed with error: %d\n", WSAGetLastError());
+            closesocket(ConnectSocket);
+            WSACleanup();
+            return 1;
         }
+
+        // reset send input for next input
+        sendInput = NO_MOVE;
+
+        usleep(25000);
         
 
         // do {

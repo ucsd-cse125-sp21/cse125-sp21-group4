@@ -45,7 +45,7 @@ public:
 
     void cleanup(); // Ends the game
 
-    void getClientInputs(std::vector<CLIENT_INPUT> &clientInputs); // Obtains all the inputs from the clients for processing in the GameServer
+    void getClientInputs(std::vector<std::pair<int,CLIENT_INPUT>> &clientInputs); // Obtains all the inputs from the clients for processing in the GameServer
     void sendGameState(std::vector<char> sendbuf); // Sends the new game state to each client
 
     static int handlePlayerThread(SOCKET* clientSocketPtr, PlayerInfo* playerInfo); // Thread for socket that will handle sending/receiving info

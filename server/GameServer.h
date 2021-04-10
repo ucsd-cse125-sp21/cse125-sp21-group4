@@ -17,7 +17,7 @@ private:
 public:
     GameServer(); // Constructs the server and threads required for 4 players
 
-    std::vector<char> processInputs(std::vector<CLIENT_INPUT> inputs); // Processes the inputs and returns a game state
+    std::vector<char> processInputs(std::vector<std::pair<int,CLIENT_INPUT>> inputs); // Processes the inputs and returns a game state
 
 
 

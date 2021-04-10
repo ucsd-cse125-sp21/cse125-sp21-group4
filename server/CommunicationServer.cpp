@@ -127,9 +127,20 @@ void CommunicationServer::cleanup() {
     WSACleanup();
 }
 
-void CommunicationServer::getClientInputs(std::vector<CLIENT_INPUT> &clientInputs) {
+void CommunicationServer::getClientInputs(std::vector<std::pair<int,CLIENT_INPUT>> &clientInputs) {
+
+    // Go through each player's input and push their input to be processes if they're moves.
     for(int i = 0; i < MAX_PLAYERS; i++) {
-        clientInputs.push_back(playerInfos[i].input);
+        if(playerInfos[i].input != NO_MOVE) {
+
+            // After getting their inputs, set it to NO_MOVE so that players can input more moves
+            std::pair<int, CLIENT_INPUT> inputPair;
+            inputPair.first = playerInfos[i].id;
+            inputPair.second = playerInfos[i].input;
+            clientInputs.push_back(inputPair);
+
+            playerInfos[i].input = NO_MOVE;
+        }
     }
 }
 
@@ -171,9 +182,6 @@ int CommunicationServer::handlePlayerThread(SOCKET* clientSocketPtr, PlayerInfo*
 
             // Save the input for the GameServer to process
             playerInfo->input = *(CLIENT_INPUT *) buf;
-            printf("Actual Input\n");
-            printf("MOVE: %d", playerInfo->input);
-
         }
 
         // If the connection is closing
@@ -188,9 +196,6 @@ int CommunicationServer::handlePlayerThread(SOCKET* clientSocketPtr, PlayerInfo*
             int errorCode = WSAGetLastError();
             if(errorCode == WSAEWOULDBLOCK) {
                 // printf("nonblocking error from recv()\n");
-                playerInfo->input = NO_MOVE;
-                printf("No Actual Input\n");
-                printf("NO MOVE: %d", playerInfo->input);
                 
             } else {
                 printf("error with recv(): %d\n", WSAGetLastError());

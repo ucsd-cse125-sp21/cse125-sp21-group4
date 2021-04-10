@@ -8,10 +8,13 @@ GameServer::GameServer() {
     }
 }
 
-std::vector<char> GameServer::processInputs(std::vector<CLIENT_INPUT> inputs) {
+std::vector<char> GameServer::processInputs(std::vector<std::pair<int,CLIENT_INPUT>> inputs) {
     // For now, players can only input one action
-    for(int i = 0; i < MAX_PLAYERS; i++) {
-        processInput(i, inputs[i]);
+    auto iter = inputs.begin();
+    while(iter != inputs.end()) {
+        std::pair<int, CLIENT_INPUT> input = *iter;
+        processInput(input.first, input.second);
+        iter++;
     }
 
     // Prints out to the server console the states of the clients.

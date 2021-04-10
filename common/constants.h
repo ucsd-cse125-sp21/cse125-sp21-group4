@@ -11,7 +11,7 @@
 #define MAP_LOWER_BOUND -100
 #define MAP_HIGHER_BOUND 100
 
-#define TICK_TIME 640
+#define TICK_TIME 64
 
 enum CLIENT_INPUT{
     MOVE_FORWARD,
