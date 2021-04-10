@@ -6,8 +6,8 @@ int Window::height;
 const char* Window::windowTitle = "CSE125_GAME";
 
 //objects to render
-vector<Character*> Window::chars;
-vector<EnvElement*> Window::envs;
+vector<Character*> Window::chars; //all the characters players get to control
+vector<EnvElement*> Window::envs; //all the environmental static objects
 
 // Interaction Variables
 bool LeftDown, RightDown;
@@ -16,13 +16,17 @@ int MouseX, MouseY;
 // The shader program id
 GLuint Window::shaderProgram;
 
-// Camera Matrices 
+// projection Matrices 
 glm::mat4 Window::projection;
 
-// View Matrix:
+//this is the position of the camera
 glm::vec3 Window::eyePos(0, 5, 5);
-glm::vec3 Window::lookAtPoint(0, 0, 0);	
+// this is the direction where the camera is staring at
+glm::vec3 Window::lookAtPoint(0, 0, 0);
+// this is the upward direction for the camera. Think of this as the angle where your head is
+//tilted
 glm::vec3 Window::upVector(0, 1, 0);
+//view matrix with all the above stuff combined
 glm::mat4 Window::view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window::upVector);
 
 
@@ -41,7 +45,6 @@ bool Window::initializeProgram() {
 //bool Window::initializeObjects(char * file, char * file1, char* file2)
 bool Window::initializeObjects()
 {
-	cout << "creating objects" << endl;
 	chars.push_back(new Character("shaders/character/cube.obj", projection, view, shaderProgram));
 	envs.push_back(new EnvElement("shaders/environment/ground.obj", projection, view, shaderProgram));
 	return true;
@@ -111,6 +114,7 @@ void Window::displayCallback(GLFWwindow* window)
 	// Clear the color and depth buffers.
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	//draw all the characters and environmental elements
 	int i;
 	for (i = 0; i < chars.size(); i++) {
 		chars[i]->draw();
@@ -132,6 +136,8 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	{
 		switch (key)
 		{
+		case(GLFW_KEY_W):
+			cout << "pressed W" << endl;
 		default:
 			break;
 		}
@@ -142,10 +148,10 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods)
 {
 	if (button == GLFW_MOUSE_BUTTON_LEFT) {
-		LeftDown = (action == GLFW_PRESS);
+
 	}
 	if (button == GLFW_MOUSE_BUTTON_RIGHT) {
-		RightDown = (action == GLFW_PRESS);
+
 	}
 }
 
