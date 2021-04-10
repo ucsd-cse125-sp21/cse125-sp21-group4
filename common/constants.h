@@ -11,11 +11,14 @@
 #define MAP_LOWER_BOUND -100
 #define MAP_HIGHER_BOUND 100
 
+#define TICK_TIME 640
+
 enum CLIENT_INPUT{
     MOVE_FORWARD,
     MOVE_BACKWARD,
     MOVE_LEFT,
     MOVE_RIGHT,
+    NO_MOVE,
 };
 
 

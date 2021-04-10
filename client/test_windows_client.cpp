@@ -7,6 +7,8 @@
 #include <ws2tcpip.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
+
 
 // Conio used for keypresses
 #include <conio.h>
@@ -80,6 +82,14 @@ int __cdecl main(int argc, char **argv)
         return 1;
     }
 
+    int playerID = -1;
+    iResult = recv(ConnectSocket, (char*) &playerID, sizeof(playerID), 0);
+    if ( iResult > 0 ) {
+        printf("Bytes received: %d\n", iResult);
+        printf("Player ID: %d", playerID);
+    }
+        
+
     /** 
      * Client is connected now. The simple client architecture goes as follows:
      *  1. Handle input (client side)
@@ -94,23 +104,30 @@ int __cdecl main(int argc, char **argv)
     while(1) {
         
         // 1. Handle input (keyboard input here)
-        char input = _getch();
-        switch (input) {
-            case 'w':
-                sendInput = MOVE_FORWARD;
-                break;
-            case 'a':
-                sendInput = MOVE_LEFT;
-                break;
-            case 's':
-                sendInput = MOVE_BACKWARD;
-                break;
-            case 'd':
-                sendInput = MOVE_RIGHT;
-                break;
-            case 3:
-                exit(1);
+
+        // Checks if the keyboard has been hit, otherwise sendInput should be NO_MOVE
+        if (_kbhit()) {
+            char input = _getch();
+            switch (input) {
+                case 'w':
+                    sendInput = MOVE_FORWARD;
+                    break;
+                case 'a':
+                    sendInput = MOVE_LEFT;
+                    break;
+                case 's':
+                    sendInput = MOVE_BACKWARD;
+                    break;
+                case 'd':
+                    sendInput = MOVE_RIGHT;
+                    break;
+                case 3:
+                    exit(1);
+            }
+        } else {
+            sendInput = NO_MOVE;
         }
+        usleep(25000);
 
 
         // 2. Send input to server (if any)
