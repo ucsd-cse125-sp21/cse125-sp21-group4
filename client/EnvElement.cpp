@@ -35,6 +35,7 @@ EnvElement::EnvElement(string fileName, glm::mat4 p, glm::mat4 v, GLuint s) {
 				pointsp.push_back(point);
 			}
 
+			//get all the vertex normals
 			if (label == "vn") {
 				glm::vec3 norm;
 				ss >> norm.x >> norm.y >> norm.z;
@@ -42,6 +43,7 @@ EnvElement::EnvElement(string fileName, glm::mat4 p, glm::mat4 v, GLuint s) {
 				normalp.push_back(norm);
 			}
 
+			//get the triangle surfaces
 			if (label == "f") {
 				glm::ivec3 triangle;
 				std::string a, b, c;
