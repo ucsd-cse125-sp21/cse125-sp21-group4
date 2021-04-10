@@ -66,8 +66,16 @@ int __cdecl main(int argc, char **argv)
         // 2. Send input to server (if any)
         commClient->sendInput(sendInput);
 
-        // 3. Receive until the peer closes the connection
-        commClient->receiveGameState();
+        // 3. Receive gameState from the server
+        GameState gameState = commClient->receiveGameState();
+        
+        // 4. Update local game State
+
+        // 5. Render the world
+        printf("Player %d is on x: %d, y: %d\n", gameState.playerPositions[0].id, gameState.playerPositions[0].x, gameState.playerPositions[0].y);
+        printf("Player %d is on x: %d, y: %d\n", gameState.playerPositions[1].id, gameState.playerPositions[1].x, gameState.playerPositions[1].y);
+        printf("Player %d is on x: %d, y: %d\n", gameState.playerPositions[2].id, gameState.playerPositions[2].x, gameState.playerPositions[2].y);
+        printf("Player %d is on x: %d, y: %d\n", gameState.playerPositions[3].id, gameState.playerPositions[3].x, gameState.playerPositions[3].y);
 
         // reset send input for next input
         sendInput = NO_MOVE;

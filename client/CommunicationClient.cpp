@@ -80,16 +80,12 @@ void CommunicationClient::sendInput(CLIENT_INPUT sendInput) {
         }
     }
 }
-void CommunicationClient::receiveGameState() {
+GameState CommunicationClient::receiveGameState() {
 
     // 3. Receive the game state
     int iResult = recv(serverSocket, (char *) &gameState, sizeof(gameState), 0);
     if ( iResult > 0 ) {
         printf("Bytes received: %d\n", iResult);
-        printf("Player %d is on x: %d, y: %d\n", gameState.playerPositions[0].id, gameState.playerPositions[0].x, gameState.playerPositions[0].y);
-        printf("Player %d is on x: %d, y: %d\n", gameState.playerPositions[1].id, gameState.playerPositions[1].x, gameState.playerPositions[1].y);
-        printf("Player %d is on x: %d, y: %d\n", gameState.playerPositions[2].id, gameState.playerPositions[2].x, gameState.playerPositions[2].y);
-        printf("Player %d is on x: %d, y: %d\n", gameState.playerPositions[3].id, gameState.playerPositions[3].x, gameState.playerPositions[3].y);
     }
     // Disconnection
     else if ( iResult == 0 ) {
@@ -106,6 +102,8 @@ void CommunicationClient::receiveGameState() {
         WSACleanup();
         exit(1);
     }
+
+    return gameState;
 }
 
 void CommunicationClient::cleanup() {
