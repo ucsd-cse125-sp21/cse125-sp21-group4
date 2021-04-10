@@ -29,14 +29,12 @@ glm::mat4 Window::view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window
 bool Window::initializeProgram() {
 	// Create a shader program with a vertex shader and a fragment shader.
 	shaderProgram = LoadShaders("shaders/shader/shader.vert", "shaders/shader/shader.frag");
-
 	// Check the shader program.
 	if (!shaderProgram)
 	{
 		std::cerr << "Failed to initialize shader program" << std::endl;
 		return false;
 	}
-
 	return true;
 }
 
@@ -65,7 +63,6 @@ GLFWwindow* Window::createWindow(int width, int height)
 	}
 	glfwWindowHint(GLFW_SAMPLES, 4);
 	GLFWwindow* window = glfwCreateWindow(width, height, windowTitle, NULL, NULL);
-
 	// Check if the window could not be created.
 	if (!window)
 	{
@@ -73,21 +70,17 @@ GLFWwindow* Window::createWindow(int width, int height)
 		glfwTerminate();
 		return NULL;
 	}
-
 	// Make the context of the window.
 	glfwMakeContextCurrent(window);
-
 	// Initialize GLEW.
-	/*if (glewInit())
+	if (glewInit())
 	{
 		std::cerr << "Failed to initialize GLEW" << std::endl;
 		return NULL;
-	}*/
-
-	// Set swap interval to 1.
+	}
+	// Set swap interval to 1 if you want buffer 
 	glfwSwapInterval(0);
 
-	// Call the resize callback to make sure things get drawn immediately.
 	Window::resizeCallback(window, width, height);
 
 	return window;
