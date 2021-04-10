@@ -148,11 +148,12 @@ void CommunicationServer::sendGameState(std::vector<char> sendbuf) {
 
     // Set the output boolean to true once the entire output is written
     for(int i = 0; i < MAX_PLAYERS; i++) {
+        
         // Want to set the output for specific thread to send out
         std::copy(sendbuf.begin(), sendbuf.end(), back_inserter(playerInfos[i].output));
     }
 
-    // Set the output boolean to true once the entire output is written
+    // Set the output boolean to true once the entire output is written so the thread can push it to the clients
     for(int i = 0; i < MAX_PLAYERS; i++) {
         playerInfos[i].outputChanged = true;
     }
