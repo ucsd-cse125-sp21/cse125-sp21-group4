@@ -12,11 +12,13 @@
 2. Make sure when you create a new project from existing code, choose the client subfolder, not the entire repo folder
 
 ### How to run the Test Client (No Graphics / test_windows_client.cpp)
-1. g++ test_windows_client.cpp CommunicationClient.cpp -o client.exe -lWs2_32
-2. ./client.exe  
+1. cd client
+2. g++ test_windows_client.cpp CommunicationClient.cpp -o client.exe -lWs2_32
+3. ./client.exe  
 
 ### How to run the Server
-1. g++ *.cpp -o server.exe -lWs2_32
-2. ./server.exe
+1. cd server
+2. g++ *.cpp -o server.exe -lWs2_32
+3. ./server.exe
 
 Note: requires 4 clients to connect for server to start the game
