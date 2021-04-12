@@ -10,6 +10,10 @@
 
 #include "Window.h"
 
+#include "CommunicationClient.h"
+#include "../common/constants.h"
+#include "../common/GameState.h"
+
 using namespace std;
 using namespace glm;
 

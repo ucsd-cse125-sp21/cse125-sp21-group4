@@ -5,6 +5,7 @@
 #include "shader.h"
 #include "Character.h"
 #include "EnvElement.h"
+#include "../common/constants.h"
 
 class Window
 {
@@ -28,6 +29,9 @@ public:
 	// View Matrix:
 	static glm::vec3 eyePos, lookAtPoint, upVector;
 	static glm::mat4 view;
+
+	// Last CLIENT_INPUT recorded
+	static CLIENT_INPUT lastInput;
 
 	// Act as Constructors and desctructors 
 	static bool initializeProgram();
