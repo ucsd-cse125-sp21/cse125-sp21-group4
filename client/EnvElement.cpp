@@ -1,6 +1,9 @@
 #include "EnvElement.h"
 
-EnvElement::EnvElement(string fileName, glm::mat4 p, glm::mat4 v, GLuint s) {
+EnvElement::EnvElement(string fileName, glm::mat4 p, glm::mat4 v, GLuint s, 
+	glm::vec3 trans) {
+	pos = trans;
+	model = glm::translate(trans);
 	projection = p;
 	view = v;
 	shader = s;
@@ -107,14 +110,8 @@ EnvElement::EnvElement(string fileName, glm::mat4 p, glm::mat4 v, GLuint s) {
 	it = points.begin();
 	while (it != points.end()) {
 		(*it).x -= xCenter;
-		//(*it).x = ((*it).x + pos.x) * scale;
-
 		(*it).y -= yCenter;
-		//(*it).y = ((*it).y + pos.y) * scale;
-
 		(*it).z -= zCenter;
-		//(*it).z = ((*it).z + pos.z) * scale;
-
 		//cout << "x: " << (*it).x << " y: " << (*it).y << " z: " << (*it).z << endl;
 		it++;
 	}
@@ -148,12 +145,14 @@ EnvElement::EnvElement(string fileName, glm::mat4 p, glm::mat4 v, GLuint s) {
 }
 
 void EnvElement::draw(glm::mat4 c) {
+	//model used in the shader would be this model mult with passed down transform model
+	glm::mat4 m = model * c;
 	glUseProgram(shader);
 
 	// Get the shader variable locations and send the uniform data to the shader 
 	glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, false, glm::value_ptr(view));
 	glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, false, glm::value_ptr(projection));
-	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, glm::value_ptr(c));
+	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, glm::value_ptr(m));
 	glUniform3fv(glGetUniformLocation(shader, "viewPos"), 1, glm::value_ptr(eyep));
 	glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(color));
 

@@ -13,6 +13,7 @@ private:
 	GLuint VBO[2];
 	GLuint EBO;
 
+	glm::mat4 model;
 	glm::mat4 view;
 	glm::mat4 projection;
 	GLuint shader;
@@ -20,11 +21,18 @@ private:
 	glm::vec3 eyep;
 	glm::vec3 color;
 
+	//character specific status such as positions, stats etc
+	glm::vec3 pos;
+	//...
+
 public:
-	Character(string fileName, glm::mat4 proj, glm::mat4 view, GLuint shader);
+	Character(string fileName, glm::mat4 proj, glm::mat4 view, GLuint shader,
+		glm::vec3 trans);
 	void draw(glm::mat4 c = glm::mat4(1));
 	void update();
 	void updateView(glm::mat4, glm::vec3);
+
+	void move(int);
 };
 
 #endif
