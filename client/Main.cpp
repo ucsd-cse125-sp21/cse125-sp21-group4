@@ -47,8 +47,21 @@ void print_versions()
 #endif
 }
 
+
+/** 
+ * The simple client architecture goes as follows:
+ *  1. Handle input (client side)
+ *  2. Send input to server
+ *  3. Receive updated gamestate from server
+ *  4. update local game state
+ *  5. Render world (client side)
+ * 
+ */
 int main(int argc, char* argv[])
 {
+	// Create CommunicationClient object to talk to server
+	CommunicationClient* commClient = new CommunicationClient();
+
 	// Create the GLFW window.
 	GLFWwindow* window = Window::createWindow(800, 600);
 	if (!window) exit(EXIT_FAILURE);
@@ -72,6 +85,21 @@ int main(int argc, char* argv[])
 
 		// Idle callback. Updating objects, etc. can be done here.
 		Window::idleCallback();
+
+		// 1 + 2. Get the latest input and send it to the server
+		commClient->sendInput(Window::lastInput);
+
+		// 3. Receive updated gamestate from server
+		GameState gameState = commClient->receiveGameState();
+
+		Window::lastInput = NO_MOVE;
+		Sleep(20);
+
+		// 4 + 5. TODO: Update local game state and render the world.
+        // printf("Player %d is on x: %d, y: %d\n", gameState.playerPositions[0].id, gameState.playerPositions[0].x, gameState.playerPositions[0].y);
+        // printf("Player %d is on x: %d, y: %d\n", gameState.playerPositions[1].id, gameState.playerPositions[1].x, gameState.playerPositions[1].y);
+        // printf("Player %d is on x: %d, y: %d\n", gameState.playerPositions[2].id, gameState.playerPositions[2].x, gameState.playerPositions[2].y);
+        // printf("Player %d is on x: %d, y: %d\n", gameState.playerPositions[3].id, gameState.playerPositions[3].x, gameState.playerPositions[3].y);
 	}
 
 	Window::cleanUp();
