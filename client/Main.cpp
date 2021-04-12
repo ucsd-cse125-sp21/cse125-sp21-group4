@@ -1,4 +1,5 @@
 #include "main.h"
+// #define SERVER_ENABLED
 
 void error_callback(int error, const char* description)
 {
@@ -60,8 +61,9 @@ void print_versions()
 int main(int argc, char* argv[])
 {
 	// Create CommunicationClient object to talk to server
+#ifdef SERVER_ENABLED
 	CommunicationClient* commClient = new CommunicationClient();
-
+#endif
 	// Create the GLFW window.
 	GLFWwindow* window = Window::createWindow(800, 600);
 	if (!window) exit(EXIT_FAILURE);
@@ -85,12 +87,14 @@ int main(int argc, char* argv[])
 
 		// Idle callback. Updating objects, etc. can be done here.
 		Window::idleCallback();
+#ifdef SERVER_ENABLED
 
 		// 1 + 2. Get the latest input and send it to the server
 		commClient->sendInput(Window::lastInput);
 
 		// 3. Receive updated gamestate from server
 		GameState gameState = commClient->receiveGameState();
+#endif
 
 		Window::lastInput = NO_MOVE;
 		Sleep(20);
