@@ -12,9 +12,8 @@
 2. Make sure when you create a new project from existing code, choose the client subfolder, not the entire repo folder
 3. If you are running the client AND server, you must uncomment #define SERVER_ENABLED in client/Main.cpp, otherwise it will not connect to the server.
 4. If you having issues with external dependencies with the common folder (LNK errors), try the following:
-  - 1a) Goto Project -> Add Existing Item -> Add all the files in common 
-  - 2a) If 1a) doesn't work, then right click your project then goto: Properties -> C/C++ -> General -> Additional Include Directories
-  - 2b) add the common folder to your Additional Include Directories via absolute path
+  - a) Goto Project -> Add Existing Item -> Add all the files in common 
+  - b) If a) doesn't work, then right click your project then goto: Properties -> C/C++ -> General -> Additional Include Directories, then add the common folder to your Additional Include Directories via absolute path
 
 ### How to run the Test Client (No Graphics / test_windows_client.cpp)
 1. cd client
