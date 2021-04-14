@@ -2,6 +2,8 @@
 *.exe
 .vscode
 .vs/
+
+# VS Project Build Files
 client/.vs/
 client/Debug/
 client/Release/
