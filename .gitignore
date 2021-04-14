@@ -1,4 +1,4 @@
 # nothing yet
 *.exe
 .vscode
-.vs
+.vs/

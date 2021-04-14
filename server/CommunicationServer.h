@@ -25,12 +25,14 @@
 
 #include "../common/constants.h"
 #include "../common/PlayerPosition.h"
+#include "../common/GameState.h"
+#include "../common/game/GameConstants.h"
 
 struct PlayerInfo {
     int id;
     CLIENT_INPUT input;
     bool outputChanged;
-    std::vector<char> output;
+    std::vector<char> inputs;
 };
 
 class CommunicationServer {
@@ -46,7 +48,7 @@ public:
     void cleanup(); // Ends the game
 
     void getClientInputs(std::vector<std::pair<int,CLIENT_INPUT>> &clientInputs); // Obtains all the inputs from the clients for processing in the GameServer
-    void sendGameState(std::vector<char> sendbuf); // Sends the new game state to each client
+    void sendGameState(GameState gameState); // Sends the new game state to each client
 
     static int handlePlayerThread(SOCKET* clientSocketPtr, PlayerInfo* playerInfo); // Thread for socket that will handle sending/receiving info
 

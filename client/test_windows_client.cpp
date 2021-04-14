@@ -23,6 +23,8 @@
 #include "../common/PlayerPosition.h"
 #include "CommunicationClient.h"
 
+#include "../common/game/Game.h"
+
 int __cdecl main(int argc, char **argv) 
 {
     CommunicationClient* commClient = new CommunicationClient();
@@ -35,8 +37,14 @@ int __cdecl main(int argc, char **argv)
      *  5. Render world (client side)
      * 
      */
-    CLIENT_INPUT sendInput = NO_MOVE;
-    PlayerPosition playerPositions[MAX_PLAYERS];
+    CLIENT_INPUT sendInput = NO_MOVE; // ' '
+    // PlayerPosition playerPositions[MAX_PLAYERS];
+
+    // initialize the game instance
+    Game* game = new Game();
+    game->printGameGrids();
+    game->printPlayers();
+
     while(1) {
         
         // 1. Handle input (keyboard input here)
@@ -57,6 +65,9 @@ int __cdecl main(int argc, char **argv)
                 case 'd':
                     sendInput = MOVE_RIGHT;
                     break;
+                case 'j':
+                    sendInput = ATTACK;
+                    break;
                 case 3:
                     exit(1);
             }
@@ -70,12 +81,15 @@ int __cdecl main(int argc, char **argv)
         GameState gameState = commClient->receiveGameState();
         
         // 4. Update local game State
+        // std::cout << "gameState inputs: " << gameState.playersInputs.size() << std::endl;
+        bool isChanged = game->handleInputs(gameState.playersInputs);
 
         // 5. Render the world
-        printf("Player %d is on x: %d, y: %d\n", gameState.playerPositions[0].id, gameState.playerPositions[0].x, gameState.playerPositions[0].y);
-        printf("Player %d is on x: %d, y: %d\n", gameState.playerPositions[1].id, gameState.playerPositions[1].x, gameState.playerPositions[1].y);
-        printf("Player %d is on x: %d, y: %d\n", gameState.playerPositions[2].id, gameState.playerPositions[2].x, gameState.playerPositions[2].y);
-        printf("Player %d is on x: %d, y: %d\n", gameState.playerPositions[3].id, gameState.playerPositions[3].x, gameState.playerPositions[3].y);
+        if (isChanged) {
+            game->printGameGrids();
+            game->printPlayers();
+        }
+
 
         // reset send input for next input
         sendInput = NO_MOVE;
@@ -96,6 +110,7 @@ int __cdecl main(int argc, char **argv)
         // } while( iResult > 0 );
 
     }
+    delete game;
     commClient->cleanup();
 
     return 0;

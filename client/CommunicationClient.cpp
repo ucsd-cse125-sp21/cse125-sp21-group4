@@ -62,8 +62,8 @@ CommunicationClient::CommunicationClient() {
     id = -1;
     iResult = recv(serverSocket, (char*) &id, sizeof(id), 0);
     if ( iResult > 0 ) {
-        printf("Bytes received: %d\n", iResult);
-        printf("Player ID: %d", id);
+        // printf("Bytes received: %d\n", iResult);
+        // printf("Player ID: %d", id);
     }
 
 }
@@ -85,7 +85,7 @@ GameState CommunicationClient::receiveGameState() {
     // 3. Receive the game state
     int iResult = recv(serverSocket, (char *) &gameState, sizeof(gameState), 0);
     if ( iResult > 0 ) {
-        printf("Bytes received: %d\n", iResult);
+        // printf("Bytes received: %d\n", iResult);
     }
     // Disconnection
     else if ( iResult == 0 ) {

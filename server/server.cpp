@@ -6,10 +6,11 @@
 #include "server.h"
 
 
+
 int main(void)
 {
     // Initialize game server that will take inputs from commServer
-    GameServer* gameServer = new GameServer();
+    Game* game = new Game();
 
     // Initialize communication server that will interface with the clients
     CommunicationServer* commServer = new CommunicationServer();
@@ -33,10 +34,19 @@ int main(void)
         
 
         // 2. Update the game state
-        std::vector<char> gameState = gameServer->processInputs(inputs);
+        GameState gameState;
+        // populate the player inputs with NO_MOVE
+        for (auto i = 0; i < MAX_PLAYERS; i++) gameState.playersInputs[i] = NO_MOVE;
+        // fill in the movement for corresponding player
+        for (auto iter = inputs.begin(); iter < inputs.end(); iter++) {
+            std::pair<int, CLIENT_INPUT> input = *iter;
+            gameState.playersInputs[input.first] = input.second; 
+        }
+
+        game->handleInputs(gameState.playersInputs);
 
 
-        // 3. Send the updated state to client
+        // 3. Send the same inputs for client to update
         commServer->sendGameState(gameState);
 
         // 4. Wait until tick ends
@@ -47,5 +57,7 @@ int main(void)
             duration = end - start;
         }
     }
+    
+    delete game;
     return 0;
 }

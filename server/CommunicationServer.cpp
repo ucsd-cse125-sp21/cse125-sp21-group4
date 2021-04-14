@@ -144,13 +144,16 @@ void CommunicationServer::getClientInputs(std::vector<std::pair<int,CLIENT_INPUT
     }
 }
 
-void CommunicationServer::sendGameState(std::vector<char> sendbuf) {
+void CommunicationServer::sendGameState(GameState gameState) {
+    // serialize game state
+    std::vector<char> sendbuf;
+    sendbuf.assign((char*) &gameState, ((char*) &gameState) + sizeof(gameState));
 
     // Set the output boolean to true once the entire output is written
     for(int i = 0; i < MAX_PLAYERS; i++) {
         
-        // Want to set the output for specific thread to send out
-        std::copy(sendbuf.begin(), sendbuf.end(), back_inserter(playerInfos[i].output));
+        // Want to set the inputs for specific thread to send out
+        std::copy(sendbuf.begin(), sendbuf.end(), back_inserter(playerInfos[i].inputs));
     }
 
     // Set the output boolean to true once the entire output is written so the thread can push it to the clients
@@ -209,14 +212,14 @@ int CommunicationServer::handlePlayerThread(SOCKET* clientSocketPtr, PlayerInfo*
         if (playerInfo->outputChanged) {
 
             // 3. Send the updated state to client
-            iSendResult = send(clientSocket, (char *) playerInfo->output.data(), playerInfo->output.size(), 0);
+            iSendResult = send(clientSocket, (char *) playerInfo->inputs.data(), playerInfo->inputs.size(), 0);
             if (iSendResult == SOCKET_ERROR) {
                 printf("error with send(): %d\n", WSAGetLastError());
                 cleanUpSocket(clientSocketPtr);
                 return 1;
             }
             playerInfo->outputChanged = false;
-            playerInfo->output.clear();
+            playerInfo->inputs.clear();
         }
     }
     return 1;
