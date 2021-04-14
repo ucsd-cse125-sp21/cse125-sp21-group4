@@ -1,0 +1,4 @@
+﻿  test_windows_client.cpp
+C:\Users\ouyan\Desktop\CSE125\cse125-sp21-group4\client\test_windows_client.cpp(39,20): warning C4101: 'playerPositions': unreferenced local variable
+LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/OPT:ICF' specification
+  CSE125Client.vcxproj -> C:\Users\ouyan\Desktop\CSE125\cse125-sp21-group4\client\Release\CSE125Client.exe
