@@ -29,6 +29,8 @@ glm::vec3 Window::upVector(0, 1, 0);
 //view matrix with all the above stuff combined
 glm::mat4 Window::view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window::upVector);
 
+// last input from the window
+CLIENT_INPUT Window::lastInput = NO_MOVE;
 
 bool Window::initializeProgram() {
 	// Create a shader program with a vertex shader and a fragment shader.
@@ -45,8 +47,8 @@ bool Window::initializeProgram() {
 //bool Window::initializeObjects(char * file, char * file1, char* file2)
 bool Window::initializeObjects()
 {
-	chars.push_back(new Character("shaders/character/cube.obj", projection, view, shaderProgram));
-	envs.push_back(new EnvElement("shaders/environment/ground.obj", projection, view, shaderProgram));
+	chars.push_back(new Character("shaders/character/cube.obj", projection, view, shaderProgram, glm::vec3(0.f,1.f,0.f)));
+	envs.push_back(new EnvElement("shaders/environment/ground.obj", projection, view, shaderProgram, glm::vec3(0.f,0.f,0.f)));
 	return true;
 }
 
@@ -132,12 +134,26 @@ void Window::displayCallback(GLFWwindow* window)
 void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	 // Check for a key press.
-	if (action == GLFW_PRESS)
+	if (action == GLFW_PRESS || action == GLFW_REPEAT)
 	{
 		switch (key)
 		{
 		case(GLFW_KEY_W):
+			lastInput = MOVE_FORWARD;
 			cout << "pressed W" << endl;
+			break;
+		case(GLFW_KEY_A):
+			lastInput = MOVE_LEFT;
+			cout << "pressed A" << endl;
+			break;
+		case(GLFW_KEY_S):
+			lastInput = MOVE_BACKWARD;
+			cout << "pressed S" << endl;
+			break;
+		case(GLFW_KEY_D):
+			lastInput = MOVE_RIGHT;
+			cout << "pressed D" << endl;
+			break;
 		default:
 			break;
 		}

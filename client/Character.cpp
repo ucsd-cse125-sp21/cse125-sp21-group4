@@ -1,6 +1,8 @@
 #include "Character.h"
 
-Character::Character(string fileName, glm::mat4 p, glm::mat4 v, GLuint s) {
+Character::Character(string fileName, glm::mat4 p, glm::mat4 v, GLuint s, glm::vec3 trans) {
+	pos = trans; // initial translation will be character's initial position
+	model = glm::translate(trans);
 	projection = p;
 	view = v;
 	shader = s;
@@ -105,14 +107,8 @@ Character::Character(string fileName, glm::mat4 p, glm::mat4 v, GLuint s) {
 	it = points.begin();
 	while (it != points.end()) {
 		(*it).x -= xCenter;
-		//(*it).x = ((*it).x + pos.x) * scale;
-
 		(*it).y -= yCenter;
-		//(*it).y = ((*it).y + pos.y) * scale;
-
 		(*it).z -= zCenter;
-		//(*it).z = ((*it).z + pos.z) * scale;
-
 		//cout << "x: " << (*it).x << " y: " << (*it).y << " z: " << (*it).z << endl;
 		it++;
 	}
@@ -146,12 +142,14 @@ Character::Character(string fileName, glm::mat4 p, glm::mat4 v, GLuint s) {
 }
 
 void Character::draw(glm::mat4 c) {
+	//model used in the shader would be this model mult with passed down transform model
+	glm::mat4 m = model * c;
 	glUseProgram(shader);
 
 	// Get the shader variable locations and send the uniform data to the shader 
 	glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, false, glm::value_ptr(view));
 	glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, false, glm::value_ptr(projection));
-	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, glm::value_ptr(c));
+	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, glm::value_ptr(m));
 	glUniform3fv(glGetUniformLocation(shader, "viewPos"), 1, glm::value_ptr(eyep));
 	glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(color));
 
@@ -165,6 +163,20 @@ void Character::draw(glm::mat4 c) {
 	// Unbind the VAO and shader program
 	glBindVertexArray(0);
 	glUseProgram(0);
+}
+
+void Character::move(int dir) {
+	// default dir 1 is forward in positive Z direction
+	glm::vec3 movement(0.0f, 0.0f, 0.05f);
+	if (dir == 2) { // dir2 is backward in negative Z direction
+		movement = movement * -1.f;
+	}else if (dir == 3) { // left
+		movement = glm::vec3(-0.05f, 0.0f, 0.0f);
+	}else if (dir == 4) { // right
+		movement = glm::vec3(0.05f, 0.0f, 0.0f);
+	}
+	pos += movement;
+	model = glm::mat4(1) * glm::translate(pos);
 }
 
 void Character::update() {
