@@ -47,7 +47,7 @@ bool Window::initializeProgram() {
 //bool Window::initializeObjects(char * file, char * file1, char* file2)
 bool Window::initializeObjects()
 {
-	chars.push_back(new Character("shaders/character/cube.obj", projection, view, shaderProgram, glm::vec3(0.f,1.f,0.f)));
+	chars.push_back(new Character("shaders/character/bear.obj", projection, view, shaderProgram, glm::vec3(0.f,1.f,0.f)));
 	envs.push_back(new EnvElement("shaders/environment/ground.obj", projection, view, shaderProgram, glm::vec3(0.f,0.f,0.f)));
 	return true;
 }
