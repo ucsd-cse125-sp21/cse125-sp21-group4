@@ -89,18 +89,23 @@ void GamePlayer::attack(Game* game) {
 void GamePlayer::handleUserInput (Game* game, CLIENT_INPUT userInput) {
     switch (userInput) {
         case MOVE_FORWARD:
+            // game->addUpdate(PLAYER_MOVE, 0, -1, 0, -.25f, 0.f);
             move(game, NORTH);
             break;
         case MOVE_BACKWARD:
+            // game->addUpdate(PLAYER_MOVE, 0, 1, 0, .25f, 0);
             move(game, SOUTH);
             break;
         case MOVE_LEFT:
+            // game->addUpdate(PLAYER_MOVE, 0, 0, -1, 0.f, -.25f);
             move(game, WEST);
             break;
         case MOVE_RIGHT:
+            // game->addUpdate(PLAYER_MOVE, 0, 0, 1, 0.f, .25f);
             move(game, EAST);
             break;
         case ATTACK:
+            // game->addUpdate(PLAYER_DAMAGE_TAKEN, 0, 0, 0, 0.f, 0.f);
             attack(game);
             break;
         default:

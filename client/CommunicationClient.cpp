@@ -107,12 +107,18 @@ void CommunicationClient::cleanup() {
 
 
 std::vector<GameUpdate> CommunicationClient::receiveGameUpdates() {
+    printf("Test");
     std::vector<GameUpdate> updates;
 
     // Get the amount of bytes of updates we should get
     int numUpdates;
     int iResult = recv(serverSocket, (char *) &numUpdates, sizeof(int), 0);
     validateRecv(iResult);
+    printf("%d", numUpdates);
+
+    if(numUpdates == 0) {
+        return updates;
+    }
 
     // Now receive that many bytes of input
     updates.resize(numUpdates);

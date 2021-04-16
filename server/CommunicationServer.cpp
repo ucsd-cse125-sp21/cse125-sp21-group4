@@ -165,27 +165,37 @@ void CommunicationServer::sendGameState(GameState gameState) {
 
 // Sends updates to the client
 void CommunicationServer::sendGameUpdates(std::vector<GameUpdate> updates) {
+    printf("Test");
+
     
     // Set the first 4 bytes of sendbuf to be the # of updates
     std::vector<char> sendbuf;
+    sendbuf.resize(sizeof(int));
     int updateSize = updates.size();
-    std::memcpy(sendbuf.data(), &updateSize, sizeof(updateSize));
+    memcpy(sendbuf.data(), &updateSize, sizeof(updateSize));
+
     
     // copy the number of updates to all the output buffer of all clients
     for(int i = 0; i < MAX_PLAYERS; i++) {
         std::copy(sendbuf.begin(), sendbuf.end(), back_inserter(playerInfos[i].output));
     }
     sendbuf.clear();
+    
+    // Serialize the entire updates vector to the sendbuf if there's any updates
+    if(updateSize > 0) {
 
-    // Serialize the entire updates vector to the sendbuf
-    sendbuf.assign((char *)updates.data(), ((char *) updates.data()) + updates.size() * sizeof(GameUpdate));
+        // Serialize the entire updates vector to the sendbuf
+        sendbuf.assign((char *)updates.data(), ((char *) updates.data()) + updates.size() * sizeof(GameUpdate));
 
-    // Copy the actual updates to all the output buffer of all clients
-    for(int i = 0; i < MAX_PLAYERS; i++) {
+        // Copy the actual updates to all the output buffer of all clients
+        for(int i = 0; i < MAX_PLAYERS; i++) {
+            
+            // Each thread will get a copy of the game updates
+            std::copy(sendbuf.begin(), sendbuf.end(), back_inserter(playerInfos[i].output));
+        }
         
-        // Each thread will get a copy of the game updates
-        std::copy(sendbuf.begin(), sendbuf.end(), back_inserter(playerInfos[i].output));
     }
+    
 
     // Set the output boolean to true once the entire output is written so the thread can push data to the clients
     for(int i = 0; i < MAX_PLAYERS; i++) {

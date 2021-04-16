@@ -33,7 +33,7 @@ public:
     GameComponent* getGameComponentInDirection (int x, 
                                             int y, Direction direction);
 
-    void addUpdate(UPDATE_TYPE, int, int, float, float);
+    void addUpdate(UPDATE_TYPE updateType, int id, int gridDeltaX, int gridDeltaY, float floatDeltaX, float floatDeltaY);
     void clearUpdates();
 };
 

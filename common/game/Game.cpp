@@ -196,3 +196,29 @@ GameComponent* Game::getGameComponentInDirection (int x,
     }
 }
 
+/**
+ * GameUpdate struct
+ * struct GameUpdate {
+ *     UPDATE_TYPE update;
+ *     int id;
+ *     int gridDeltaX;
+ *     int gridDeltaY;
+ *     float floatDeltaX;
+ *     float floatDeltaY;
+ * };
+ */
+
+void Game::addUpdate(UPDATE_TYPE updateType, int id, int gridDeltaX, int gridDeltaY, float floatDeltaX, float floatDeltaY) {
+    GameUpdate update;
+    update.updateType = updateType;
+    update.id = id;
+    update.gridDeltaX = gridDeltaX;
+    update.gridDeltaY = gridDeltaY;
+    update.floatDeltaX = floatDeltaX;
+    update.floatDeltaY = floatDeltaY;
+
+    updates.push_back(update);
+}
+void Game::clearUpdates() {
+    updates.clear();
+}

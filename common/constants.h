@@ -39,7 +39,7 @@ enum UPDATE_TYPE {
 
 // Update packet header
 struct GameUpdate {
-    UPDATE_TYPE update;
+    UPDATE_TYPE updateType;
     int id;
     int gridDeltaX;
     int gridDeltaY;
