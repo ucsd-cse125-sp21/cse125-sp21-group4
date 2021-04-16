@@ -84,6 +84,46 @@ GameState CommunicationClient::receiveGameState() {
 
     // 3. Receive the game state
     int iResult = recv(serverSocket, (char *) &gameState, sizeof(gameState), 0);
+    validateRecv(iResult);
+
+    return gameState;
+}
+
+void CommunicationClient::cleanup() {
+    
+    // shutdown the connection since no more data will be sent
+    int iResult = shutdown(serverSocket, SD_SEND);
+    if (iResult == SOCKET_ERROR) {
+        printf("shutdown failed with error: %d\n", WSAGetLastError());
+        closesocket(serverSocket);
+        WSACleanup();
+        exit(1);
+    }
+
+    // cleanup
+    closesocket(serverSocket);
+    WSACleanup();
+}
+
+
+std::vector<GameUpdate> CommunicationClient::receiveGameUpdates() {
+    std::vector<GameUpdate> updates;
+
+    // Get the amount of bytes of updates we should get
+    int numUpdates;
+    int iResult = recv(serverSocket, (char *) &numUpdates, sizeof(int), 0);
+    validateRecv(iResult);
+
+    // Now receive that many bytes of input
+    updates.resize(numUpdates);
+    iResult = recv(serverSocket, (char *) &updates[0], numUpdates * sizeof(GameUpdate), 0);
+    validateRecv(iResult);
+
+    return updates;
+}
+
+
+void CommunicationClient::validateRecv(int iResult) {
     if ( iResult > 0 ) {
         // printf("Bytes received: %d\n", iResult);
     }
@@ -103,21 +143,4 @@ GameState CommunicationClient::receiveGameState() {
         exit(1);
     }
 
-    return gameState;
-}
-
-void CommunicationClient::cleanup() {
-    
-    // shutdown the connection since no more data will be sent
-    int iResult = shutdown(serverSocket, SD_SEND);
-    if (iResult == SOCKET_ERROR) {
-        printf("shutdown failed with error: %d\n", WSAGetLastError());
-        closesocket(serverSocket);
-        WSACleanup();
-        exit(1);
-    }
-
-    // cleanup
-    closesocket(serverSocket);
-    WSACleanup();
 }

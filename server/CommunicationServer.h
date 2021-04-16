@@ -32,7 +32,7 @@ struct PlayerInfo {
     int id;
     CLIENT_INPUT input;
     bool outputChanged;
-    std::vector<char> inputs;
+    std::vector<char> output;
 };
 
 class CommunicationServer {
@@ -49,6 +49,8 @@ public:
 
     void getClientInputs(std::vector<std::pair<int,CLIENT_INPUT>> &clientInputs); // Obtains all the inputs from the clients for processing in the GameServer
     void sendGameState(GameState gameState); // Sends the new game state to each client
+
+    void sendGameUpdates(std::vector<GameUpdate> updates);
 
     static int handlePlayerThread(SOCKET* clientSocketPtr, PlayerInfo* playerInfo); // Thread for socket that will handle sending/receiving info
 

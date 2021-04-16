@@ -48,6 +48,7 @@ int main(void)
 
         // 3. Send the same inputs for client to update
         commServer->sendGameState(gameState);
+        // commServer->sendGameUpdates(game->updates);
 
         // 4. Wait until tick ends
         auto end = std::chrono::steady_clock::now();

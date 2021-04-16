@@ -27,6 +27,25 @@ enum CLIENT_INPUT{
     // HUNTER_SWORD_ATTACK,
 };
 
+// Type of update sent to the server
+enum UPDATE_TYPE {
+    PLAYER_DAMAGE_TAKEN,
+    PLAYER_MOVE,
+    PROJECTILE_MOVE,
+    OBJECTIVE_BEING_TAKEN,
+    OBJECTIVE_TAKEN,
+
+};
+
+// Update packet header
+struct GameUpdate {
+    UPDATE_TYPE update;
+    int id;
+    int gridDeltaX;
+    int gridDeltaY;
+    float floatDeltaX;
+    float floatDeltaY;
+};
 
 
 

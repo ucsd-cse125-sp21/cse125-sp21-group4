@@ -17,6 +17,8 @@ public:
     PlayerList players; // PlayerList is an size-4-array of gameComponent 
                         // (either Fighter type or Monster type)
 
+    std::vector<GameUpdate> updates;
+
     // public member functions
     Game(); // default constructor
     void initGameGrids(); // initialize gameGrids
@@ -30,6 +32,9 @@ public:
     void swapGameComponents(GameComponent* a, GameComponent* b);
     GameComponent* getGameComponentInDirection (int x, 
                                             int y, Direction direction);
+
+    void addUpdate(UPDATE_TYPE, int, int, float, float);
+    void clearUpdates();
 };
 
 
