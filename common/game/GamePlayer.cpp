@@ -322,7 +322,7 @@ void GamePlayer::attack(Game* game, float distance) {
 
 void GamePlayer::handleUserInput (Game* game, CLIENT_INPUT userInput) {
     switch (userInput) {
-        // ERIC todo: add updates
+        // Eric TODO: add gameupdates
         case MOVE_FORWARD:
             move(game, NORTH, MOVE_DISTANCE);
             break;
