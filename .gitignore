@@ -7,8 +7,4 @@
 client/.vs/
 client/Debug/
 client/Release/
-client/cse125.sln
-client/cse125.vcxproj
-client/cse125.vcxproj.filters
-client/cse125.vcxproj.user
 client/packages/
