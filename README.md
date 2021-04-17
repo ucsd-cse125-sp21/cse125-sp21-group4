@@ -27,7 +27,7 @@
 Execute `build.bat` within the root directory of the project to generate `client.exe` and `server.exe` within the `client` and `server` directory, respectively - the build was succesful if the terminal automatically closes! You can also build the client and server individually by `cd`'ing into their respective directories:
 - Client
   - `cd client`
-  - `g++ test_windows_client.cpp CommunicationClient.cpp ../common/game/*.cpp -o client.exe -lWs2_32`
+  - `g++ ../tests/test_windows_client.cpp CommunicationClient.cpp ../common/game/*.cpp -o client.exe -lWs2_32`
 - Server
   - `cd server`
   - `g++ *.cpp ../common/game/*.cpp -o server.exe -lWs2_32`
