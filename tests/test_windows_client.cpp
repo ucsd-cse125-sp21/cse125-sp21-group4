@@ -21,7 +21,7 @@
 
 #include "../common/constants.h"
 #include "../common/PlayerPosition.h"
-#include "CommunicationClient.h"
+#include "../client/CommunicationClient.h"
 
 #include "../common/game/Game.h"
 
