@@ -13,30 +13,45 @@ using namespace std;
 
 Game::Game() {
     initGameGrids();
+    initPlayers();
+}
+
+
+/*
+    Initialize players in the game
+    First three players will be fighters and the fourth will be monster
+*/
+void Game::initPlayers () {
+    PlayerPosition position = PlayerPosition();
+    position.x = P1_SPAWN_POSITION[0];
+    position.y = P1_SPAWN_POSITION[1];
+    position.width = FIGHTER_WIDTH;
+    position.height = FIGHTER_HEIGHT;
+    players[0] = new Fighter(position);
+
+    position.x = P2_SPAWN_POSITION[0];
+    position.y = P2_SPAWN_POSITION[1];
+    players[1] = new Fighter(position);
+    
+    position.x = P3_SPAWN_POSITION[0];
+    position.y = P3_SPAWN_POSITION[1];
+    players[2] = new Fighter(position);
+
+    position.x = P4_SPAWN_POSITION[0];
+    position.y = P4_SPAWN_POSITION[1];
+    position.width = MONSTER_WIDTH;
+    position.height = MONSTER_HEIGHT;
+    players[3] = new Monster(position);
 }
 
 
 
 /* return true if (x, y) is the boundary */
-bool isBoundary (int x, int y) {
-    if (x == 0) return true; // upper boundary
-    if (y == 0) return true; // left boudary
-    if (x == MAP_HEIGHT - 1) return true; // bottom boundary
-    if (y == MAP_WIDTH - 1) return true; // right boundary
-
-    return false;
-}
-
-/* 
-    Return true if (x, y) is one of the four spawn regions.
-    In current game settings, spawn regions are set to four corners of the map
- */
-bool isSpawnRegion (int x, int y) {
-    if (x == 1 && y == 1) return true; // upper left spawn region
-    if (x == 1 && y == MAP_WIDTH - 2) return true; // upper right spawn region
-    if (x == MAP_HEIGHT - 2 && y == 1) return true; // bottom left spawan region
-    if (x == MAP_HEIGHT - 2 && y == MAP_WIDTH - 2) return true; // bottom right 
-                                                                // spawn region
+bool isBoundary (int widthIndex, int heightIndex) {
+    if (widthIndex == 0) return true; // upper boundary
+    if (heightIndex == 0) return true; // left boudary
+    if (widthIndex == MAP_WIDTH / GRID_WIDTH - 1) return true; // bottom boundary
+    if (heightIndex == MAP_HEIGHT / GRID_HEIGHT - 1) return true; // right boundary
 
     return false;
 }
@@ -61,28 +76,14 @@ bool isSpawnRegion (int x, int y) {
     +++++++++++++
 */
 void Game::initGameGrids() {
-    int currPlayerIndex  =  0;
-    for (int i = 0; i < MAP_WIDTH; i++) {
-        for (int j = 0; j < MAP_HEIGHT; j++) {
-
-            ComponentPosition position;
+    for (int i = 0; i < MAP_WIDTH / GRID_WIDTH; i++) {
+        for (int j = 0; j < MAP_HEIGHT / GRID_HEIGHT; j++) {
+            GridPosition position;
             position.x = i;
             position.y = j;
             // put obstacles on the boundary
             if (isBoundary(i, j))
                 gameGrids[i][j] = new Obstacle(position);
-
-            // 4 players are assigned as 3 fighters and 1 monster
-            else if (isSpawnRegion(i, j)) {
-                // last player in list will be the monster
-                if (currPlayerIndex == 3) {
-                    gameGrids[i][j] = new Monster(position);
-                } else {
-                    gameGrids[i][j] = new Fighter(position);
-                }
-                players[currPlayerIndex++] = (GamePlayer*) gameGrids[i][j];
-            }
-
             else
                 gameGrids[i][j] = new Space(position);
         }
@@ -97,15 +98,18 @@ void Game::cleanGameGrids() {
             gameGrids[i][j] = NULL;
         }
     }
+}
 
-    // avoid dangling pointers for players
-    for (int i = 0; i < PLAYER_NUM; i++){
+void Game::cleanPlayers() {
+    for (int i = 0; i < PLAYER_NUM; i++) {
+        if (!players[i]) delete players[i];
         players[i] = NULL;
-    }   
+    }
 }
 
 Game::~Game() {
     cleanGameGrids();
+    cleanPlayers();
 }
 
 
@@ -119,80 +123,23 @@ bool Game::handleInputs(CLIENT_INPUT playersInputs[MAX_PLAYERS]) {
     return flag;
 }
 
-void printComponent (GameComponent* grid) {
-    if (grid->isMonster()) cout << MONSTER_SYMBOL;
-    else if (grid->isFighter()) cout << FIGHTER_SYMBOL;
-    else if (grid->isSpace()) cout << SPACE_SYMBOL;
-    else if (grid->isObstacle()) cout << OBSTACLE_SYMBOL;
-    else cout << "Encounter Unknown Type: " << grid->getType() << endl;
-}
-
-
 void Game::printGameGrids () {
-    cout << "======= print the board ======" << endl;
-    for (int i = 0; i < MAP_HEIGHT; i++) {
-        for (int j = 0; j < MAP_WIDTH; j++) {
-            GameComponent* grid = gameGrids[j][i];
-
-            printComponent(grid);
-
+    for (int i = 0; i < MAP_HEIGHT / GRID_HEIGHT; i++) {
+        for (int j = 0; j < MAP_WIDTH / GRID_WIDTH; j++) {
+            if (gameGrids[j][i]->isObstacle()) cout << OBSTACLE_SYMBOL;
+            else if (gameGrids[j][i]->isSpace()) cout << SPACE_SYMBOL;
+            else cout << "ERROR: Encounter unknown grid type!" << endl;
         }
         cout << "\n";
-
     }
 }
 
 void Game::printPlayers () {
-    cout << " ======== print the players ======= " << endl;
     for (int i = 0; i < PLAYER_NUM; i++) {
-        cout << "Player " << i << ": ";
-        printComponent(players[i]);
-        cout << ", HP: " << players[i]->getHp();
-        cout << endl;
-    }
-}
-
-
-/*
-    Swap two GameComponent pointers in gameGrids, and change the two 
-    GameComponent's position accordingly
-*/
-void Game::swapGameComponents(GameComponent* a, GameComponent* b) {
-    int axOld = a->getPosition().x;
-    int ayOld = a->getPosition().y;
-    int bxOld = b->getPosition().x;
-    int byOld = b->getPosition().y;
-
-    gameGrids[axOld][ayOld] = b;
-    gameGrids[bxOld][byOld] = a;
-
-    a->setPosition(bxOld, byOld);
-    b->setPosition(axOld, ayOld);
-}
-
-/*  
-    Return the GameComponent one grid next to (x, y) in the specified direction.
-    Return NULL if that grid is out of map
- */ 
-GameComponent* Game::getGameComponentInDirection (int x, 
-                                            int y, Direction direction) 
-{
-    switch (direction){
-        case NORTH:
-            if (y <= 0) return NULL;
-            return gameGrids[x][y-1];
-        case EAST:
-            if (x >= MAP_WIDTH - 1) return NULL;
-            return gameGrids[x+1][y];
-        case SOUTH:
-            if (y >= MAP_HEIGHT - 1) return NULL;
-            return gameGrids[x][y+1];
-        case WEST:
-            if (x <= 0) return NULL;
-            return gameGrids[x-1][y];
-        default:
-            return NULL;
-            break;
+        cout << "Player " << (i+1) << ": ";
+        cout << "(" << players[i]->getPosition().x << ", ";
+        cout << players[i]->getPosition().y << "), ";
+        cout << "hp: " << players[i]->getHp() << "\n";
     }
 }
 

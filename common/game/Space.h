@@ -1,12 +1,12 @@
 #ifndef _SPACE_H_
 #define _SPACE_H_
-#include "GameComponent.h"
+#include "GridComponent.h"
 
-class Space : public GameComponent {
+class Space : public GridComponent {
 
 public:
     Space(); // Constructor for Space
-    Space(ComponentPosition position); // Constructor for Space
+    Space(GridPosition position); // Constructor for Space
 };
 
 #endif
