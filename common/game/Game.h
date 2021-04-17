@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <vector>
-#include "GameComponent.h"
+#include "GridComponent.h"
 #include "../constants.h"
 
 class GamePlayer;
@@ -13,23 +13,22 @@ class Game {
 
 public:
     /* public member variables */
-    Grids gameGrids; // Grids is a 2d array of GameComponent pointers
-    PlayerList players; // PlayerList is an size-4-array of gameComponent 
-                        // (either Fighter type or Monster type)
+    Grids gameGrids; // Grids is a 2d array of GameGrid pointers
+    PlayerList players; // PlayerList is an size-4-array of GamePlayer 
+                        // (either Fighter type or Monster type for now)
 
     // public member functions
     Game(); // default constructor
+    void initPlayers(); // init playerList
     void initGameGrids(); // initialize gameGrids
     void cleanGameGrids(); 
+    void cleanPlayers();
     ~Game(); // destructor
 
     bool handleInputs(CLIENT_INPUT playersInputs[MAX_PLAYERS]);
 
-    void printGameGrids();
-    void printPlayers();
-    void swapGameComponents(GameComponent* a, GameComponent* b);
-    GameComponent* getGameComponentInDirection (int x, 
-                                            int y, Direction direction);
+    void printGameGrids ();
+    void printPlayers ();
 };
 
 

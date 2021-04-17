@@ -1,13 +1,13 @@
 #ifndef _OBSTACLE_H_
 #define _OBSTACLE_H_
 
-#include "GameComponent.h"
+#include "GridComponent.h"
 
-class Obstacle : public GameComponent {
+class Obstacle : public GridComponent {
 
 public:
     Obstacle(); // Constructor for Obstacle
-    Obstacle(ComponentPosition position); // Constructor for Obstacle
+    Obstacle(GridPosition position); // Constructor for Obstacle
 };
 
 #endif
