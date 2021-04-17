@@ -24,13 +24,14 @@
 
 ### How to run the Test Client (Console Game No Graphics / test_windows_client.cpp)
 1. `cd client`
-2. `g++ test_windows_client.cpp CommunicationClient.cpp ..\common\game\*.cpp -o client.exe -lWs2_32`
+2. `g++ test_windows_client.cpp CommunicationClient.cpp ../common/game/*.cpp -o client.exe -lWs2_32`
 3. `./client.exe  `
 
 ### How to run the Server
 1. `cd server`
-2. `g++ *.cpp ..\common\game\*.cpp -o server.exe -lWs2_32`
+2. `g++ *.cpp ../common/game/*.cpp -o server.exe -lWs2_32`
 3. `./server.exe`
 4. If you are running the client AND server, you must uncomment #define SERVER_ENABLED in client/Main.cpp , otherwise clients will not connect to the server.
+5. If your server does not see output even after client connects or has bind() errors: check if another server is running OR change SERVER_PORT to some random port like 31524.
 
 Note: Requires 4 clients to connect for server to start the game, you may edit MAX_PLAYERS in common/constants.h to lower the maximum for testing.
