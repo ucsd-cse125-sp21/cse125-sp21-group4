@@ -5,6 +5,7 @@
 #include <vector>
 #include "GridComponent.h"
 #include "../constants.h"
+#include "../GameState.h"
 
 class GamePlayer;
 typedef GamePlayer* PlayerList [PLAYER_NUM];
@@ -25,6 +26,9 @@ public:
     void initGameGrids(); // initialize gameGrids
     void cleanGameGrids(); 
     void cleanPlayers();
+    GameState getGameState();
+    static bool sameGameState (GameState s1, GameState s2);
+    void printGameState (GameState gameState);
     ~Game(); // destructor
 
     bool handleInputs(CLIENT_INPUT playersInputs[MAX_PLAYERS]);
