@@ -3,6 +3,7 @@
 #include "Monster.h"
 #include "Fighter.h"
 #include "Space.h"
+#include "GamePlayer.h"
 
 #define MONSTER_SYMBOL 'M'
 #define FIGHTER_SYMBOL 'F'
@@ -106,6 +107,42 @@ void Game::cleanPlayers() {
         players[i] = NULL;
     }
 }
+
+/*
+    Return current GameState including players' positions and hp
+*/
+GameState Game::getGameState() {
+    GameState gameState = GameState();
+    for (int i = 0; i < PLAYER_NUM; i++) {
+        gameState.playersPosition[i] = players[i]->getPosition();
+        gameState.playersHp[i] = players[i]->getHp();
+    }
+    return gameState;
+}
+
+/*
+    Return true if s1 and s2 contain the same content
+*/
+bool Game::sameGameState(GameState s1, GameState s2) {
+    for (int i = 0; i < PLAYER_NUM; i++) {
+        if (!GamePlayer::samePosition(s1.playersPosition[i], s2.playersPosition[i]))
+            return false;
+        if (s1.playersHp[i] != s2.playersHp[i])
+            return false; 
+    }
+    return true;
+}
+
+void Game::printGameState (GameState gameState) {
+    cout << "------ Current Game State --------" << "\n";
+    for (int i = 0; i < PLAYER_NUM; i++) {
+        cout << "Player " << (i+1) << ": ";
+        cout << "(" << gameState.playersPosition[i].x << ", ";
+        cout << gameState.playersPosition[i].y << "), ";
+        cout << "hp: " << gameState.playersHp[i] << "\n";
+    }
+}
+
 
 Game::~Game() {
     cleanGameGrids();

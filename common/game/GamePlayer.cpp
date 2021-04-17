@@ -204,6 +204,18 @@ bool GamePlayer::canAttack (GamePlayer* player) {
 }
 
 
+/*
+    Return true if p1 and p2 are the same
+*/
+bool GamePlayer::samePosition (PlayerPosition p1, PlayerPosition p2) {
+    if (abs(p1.x - p2.x) > DELTA) return false;
+    if (abs(p1.y - p2.y) > DELTA) return false;
+    if (abs(p1.width - p2.width) > DELTA) return false;
+    if (abs(p1.height - p2.height) > DELTA) return false;
+    return true;
+}
+
+
 
 /* 
     Move the player one grid to the specified direction if possible.

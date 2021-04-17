@@ -20,7 +20,6 @@
 #pragma comment (lib, "AdvApi32.lib")
 
 #include "../common/constants.h"
-#include "../common/PlayerPosition.h"
 #include "../client/CommunicationClient.h"
 
 #include "../common/game/Game.h"
@@ -44,6 +43,7 @@ int __cdecl main(int argc, char **argv)
     Game* game = new Game();
     game->printGameGrids();
     game->printPlayers();
+    GameState gameState = GameState();
 
     while(1) {
         
@@ -78,16 +78,12 @@ int __cdecl main(int argc, char **argv)
         commClient->sendInput(sendInput);
 
         // 3. Receive gameState from the server
-        GameState gameState = commClient->receiveGameState();
+        GameState newGameState = commClient->receiveGameState();
         
-        // 4. Update local game State
-        // std::cout << "gameState inputs: " << gameState.playersInputs.size() << std::endl;
-        bool isChanged = game->handleInputs(gameState.playersInputs);
-
-        // 5. Render the world
-        if (isChanged) {
-            game->printGameGrids();
-            game->printPlayers();
+        // 4. Update local game State & 5. Render the world
+        if (!game->sameGameState(gameState, newGameState)) {
+            gameState = newGameState;
+            game->printGameState(gameState);
         }
 
 

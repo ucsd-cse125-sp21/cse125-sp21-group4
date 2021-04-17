@@ -21,7 +21,6 @@
 #pragma comment (lib, "AdvApi32.lib")
 
 #include "../common/constants.h"
-#include "../common/PlayerPosition.h"
 #include "../common/GameState.h"
 
 class CommunicationClient {

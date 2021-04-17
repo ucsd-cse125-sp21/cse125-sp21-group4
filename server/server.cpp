@@ -34,20 +34,20 @@ int main(void)
         
 
         // 2. Update the game state
-        GameState gameState;
+        GameActions actions;
         // populate the player inputs with NO_MOVE
-        for (auto i = 0; i < MAX_PLAYERS; i++) gameState.playersInputs[i] = NO_MOVE;
+        for (auto i = 0; i < MAX_PLAYERS; i++) actions.playersInputs[i] = NO_MOVE;
         // fill in the movement for corresponding player
         for (auto iter = inputs.begin(); iter < inputs.end(); iter++) {
             std::pair<int, CLIENT_INPUT> input = *iter;
-            gameState.playersInputs[input.first] = input.second; 
+            actions.playersInputs[input.first] = input.second; 
         }
 
-        game->handleInputs(gameState.playersInputs);
+        game->handleInputs(actions.playersInputs);
 
 
-        // 3. Send the same inputs for client to update
-        commServer->sendGameState(gameState);
+        // 3. Send the latest GameState to client
+        commServer->sendGameState(game->getGameState());
 
         // 4. Wait until tick ends
         auto end = std::chrono::steady_clock::now();

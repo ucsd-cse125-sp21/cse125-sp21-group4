@@ -20,6 +20,8 @@
 #define MOVE_DISTANCE 1
 #define ATTACK_DISTANCE 2
 
+#define DELTA 0.001
+
 // Spawn position for players 1,2,3,4 in format of {x, y}
 // It is required that these spawn regions will not collide with
 // each other or obstacles at the start
@@ -39,6 +41,14 @@ enum Direction {
     SOUTH, // 2
     WEST, // 3
 };
+
+struct PlayerPosition {
+    float x; // x coordinate of center
+    float y; // y coordinate of center
+    float width; // width of the bounding box
+    float height; // height of the bounding box
+};
+typedef PlayerPosition PlayerPosition;
 
 
 
