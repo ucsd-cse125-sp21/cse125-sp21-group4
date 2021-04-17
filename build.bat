@@ -1,0 +1,6 @@
+@ECHO OFF
+ECHO Building client...
+g++ .\client\test_windows_client.cpp .\client\CommunicationClient.cpp .\common\game\*.cpp -o .\client\client.exe -lWs2_32
+ECHO Building server...
+g++ .\server\*.cpp .\common\game\*.cpp -o .\server\server.exe -lWs2_32
+Done!
