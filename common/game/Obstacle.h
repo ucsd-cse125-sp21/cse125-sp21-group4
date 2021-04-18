@@ -5,9 +5,9 @@
 
 class Obstacle : public GridComponent {
 
-public:
-    Obstacle(); // Constructor for Obstacle
-    Obstacle(GridPosition position); // Constructor for Obstacle
+    public:
+        Obstacle(); // Constructor for Obstacle
+        Obstacle(GridPosition position); // Constructor for Obstacle
 };
 
 #endif
