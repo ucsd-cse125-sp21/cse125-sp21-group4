@@ -81,7 +81,7 @@ Character::Character(string fileName, glm::mat4 p, glm::mat4 v, GLuint s, glm::v
 
 	objFile.close();
 
-	cout << "initing" << endl;
+	//cout << "initing" << endl;
 	std::vector<glm::vec3>::iterator it = points.begin();
 	//centering + re-position + rescale
 	float xPos = 0, xNeg = 0, yPos = 0, yNeg = 0, zPos = 0, zNeg = 0;;
@@ -165,6 +165,7 @@ void Character::draw(glm::mat4 c) {
 	glUseProgram(0);
 }
 
+//no longer used
 void Character::move(int dir) {
 	// default dir 1 is forward in positive Z direction
 	glm::vec3 movement(0.0f, 0.0f, 0.05f);
@@ -176,6 +177,11 @@ void Character::move(int dir) {
 		movement = glm::vec3(0.05f, 0.0f, 0.0f);
 	}
 	pos += movement;
+	model = glm::mat4(1) * glm::translate(pos);
+}
+
+void Character::moveTo(glm::vec3 newPos) {
+	pos = newPos;
 	model = glm::mat4(1) * glm::translate(pos);
 }
 
