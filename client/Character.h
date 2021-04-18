@@ -32,7 +32,8 @@ public:
 	void update();
 	void updateView(glm::mat4, glm::vec3);
 
-	void move(int);
+	void move(int); // no longer used
+	void moveTo(glm::vec3);
 };
 
 #endif

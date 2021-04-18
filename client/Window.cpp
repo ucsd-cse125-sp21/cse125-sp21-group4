@@ -1,9 +1,12 @@
 #include "Window.h"
+#define SERVER_ENABLED
 
 // Window Properties
 int Window::width;
 int Window::height;
 const char* Window::windowTitle = "CSE125_GAME";
+CommunicationClient* Window::client;
+
 
 //objects to render
 vector<Character*> Window::chars; //all the characters players get to control
@@ -20,7 +23,7 @@ GLuint Window::shaderProgram;
 glm::mat4 Window::projection;
 
 //this is the position of the camera
-glm::vec3 Window::eyePos(0, 5, 5);
+glm::vec3 Window::eyePos(0, 20, 20);
 // this is the direction where the camera is staring at
 glm::vec3 Window::lookAtPoint(0, 0, 0);
 // this is the upward direction for the camera. Think of this as the angle where your head is
@@ -41,13 +44,19 @@ bool Window::initializeProgram() {
 		std::cerr << "Failed to initialize shader program" << std::endl;
 		return false;
 	}
+
+#ifdef SERVER_ENABLED
+	client = new CommunicationClient();
+	cout << "Communication Established" << endl;
+#endif // SERVER_ENABLED
+
 	return true;
 }
 
 //bool Window::initializeObjects(char * file, char * file1, char* file2)
 bool Window::initializeObjects()
 {
-	chars.push_back(new Character("shaders/character/bear.obj", projection, view, shaderProgram, glm::vec3(0.f,1.f,0.f)));
+	chars.push_back(new Character("shaders/character/cube.obj", projection, view, shaderProgram, glm::vec3(0.f,1.f,0.f)));
 	envs.push_back(new EnvElement("shaders/environment/ground.obj", projection, view, shaderProgram, glm::vec3(0.f,0.f,0.f)));
 	return true;
 }
@@ -109,6 +118,20 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 
 void Window::idleCallback()
 {
+#ifdef SERVER_ENABLED
+	// 1 + 2. Get the latest input and send it to the server
+	client->sendInput(Window::lastInput);
+	// 3. Receive updated gamestate from server
+	GameState gameState = client->receiveGameState();
+	lastInput = NO_MOVE;
+
+	cout << "updating game" << endl;
+	//update game state
+	chars[0]->moveTo(glm::vec3(gameState.playersPosition->x, 
+		0.0f, gameState.playersPosition->y));
+	cout << "x " << gameState.playersPosition->x << "y " <<
+		gameState.playersPosition->y << endl;
+#endif
 }
 
 void Window::displayCallback(GLFWwindow* window)
