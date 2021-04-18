@@ -29,20 +29,27 @@ void Game::initPlayers () {
     position.width = FIGHTER_WIDTH;
     position.height = FIGHTER_HEIGHT;
     players[0] = new Fighter(position);
+    players[0]->setID(0);
 
     position.x = P2_SPAWN_POSITION[0];
     position.y = P2_SPAWN_POSITION[1];
     players[1] = new Fighter(position);
+    players[1]->setID(1);
+
     
     position.x = P3_SPAWN_POSITION[0];
     position.y = P3_SPAWN_POSITION[1];
     players[2] = new Fighter(position);
+    players[2]->setID(2);
+
 
     position.x = P4_SPAWN_POSITION[0];
     position.y = P4_SPAWN_POSITION[1];
     position.width = MONSTER_WIDTH;
     position.height = MONSTER_HEIGHT;
     players[3] = new Monster(position);
+    players[3]->setID(3);
+
 }
 
 

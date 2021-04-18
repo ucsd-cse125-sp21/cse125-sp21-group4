@@ -165,7 +165,6 @@ void CommunicationServer::sendGameState(GameState gameState) {
 
 // Sends updates to the client
 void CommunicationServer::sendGameUpdates(std::vector<GameUpdate> updates) {
-    printf("Test");
 
     
     // Set the first 4 bytes of sendbuf to be the # of updates
@@ -173,6 +172,8 @@ void CommunicationServer::sendGameUpdates(std::vector<GameUpdate> updates) {
     sendbuf.resize(sizeof(int));
     int updateSize = updates.size();
     memcpy(sendbuf.data(), &updateSize, sizeof(updateSize));
+
+    // printf("Sending Updates of size %d\n", updateSize);
 
     
     // copy the number of updates to all the output buffer of all clients
