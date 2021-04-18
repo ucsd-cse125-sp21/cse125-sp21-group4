@@ -5,7 +5,7 @@
 #define MAP_HEIGHT 20
 #define GRID_WIDTH 1 // GRID_WIDTH should be able to fully divide MAP_WIDTH
 #define GRID_HEIGHT 1 // GRID_HEIGHT should be able to fully divide MAP_HEIGHT
-#define PLAYER_NUM 4
+#define PLAYER_NUM 1
 
 #define FIGHTER_MAX_HP 100
 #define MONSTER_MAX_HP 1000

@@ -4,14 +4,9 @@
 
 
 #define DEFAULT_PORT "27015"
-#define MAX_PLAYERS 4
 
 // #define ERICS_LOCAL_SERVER "192.168.0.110"
 #define ERICS_LOCAL_SERVER "127.0.0.1"
-
-
-#define MAP_LOWER_BOUND -100
-#define MAP_HIGHER_BOUND 100
 
 #define TICK_TIME 500
 

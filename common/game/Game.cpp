@@ -150,10 +150,10 @@ Game::~Game() {
 }
 
 
-bool Game::handleInputs(CLIENT_INPUT playersInputs[MAX_PLAYERS]) {
+bool Game::handleInputs(CLIENT_INPUT playersInputs[PLAYER_NUM]) {
     bool flag = false; // flag is true if there is effective movement in this round
                        // this is used to test on console, this can be removed later
-    for (int i = 0; i < MAX_PLAYERS; i++) {
+    for (int i = 0; i < PLAYER_NUM; i++) {
         if (playersInputs[i] != NO_MOVE) flag = true;
         players[i]->handleUserInput(this, playersInputs[i]);
     }

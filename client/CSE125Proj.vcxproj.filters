@@ -59,10 +59,10 @@
     <ClInclude Include="Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\common\constants.h">
+    <ClInclude Include="..\common\networking\CommunicationConstants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\common\GameState.h">
+    <ClInclude Include="..\common\networking\GameState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\common\PlayerPosition.h">

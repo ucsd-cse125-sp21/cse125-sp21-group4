@@ -2,6 +2,6 @@
 #include <chrono>
 
 #include "CommunicationServer.h"
-#include "../common/constants.h"
+#include "../common/networking/CommunicationConstants.h"
 #include "../common/game/Game.h"
-#include "../common/GameState.h"
+#include "../common/networking/GameState.h"

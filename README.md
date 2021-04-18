@@ -37,4 +37,4 @@ To run the client or server, execute their respective `exe` files.
 ### Notes on running the server and client
 - If you are running the client AND server, you must uncomment #define SERVER_ENABLED in client/Main.cpp , otherwise clients will not connect to the server.
 - If your server does not see output even after client connects or has bind() errors: check if another server is running OR change SERVER_PORT to some random port like 31524.
-- Requires 4 clients to connect for server to start the game. You may edit MAX_PLAYERS in common/constants.h to lower the maximum for testing.
+- Requires 4 clients to connect for server to start the game. You may edit PLAYER_NUM in common/networking/CommunicationConstants.h to lower the maximum for testing.

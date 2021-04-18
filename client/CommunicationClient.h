@@ -20,8 +20,8 @@
 #pragma comment (lib, "Mswsock.lib")
 #pragma comment (lib, "AdvApi32.lib")
 
-#include "../common/constants.h"
-#include "../common/GameState.h"
+#include "../common/networking/CommunicationConstants.h"
+#include "../common/networking/GameState.h"
 
 class CommunicationClient {
 private:

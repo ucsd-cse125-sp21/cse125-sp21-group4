@@ -36,7 +36,7 @@ int main(void)
         // 2. Update the game state
         GameActions actions;
         // populate the player inputs with NO_MOVE
-        for (auto i = 0; i < MAX_PLAYERS; i++) actions.playersInputs[i] = NO_MOVE;
+        for (auto i = 0; i < PLAYER_NUM; i++) actions.playersInputs[i] = NO_MOVE;
         // fill in the movement for corresponding player
         for (auto iter = inputs.begin(); iter < inputs.end(); iter++) {
             std::pair<int, CLIENT_INPUT> input = *iter;

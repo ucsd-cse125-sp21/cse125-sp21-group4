@@ -19,7 +19,7 @@
 #pragma comment (lib, "Mswsock.lib")
 #pragma comment (lib, "AdvApi32.lib")
 
-#include "../common/constants.h"
+#include "../common/networking/CommunicationConstants.h"
 #include "../client/CommunicationClient.h"
 
 #include "../common/game/Game.h"
@@ -37,7 +37,7 @@ int __cdecl main(int argc, char **argv)
      * 
      */
     CLIENT_INPUT sendInput = NO_MOVE; // ' '
-    // PlayerPosition playerPositions[MAX_PLAYERS];
+    // PlayerPosition playerPositions[PLAYER_NUM];
 
     // initialize the game instance
     Game* game = new Game();
