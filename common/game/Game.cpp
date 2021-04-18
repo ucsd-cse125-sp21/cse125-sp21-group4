@@ -3,12 +3,19 @@
 #include "Monster.h"
 #include "Fighter.h"
 #include "Space.h"
+#include "Rock.h"
 #include "GamePlayer.h"
+#include "HealingObjtv.h"
 
+#define ROCK_SYMBOL 'R'
+#define SPACE_SYMBOL ' '
 #define MONSTER_SYMBOL 'M'
 #define FIGHTER_SYMBOL 'F'
 #define OBSTACLE_SYMBOL '+'
-#define SPACE_SYMBOL ' '
+#define MONSTER_EVO_SYMBOL 'E'
+#define FIGHTER_HEAL_SYMBOL 'H'
+#define MONSTER_HEAL_SYMBOL 'J'
+
 
 using namespace std;
 
@@ -57,6 +64,36 @@ bool isBoundary (int widthIndex, int heightIndex) {
     return false;
 }
 
+/* return the correct symbol for the object at cell. Return '' (blank char) for invalid symbols */
+char getSymbol(GridComponent* cell) {
+    switch(cell->getType()) {
+        case OBSTACLE:
+            return OBSTACLE_SYMBOL;
+
+        case ROCK:
+            return ROCK_SYMBOL;
+        
+        case SPACE:
+            return SPACE_SYMBOL;
+
+        case OBJECTIVE:
+            if( ((Objective*) cell)->getObjective() == HEAL) {
+                if ( ((Objective*) cell)->getRestriction() == R_FIGHTER)
+                    return FIGHTER_HEAL_SYMBOL;
+                else
+                    return MONSTER_HEAL_SYMBOL;
+            }
+
+        default:
+            return '\0';
+    }
+    // if (cell->getType() == OBSTACLE) return OBSTACLE_SYMBOL;
+    // else if (cell->getType() == ROCK) return ROCK_SYMBOL;
+    // else if (cell->isSpace()) return SPACE_SYMBOL;
+    
+    // return '\0';
+}
+
 /*
     Initialize gameGrids by newing a corresponding GameComponent at every 
     position.
@@ -77,24 +114,46 @@ bool isBoundary (int widthIndex, int heightIndex) {
     +++++++++++++
 */
 void Game::initGameGrids() {
-    for (int i = 0; i < MAP_WIDTH / GRID_WIDTH; i++) {
-        for (int j = 0; j < MAP_HEIGHT / GRID_HEIGHT; j++) {
+
+    // testing purposes
+    int test_rock_width = (MAP_WIDTH / GRID_WIDTH) / 2;
+    int test_rock_height = (MAP_HEIGHT / GRID_HEIGHT) / 2;
+
+    int test_fheal_width = (MAP_WIDTH / GRID_WIDTH) / 2;
+    int test_fheal_height = ((MAP_WIDTH / GRID_WIDTH) / 2) - 1;
+
+    int test_mheal_width = (MAP_WIDTH / GRID_WIDTH) / 2;
+    int test_mheal_height = ((MAP_WIDTH / GRID_WIDTH) / 2) - 2;
+
+    for (int i = 0; i < MAP_HEIGHT / GRID_HEIGHT; i++) {
+        for (int j = 0; j < MAP_WIDTH / GRID_WIDTH; j++) {
             GridPosition position;
-            position.x = i;
-            position.y = j;
+            position.x = j;
+            position.y = i;
             // put obstacles on the boundary
-            if (isBoundary(i, j))
+            if (isBoundary(j, i))
                 gameGrids[i][j] = new Obstacle(position);
-            else
-                gameGrids[i][j] = new Space(position);
+            else {
+                
+                // testing purposes
+                if(i == test_rock_width && j == test_rock_height) 
+                    gameGrids[i][j] = new Rock(position);
+                else if (i == test_fheal_width && j == test_fheal_height)
+                    gameGrids[i][j] = new Heal(position, R_FIGHTER);
+                else if (i == test_mheal_width && j == test_mheal_height)
+                    gameGrids[i][j] = new Heal(position, R_MONSTER);
+                else 
+                    gameGrids[i][j] = new Space(position);
+
+            }
         }
     }
 }
 
 void Game::cleanGameGrids() {
     // delete all the GameComponents related to the game grids
-    for (int i = 0; i < MAP_WIDTH; i++) {
-        for (int j = 0; j < MAP_HEIGHT; j++) {
+    for (int i = 0; i < MAP_HEIGHT; i++) {
+        for (int j = 0; j < MAP_WIDTH; j++) {
             if (!gameGrids[i][j]) delete gameGrids[i][j];
             gameGrids[i][j] = NULL;
         }
@@ -163,9 +222,10 @@ bool Game::handleInputs(CLIENT_INPUT playersInputs[PLAYER_NUM]) {
 void Game::printGameGrids () {
     for (int i = 0; i < MAP_HEIGHT / GRID_HEIGHT; i++) {
         for (int j = 0; j < MAP_WIDTH / GRID_WIDTH; j++) {
-            if (gameGrids[j][i]->isObstacle()) cout << OBSTACLE_SYMBOL;
-            else if (gameGrids[j][i]->isSpace()) cout << SPACE_SYMBOL;
-            else cout << "ERROR: Encounter unknown grid type!" << endl;
+            char symbol = getSymbol(gameGrids[i][j]);
+
+            if (symbol == '\0') cout << "ERROR: Encountered an unknown grid type!" << endl;
+            else cout << getSymbol(gameGrids[i][j]) << " ";
         }
         cout << "\n";
     }

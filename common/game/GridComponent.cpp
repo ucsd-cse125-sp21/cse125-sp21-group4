@@ -17,6 +17,6 @@ void GridComponent::setPosition (int x, int y) {
 
 bool GridComponent::isSpace () { return type == SPACE; }
 
-bool GridComponent::isObstacle () { return type == OBSTACLE; }
+bool GridComponent::isObstacle () { return (type == OBSTACLE || type == ROCK); }
 
 
