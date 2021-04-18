@@ -82,18 +82,18 @@ int main(int argc, char* argv[])
 	// Loop while GLFW window should stay open.
 	while (!glfwWindowShouldClose(window))
 	{
-		// Main render display callback. Rendering of objects is done here.
-		Window::displayCallback(window);
-
 		// Idle callback. Updating objects, etc. can be done here.
 		Window::idleCallback();
+
+		// Main render display callback. Rendering of objects is done here.
+		Window::displayCallback(window);
 #ifdef SERVER_ENABLED
 
 		// 1 + 2. Get the latest input and send it to the server
 		commClient->sendInput(Window::lastInput);
 
 		// 3. Receive updated gamestate from server
-		//GameState gameState = commClient->receiveGameState();
+		GameState gameState = commClient->receiveGameState();
 #endif
 
 		Window::lastInput = NO_MOVE;
