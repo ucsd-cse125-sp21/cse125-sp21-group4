@@ -4,8 +4,9 @@
 #include "Fighter.h"
 #include "Space.h"
 #include "Rock.h"
+#include "Evolve.h"
 #include "GamePlayer.h"
-#include "HealingObjtv.h"
+#include "Healing.h"
 
 #define ROCK_SYMBOL 'R'
 #define SPACE_SYMBOL ' '
@@ -66,6 +67,8 @@ bool isBoundary (int widthIndex, int heightIndex) {
 
 /* return the correct symbol for the object at cell. Return '' (blank char) for invalid symbols */
 char getSymbol(GridComponent* cell) {
+    Objective* obj = (Objective*) cell;
+
     switch(cell->getType()) {
         case OBSTACLE:
             return OBSTACLE_SYMBOL;
@@ -77,21 +80,18 @@ char getSymbol(GridComponent* cell) {
             return SPACE_SYMBOL;
 
         case OBJECTIVE:
-            if( ((Objective*) cell)->getObjective() == HEAL) {
-                if ( ((Objective*) cell)->getRestriction() == R_FIGHTER)
+            if(obj->getObjective() == HEAL) {
+                if (obj->getRestriction() == R_FIGHTER)
                     return FIGHTER_HEAL_SYMBOL;
                 else
                     return MONSTER_HEAL_SYMBOL;
             }
+            else if(obj->getObjective() == EVO)
+                return MONSTER_EVO_SYMBOL;
 
         default:
             return '\0';
     }
-    // if (cell->getType() == OBSTACLE) return OBSTACLE_SYMBOL;
-    // else if (cell->getType() == ROCK) return ROCK_SYMBOL;
-    // else if (cell->isSpace()) return SPACE_SYMBOL;
-    
-    // return '\0';
 }
 
 /*
@@ -124,6 +124,9 @@ void Game::initGameGrids() {
 
     int test_mheal_width = (MAP_WIDTH / GRID_WIDTH) / 2;
     int test_mheal_height = ((MAP_WIDTH / GRID_WIDTH) / 2) - 2;
+    
+    int test_mevo_width = (MAP_WIDTH / GRID_WIDTH) / 2;
+    int test_mevo_height = ((MAP_WIDTH / GRID_WIDTH) / 2) - 3;
 
     for (int i = 0; i < MAP_HEIGHT / GRID_HEIGHT; i++) {
         for (int j = 0; j < MAP_WIDTH / GRID_WIDTH; j++) {
@@ -142,6 +145,8 @@ void Game::initGameGrids() {
                     gameGrids[i][j] = new Heal(position, R_FIGHTER);
                 else if (i == test_mheal_width && j == test_mheal_height)
                     gameGrids[i][j] = new Heal(position, R_MONSTER);
+                else if (i == test_mevo_width && j == test_mevo_height)
+                    gameGrids[i][j] = new Evolve(position, R_MONSTER);
                 else 
                     gameGrids[i][j] = new Space(position);
 
