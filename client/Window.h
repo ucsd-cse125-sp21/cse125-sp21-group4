@@ -6,6 +6,7 @@
 #include "Character.h"
 #include "EnvElement.h"
 #include "../common/constants.h"
+#include "CommunicationClient.h"
 
 class Window
 {
@@ -14,6 +15,7 @@ public:
 	static int width;
 	static int height;
 	static const char* windowTitle;
+	static CommunicationClient * client;
 
 	//objects to render
 	static vector<Character*> chars;
@@ -46,6 +48,7 @@ public:
 	// update and draw functions
 	static void idleCallback();
 	static void displayCallback(GLFWwindow*);
+	//static void updateGame(GameState);
 
 	// callbacks - for interaction
 	static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);

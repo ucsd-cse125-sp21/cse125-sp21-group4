@@ -11,6 +11,8 @@ typedef GridPosition GridPosition;
 enum GridComponentType {
     SPACE, // 0
     OBSTACLE, // 1
+    ROCK, // 2
+    OBJECTIVE, // 3
 };
 
 
@@ -22,8 +24,10 @@ private:
 public:
     GridComponent(); // Default Constructor
     GridComponent(GridComponentType type); // Constructor for GridComponent
+    
     GridComponentType getType(); // type getter
     void setType(GridComponentType newType); // type getter
+    
     GridPosition getPosition(); // position getter
     void setPosition(int x, int y);  // position setter
 
