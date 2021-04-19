@@ -34,17 +34,18 @@ enum UPDATE_TYPE {
     PROJECTILE_MOVE,
     OBJECTIVE_BEING_TAKEN,
     OBJECTIVE_TAKEN,
+    INVALID_UPDATE, // this will be sent if people forget to update the updateType
 
 };
 
-// Update packet header
+// GameUpdate packet payload
 struct GameUpdate {
-    UPDATE_TYPE updateType;
-    int id;
-    int gridDeltaX;
-    int gridDeltaY;
-    float floatDeltaX;
-    float floatDeltaY;
+    UPDATE_TYPE updateType = INVALID_UPDATE;
+    int id = -1; // -1 instead of 0 because 0 is a valid player id.
+    int damageTaken = 0; // Used for a damage taken evenrt
+    GridPosition gridPos = {0,0}; // Used for objectives and obstacles
+    float floatDeltaX = 0; // used for player/projectile movement
+    float floatDeltaY = 0; // used for player/projectile movement
 };
 
 

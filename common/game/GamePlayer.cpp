@@ -248,7 +248,12 @@ void GamePlayer::move (Game* game, Direction direction, float distance) {
     if (!canMoveTo(game, destPosition)) return;
 
     // push update onto queue for clients to know that a player has moved
-    game->addUpdate(PLAYER_MOVE, this->id, 0, 0, destPosition.x - position.x, destPosition.y - position.y);
+    GameUpdate gameUpdate;
+    gameUpdate.id = this->id;
+    gameUpdate.updateType = PLAYER_MOVE;
+    gameUpdate.floatDeltaX = destPosition.x - position.x;
+    gameUpdate.floatDeltaY = destPosition.y - position.y;
+    game->addUpdate(gameUpdate);
 
     // Move there!
     position = destPosition;
@@ -322,7 +327,11 @@ void GamePlayer::attack(Game* game, float distance) {
             game->players[i]->hpDecrement(attackHarm);
 
             // queue this update to be send to other players
-            game->addUpdate(PLAYER_DAMAGE_TAKEN, i, 0, 0, 0, 0);
+            GameUpdate gameUpdate;
+            gameUpdate.updateType = PLAYER_DAMAGE_TAKEN;
+            gameUpdate.id = i;
+            gameUpdate.damageTaken = attackHarm;
+            game->addUpdate(gameUpdate);
         }
     }
 }

@@ -247,29 +247,61 @@ void Game::printPlayers () {
     }
 }
 
-/**
- * GameUpdate struct
- * struct GameUpdate {
- *     UPDATE_TYPE update;
- *     int id;
- *     int gridDeltaX;
- *     int gridDeltaY;
- *     float floatDeltaX;
- *     float floatDeltaY;
- * };
- */
-
-void Game::addUpdate(UPDATE_TYPE updateType, int id, int gridDeltaX, int gridDeltaY, float floatDeltaX, float floatDeltaY) {
-    GameUpdate update;
-    update.updateType = updateType;
-    update.id = id;
-    update.gridDeltaX = gridDeltaX;
-    update.gridDeltaY = gridDeltaY;
-    update.floatDeltaX = floatDeltaX;
-    update.floatDeltaY = floatDeltaY;
-
+/* =========================================================================
+   Server side methods used to queue updates for the client to process 
+========================================================================= */
+void Game::addUpdate(GameUpdate update) {
     updates.push_back(update);
 }
 void Game::clearUpdates() {
     updates.clear();
+}
+
+/* =========================================================================
+   Client side methods used to process updates.
+========================================================================= */
+void Game::handleUpdates(std::vector<GameUpdate> updates) {
+    int numOfUpdates = updates.size();
+    if(numOfUpdates <= 0) {
+        return;
+    }
+
+    for(int i = 0; i < numOfUpdates; i++) {
+        handleUpdate(updates[i]);
+    }
+}
+
+void Game::handleUpdate(GameUpdate update) {
+    // Later: we add an Animator/Graphics obj that does these animations.
+    // As for the server side, we can just have an animator obj that does nothing.
+    switch(update.updateType) {
+        case PLAYER_DAMAGE_TAKEN:
+            players[update.id]->hpDecrement(update.damageTaken);
+            // Animate or update on graphics here.
+            break;
+        case PLAYER_MOVE:
+            // Note: I do not do checks here because the server handles checks.
+            PlayerPosition newPosition = players[update.id]->getPosition();
+            newPosition.x += update.floatDeltaX;
+            newPosition.y += update.floatDeltaY;
+            players[update.id]->setPosition(newPosition);
+            // Animate or update on graphics here.
+            break;
+        case PROJECTILE_MOVE:
+            // Projectile can be identified with update.id.
+            // Animate or update on graphics here.
+            break;
+        case OBJECTIVE_BEING_TAKEN:
+            // Obj identified by update.gridPos.
+            // Animate or update on graphics here.
+            break;
+        case OBJECTIVE_TAKEN:
+            // Make the obj disappear? 
+            // Obj identified by update.gridPos.
+            // Animate or update on graphics here.
+            break;
+        default:
+            printf("Not Handled Update Type: %d", update.updateType);
+            break;
+    }
 }

@@ -36,8 +36,12 @@ public:
     void printGameGrids();
     void printPlayers();
 
-    void addUpdate(UPDATE_TYPE updateType, int id, int gridDeltaX, int gridDeltaY, float floatDeltaX, float floatDeltaY);
+    // Network Optimization: GameUpdates
+    void addUpdate(GameUpdate update);
     void clearUpdates();
+
+    void handleUpdates(std::vector<GameUpdate> updates);
+    void handleUpdate(GameUpdate update);
 };
 
 
