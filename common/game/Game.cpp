@@ -4,18 +4,22 @@
 #include "Fighter.h"
 #include "Space.h"
 #include "Rock.h"
+#include "Evolve.h"
 #include "GamePlayer.h"
-#include "HealingObjtv.h"
+#include "Armor.h"
+#include "Healing.h"
+#include "Beacon.h"
 
 #define ROCK_SYMBOL 'R'
 #define SPACE_SYMBOL ' '
+#define BEACON_SYMBOL 'B'
 #define MONSTER_SYMBOL 'M'
 #define FIGHTER_SYMBOL 'F'
 #define OBSTACLE_SYMBOL '+'
 #define MONSTER_EVO_SYMBOL 'E'
 #define FIGHTER_HEAL_SYMBOL 'H'
 #define MONSTER_HEAL_SYMBOL 'J'
-
+#define FIGHTER_ARMOR_SYMBOL 'A'
 
 using namespace std;
 
@@ -73,6 +77,8 @@ bool isBoundary (int widthIndex, int heightIndex) {
 
 /* return the correct symbol for the object at cell. Return '' (blank char) for invalid symbols */
 char getSymbol(GridComponent* cell) {
+    Objective* obj = (Objective*) cell;
+
     switch(cell->getType()) {
         case OBSTACLE:
             return OBSTACLE_SYMBOL;
@@ -84,21 +90,22 @@ char getSymbol(GridComponent* cell) {
             return SPACE_SYMBOL;
 
         case OBJECTIVE:
-            if( ((Objective*) cell)->getObjective() == HEAL) {
-                if ( ((Objective*) cell)->getRestriction() == R_FIGHTER)
+            if(obj->getObjective() == HEAL) {
+                if (obj->getRestriction() == R_FIGHTER)
                     return FIGHTER_HEAL_SYMBOL;
                 else
                     return MONSTER_HEAL_SYMBOL;
             }
+            else if(obj->getObjective() == EVO)
+                return MONSTER_EVO_SYMBOL;
+            else if(obj->getObjective() == ARMOR)
+                return FIGHTER_ARMOR_SYMBOL;
+            else if(obj->getObjective() == BEAC)
+                return BEACON_SYMBOL;
 
         default:
             return '\0';
     }
-    // if (cell->getType() == OBSTACLE) return OBSTACLE_SYMBOL;
-    // else if (cell->getType() == ROCK) return ROCK_SYMBOL;
-    // else if (cell->isSpace()) return SPACE_SYMBOL;
-    
-    // return '\0';
 }
 
 /*
@@ -127,10 +134,19 @@ void Game::initGameGrids() {
     int test_rock_height = (MAP_HEIGHT / GRID_HEIGHT) / 2;
 
     int test_fheal_width = (MAP_WIDTH / GRID_WIDTH) / 2;
-    int test_fheal_height = ((MAP_WIDTH / GRID_WIDTH) / 2) - 1;
+    int test_fheal_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 1;
 
     int test_mheal_width = (MAP_WIDTH / GRID_WIDTH) / 2;
-    int test_mheal_height = ((MAP_WIDTH / GRID_WIDTH) / 2) - 2;
+    int test_mheal_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 2;
+    
+    int test_mevo_width = (MAP_WIDTH / GRID_WIDTH) / 2;
+    int test_mevo_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 3;
+
+    int test_farm_width = (MAP_WIDTH / GRID_WIDTH) / 2;
+    int test_farm_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 4;
+
+    int test_beac_width = (MAP_WIDTH / GRID_WIDTH) / 2;
+    int test_beac_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 5;
 
     for (int i = 0; i < MAP_HEIGHT / GRID_HEIGHT; i++) {
         for (int j = 0; j < MAP_WIDTH / GRID_WIDTH; j++) {
@@ -143,12 +159,18 @@ void Game::initGameGrids() {
             else {
                 
                 // testing purposes
-                if(i == test_rock_width && j == test_rock_height) 
+                if(j == test_rock_width && i == test_rock_height) 
                     gameGrids[i][j] = new Rock(position);
-                else if (i == test_fheal_width && j == test_fheal_height)
+                else if (j == test_fheal_width && i == test_fheal_height)
                     gameGrids[i][j] = new Heal(position, R_FIGHTER);
-                else if (i == test_mheal_width && j == test_mheal_height)
+                else if (j == test_mheal_width && i == test_mheal_height)
                     gameGrids[i][j] = new Heal(position, R_MONSTER);
+                else if (j == test_mevo_width && i == test_mevo_height)
+                    gameGrids[i][j] = new Evolve(position);
+                else if (j == test_farm_width && i == test_farm_height)
+                    gameGrids[i][j] = new Armor(position);
+                else if (j == test_beac_width && i == test_beac_height)
+                    gameGrids[i][j] = new Beacon(position);
                 else 
                     gameGrids[i][j] = new Space(position);
 
@@ -245,6 +267,8 @@ void Game::printPlayers () {
         cout << players[i]->getPosition().y << "), ";
         cout << "hp: " << players[i]->getHp() << "\n";
     }
+
+    printStats();
 }
 
 /* =========================================================================
@@ -304,4 +328,31 @@ void Game::handleUpdate(GameUpdate update) {
             printf("Not Handled Update Type: %d", update.updateType);
             break;
     }
+}
+// testing  purposes
+void Game::printStats() {
+
+    int test_rock_width = (MAP_WIDTH / GRID_WIDTH) / 2;
+    int test_rock_height = (MAP_HEIGHT / GRID_HEIGHT) / 2;
+
+    int test_fheal_width = (MAP_WIDTH / GRID_WIDTH) / 2;
+    int test_fheal_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 1;
+
+    int test_mheal_width = (MAP_WIDTH / GRID_WIDTH) / 2;
+    int test_mheal_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 2;
+    
+    int test_mevo_width = (MAP_WIDTH / GRID_WIDTH) / 2;
+    int test_mevo_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 3;
+
+    int test_farm_width = (MAP_WIDTH / GRID_WIDTH) / 2;
+    int test_farm_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 4;
+
+    int test_beac_width = (MAP_WIDTH / GRID_WIDTH) / 2;
+    int test_beac_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 5;
+
+    cout << "Fighter Heal amount - " << ((Heal*) gameGrids[test_fheal_height][test_fheal_width])->getHealAmount() << endl;
+    cout << "Monster Heal amount - " << ((Heal*) gameGrids[test_mheal_height][test_mheal_width])->getHealAmount() << endl;
+    cout << "Monster Evo amount - " << ((Evolve*) gameGrids[test_mevo_height][test_mevo_width])->getEvoAmount() << endl;
+    cout << "Fighter Armor amount - " << ((Armor*) gameGrids[test_farm_height][test_farm_width])->getArmorAmount() << endl;
+    cout << "Beacon Frequency (units unknown) - " << ((Beacon*) gameGrids[test_beac_height][test_beac_width])->getFrequency() << endl;   
 }

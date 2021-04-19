@@ -35,6 +35,7 @@ public:
 
     void printGameGrids();
     void printPlayers();
+    void printStats();
 
     // Network Optimization: GameUpdates
     void addUpdate(GameUpdate update);
