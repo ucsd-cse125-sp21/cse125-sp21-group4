@@ -8,7 +8,7 @@ class Evolve : public Objective {
         int evo_amount; // amount to evolve
 
     public:
-        Evolve(GridPosition position, Restriction r);
+        Evolve(GridPosition position, Restriction r = R_MONSTER);
 
         int getEvoAmount();
 };

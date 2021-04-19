@@ -3,7 +3,7 @@
 // using monster health as metric for evolution
 Evolve::Evolve(GridPosition position, Restriction r) {
     setType(OBJECTIVE);
-    setRestriction(R_MONSTER);
+    setRestriction(r);
     setObjective(EVO);
     setPosition(position.x, position.y);
 

@@ -33,6 +33,7 @@ public:
 
     void printGameGrids ();
     void printPlayers ();
+    void printStats();
 };
 
 

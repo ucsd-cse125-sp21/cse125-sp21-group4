@@ -7,7 +7,7 @@ Heal::Heal(GridPosition position, Restriction r) {
     setPosition(position.x, position.y);
     
     if (r == R_FIGHTER)
-        h_amount = FIGHTER_MAX_HP / 50;
+        h_amount = FIGHTER_MAX_HP / 2;
     else
         h_amount = (MONSTER_MAX_HP / 10); // 5 evolutions (health chunks), heal half a chunk
 }
