@@ -1,13 +1,25 @@
 #include "EnvElement.h"
 
-EnvElement::EnvElement(string fileName, glm::mat4 p, glm::mat4 v, GLuint s, 
-	glm::vec3 trans) {
+/*
+	constructor usage:
+	projection p, view v, and shader s are taken cared of in Window class.
+	translation trnas is the initial position where you want to place this object;
+	rotAxis is the the axis you want to rotate about;
+	rotRad  is the amount of rotation you want in RADIAN;
+	scale is a factor you want to scale the initial object;
+	color c is the initial model color; default is black
+*/
+
+EnvElement::EnvElement(string fileName, glm::mat4 * p, glm::mat4 * v, GLuint s, 
+	glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale, glm::vec3 c) {
+	
+	// initial translation will bthe initial position
 	pos = trans;
-	model = glm::translate(trans);
+	model = glm::rotate(rotRad, rotAxis) * glm::translate(trans) * glm::scale(glm::vec3(scale));
 	projection = p;
 	view = v;
 	shader = s;
-	color = glm::vec3(0.0f, 0.99f, 0.0f);
+	color = c; //default color is black
 
 	std::vector<glm::vec3> normalp;
 	std::vector<glm::vec3> pointsp;
@@ -22,17 +34,12 @@ EnvElement::EnvElement(string fileName, glm::mat4 p, glm::mat4 v, GLuint s,
 
 		while (std::getline(objFile, line))
 		{
-			// Turn the line into a string stream for processing.
 			std::stringstream ss;
 			ss << line;
-			// Read the first word of the line.
 			std::string label;
 			ss >> label;
-			// If the line is about vertex (starting with a "v").
 			if (label == "v")
 			{
-				// Read the later three float numbers and use them as the 
-				// coordinates.
 				glm::vec3 point;
 				ss >> point.x >> point.y >> point.z;
 				pointsp.push_back(point);
@@ -72,7 +79,6 @@ EnvElement::EnvElement(string fileName, glm::mat4 p, glm::mat4 v, GLuint s,
 				triangle.x = vCount++;
 				triangle.y = vCount++;
 				triangle.z = vCount++;
-				//cout << triangle.x << " " << triangle.y << " " << triangle.z << endl;
 				triangles.push_back(triangle);
 			}
 		}
@@ -86,10 +92,9 @@ EnvElement::EnvElement(string fileName, glm::mat4 p, glm::mat4 v, GLuint s,
 
 	cout << "initing" << endl;
 	std::vector<glm::vec3>::iterator it = points.begin();
-	//centering + re-position + rescale
+	//centering
 	float xPos = 0, xNeg = 0, yPos = 0, yNeg = 0, zPos = 0, zNeg = 0;;
 	while (it != points.end()) {
-		//cout << "changing" << endl;
 		if ((*it).x > xPos)
 			xPos = (*it).x;
 		if ((*it).x < xNeg)
@@ -112,7 +117,6 @@ EnvElement::EnvElement(string fileName, glm::mat4 p, glm::mat4 v, GLuint s,
 		(*it).x -= xCenter;
 		(*it).y -= yCenter;
 		(*it).z -= zCenter;
-		//cout << "x: " << (*it).x << " y: " << (*it).y << " z: " << (*it).z << endl;
 		it++;
 	}
 
@@ -150,8 +154,8 @@ void EnvElement::draw(glm::mat4 c) {
 	glUseProgram(shader);
 
 	// Get the shader variable locations and send the uniform data to the shader 
-	glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, false, glm::value_ptr(view));
-	glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, false, glm::value_ptr(projection));
+	glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, false, glm::value_ptr(*view));
+	glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, false, glm::value_ptr(*projection));
 	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, glm::value_ptr(m));
 	glUniform3fv(glGetUniformLocation(shader, "viewPos"), 1, glm::value_ptr(eyep));
 	glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(color));

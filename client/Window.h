@@ -5,8 +5,8 @@
 #include "shader.h"
 #include "Character.h"
 #include "EnvElement.h"
-#include "../common/constants.h"
-#include "../common/networking/CommunicationClient.h"
+//#include "../common/constants.h"
+#include "CommunicationClient.h"
 #include "../common/networking/CommunicationConstants.h"
 
 class Window

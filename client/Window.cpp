@@ -1,5 +1,5 @@
 #include "Window.h"
-#define SERVER_ENABLED
+//#define SERVER_ENABLED
 
 // Window Properties
 int Window::width;
@@ -23,7 +23,7 @@ GLuint Window::shaderProgram;
 glm::mat4 Window::projection;
 
 //this is the position of the camera
-glm::vec3 Window::eyePos(0, 20, 20);
+glm::vec3 Window::eyePos(0, 10, 10);
 // this is the direction where the camera is staring at
 glm::vec3 Window::lookAtPoint(0, 0, 0);
 // this is the upward direction for the camera. Think of this as the angle where your head is
@@ -53,11 +53,17 @@ bool Window::initializeProgram() {
 	return true;
 }
 
-//bool Window::initializeObjects(char * file, char * file1, char* file2)
+/*
+initialize all the objects
+which need (fileName, projection matrix, view matrix , shader id, translation vector, 
+rotation axis, rotation in radian, scale factor in float, model color)
+*/
 bool Window::initializeObjects()
 {
-	chars.push_back(new Character("shaders/character/cube.obj", projection, view, shaderProgram, glm::vec3(0.f,1.f,0.f)));
-	envs.push_back(new EnvElement("shaders/environment/ground.obj", projection, view, shaderProgram, glm::vec3(0.f,0.f,0.f)));
+	chars.push_back(new Character("shaders/character/cube.obj", &projection, &view, shaderProgram, 
+	glm::vec3(0.f,1.f,0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(45.f), 2.f, glm::vec3(1.f, .5f, .5f)));
+	envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram, 
+	glm::vec3(0.f,0.f,0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
 	return true;
 }
 
