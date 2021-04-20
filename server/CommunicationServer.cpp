@@ -137,6 +137,7 @@ void CommunicationServer::getClientInputs(std::vector<std::pair<int,CLIENT_INPUT
             std::pair<int, CLIENT_INPUT> inputPair;
             inputPair.first = playerInfos[i].id;
             inputPair.second = playerInfos[i].input;
+            // printf("Server received client: %d action: %d", inputPair.first, inputPair.second );
             clientInputs.push_back(inputPair);
 
             playerInfos[i].input = NO_MOVE;
@@ -177,7 +178,7 @@ void CommunicationServer::sendGameUpdates(std::vector<GameUpdate> updates) {
 
     
     // copy the number of updates to all the output buffer of all clients
-    for(int i = 0; i < MAX_PLAYERS; i++) {
+    for(int i = 0; i < PLAYER_NUM; i++) {
         std::copy(sendbuf.begin(), sendbuf.end(), back_inserter(playerInfos[i].output));
     }
     sendbuf.clear();
@@ -189,7 +190,7 @@ void CommunicationServer::sendGameUpdates(std::vector<GameUpdate> updates) {
         sendbuf.assign((char *)updates.data(), ((char *) updates.data()) + updates.size() * sizeof(GameUpdate));
 
         // Copy the actual updates to all the output buffer of all clients
-        for(int i = 0; i < MAX_PLAYERS; i++) {
+        for(int i = 0; i < PLAYER_NUM; i++) {
             
             // Each thread will get a copy of the game updates
             std::copy(sendbuf.begin(), sendbuf.end(), back_inserter(playerInfos[i].output));
@@ -199,7 +200,7 @@ void CommunicationServer::sendGameUpdates(std::vector<GameUpdate> updates) {
     
 
     // Set the output boolean to true once the entire output is written so the thread can push data to the clients
-    for(int i = 0; i < MAX_PLAYERS; i++) {
+    for(int i = 0; i < PLAYER_NUM; i++) {
         playerInfos[i].outputChanged = true;
     }
 

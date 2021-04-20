@@ -19,7 +19,7 @@
 #pragma comment (lib, "Mswsock.lib")
 #pragma comment (lib, "AdvApi32.lib")
 
-#include "../common/constants.h"
+#include "../common/networking/CommunicationConstants.h"
 #include "../client/CommunicationClient.h"
 
 #include "../common/game/Game.h"
@@ -41,7 +41,7 @@ int __cdecl main(int argc, char **argv)
 
     // initialize the game instance
     Game* game = new Game();
-    game->printGameGrids();
+    // game->printGameGrids();
     game->printPlayers();
 
     while(1) {
@@ -82,7 +82,7 @@ int __cdecl main(int argc, char **argv)
 
         for(int i = 0; i < updates.size(); i++) {
             GameUpdate update = updates[i];
-            printf("ID: %d, gridDeltaX: %d, gridDeltaY: %d, floatDeltaX: %f, floatDeltaY: %f\n", update.id, update.gridDeltaX, update.gridDeltaY, update.floatDeltaX, update.floatDeltaY);
+            printf("ID: %d, gridX: %d, gridY: %d, floatDeltaX: %f, floatDeltaY: %f\n", update.id, update.gridPos.x, update.gridPos.y, update.floatDeltaX, update.floatDeltaY);
         }
 
         

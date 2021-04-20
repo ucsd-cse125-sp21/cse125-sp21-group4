@@ -275,6 +275,7 @@ void Game::printPlayers () {
    Server side methods used to queue updates for the client to process 
 ========================================================================= */
 void Game::addUpdate(GameUpdate update) {
+    // printf("Server push update");
     updates.push_back(update);
 }
 void Game::clearUpdates() {
@@ -304,6 +305,8 @@ void Game::handleUpdate(GameUpdate update) {
             // Animate or update on graphics here.
             break;
         case PLAYER_MOVE:
+        // Need curly braces because I am declaring new variables inside the case statement
+        {
             // Note: I do not do checks here because the server handles checks.
             PlayerPosition newPosition = players[update.id]->getPosition();
             newPosition.x += update.floatDeltaX;
@@ -311,6 +314,7 @@ void Game::handleUpdate(GameUpdate update) {
             players[update.id]->setPosition(newPosition);
             // Animate or update on graphics here.
             break;
+        }
         case PROJECTILE_MOVE:
             // Projectile can be identified with update.id.
             // Animate or update on graphics here.

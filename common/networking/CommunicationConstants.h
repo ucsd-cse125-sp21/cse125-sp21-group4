@@ -1,14 +1,14 @@
 #ifndef CONSTANTS_HEADER
 #define CONSTANTS_HEADER
 
-
+#include "../game/GridComponent.h"
 
 #define DEFAULT_PORT "27015"
 
 // #define ERICS_LOCAL_SERVER "192.168.0.110"
 #define ERICS_LOCAL_SERVER "127.0.0.1"
 
-#define TICK_TIME 500
+#define TICK_TIME 33 // 33ms == 30 tick server. 1 second / 30 ticks = 33 ms
 
 enum CLIENT_INPUT{
     MOVE_FORWARD,

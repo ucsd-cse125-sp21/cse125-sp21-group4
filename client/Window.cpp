@@ -56,7 +56,10 @@ bool Window::initializeProgram() {
 //bool Window::initializeObjects(char * file, char * file1, char* file2)
 bool Window::initializeObjects()
 {
-	chars.push_back(new Character("shaders/character/cube.obj", projection, view, shaderProgram, glm::vec3(0.f,1.f,0.f)));
+	chars.push_back(new Character("shaders/character/cube.obj", projection, view, shaderProgram, glm::vec3(-5.f,1.f,-5.f)));
+	chars.push_back(new Character("shaders/character/cube.obj", projection, view, shaderProgram, glm::vec3(-5.f,1.f,5.f)));
+	chars.push_back(new Character("shaders/character/cube.obj", projection, view, shaderProgram, glm::vec3(5.f,1.f,-5.f)));
+	chars.push_back(new Character("shaders/character/cube.obj", projection, view, shaderProgram, glm::vec3(5.f,1.f,5.f)));
 	envs.push_back(new EnvElement("shaders/environment/ground.obj", projection, view, shaderProgram, glm::vec3(0.f,0.f,0.f)));
 	return true;
 }
@@ -122,15 +125,11 @@ void Window::idleCallback()
 	// 1 + 2. Get the latest input and send it to the server
 	client->sendInput(Window::lastInput);
 	// 3. Receive updated gamestate from server
-	GameState gameState = client->receiveGameState();
+	std::vector<GameUpdate> updates = client->receiveGameUpdates();
 	lastInput = NO_MOVE;
 
-	cout << "updating game" << endl;
-	//update game state
-	chars[0]->moveTo(glm::vec3(gameState.playersPosition->x, 
-		0.0f, gameState.playersPosition->y));
-	cout << "x " << gameState.playersPosition->x << "y " <<
-		gameState.playersPosition->y << endl;
+	// cout << "updating game" << endl;
+	Window::handleUpdates(updates);
 #endif
 }
 
@@ -209,4 +208,44 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	if (RightDown) {
 		return;
 	}
+}
+
+
+/* =========================================================================
+   methods used to process updates in the Graphics Client.
+========================================================================= */
+
+void Window::handleUpdates(std::vector<GameUpdate> updates) {
+    int numOfUpdates = updates.size();
+    if(numOfUpdates <= 0) {
+        return;
+    }
+
+    for(int i = 0; i < numOfUpdates; i++) {
+        Window::handleUpdate(updates[i]);
+		printf("Update received: type: %d, gridX: %d, gridY: %d, floatX: %f, floatY: %f", updates[i].id, updates[i].gridPos.x, updates[i].gridPos.y, updates[i].floatDeltaX, updates[i].floatDeltaY);
+    }
+}
+
+void Window::handleUpdate(GameUpdate update) {
+    switch(update.updateType) {
+        case PLAYER_DAMAGE_TAKEN:
+            break;
+        case PLAYER_MOVE:
+		{
+			chars[update.id]->moveToGivenDelta(update.floatDeltaX, update.floatDeltaY);
+			printf("Character %d moved with deltaX: %f, deltaY: %f", update.id, update.floatDeltaX, update.floatDeltaY);
+            break;
+        
+		}
+		case PROJECTILE_MOVE:
+            break;
+        case OBJECTIVE_BEING_TAKEN:
+            break;
+        case OBJECTIVE_TAKEN:
+            break;
+        default:
+            printf("Not Handled Update Type: %d", update.updateType);
+            break;
+    }
 }

@@ -5,8 +5,7 @@
 #include "shader.h"
 #include "Character.h"
 #include "EnvElement.h"
-#include "../common/constants.h"
-#include "../common/networking/CommunicationClient.h"
+#include "CommunicationClient.h"
 #include "../common/networking/CommunicationConstants.h"
 
 class Window
@@ -55,6 +54,9 @@ public:
 	static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	static void mouse_callback(GLFWwindow* window, int button, int action, int mods);
 	static void cursor_callback(GLFWwindow* window, double currX, double currY);
+
+	static void handleUpdates(std::vector<GameUpdate> updates);
+	static void handleUpdate(GameUpdate update);
 };
 
 #endif

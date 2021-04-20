@@ -1,8 +1,8 @@
 #ifndef _GAMECONSTANT_H_
 #define _GAMECONSTANT_H_
 
-#define MAP_WIDTH 20
-#define MAP_HEIGHT 20
+#define MAP_WIDTH 600
+#define MAP_HEIGHT 600
 #define GRID_WIDTH 1 // GRID_WIDTH should be able to fully divide MAP_WIDTH
 #define GRID_HEIGHT 1 // GRID_HEIGHT should be able to fully divide MAP_HEIGHT
 #define PLAYER_NUM 4
