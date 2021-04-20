@@ -284,6 +284,9 @@ void Game::clearUpdates() {
 
 /* =========================================================================
    Client side methods used to process updates.
+   Note: Graphics Client currently doesn't have a Game instance. Not sure if 
+         we will be separating Game vs ClientGame. But I will include these 
+         methods in the case we use Game.cpp in server AND client.
 ========================================================================= */
 void Game::handleUpdates(std::vector<GameUpdate> updates) {
     int numOfUpdates = updates.size();
@@ -296,13 +299,13 @@ void Game::handleUpdates(std::vector<GameUpdate> updates) {
     }
 }
 
+// Note: May or may not call graphics/animator object. Depends if Game instance is
+// added to the graphics client. If we add Game instance, I would recommend creating
+// an Animator object that is responsible for calling methods on Window to update graphics.
 void Game::handleUpdate(GameUpdate update) {
-    // Later: we add an Animator/Graphics obj that does these animations.
-    // As for the server side, we can just have an animator obj that does nothing.
     switch(update.updateType) {
         case PLAYER_DAMAGE_TAKEN:
             players[update.id]->hpDecrement(update.damageTaken);
-            // Animate or update on graphics here.
             break;
         case PLAYER_MOVE:
         // Need curly braces because I am declaring new variables inside the case statement
@@ -312,21 +315,17 @@ void Game::handleUpdate(GameUpdate update) {
             newPosition.x += update.floatDeltaX;
             newPosition.y += update.floatDeltaY;
             players[update.id]->setPosition(newPosition);
-            // Animate or update on graphics here.
             break;
         }
         case PROJECTILE_MOVE:
             // Projectile can be identified with update.id.
-            // Animate or update on graphics here.
             break;
         case OBJECTIVE_BEING_TAKEN:
             // Obj identified by update.gridPos.
-            // Animate or update on graphics here.
             break;
         case OBJECTIVE_TAKEN:
             // Make the obj disappear? 
             // Obj identified by update.gridPos.
-            // Animate or update on graphics here.
             break;
         default:
             printf("Not Handled Update Type: %d", update.updateType);
