@@ -66,7 +66,7 @@ CommunicationServer::CommunicationServer() {
     }
 
     ZeroMemory(playerInfos, sizeof(playerInfos));
-    for(int i = 0; i < MAX_PLAYERS; i++) {
+    for(int i = 0; i < PLAYER_NUM; i++) {
         playerInfos[i].id = 0;
         playerInfos[i].input = NO_MOVE;
         playerInfos[i].outputChanged = false;
@@ -74,7 +74,7 @@ CommunicationServer::CommunicationServer() {
 
     // Keep on accepting connections.
     int clientID = 0;
-    while (clientID < MAX_PLAYERS) {
+    while (clientID < PLAYER_NUM) {
 
         // 4. The accept function will block until we have received a new connection. 
         SOCKET * clientSocketPtr = (SOCKET *) (malloc (sizeof(SOCKET)));
@@ -130,7 +130,7 @@ void CommunicationServer::cleanup() {
 void CommunicationServer::getClientInputs(std::vector<std::pair<int,CLIENT_INPUT>> &clientInputs) {
 
     // Go through each player's input and push their input to be processes if they're moves.
-    for(int i = 0; i < MAX_PLAYERS; i++) {
+    for(int i = 0; i < PLAYER_NUM; i++) {
         if(playerInfos[i].input != NO_MOVE) {
 
             // After getting their inputs, set it to NO_MOVE so that players can input more moves
@@ -150,14 +150,14 @@ void CommunicationServer::sendGameState(GameState gameState) {
     sendbuf.assign((char*) &gameState, ((char*) &gameState) + sizeof(gameState));
 
     // Set the output boolean to true once the entire output is written
-    for(int i = 0; i < MAX_PLAYERS; i++) {
+    for(int i = 0; i < PLAYER_NUM; i++) {
         
         // Want to set the inputs for specific thread to send out
         std::copy(sendbuf.begin(), sendbuf.end(), back_inserter(playerInfos[i].output));
     }
 
     // Set the output boolean to true once the entire output is written so the thread can push it to the clients
-    for(int i = 0; i < MAX_PLAYERS; i++) {
+    for(int i = 0; i < PLAYER_NUM; i++) {
         playerInfos[i].outputChanged = true;
     }
 

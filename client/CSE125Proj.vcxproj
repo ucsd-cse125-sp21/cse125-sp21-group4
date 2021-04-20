@@ -108,8 +108,8 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\common\constants.h" />
-    <ClInclude Include="..\common\GameState.h" />
+    <ClInclude Include="..\common\networking\CommunicationConstants.h" />
+    <ClInclude Include="..\common\networking\GameState.h" />
     <ClInclude Include="..\common\PlayerPosition.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="CommunicationClient.h" />

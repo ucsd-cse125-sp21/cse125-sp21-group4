@@ -4,8 +4,8 @@
 #include <iostream>
 #include <vector>
 #include "GridComponent.h"
-#include "../constants.h"
-#include "../GameState.h"
+#include "../networking/CommunicationConstants.h"
+#include "../networking/GameState.h"
 
 class GamePlayer;
 typedef GamePlayer* PlayerList [PLAYER_NUM];
@@ -31,7 +31,7 @@ public:
     void printGameState (GameState gameState);
     ~Game(); // destructor
 
-    bool handleInputs(CLIENT_INPUT playersInputs[MAX_PLAYERS]);
+    bool handleInputs(CLIENT_INPUT playersInputs[PLAYER_NUM]);
 
     void printGameGrids();
     void printPlayers();

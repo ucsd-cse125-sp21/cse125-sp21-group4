@@ -23,9 +23,9 @@
 #pragma comment (lib, "Ws2_32.lib")
 // #pragma comment (lib, "Mswsock.lib")
 
-#include "../common/constants.h"
+#include "../common/networking/CommunicationConstants.h"
 // #include "../common/PlayerPosition.h" FILE REMOVED
-#include "../common/GameState.h"
+#include "../common/networking/GameState.h"
 #include "../common/game/GameConstants.h"
 
 struct PlayerInfo {
@@ -37,9 +37,9 @@ struct PlayerInfo {
 
 class CommunicationServer {
 private:
-    std::thread playerThreads[MAX_PLAYERS]; // All the player threads
-    SOCKET clientSockets[MAX_PLAYERS]; // client socket fd for each player
-    PlayerInfo playerInfos[MAX_PLAYERS]; // Player info (like their input, output, and id)
+    std::thread playerThreads[PLAYER_NUM]; // All the player threads
+    SOCKET clientSockets[PLAYER_NUM]; // client socket fd for each player
+    PlayerInfo playerInfos[PLAYER_NUM]; // Player info (like their input, output, and id)
 
     static void cleanUpSocket(SOCKET* clientSocketPtr);
 public:

@@ -11,8 +11,8 @@
 #include "Window.h"
 
 #include "CommunicationClient.h"
-#include "../common/constants.h"
-#include "../common/GameState.h"
+#include "../common/networking/CommunicationConstants.h"
+#include "../common/networking/GameState.h"
 
 using namespace std;
 using namespace glm;
