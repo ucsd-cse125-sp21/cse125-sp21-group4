@@ -87,17 +87,17 @@ int main(int argc, char* argv[])
 
 		// Main render display callback. Rendering of objects is done here.
 		Window::displayCallback(window);
-#ifdef SERVER_ENABLED
+// #ifdef SERVER_ENABLED
 
-		// 1 + 2. Get the latest input and send it to the server
-		commClient->sendInput(Window::lastInput);
+// 		// 1 + 2. Get the latest input and send it to the server
+// 		commClient->sendInput(Window::lastInput);
 
-		// 3. Receive updated gamestate from server
-		GameState gameState = commClient->receiveGameState();
-#endif
+// 		// 3. Receive updated gamestate from server
+// 		GameState gameState = commClient->receiveGameState();
+// #endif
 
-		Window::lastInput = NO_MOVE;
-		Sleep(20);
+		// Window::lastInput = NO_MOVE;
+		Sleep(5);
 
 		// 4 + 5. TODO: Update local game state and render the world.
         // printf("Player %d is on x: %d, y: %d\n", gameState.playerPositions[0].id, gameState.playerPositions[0].x, gameState.playerPositions[0].y);

@@ -4,14 +4,20 @@ To run the interactive test file GameTest.cpp
 2. g++ *.cpp -o game.exe
 3. game.exe
 
-## game module inheritance relationship
+## Inheritance relationship
 ```
-            GameComponent
-       /        |         \      
-     /          |          \
-    |           |           |
-  Space      GamePlayer   Obstacle
-                |
-              /   \
-        Monster   Fighter
+                  GridCompoenent
+              /         |         \
+            /           |           \
+          /             |             \
+    Obstacle          Space           Objective
+       |                             /    |      \
+       |                            |     |       |
+      Rock                      Healing Evolve  Beacon
+
+--------------------------------------------------------------
+
+                    GamePlayer
+
+      Fighter Monster Mage(TODO) Rogue(TODO) Cleric(TODO)
 ```

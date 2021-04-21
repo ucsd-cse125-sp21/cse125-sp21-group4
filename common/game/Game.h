@@ -18,6 +18,8 @@ public:
     PlayerList players; // PlayerList is an size-4-array of GamePlayer 
                         // (either Fighter type or Monster type for now)
 
+    std::vector<GameUpdate> updates;
+
     // public member functions
     Game(); // default constructor
     void initPlayers(); // init playerList
@@ -31,9 +33,16 @@ public:
 
     bool handleInputs(CLIENT_INPUT playersInputs[PLAYER_NUM]);
 
-    void printGameGrids ();
-    void printPlayers ();
+    void printGameGrids();
+    void printPlayers();
     void printStats();
+
+    // Network Optimization: GameUpdates
+    void addUpdate(GameUpdate update);
+    void clearUpdates();
+
+    void handleUpdates(std::vector<GameUpdate> updates);
+    void handleUpdate(GameUpdate update);
 };
 
 

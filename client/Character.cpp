@@ -200,6 +200,19 @@ void Character::moveTo(glm::vec3 newPos) {
 	model = glm::mat4(1) * glm::translate(pos);
 }
 
+
+void Character::moveToGivenDelta(float deltaX, float deltaY) {
+	// deltaX is the x axis in the graphics client
+	glm::vec3 newPos = pos;
+	newPos.x += deltaX;
+
+	// deltaY is the z axis in the graphics client
+	newPos.z += deltaY;
+
+	// move to new position
+	moveTo(newPos);
+}
+
 void Character::update() {
 
 }

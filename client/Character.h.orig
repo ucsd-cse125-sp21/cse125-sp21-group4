@@ -42,8 +42,11 @@ public:
 	void update();
 	void move(int); // no longer used
 	void moveTo(glm::vec3);
+<<<<<<< HEAD
 	void updateView(glm::mat4, glm::vec3);
+=======
 	void moveToGivenDelta(float deltaX, float deltaY);
+>>>>>>> main
 };
 
 #endif
