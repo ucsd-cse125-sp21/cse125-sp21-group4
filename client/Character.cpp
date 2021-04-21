@@ -1,12 +1,27 @@
 #include "Character.h"
 
-Character::Character(string fileName, glm::mat4 p, glm::mat4 v, GLuint s, glm::vec3 trans) {
-	pos = trans; // initial translation will be character's initial position
-	model = glm::translate(trans);
+/*
+	constructor usage:
+	projection p, view v, and shader s are taken cared of in Window class.
+	translation trnas is the initial position where you want to place this object;
+	rotAxis is the the axis you want to rotate about;
+	rotRad  is the amount of rotation you want in RADIAN;
+	scale is a factor you want to scale the initial object;
+	color c is the initial model color; default is black
+*/
+
+Character::Character(string fileName, glm::mat4* p, glm::mat4* v, GLuint s,
+	glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale,
+	glm::vec3 c) {
+	
+	// initial translation will bthe initial position
+	pos = trans;
+	model = glm::translate(trans) * glm::rotate(rotRad, rotAxis) * glm::scale(glm::vec3(scale));
 	projection = p;
 	view = v;
 	shader = s;
-	color = glm::vec3(0.99f, 0.0f, 0.0f);
+	// default color is black
+	color = c;
 
 	std::vector<glm::vec3> normalp;
 	std::vector<glm::vec3> pointsp;
@@ -147,8 +162,8 @@ void Character::draw(glm::mat4 c) {
 	glUseProgram(shader);
 
 	// Get the shader variable locations and send the uniform data to the shader 
-	glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, false, glm::value_ptr(view));
-	glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, false, glm::value_ptr(projection));
+	glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, false, glm::value_ptr(*view));
+	glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, false, glm::value_ptr(*projection));
 	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, glm::value_ptr(m));
 	glUniform3fv(glGetUniformLocation(shader, "viewPos"), 1, glm::value_ptr(eyep));
 	glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(color));
@@ -202,6 +217,5 @@ void Character::update() {
 
 }
 
-void Character::updateView(glm::mat4 proj, glm::vec3) {
-
+void Character::updateView(glm::mat4, glm::vec3) {
 }

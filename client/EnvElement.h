@@ -14,8 +14,8 @@ private:
 	GLuint EBO;
 
 	glm::mat4 model;
-	glm::mat4 view;
-	glm::mat4 projection;
+	glm::mat4 * view;
+	glm::mat4 * projection;
 	GLuint shader;
 
 	glm::vec3 eyep;
@@ -24,8 +24,18 @@ private:
 	glm::vec3 pos;
 
 public:
-	EnvElement(string fileName, glm::mat4 proj, glm::mat4 view, GLuint shader,
-		glm::vec3 trans);
+	/*
+	constructor usage:
+	projection p, view v, and shader s are taken cared of in Window class.
+	translation trnas is the initial position where you want to place this object;
+	rotAxis is the the axis you want to rotate about;
+	rotRad  is the amount of rotation you want in RADIAN;
+	scale is a factor you want to scale the initial object;
+	color c is the initial model color; default is black
+*/
+	EnvElement(string fileName, glm::mat4 * proj, glm::mat4 * view, GLuint shader,
+		glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale,
+		glm::vec3 c = glm::vec3(0.f, 0.f, 0.f));
 	void draw(glm::mat4 c = glm::mat4(1));
 	void update();
 	void updateView(glm::mat4, glm::vec3);
