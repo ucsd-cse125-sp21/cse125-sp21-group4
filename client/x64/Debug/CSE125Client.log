@@ -1,0 +1,6 @@
+﻿  Character.cpp
+  CommunicationClient.cpp
+  EnvElement.cpp
+  Main.cpp
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\shared\minwindef.h(130,1): warning C4005: 'APIENTRY': macro redefinition
+D:\Schooling\CSE 125\cse125-sp21-group4\client\packages\nupengl.core.0.1.0.1\build\native\include\GLFW\glfw3.h(92): message : see previous definition of 'APIENTRY'

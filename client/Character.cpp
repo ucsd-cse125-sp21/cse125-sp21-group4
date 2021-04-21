@@ -16,7 +16,7 @@ Character::Character(string fileName, glm::mat4* p, glm::mat4* v, GLuint s,
 	
 	// initial translation will bthe initial position
 	pos = trans;
-	model = glm::rotate(rotRad, rotAxis) * glm::translate(trans) * glm::scale(glm::vec3(scale));
+	model = glm::translate(trans) * glm::rotate(rotRad, rotAxis) * glm::scale(glm::vec3(scale));
 	projection = p;
 	view = v;
 	shader = s;

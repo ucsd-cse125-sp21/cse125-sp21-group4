@@ -60,8 +60,16 @@ rotation axis, rotation in radian, scale factor in float, model color)
 */
 bool Window::initializeObjects()
 {
+	//chars
 	chars.push_back(new Character("shaders/character/cube.obj", &projection, &view, shaderProgram, 
-	glm::vec3(0.f,1.f,0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(45.f), 2.f, glm::vec3(1.f, .5f, .5f)));
+		glm::vec3(-5.f, 1.f, -5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f)));
+	chars.push_back(new Character("shaders/character/cube.obj", &projection, &view, shaderProgram,
+		glm::vec3(-5.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(45.f), 1.f, glm::vec3(.5f, 1.f, .5f)));
+	chars.push_back(new Character("shaders/character/cube.obj", &projection, &view, shaderProgram,
+		glm::vec3(5.f, 1.f, -5.f), glm::vec3(0.f, 0.f, 1.f), glm::radians(45.f), 1.6f, glm::vec3(.5f, .5f, 1.f)));
+	chars.push_back(new Character("shaders/character/cube.obj", &projection, &view, shaderProgram,
+		glm::vec3(5.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(60.f), 0.5f, glm::vec3(1.f, .3f, 1.f)));
+	//env
 	envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram, 
 	glm::vec3(0.f,0.f,0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
 	return true;
