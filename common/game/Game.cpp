@@ -40,20 +40,27 @@ void Game::initPlayers () {
     position.width = FIGHTER_WIDTH;
     position.height = FIGHTER_HEIGHT;
     players[0] = new Fighter(position);
+    players[0]->setID(0);
 
     position.x = P2_SPAWN_POSITION[0];
     position.y = P2_SPAWN_POSITION[1];
     players[1] = new Fighter(position);
+    players[1]->setID(1);
+
     
     position.x = P3_SPAWN_POSITION[0];
     position.y = P3_SPAWN_POSITION[1];
     players[2] = new Fighter(position);
+    players[2]->setID(2);
+
 
     position.x = P4_SPAWN_POSITION[0];
     position.y = P4_SPAWN_POSITION[1];
     position.width = MONSTER_WIDTH;
     position.height = MONSTER_HEIGHT;
     players[3] = new Monster(position);
+    players[3]->setID(3);
+
 }
 
 
@@ -264,6 +271,67 @@ void Game::printPlayers () {
     printStats();
 }
 
+/* =========================================================================
+   Server side methods used to queue updates for the client to process 
+========================================================================= */
+void Game::addUpdate(GameUpdate update) {
+    // printf("Server push update");
+    updates.push_back(update);
+}
+void Game::clearUpdates() {
+    updates.clear();
+}
+
+/* =========================================================================
+   Client side methods used to process updates.
+   Note: Graphics Client currently doesn't have a Game instance. Not sure if 
+         we will be separating Game vs ClientGame. But I will include these 
+         methods in the case we use Game.cpp in server AND client.
+========================================================================= */
+void Game::handleUpdates(std::vector<GameUpdate> updates) {
+    int numOfUpdates = updates.size();
+    if(numOfUpdates <= 0) {
+        return;
+    }
+
+    for(int i = 0; i < numOfUpdates; i++) {
+        handleUpdate(updates[i]);
+    }
+}
+
+// Note: May or may not call graphics/animator object. Depends if Game instance is
+// added to the graphics client. If we add Game instance, I would recommend creating
+// an Animator object that is responsible for calling methods on Window to update graphics.
+void Game::handleUpdate(GameUpdate update) {
+    switch(update.updateType) {
+        case PLAYER_DAMAGE_TAKEN:
+            players[update.id]->hpDecrement(update.damageTaken);
+            break;
+        case PLAYER_MOVE:
+        // Need curly braces because I am declaring new variables inside the case statement
+        {
+            // Note: I do not do checks here because the server handles checks.
+            PlayerPosition newPosition = players[update.id]->getPosition();
+            newPosition.x += update.floatDeltaX;
+            newPosition.y += update.floatDeltaY;
+            players[update.id]->setPosition(newPosition);
+            break;
+        }
+        case PROJECTILE_MOVE:
+            // Projectile can be identified with update.id.
+            break;
+        case OBJECTIVE_BEING_TAKEN:
+            // Obj identified by update.gridPos.
+            break;
+        case OBJECTIVE_TAKEN:
+            // Make the obj disappear? 
+            // Obj identified by update.gridPos.
+            break;
+        default:
+            printf("Not Handled Update Type: %d", update.updateType);
+            break;
+    }
+}
 // testing  purposes
 void Game::printStats() {
 

@@ -247,6 +247,14 @@ void GamePlayer::move (Game* game, Direction direction, float distance) {
     // if destination is invalid, return immediately
     if (!canMoveTo(game, destPosition)) return;
 
+    // push update onto queue for clients to know that a player has moved
+    GameUpdate gameUpdate;
+    gameUpdate.id = this->id;
+    gameUpdate.updateType = PLAYER_MOVE;
+    gameUpdate.floatDeltaX = destPosition.x - position.x;
+    gameUpdate.floatDeltaY = destPosition.y - position.y;
+    game->addUpdate(gameUpdate);
+
     // Move there!
     position = destPosition;
 }
@@ -315,13 +323,22 @@ void GamePlayer::attack(Game* game, float distance) {
         // if one box is above the other
         if (p1ULY >= p2BRY || p2ULY >= p1BRY) continue;
 
-        if (canAttack(game->players[i]))
+        if (canAttack(game->players[i])) {
             game->players[i]->hpDecrement(attackHarm);
+
+            // queue this update to be send to other players
+            GameUpdate gameUpdate;
+            gameUpdate.updateType = PLAYER_DAMAGE_TAKEN;
+            gameUpdate.id = i;
+            gameUpdate.damageTaken = attackHarm;
+            game->addUpdate(gameUpdate);
+        }
     }
 }
 
 void GamePlayer::handleUserInput (Game* game, CLIENT_INPUT userInput) {
     switch (userInput) {
+        // Eric TODO: add gameupdates
         case MOVE_FORWARD:
             move(game, NORTH, MOVE_DISTANCE);
             break;
@@ -341,4 +358,13 @@ void GamePlayer::handleUserInput (Game* game, CLIENT_INPUT userInput) {
             // NO_MOVE and other input does not trigger any action
             break;
     }
+}
+
+
+void GamePlayer::setID(int newID) {
+    id = newID;
+}
+
+int GamePlayer::getID() {
+    return id;
 }

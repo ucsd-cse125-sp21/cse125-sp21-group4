@@ -29,6 +29,8 @@ protected:
     int attackHarm; // harmness made per attack
     Direction faceDirection; // the direction the player is facing
 
+    int id; // Used for determining playerID
+
 public:
     GamePlayer(); // Constructor for GamePlayer
     GamePlayer(PlayerPosition position); // Constructor for GameComponent
@@ -61,6 +63,9 @@ public:
     bool isDead ();
 
     void handleUserInput (Game* game, CLIENT_INPUT userInput);
+
+    void setID(int newID); // used to know what the id of the player is
+    int getID();
 };
 
 #endif

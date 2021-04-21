@@ -41,7 +41,7 @@ int __cdecl main(int argc, char **argv)
 
     // initialize the game instance
     Game* game = new Game();
-    game->printGameGrids();
+    // game->printGameGrids();
     game->printPlayers();
     GameState gameState = GameState();
 
@@ -78,12 +78,17 @@ int __cdecl main(int argc, char **argv)
         commClient->sendInput(sendInput);
 
         // 3. Receive gameState from the server
-        GameState newGameState = commClient->receiveGameState();
+        // GameState newGameState = commClient->receiveGameState();
+        std::vector<GameUpdate> updates = commClient->receiveGameUpdates();
         
         // 4. Update local game State & 5. Render the world
-        if (!game->sameGameState(gameState, newGameState)) {
-            gameState = newGameState;
-            game->printGameState(gameState);
+        // if (!game->sameGameState(gameState, newGameState)) {
+        //     gameState = newGameState;
+        //     game->printGameState(gameState);
+        // }
+        if(updates.size() > 0) {
+            game->handleUpdates(updates);
+            game->printPlayers();
         }
 
 
