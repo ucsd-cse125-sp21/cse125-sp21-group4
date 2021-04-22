@@ -1,11 +1,12 @@
 #include "Window.h"
-//#define SERVER_ENABLED
+#define SERVER_ENABLED
 
 // Window Properties
 int Window::width;
 int Window::height;
 const char* Window::windowTitle = "CSE125_GAME";
 CommunicationClient* Window::client;
+bool Window::keyboard[KEYBOARD_SIZE];
 
 
 //objects to render
@@ -50,6 +51,11 @@ bool Window::initializeProgram() {
 	cout << "Communication Established" << endl;
 #endif // SERVER_ENABLED
 
+	// Setup the keyboard.
+	for(int i = 0; i < KEYBOARD_SIZE; i++) {
+		keyboard[i] = false;
+	}
+
 	return true;
 }
 
@@ -64,9 +70,9 @@ bool Window::initializeObjects()
 	chars.push_back(new Character("shaders/character/cube.obj", &projection, &view, shaderProgram, 
 		glm::vec3(-5.f, 1.f, -5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f)));
 	chars.push_back(new Character("shaders/character/cube.obj", &projection, &view, shaderProgram,
-		glm::vec3(-5.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(45.f), 1.f, glm::vec3(.5f, 1.f, .5f)));
+		glm::vec3(5.f, 1.f, -5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(45.f), 1.f, glm::vec3(.5f, 1.f, .5f)));
 	chars.push_back(new Character("shaders/character/cube.obj", &projection, &view, shaderProgram,
-		glm::vec3(5.f, 1.f, -5.f), glm::vec3(0.f, 0.f, 1.f), glm::radians(45.f), 1.6f, glm::vec3(.5f, .5f, 1.f)));
+		glm::vec3(-5.f, 1.f, 5.f), glm::vec3(0.f, 0.f, 1.f), glm::radians(45.f), 1.6f, glm::vec3(.5f, .5f, 1.f)));
 	chars.push_back(new Character("shaders/character/cube.obj", &projection, &view, shaderProgram,
 		glm::vec3(5.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(60.f), 0.5f, glm::vec3(1.f, .3f, 1.f)));
 	//env
@@ -132,6 +138,8 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 
 void Window::idleCallback()
 {
+
+	Window::updateLastInput();
 #ifdef SERVER_ENABLED
 	// 1 + 2. Get the latest input and send it to the server
 	client->sendInput(Window::lastInput);
@@ -167,30 +175,13 @@ void Window::displayCallback(GLFWwindow* window)
 void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	 // Check for a key press.
-	if (action == GLFW_PRESS || action == GLFW_REPEAT)
+	if (action == GLFW_PRESS)
 	{
-		switch (key)
-		{
-		case(GLFW_KEY_W):
-			lastInput = MOVE_FORWARD;
-			cout << "pressed W" << endl;
-			break;
-		case(GLFW_KEY_A):
-			lastInput = MOVE_LEFT;
-			cout << "pressed A" << endl;
-			break;
-		case(GLFW_KEY_S):
-			lastInput = MOVE_BACKWARD;
-			cout << "pressed S" << endl;
-			break;
-		case(GLFW_KEY_D):
-			lastInput = MOVE_RIGHT;
-			cout << "pressed D" << endl;
-			break;
-		default:
-			break;
-		}
+		keyboard[key] = true;
 
+	 // Check for a key release.
+	} else if (action == GLFW_RELEASE) {
+		keyboard[key] = false;
 	}
 }
 
@@ -226,6 +217,7 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
    methods used to process updates in the Graphics Client.
 ========================================================================= */
 
+// handleUpdates gets the updates from the ClientCommunication and performs handleUpdate on each one
 void Window::handleUpdates(std::vector<GameUpdate> updates) {
     int numOfUpdates = updates.size();
     if(numOfUpdates <= 0) {
@@ -234,10 +226,11 @@ void Window::handleUpdates(std::vector<GameUpdate> updates) {
 
     for(int i = 0; i < numOfUpdates; i++) {
         Window::handleUpdate(updates[i]);
-		printf("Update received: type: %d, gridX: %d, gridY: %d, floatX: %f, floatY: %f", updates[i].id, updates[i].gridPos.x, updates[i].gridPos.y, updates[i].floatDeltaX, updates[i].floatDeltaY);
+		printf("Update received: type: %d, id: %d, gridX: %d, gridY: %d, floatX: %f, floatY: %f", updates[i].updateType, updates[i].id, updates[i].gridPos.x, updates[i].gridPos.y, updates[i].floatDeltaX, updates[i].floatDeltaY);
     }
 }
 
+// Handles specific update on the graphics side.
 void Window::handleUpdate(GameUpdate update) {
     switch(update.updateType) {
         case PLAYER_DAMAGE_TAKEN:
@@ -259,4 +252,26 @@ void Window::handleUpdate(GameUpdate update) {
             printf("Not Handled Update Type: %d", update.updateType);
             break;
     }
+}
+
+
+// This function checks if a certain key is being pressed or held down.
+void Window::updateLastInput() {
+
+	// W key
+	if(keyboard[GLFW_KEY_W]) {
+		lastInput = MOVE_FORWARD;
+
+	// A key
+	} else if(keyboard[GLFW_KEY_A]) {
+		lastInput = MOVE_LEFT;
+
+	// S key
+	} else if(keyboard[GLFW_KEY_S]) {
+		lastInput = MOVE_BACKWARD;
+		
+	// D key
+	} else if(keyboard[GLFW_KEY_D]) {
+		lastInput = MOVE_RIGHT;
+	}
 }
