@@ -179,6 +179,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	{
 		keyboard[key] = true;
 
+	 // Check for a key release.
 	} else if (action == GLFW_RELEASE) {
 		keyboard[key] = false;
 	}
@@ -216,6 +217,7 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
    methods used to process updates in the Graphics Client.
 ========================================================================= */
 
+// handleUpdates gets the updates from the ClientCommunication and performs handleUpdate on each one
 void Window::handleUpdates(std::vector<GameUpdate> updates) {
     int numOfUpdates = updates.size();
     if(numOfUpdates <= 0) {
@@ -224,10 +226,11 @@ void Window::handleUpdates(std::vector<GameUpdate> updates) {
 
     for(int i = 0; i < numOfUpdates; i++) {
         Window::handleUpdate(updates[i]);
-		printf("Update received: type: %d, gridX: %d, gridY: %d, floatX: %f, floatY: %f", updates[i].id, updates[i].gridPos.x, updates[i].gridPos.y, updates[i].floatDeltaX, updates[i].floatDeltaY);
+		printf("Update received: type: %d, id: %d, gridX: %d, gridY: %d, floatX: %f, floatY: %f", updates[i].updateType, updates[i].id, updates[i].gridPos.x, updates[i].gridPos.y, updates[i].floatDeltaX, updates[i].floatDeltaY);
     }
 }
 
+// Handles specific update on the graphics side.
 void Window::handleUpdate(GameUpdate update) {
     switch(update.updateType) {
         case PLAYER_DAMAGE_TAKEN:
@@ -251,6 +254,8 @@ void Window::handleUpdate(GameUpdate update) {
     }
 }
 
+
+// This function checks if a certain key is being pressed or held down.
 void Window::updateLastInput() {
 
 	// W key
