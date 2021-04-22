@@ -1,6 +1,8 @@
 #ifndef _WINDOW_H_
 #define _WINDOW_H_
 
+#define KEYBOARD_SIZE 350
+
 #include "Main.h"
 #include "shader.h"
 #include "Character.h"
@@ -36,6 +38,9 @@ public:
 	// Last CLIENT_INPUT recorded
 	static CLIENT_INPUT lastInput;
 
+	// Keyboard keys that are being held down or pressed
+	static bool keyboard[KEYBOARD_SIZE];
+
 	// Act as Constructors and desctructors 
 	static bool initializeProgram();
 	//static bool initializeObjects(char * file, char* file1, char* file2);
@@ -56,8 +61,12 @@ public:
 	static void mouse_callback(GLFWwindow* window, int button, int action, int mods);
 	static void cursor_callback(GLFWwindow* window, double currX, double currY);
 
+	// Used to handle GameUpdates from the CommunicationClient
 	static void handleUpdates(std::vector<GameUpdate> updates);
 	static void handleUpdate(GameUpdate update);
+
+	// Used to set lastInput based on keyboard inputs
+	static void Window::updateLastInput(); 
 };
 
 #endif

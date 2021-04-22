@@ -1,11 +1,12 @@
 #include "Window.h"
-//#define SERVER_ENABLED
+#define SERVER_ENABLED
 
 // Window Properties
 int Window::width;
 int Window::height;
 const char* Window::windowTitle = "CSE125_GAME";
 CommunicationClient* Window::client;
+bool Window::keyboard[KEYBOARD_SIZE];
 
 
 //objects to render
@@ -49,6 +50,11 @@ bool Window::initializeProgram() {
 	client = new CommunicationClient();
 	cout << "Communication Established" << endl;
 #endif // SERVER_ENABLED
+
+	// Setup the keyboard.
+	for(int i = 0; i < KEYBOARD_SIZE; i++) {
+		keyboard[i] = false;
+	}
 
 	return true;
 }
@@ -132,6 +138,8 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 
 void Window::idleCallback()
 {
+
+	Window::updateLastInput();
 #ifdef SERVER_ENABLED
 	// 1 + 2. Get the latest input and send it to the server
 	client->sendInput(Window::lastInput);
@@ -167,30 +175,12 @@ void Window::displayCallback(GLFWwindow* window)
 void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	 // Check for a key press.
-	if (action == GLFW_PRESS || action == GLFW_REPEAT)
+	if (action == GLFW_PRESS)
 	{
-		switch (key)
-		{
-		case(GLFW_KEY_W):
-			lastInput = MOVE_FORWARD;
-			cout << "pressed W" << endl;
-			break;
-		case(GLFW_KEY_A):
-			lastInput = MOVE_LEFT;
-			cout << "pressed A" << endl;
-			break;
-		case(GLFW_KEY_S):
-			lastInput = MOVE_BACKWARD;
-			cout << "pressed S" << endl;
-			break;
-		case(GLFW_KEY_D):
-			lastInput = MOVE_RIGHT;
-			cout << "pressed D" << endl;
-			break;
-		default:
-			break;
-		}
+		keyboard[key] = true;
 
+	} else if (action == GLFW_RELEASE) {
+		keyboard[key] = false;
 	}
 }
 
@@ -259,4 +249,24 @@ void Window::handleUpdate(GameUpdate update) {
             printf("Not Handled Update Type: %d", update.updateType);
             break;
     }
+}
+
+void Window::updateLastInput() {
+
+	// W key
+	if(keyboard[GLFW_KEY_W]) {
+		lastInput = MOVE_FORWARD;
+
+	// A key
+	} else if(keyboard[GLFW_KEY_A]) {
+		lastInput = MOVE_LEFT;
+
+	// S key
+	} else if(keyboard[GLFW_KEY_S]) {
+		lastInput = MOVE_BACKWARD;
+		
+	// D key
+	} else if(keyboard[GLFW_KEY_D]) {
+		lastInput = MOVE_RIGHT;
+	}
 }
