@@ -8,7 +8,7 @@
 #include "../networking/GameState.h"
 
 class GamePlayer;
-typedef GamePlayer* PlayerList [PLAYER_NUM];
+typedef GamePlayer* PlayerList [MAX_PLAYERS]; // Set to MAX_PLAYERS just because Game assumes 4 players
 
 class Game {
 

@@ -71,6 +71,7 @@ CommunicationServer::CommunicationServer() {
         playerInfos[i].input = NO_MOVE;
         playerInfos[i].outputChanged = false;
     }
+    printf("Server started, awaiting %d client connections.\n", PLAYER_NUM);
 
     // Keep on accepting connections.
     int clientID = 0;

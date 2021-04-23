@@ -1,5 +1,4 @@
 #include "main.h"
-//#define SERVER_ENABLED
 
 void error_callback(int error, const char* description)
 {

@@ -2,6 +2,7 @@
 #define _WINDOW_H_
 
 #define KEYBOARD_SIZE 350
+#define SERVER_ENABLED
 
 #include "Main.h"
 #include "shader.h"
