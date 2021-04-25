@@ -4,13 +4,13 @@
 Fighter::Fighter() { 
     setType(FIGHTER); // Fighter type game component
     setHp(FIGHTER_MAX_HP); // init full health
-    setAttackHarm(FIGHTER_ATTACK_HARM);
+    setAttackDamage(FIGHTER_ATTACK_DAMAGE);
 }
 
 Fighter::Fighter(PlayerPosition position) : GamePlayer(position) {
     setType(FIGHTER); // Fighter type game component
     setHp(FIGHTER_MAX_HP); // init full health
-    setAttackHarm(FIGHTER_ATTACK_HARM);
+    setAttackDamage(FIGHTER_ATTACK_DAMAGE);
 }
 
 /*
@@ -81,13 +81,13 @@ void Fighter::attack(Game* game) {
         if (p1ULY >= p2BRY || p2ULY >= p1BRY) continue;
 
         if (canAttack(game->players[i])) {
-            game->players[i]->hpDecrement(attackHarm);
+            game->players[i]->hpDecrement(attackDamage);
 
             // queue this update to be send to other players
             GameUpdate gameUpdate;
             gameUpdate.updateType = PLAYER_DAMAGE_TAKEN;
             gameUpdate.id = i;
-            gameUpdate.damageTaken = attackHarm;
+            gameUpdate.damageTaken = attackDamage;
             game->addUpdate(gameUpdate);
         }
     }

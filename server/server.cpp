@@ -44,6 +44,7 @@ int main(void)
         }
 
         game->handleInputs(actions.playersInputs);
+        game->updateProjectiles(); // should this be a good place to update projectile?
 
 
         // 3. Send the latest GameState to client

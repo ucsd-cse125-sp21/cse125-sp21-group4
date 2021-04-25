@@ -24,9 +24,9 @@ int GamePlayer::getHp ()  { return hp; }
 
 void GamePlayer::setHp (int newHp) { hp = newHp; }
 
-int GamePlayer::getAttackHarm ()  { return attackHarm;}
+int GamePlayer::getAttackDamage ()  { return attackDamage;}
 
-void GamePlayer::setAttackHarm (int newAttackHarm) { attackHarm = newAttackHarm; }
+void GamePlayer::setAttackDamage (int newAttackDamage) { attackDamage = newAttackDamage; }
 
 Direction GamePlayer::getFaceDirection() {return faceDirection; }
 
@@ -260,13 +260,14 @@ void GamePlayer::move (Game* game, Direction direction, float distance) {
 }
 
 
-void GamePlayer::hpDecrement (int amount) {
-    hp -= amount;
+void GamePlayer::hpDecrement (int damage) {
+    hp -= damage;
 }
 
 bool GamePlayer::isDead () {
     return hp <= 0;
 }
+
 
 
 void GamePlayer::attack(Game* game) {

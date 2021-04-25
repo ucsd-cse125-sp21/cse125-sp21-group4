@@ -14,14 +14,6 @@
 //     |            |
 //     --------------
 
-enum PlayerType {
-    UNKNOWN,
-    MONSTER,
-    FIGHTER,
-    MAGE,
-    CLERIC,
-    ROGUE,
-};
 
 
 class GamePlayer {
@@ -29,7 +21,7 @@ protected:
     PlayerType type;
     PlayerPosition position; // position struct for player
     int hp; // health for GamePlayer
-    int attackHarm; // harmness made per attack
+    int attackDamage; // harmness made per attack
     Direction faceDirection; // the direction the player is facing
 
     int id; // Used for determining playerID
@@ -44,8 +36,8 @@ public:
     void setPosition(PlayerPosition newPosition);
     int getHp ();
     void setHp (int newHp);
-    int getAttackHarm ();
-    void setAttackHarm (int newAttackHarm);
+    int getAttackDamage ();
+    void setAttackDamage (int newAttackDamage);
     Direction getFaceDirection (); // faceDirection getter
     void setFaceDirection (Direction newDirection); // faceDirection setter
 
@@ -62,8 +54,10 @@ public:
 
     void move (Game* game, Direction direction, float distance); 
     virtual void attack (Game* game);
-    void hpDecrement (int amount);
+    void hpDecrement (int damage);
     bool isDead ();
+    
+    bool isEnemy (GamePlayer* otherPlayer);
 
     void handleUserInput (Game* game, CLIENT_INPUT userInput);
 
