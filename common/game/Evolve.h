@@ -3,6 +3,8 @@
 
 #include "Objective.h"
 
+#define EVO_INTERACTION_RANGE 3
+
 class Evolve : public Objective {
     private:
         int evo_amount; // amount to evolve

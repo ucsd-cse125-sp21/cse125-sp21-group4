@@ -6,6 +6,7 @@ Evolve::Evolve(GridPosition position, Restriction r) {
     setRestriction(r);
     setObjective(EVO);
     setPosition(position.x, position.y);
+    setInteractionRange(EVO_INTERACTION_RANGE);
 
     evo_amount = MONSTER_MAX_HP / 10;
 }

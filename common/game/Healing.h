@@ -3,6 +3,8 @@
 
 #include "Objective.h"
 
+#define HEALING_INTERACTION_RANGE 3
+
 class Heal : public Objective {
     private:
         int h_amount; // amount to heal

@@ -6,6 +6,7 @@
 #include "GridComponent.h"
 #include "../networking/CommunicationConstants.h"
 #include "../networking/GameState.h"
+#include "Objective.h"
 
 class GamePlayer;
 typedef GamePlayer* PlayerList [MAX_PLAYERS]; // Set to MAX_PLAYERS just because Game assumes 4 players
@@ -18,7 +19,9 @@ public:
     PlayerList players; // PlayerList is an size-4-array of GamePlayer 
                         // (either Fighter type or Monster type for now)
 
-    std::vector<GameUpdate> updates;
+    std::vector<GameUpdate> updates; // Buffers updates so it can be sent to clients
+    std::vector<Objective *> objectives; // Keeps track of all the objectives in the game.
+
 
     // public member functions
     Game(); // default constructor

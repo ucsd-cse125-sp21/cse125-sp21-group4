@@ -5,6 +5,7 @@ Heal::Heal(GridPosition position, Restriction r) {
     setRestriction(r);
     setObjective(HEAL);
     setPosition(position.x, position.y);
+    setInteractionRange(HEALING_INTERACTION_RANGE);
     
     if (r == R_FIGHTER)
         h_amount = FIGHTER_MAX_HP / 2;

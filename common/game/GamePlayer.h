@@ -60,6 +60,7 @@ public:
     void move (Game* game, Direction direction, float distance); 
     void attack (Game* game, float distance);
     void hpDecrement (int amount);
+    void interact (Game* game);
     bool isDead ();
 
     void handleUserInput (Game* game, CLIENT_INPUT userInput);

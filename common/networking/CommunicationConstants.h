@@ -17,6 +17,7 @@ enum CLIENT_INPUT{
     MOVE_RIGHT,
     NO_MOVE,
     ATTACK, // general attack for now
+    INTERACT, // used to interact with objectives
     // MONSTER_SPIT_RANGED_ATTACK,
     // MONSTER_MELEE_ATTACK,
     // HUNTER_SWORD_ATTACK,

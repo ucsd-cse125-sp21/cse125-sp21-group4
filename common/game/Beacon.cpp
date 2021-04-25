@@ -5,6 +5,7 @@ Beacon::Beacon(GridPosition position, Restriction r, int freq) {
     setRestriction(r);
     setObjective(BEAC);
     setPosition(position.x, position.y);
+    setInteractionRange(BEACON_INTERACTION_RANGE);
 
     frequency = freq;
 }

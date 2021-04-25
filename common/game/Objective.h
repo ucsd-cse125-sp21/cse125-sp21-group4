@@ -21,6 +21,7 @@ class Objective : public GridComponent {
     protected:
         Restriction restrict;
         ObjectiveType type;
+        float interactionRange;
 
     public:
         Objective();
@@ -31,6 +32,9 @@ class Objective : public GridComponent {
 
         void setObjective(ObjectiveType t);
         ObjectiveType getObjective();
+
+        void setInteractionRange(float range);
+        float getInteractionRange();
 };
 
 #endif

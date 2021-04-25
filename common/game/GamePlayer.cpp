@@ -336,6 +336,11 @@ void GamePlayer::attack(Game* game, float distance) {
     }
 }
 
+void GamePlayer::interact(Game* game) {
+    
+}
+
+
 void GamePlayer::handleUserInput (Game* game, CLIENT_INPUT userInput) {
     switch (userInput) {
         // Eric TODO: add gameupdates
@@ -354,12 +359,14 @@ void GamePlayer::handleUserInput (Game* game, CLIENT_INPUT userInput) {
         case ATTACK:
             attack(game, ATTACK_DISTANCE);
             break;
+        case INTERACT:
+            interact(game);
+            break;
         default:
             // NO_MOVE and other input does not trigger any action
             break;
     }
 }
-
 
 void GamePlayer::setID(int newID) {
     id = newID;
