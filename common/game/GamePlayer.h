@@ -18,6 +18,9 @@ enum PlayerType {
     UNKNOWN,
     MONSTER,
     FIGHTER,
+    MAGE,
+    CLERIC,
+    ROGUE,
 };
 
 
@@ -58,7 +61,7 @@ public:
     static bool samePosition (PlayerPosition p1, PlayerPosition p2);
 
     void move (Game* game, Direction direction, float distance); 
-    void attack (Game* game, float distance);
+    virtual void attack (Game* game);
     void hpDecrement (int amount);
     bool isDead ();
 

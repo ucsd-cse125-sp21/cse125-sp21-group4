@@ -1,0 +1,12 @@
+﻿  Character.cpp
+  CommunicationClient.cpp
+  EnvElement.cpp
+  Main.cpp
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\shared\minwindef.h(130,1): warning C4005: 'APIENTRY': macro redefinition
+C:\Users\ouyan\Desktop\CSE125\cse125-sp21-group4\client\packages\nupengl.core.0.1.0.1\build\native\include\GLFW\glfw3.h(92): message : see previous definition of 'APIENTRY'
+  Shader.cpp
+  Window.cpp
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\shared\minwindef.h(130,1): warning C4005: 'APIENTRY': macro redefinition
+C:\Users\ouyan\Desktop\CSE125\cse125-sp21-group4\client\packages\nupengl.core.0.1.0.1\build\native\include\GLFW\glfw3.h(92): message : see previous definition of 'APIENTRY'
+  Generating Code...
+  CSE125Proj.vcxproj -> C:\Users\ouyan\Desktop\CSE125\cse125-sp21-group4\client\x64\Debug\CSE125Proj.exe

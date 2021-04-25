@@ -8,18 +8,38 @@
 #define PLAYER_NUM 4 // used to change how many clients the server will accept
 #define MAX_PLAYERS 4  // used to determine the game's absolute maximum player count
 
+// MAX HP Constants
 #define FIGHTER_MAX_HP 100
+#define MAGE_MAX_HP 100
+#define CLERIC_MAX_HP 85
+#define ROGUE_MAX_HP 100
 #define MONSTER_MAX_HP 1000
+
+// Attack Harm Constants
 #define FIGHTER_ATTACK_HARM 2
+#define MAGE_ATTACK_HARM 1.5
+#define CLERIC_ATTACK_HARM 1
+#define ROGUE_ATTACK_HARM 2
 #define MONSTER_ATTACK_HARM 10
+
+// Atack Rate Constants
+#define FIGHTER_ATTACK_TIME_INTERVAL 500 // 0.5s = 500 ms
 
 #define FIGHTER_WIDTH 4
 #define FIGHTER_HEIGHT 4
+#define MAGE_WIDTH 4
+#define MAGE_HEIGHT 4
+#define CLERIC_WIDTH 4
+#define CLERIC_HEIGHT 4
+#define ROGUE_WIDTH 4
+#define ROGUE_HEIGHT 4
 #define MONSTER_WIDTH 6
 #define MONSTER_HEIGHT 6
 
 #define MOVE_DISTANCE 1
-#define ATTACK_DISTANCE 2
+#define FIGHTER_ATTACK_DISTANCE 2
+
+
 
 #define DELTA 0.001
 
