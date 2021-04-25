@@ -24,6 +24,8 @@
 
 // Atack Rate Constants
 #define FIGHTER_ATTACK_TIME_INTERVAL 500 // 0.5s = 500 ms
+#define ROGUE_ATTACK_TIME_INTERVAL 500 // 0.5s = 500 ms
+
 
 // Player Bouding Box Size Constants
 #define FIGHTER_WIDTH 4
