@@ -61,6 +61,8 @@ public:
     void attack (Game* game, float distance);
     void hpDecrement (int amount);
     void interact (Game* game);
+    bool isWithinObjective(Objective * objective);
+    bool canInteractWithObjective(Objective * objective);
     bool isDead ();
 
     void handleUserInput (Game* game, CLIENT_INPUT userInput);

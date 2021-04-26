@@ -154,25 +154,38 @@ void Game::initGameGrids() {
             position.x = j;
             position.y = i;
             // put obstacles on the boundary
-            if (isBoundary(j, i))
+            if (isBoundary(j, i)) {
                 gameGrids[i][j] = new Obstacle(position);
+            }
             else {
                 
                 // testing purposes
-                if(j == test_rock_width && i == test_rock_height) 
+                if(j == test_rock_width && i == test_rock_height) {
                     gameGrids[i][j] = new Rock(position);
-                else if (j == test_fheal_width && i == test_fheal_height)
+                }
+                else if (j == test_fheal_width && i == test_fheal_height) {
                     gameGrids[i][j] = new Heal(position, R_FIGHTER);
-                else if (j == test_mheal_width && i == test_mheal_height)
+                    objectives.push_back((Objective *)gameGrids[i][j]);
+                }
+                else if (j == test_mheal_width && i == test_mheal_height) {
                     gameGrids[i][j] = new Heal(position, R_MONSTER);
-                else if (j == test_mevo_width && i == test_mevo_height)
+                    objectives.push_back((Objective *)gameGrids[i][j]);
+                }
+                else if (j == test_mevo_width && i == test_mevo_height) {
                     gameGrids[i][j] = new Evolve(position);
-                else if (j == test_farm_width && i == test_farm_height)
+                    objectives.push_back((Objective *)gameGrids[i][j]);
+                }
+                else if (j == test_farm_width && i == test_farm_height) {
                     gameGrids[i][j] = new Armor(position);
-                else if (j == test_beac_width && i == test_beac_height)
+                    objectives.push_back((Objective *)gameGrids[i][j]);
+                }
+                else if (j == test_beac_width && i == test_beac_height) {
                     gameGrids[i][j] = new Beacon(position);
-                else 
+                    objectives.push_back((Objective *)gameGrids[i][j]);
+                }
+                else {
                     gameGrids[i][j] = new Space(position);
+                }
 
             }
         }

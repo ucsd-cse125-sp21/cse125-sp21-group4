@@ -336,7 +336,64 @@ void GamePlayer::attack(Game* game, float distance) {
     }
 }
 
+// Interact goes through the possible objectives and tries to interact with nearby objective
 void GamePlayer::interact(Game* game) {
+
+    // Go through each objective and check if it's within a range
+    for(int i = 0; i < game->objectives.size(); i++) {
+
+        // If player is close enough to interact with this objective and can interact with objective
+        Objective * obj = game->objectives[i];
+        if(isWithinObjective(obj) && canInteractWithObjective(obj)) {
+            switch(obj->getType()) {
+                case EVO:
+                    // TODO: Implement Evolution Mechanism for monster
+                    break;
+                case HEAL:
+                    // TODO: Implement Healing logic for Players/Monsters
+                    break;
+                case BEAC:
+                    // TODO: Implement Beacon Logic (capturing logic)
+                    break;
+                case ARMOR:
+                    // TODO: Implement Armor Logic (Extra HP?)
+                    break;
+                default:
+                    printf("Interacted with Invalid Objective Type.\n");
+                    break;
+            }
+        }
+    }
+    
+}
+
+// Check if the player is within the range of an objective
+bool GamePlayer::isWithinObjective(Objective * objective) {
+
+    // Should not overflow because the max distance a player can be from objective is 600^2 or 360,000
+    GridPosition objectivePos = objective->getPosition();
+    float squaredDistanceX =  pow(this->position.x - objectivePos.x, 2);
+    float squaredDistanceY = pow(this->position.y - objectivePos.y, 2);
+
+    // squared distance used instead of distance because less computation required.
+    return squaredDistanceX + squaredDistanceY <= pow(objective->getInteractionRange(), 2);
+}
+
+// Check if player's type is valid to interact with the objective
+bool GamePlayer::canInteractWithObjective(Objective * objective) {
+
+    // If the objective is for the monster or neutral, then a monster can interact it.
+    if(this->getType() == MONSTER && (objective->getRestriction() == R_MONSTER || objective->getRestriction() == R_NEUTRAL)) {
+        return true;
+
+    // If this objective is for non-monsters / non-unknowns (hunters) and the 
+    // restriction is not monsters, then the hunters can interact with it.
+    } else if (this->getType() != MONSTER && this->getType() != UNKNOWN && objective->getRestriction() != R_MONSTER) {
+        return true;
+    }
+            
+
+    return false;
     
 }
 
