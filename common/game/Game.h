@@ -7,6 +7,9 @@
 #include "../networking/CommunicationConstants.h"
 #include "../networking/GameState.h"
 #include "Objective.h"
+#include "Projectile.h"
+
+
 
 class GamePlayer;
 typedef GamePlayer* PlayerList [MAX_PLAYERS]; // Set to MAX_PLAYERS just because Game assumes 4 players
@@ -21,7 +24,7 @@ public:
 
     std::vector<GameUpdate> updates; // Buffers updates so it can be sent to clients
     std::vector<Objective *> objectives; // Keeps track of all the objectives in the game.
-
+    std::vector<Projectile*> projectiles; // Keeps track of all Projectile objects in the game.
 
     // public member functions
     Game(); // default constructor
@@ -35,6 +38,7 @@ public:
     ~Game(); // destructor
 
     bool handleInputs(CLIENT_INPUT playersInputs[PLAYER_NUM]);
+    void updateProjectiles();
 
     void printGameGrids();
     void printPlayers();

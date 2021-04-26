@@ -2,6 +2,7 @@
 #include "Obstacle.h"
 #include "Monster.h"
 #include "Fighter.h"
+#include "Rogue.h"
 #include "Space.h"
 #include "Rock.h"
 #include "Evolve.h"
@@ -44,7 +45,7 @@ void Game::initPlayers () {
 
     position.x = P2_SPAWN_POSITION[0];
     position.y = P2_SPAWN_POSITION[1];
-    players[1] = new Fighter(position);
+    players[1] = new Rogue(position);
     players[1]->setID(1);
 
     
@@ -260,6 +261,131 @@ bool Game::handleInputs(CLIENT_INPUT playersInputs[PLAYER_NUM]) {
     }
     return flag;
 }
+
+void projectileMove(Projectile* p) {
+    switch (p->direction) {
+        case SOUTH:
+            p->currentPosition.y += p->speed;
+            break;
+        case NORTH:
+            p->currentPosition.y -= p->speed;
+            break;
+        case WEST:
+            p->currentPosition.x -= p->speed;
+            break;
+        case EAST:
+            p->currentPosition.x += p->speed;
+            break;
+        default:
+            break;
+    }
+}
+
+
+/*
+    Return true if this projectile is end, a projectile is
+    considered as end in the following situations
+    1. flying distance exceeds maxDistance
+    2. outside of the map
+    3. hit the obstacle
+
+    Note: isEnd will not check any collision
+*/
+bool projectileIsEnd(Projectile* p, Game* game) {
+    // 1. flying distance exceeds maxDistance
+    if (p->direction == SOUTH || p->direction == NORTH) {
+        if (abs(p->currentPosition.y - p->origin.y) > p->maxDistance) return true;
+    } else {
+        if (abs(p->currentPosition.x - p->origin.x) > p->maxDistance) return true; 
+    }
+
+    float x = p->currentPosition.x;
+    float y = p->currentPosition.y;
+
+    // 2. outside of the map
+    if (x > MAP_WIDTH || x < 0) return true;
+    if (y > MAP_HEIGHT || y < 0) return true;
+
+    // hit the obstacle
+    if (game->gameGrids[int(x/GRID_WIDTH)][int(y/GRID_HEIGHT)]->isObstacle())
+        return true;
+    
+    return false;
+}
+
+/*
+    Return true if the current position overlaps with enemy(s) positions,
+    and decrease HP for the enemy(s) correspondingly.
+
+    Note:
+    1. Projectile will continue even if it hits teamates
+    2. Projectile can cause damages for all the enemies being hit (could be more than 1)
+*/
+bool projectileIsCollidingEnemy (Projectile* p, Game* game) {
+    float x = p->currentPosition.x;
+    float y = p->currentPosition.y;
+
+    bool hit = false;
+
+    for (int i = 0; i < PLAYER_NUM; i++) {
+        // can only attack enemy
+        if (game->players[i]->getType() == MONSTER && p->ownerType == MONSTER) continue;
+        if (game->players[i]->getType() != MONSTER && p->ownerType != MONSTER) continue;
+
+        GamePlayer* otherPlayer = game->players[i];
+        float p2ULX = otherPlayer->getUpperLeftCoordinateX(otherPlayer->getPosition(), true);
+        float p2ULY = otherPlayer->getUpperLeftCoordinateY(otherPlayer->getPosition(), true);
+        float p2BRX = otherPlayer->getBottomRightCoordinateX(otherPlayer->getPosition(), true);
+        float p2BRY = otherPlayer->getBottomRightCoordinateY(otherPlayer->getPosition(), true);
+
+        if (x >= p2ULX && x <= p2BRX && y >= p2ULY && y <= p2BRY) {
+            hit = true;
+            otherPlayer->hpDecrement(p->damage);
+
+            // queue this update to be send to other players
+            GameUpdate gameUpdate;
+            gameUpdate.updateType = PLAYER_DAMAGE_TAKEN;
+            gameUpdate.id = i;
+            gameUpdate.damageTaken = p->damage;
+            game->addUpdate(gameUpdate);
+        }
+
+    }
+
+    return hit;
+}
+
+
+/*
+    Update the status of each projectiles
+    If the projectile has reached the maxDistance, or hit an obstacle, remove.
+    If the projectile has hit one of the enemy(s), remove and damage the 
+    enemy correspondingly.
+*/
+void Game::updateProjectiles () {
+    std::vector<Projectile*> newProjectiles;
+    for (auto iter = projectiles.begin(); iter != projectiles.end(); iter++) {
+        // move
+        projectileMove(*iter);
+
+        // remove if exceeds max distance or hit boundary
+        if (projectileIsEnd(*iter, this)) {
+            delete (*iter); // free the space
+            continue;
+        }
+
+        // check for collision with players
+        if ((projectileIsCollidingEnemy(*iter, this))) {
+            // if this has hit an enemy, remove the projectile
+            delete (*iter); // free the space
+            continue;
+        }
+        newProjectiles.push_back(*iter);
+    }
+    projectiles = newProjectiles;
+}
+
+
 
 void Game::printGameGrids () {
     for (int i = 0; i < MAP_HEIGHT / GRID_HEIGHT; i++) {
