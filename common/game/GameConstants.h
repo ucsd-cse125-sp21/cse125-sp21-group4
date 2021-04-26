@@ -25,6 +25,8 @@
 // Atack Rate Constants
 #define FIGHTER_ATTACK_TIME_INTERVAL 500 // 0.5s = 500 ms
 #define ROGUE_ATTACK_TIME_INTERVAL 500 // 0.5s = 500 ms
+#define MAGE_ATTACK_TIME_INTERVAL 300 // 0.3s = 300 ms
+#define CLERIC_ATTACK_TIME_INTERVAL 300 // 0.3s = 300 ms
 
 
 // Player Bouding Box Size Constants
@@ -44,9 +46,14 @@
 // Player attack distance constants
 #define FIGHTER_ATTACK_DISTANCE 2
 #define ROGUE_ATTACK_DISTANCE 20
+#define MAGE_ATTACK_DISTANCE 20
+#define CLERIC_ATTACK_DISTANCE 15
+
 
 // Player attack speed (projectile moving speed)
 #define ROGUE_ARROW_SPEED 2 // 2 units per tick
+#define MAGE_SHOOT_SPEED 1 // 1 units per tick
+#define CLERIC_SHOOT_SPEED 1 // 1 units per tick
 
 
 #define DELTA 0.001
@@ -82,8 +89,8 @@ enum PlayerType {
 enum ProjectileType {
     ROGUE_ARROW,
     MAGE_FIREBALL,
-    // MAGE_SHOOT,
-    // CLERIC_SHOOT,
+    MAGE_SHOOT,
+    CLERIC_SHOOT,
     // MONSTER_SHOOT,
 };
 

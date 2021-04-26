@@ -3,6 +3,8 @@
 #include "Monster.h"
 #include "Fighter.h"
 #include "Rogue.h"
+#include "Mage.h"
+#include "Cleric.h"
 #include "Space.h"
 #include "Rock.h"
 #include "Evolve.h"
@@ -45,13 +47,13 @@ void Game::initPlayers () {
 
     position.x = P2_SPAWN_POSITION[0];
     position.y = P2_SPAWN_POSITION[1];
-    players[1] = new Rogue(position);
+    players[1] = new Mage(position);
     players[1]->setID(1);
 
     
     position.x = P3_SPAWN_POSITION[0];
     position.y = P3_SPAWN_POSITION[1];
-    players[2] = new Fighter(position);
+    players[2] = new Cleric(position);
     players[2]->setID(2);
 
 
