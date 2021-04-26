@@ -34,7 +34,7 @@ void Cleric::attack(Game* game) {
     p->origin = position;
     p->currentPosition = position; 
     p->maxDistance = CLERIC_ATTACK_DISTANCE;
-    p->ownerType = getType();
+    p->ownerID = getID();
     p->type = CLERIC_SHOOT;
     p->speed = CLERIC_SHOOT_SPEED;
     p->direction = getFaceDirection();

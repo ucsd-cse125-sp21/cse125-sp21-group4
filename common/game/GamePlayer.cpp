@@ -5,6 +5,7 @@ GamePlayer::GamePlayer() {}
 GamePlayer::GamePlayer(PlayerPosition position) {
     type = UNKNOWN;
     setPosition(position);
+    setSpeed(INIT_SPEED);
 }
 
 PlayerType GamePlayer::getType () { return type; }
@@ -33,6 +34,23 @@ Direction GamePlayer::getFaceDirection() {return faceDirection; }
 void GamePlayer::setFaceDirection(Direction newDirection) { 
     faceDirection = newDirection; 
 }
+
+float GamePlayer::getSpeed() { return speed; }
+
+void GamePlayer::setSpeed(float newSpeed) { speed = newSpeed; }
+
+void GamePlayer::speedChange(float amount) {
+    if (amount > 0) speedUp(amount);
+    else slowDown(-1 * amount);
+}
+
+void GamePlayer::slowDown (float amount) { 
+    float minSpeed = 0;
+    speed = std::max(minSpeed, speed - amount); 
+}
+
+void GamePlayer::speedUp (float amount) { speed += amount; }
+
 
 /*
     If isPlayer is true:
@@ -224,7 +242,7 @@ bool GamePlayer::samePosition (PlayerPosition p1, PlayerPosition p2) {
     
     We assume player position is valid here (player position does not go beyond map)
 */
-void GamePlayer::move (Game* game, Direction direction, float distance) {
+void GamePlayer::move (Game* game, Direction direction) {
 
     // turn the face direction as the parameter direction no matter the movement is succ or not
     setFaceDirection(direction);
@@ -237,11 +255,11 @@ void GamePlayer::move (Game* game, Direction direction, float distance) {
     // x stays the same
     if (direction == NORTH || direction == SOUTH) {
         destPosition.x = position.x;
-        destPosition.y = direction == NORTH ? position.y - distance : position.y + distance;
+        destPosition.y = direction == NORTH ? position.y - speed : position.y + speed;
     } else {
     // y stays the same
         destPosition.y = position.y;
-        destPosition.x = direction == WEST ? position.x - distance : position.x + distance;
+        destPosition.x = direction == WEST ? position.x - speed : position.x + speed;
     }
 
     // if destination is invalid, return immediately
@@ -274,23 +292,30 @@ void GamePlayer::attack(Game* game) {
     printf("Overwriten failed\n");
 }
 
+void GamePlayer::uniqueAttack(Game* game) {
+    // printf("Default second attack\n");
+}
+
 void GamePlayer::handleUserInput (Game* game, CLIENT_INPUT userInput) {
     switch (userInput) {
         // Eric TODO: add gameupdates
         case MOVE_FORWARD:
-            move(game, NORTH, MOVE_DISTANCE);
+            move(game, NORTH);
             break;
         case MOVE_BACKWARD:
-            move(game, SOUTH, MOVE_DISTANCE);
+            move(game, SOUTH);
             break;
         case MOVE_LEFT:
-            move(game, WEST, MOVE_DISTANCE);
+            move(game, WEST);
             break;
         case MOVE_RIGHT:
-            move(game, EAST, MOVE_DISTANCE);
+            move(game, EAST);
             break;
         case ATTACK:
             attack(game);
+            break;
+        case UNIQUE_ATTACK:
+            uniqueAttack(game);
             break;
         default:
             // NO_MOVE and other input does not trigger any action

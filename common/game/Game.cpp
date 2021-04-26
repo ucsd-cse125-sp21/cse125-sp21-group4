@@ -317,11 +317,11 @@ bool projectileIsCollidingEnemy (Projectile* p, Game* game) {
     bool hit = false;
 
     for (int i = 0; i < PLAYER_NUM; i++) {
-        // can only attack enemy
-        if (game->players[i]->getType() == MONSTER && p->ownerType == MONSTER) continue;
-        if (game->players[i]->getType() != MONSTER && p->ownerType != MONSTER) continue;
-
         GamePlayer* otherPlayer = game->players[i];
+
+        // can only attack enemy
+        if (!game->players[p->ownerID]->canAttack(otherPlayer)) continue;
+
         float p2ULX = otherPlayer->getUpperLeftCoordinateX(otherPlayer->getPosition(), true);
         float p2ULY = otherPlayer->getUpperLeftCoordinateY(otherPlayer->getPosition(), true);
         float p2BRX = otherPlayer->getBottomRightCoordinateX(otherPlayer->getPosition(), true);
@@ -329,20 +329,39 @@ bool projectileIsCollidingEnemy (Projectile* p, Game* game) {
 
         if (x >= p2ULX && x <= p2BRX && y >= p2ULY && y <= p2BRY) {
             hit = true;
-            otherPlayer->hpDecrement(p->damage);
 
-            // queue this update to be send to other players
-            GameUpdate gameUpdate;
-            gameUpdate.updateType = PLAYER_DAMAGE_TAKEN;
-            gameUpdate.id = i;
-            gameUpdate.damageTaken = p->damage;
-            game->addUpdate(gameUpdate);
+            // projectile will cause effect
+            if (p->type == MAGE_FIREBALL) {
+                otherPlayer->slowDown(FIREBALL_SPEED_DEC);
+
+                // create an event to add the speed back later
+                GameEvent* event = new GameEvent();
+                event->type = SPEED_CHANGE;
+                event->targetID = i;
+                event->amount = FIREBALL_SPEED_DEC;
+                event->time = std::chrono::steady_clock::now() + 
+                                std::chrono::milliseconds(FIREBALL_EFFECT_TIME);
+                game->events.push_back(event);
+            }
+            // projectile will only cause damage 
+            else {
+                otherPlayer->hpDecrement(p->damage);
+
+                // queue this update to be send to other players
+                GameUpdate gameUpdate;
+                gameUpdate.updateType = PLAYER_DAMAGE_TAKEN;
+                gameUpdate.id = i;
+                gameUpdate.damageTaken = p->damage;
+                game->addUpdate(gameUpdate);
+            }
+
         }
 
     }
 
     return hit;
 }
+
 
 
 /*
@@ -372,6 +391,47 @@ void Game::updateProjectiles () {
         newProjectiles.push_back(*iter);
     }
     projectiles = newProjectiles;
+}
+
+
+/* Process a single event */
+void Game::processEvent (GameEvent* event) {
+    switch (event->type)
+    {
+        case HP_DEC:
+            players[event->targetID]->hpDecrement(event->amount);
+            break;
+        case SPEED_CHANGE:
+            players[event->targetID]->speedChange(event->amount);
+            break;
+        default:
+            break;
+    }
+}
+
+
+/*
+    Update events vector per server tick.
+    If the currentTime has passed the event->time, execute the event and remove
+    from the vector
+*/
+void Game::updateGameEvents () {
+    std::vector<GameEvent*> newEvents;
+    for (auto iter = events.begin(); iter != events.end(); iter++) {
+        GameEvent* event = *iter;
+
+        auto currentTime = std::chrono::steady_clock::now();
+        std::chrono::duration<float> timeDiff = currentTime - event->time;
+        // if current time has passed the expected trigger time, execute the event
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(timeDiff).count() >= 0) {
+            processEvent(event);
+            delete event;
+        } else {
+            newEvents.push_back(event);
+        }
+    }
+
+    events = newEvents;
 }
 
 

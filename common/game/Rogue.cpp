@@ -34,7 +34,7 @@ void Rogue::attack(Game* game) {
     p->origin = position;
     p->currentPosition = position; 
     p->maxDistance = ROGUE_ATTACK_DISTANCE;
-    p->ownerType = getType();
+    p->ownerID = getID();
     p->type = ROGUE_ARROW;
     p->speed = ROGUE_ARROW_SPEED;
     p->direction = getFaceDirection();

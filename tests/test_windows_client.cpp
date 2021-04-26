@@ -68,6 +68,9 @@ int __cdecl main(int argc, char **argv)
                 case 'j':
                     sendInput = ATTACK;
                     break;
+                case 'k':
+                    sendInput = UNIQUE_ATTACK;
+                    break;
                 case 3:
                     exit(1);
             }

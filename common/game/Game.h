@@ -7,6 +7,7 @@
 #include "../networking/CommunicationConstants.h"
 #include "../networking/GameState.h"
 #include "Projectile.h"
+#include "GameEvent.h"
 
 
 
@@ -23,6 +24,7 @@ public:
 
     std::vector<GameUpdate> updates;
     std::vector<Projectile*> projectiles;
+    std::vector<GameEvent*> events;
 
     // public member functions
     Game(); // default constructor
@@ -37,6 +39,8 @@ public:
 
     bool handleInputs(CLIENT_INPUT playersInputs[PLAYER_NUM]);
     void updateProjectiles();
+    void processEvent (GameEvent* event);
+    void updateGameEvents();
 
     void printGameGrids();
     void printPlayers();

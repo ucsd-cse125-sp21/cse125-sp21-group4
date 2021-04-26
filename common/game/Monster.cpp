@@ -14,6 +14,7 @@ Monster::Monster(PlayerPosition position) : GamePlayer(position){
     setAttackDamage(MONSTER_ATTACK_DAMAGE);
 }
 
+// Monster Spit attack goes here
 void Monster::attack(Game* game) {
 
 }

@@ -41,7 +41,7 @@
 #define MONSTER_WIDTH 6
 #define MONSTER_HEIGHT 6
 
-#define MOVE_DISTANCE 1
+#define INIT_SPEED 1
 
 // Player attack distance constants
 #define FIGHTER_ATTACK_DISTANCE 2
@@ -54,6 +54,14 @@
 #define ROGUE_ARROW_SPEED 2 // 2 units per tick
 #define MAGE_SHOOT_SPEED 1 // 1 units per tick
 #define CLERIC_SHOOT_SPEED 1 // 1 units per tick
+
+
+// Player unique skill constants
+#define FIREBALL_SPEED_DEC 0.5 // decrease the speed by  0.5 unit per tick
+#define FIREBALL_EFFECT_TIME 3000 // 3s = 3000ms
+#define FIREBALL_TIME_INTERVAL 10000 // 10s = 10,000ms
+#define FIREBALL_DISTANCE 20
+#define FIREBALL_SPEED 1
 
 
 #define DELTA 0.001
@@ -88,9 +96,9 @@ enum PlayerType {
 
 enum ProjectileType {
     ROGUE_ARROW,
-    MAGE_FIREBALL,
     MAGE_SHOOT,
     CLERIC_SHOOT,
+    MAGE_FIREBALL,
     // MONSTER_SHOOT,
 };
 
