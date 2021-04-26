@@ -24,9 +24,9 @@ int GamePlayer::getHp ()  { return hp; }
 
 void GamePlayer::setHp (int newHp) { hp = newHp; }
 
-int GamePlayer::getAttackHarm ()  { return attackHarm;}
+int GamePlayer::getAttackDamage ()  { return attackDamage;}
 
-void GamePlayer::setAttackHarm (int newAttackHarm) { attackHarm = newAttackHarm; }
+void GamePlayer::setAttackDamage (int newAttackDamage) { attackDamage = newAttackDamage; }
 
 Direction GamePlayer::getFaceDirection() {return faceDirection; }
 
@@ -260,80 +260,18 @@ void GamePlayer::move (Game* game, Direction direction, float distance) {
 }
 
 
-void GamePlayer::hpDecrement (int amount) {
-    hp -= amount;
+void GamePlayer::hpDecrement (int damage) {
+    hp -= damage;
 }
 
 bool GamePlayer::isDead () {
     return hp <= 0;
 }
 
-/*
-    General attack function
-    Player can attack the enemy whose bounding box has overlapped with the
-    following region.
-        ----------
-        | attack | distance
-        ---------
-        |Bounding|
-        | Box    | player height
-        ----------
-        Player width
-*/
-void GamePlayer::attack(Game* game, float distance) {
-    // draw the attack region
-    PlayerPosition attackRegion = PlayerPosition();
-    if (faceDirection == NORTH || faceDirection == SOUTH) {
-        attackRegion.x = position.x;
-        attackRegion.width = position.width;
-        attackRegion.height = distance;
-        if (faceDirection == NORTH)
-            attackRegion.y = position.y - position.height/2 - distance / 2;
-        else
-            attackRegion.y = position.y + position.height/2 + distance / 2;
-    } else {
-        attackRegion.y = position.y;
-        attackRegion.width = distance;
-        attackRegion.height = position.width;
-        if (faceDirection = EAST)
-            attackRegion.x = position.x + position.height / 2 + distance / 2;
-        else
-            attackRegion.x = position.x - position.height / 2 - distance / 2;
-    }
 
-    // for every player, if their bounding box overlaps the attackRegion, and
-    // they are enemies of this player, decrement their hp
-    float p1ULX = getUpperLeftCoordinateX(attackRegion, false);
-    float p1ULY = getUpperLeftCoordinateY(attackRegion, false);
-    float p1BRX = getBottomRightCoordinateX(attackRegion, false);
-    float p1BRY = getBottomRightCoordinateY(attackRegion, false);
 
-    for (int i = 0; i < PLAYER_NUM; i++) {
-        // skip the player itself
-        if (game->players[i] == this) continue;
-        GamePlayer* otherPlayer = game->players[i];
-        float p2ULX = getUpperLeftCoordinateX(otherPlayer->position, true);
-        float p2ULY = getUpperLeftCoordinateY(otherPlayer->position, true);
-        float p2BRX = getBottomRightCoordinateX(otherPlayer->position, true);
-        float p2BRY = getBottomRightCoordinateY(otherPlayer->position, true);
-
-        // https://www.geeksforgeeks.org/find-two-rectangles-overlap/
-        // if one box is on left side of other
-        if (p1ULX >= p2BRX || p2ULX >= p1BRX) continue;
-        // if one box is above the other
-        if (p1ULY >= p2BRY || p2ULY >= p1BRY) continue;
-
-        if (canAttack(game->players[i])) {
-            game->players[i]->hpDecrement(attackHarm);
-
-            // queue this update to be send to other players
-            GameUpdate gameUpdate;
-            gameUpdate.updateType = PLAYER_DAMAGE_TAKEN;
-            gameUpdate.id = i;
-            gameUpdate.damageTaken = attackHarm;
-            game->addUpdate(gameUpdate);
-        }
-    }
+void GamePlayer::attack(Game* game) {
+    printf("Overwriten failed\n");
 }
 
 void GamePlayer::handleUserInput (Game* game, CLIENT_INPUT userInput) {
@@ -352,7 +290,7 @@ void GamePlayer::handleUserInput (Game* game, CLIENT_INPUT userInput) {
             move(game, EAST, MOVE_DISTANCE);
             break;
         case ATTACK:
-            attack(game, ATTACK_DISTANCE);
+            attack(game);
             break;
         default:
             // NO_MOVE and other input does not trigger any action
