@@ -3,8 +3,6 @@
 
 #include "Objective.h"
 
-#define BEACON_INTERACTION_RANGE 10
-
 class Beacon : public Objective {
     private:
         int frequency; // frequency to ping (game ticks? seconds?)

@@ -3,7 +3,6 @@
 
 #include "Objective.h"
 
-#define ARMOR_INTERACTION_RANGE 3
 
 class Armor : public Objective {
     private:

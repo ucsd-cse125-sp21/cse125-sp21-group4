@@ -52,6 +52,10 @@ struct PlayerPosition {
 typedef PlayerPosition PlayerPosition;
 
 
-
+// Interaction Ranges for Objectives
+#define BEACON_INTERACTION_RANGE 10
+#define ARMOR_INTERACTION_RANGE 3
+#define EVO_INTERACTION_RANGE 3
+#define HEALING_INTERACTION_RANGE 3
 
 #endif
