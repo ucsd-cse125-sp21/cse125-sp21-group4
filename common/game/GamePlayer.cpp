@@ -341,7 +341,7 @@ bool GamePlayer::isWithinObjective(Objective * objective) {
 bool GamePlayer::canInteractWithObjective(Objective * objective) {
 
     // if it's a beacon then the player didn't need to press E on it.
-    if(objective->getObjective() == BEAC) {
+    if(objective->getObjective() == BEACON) {
         return false;
     }
 

@@ -35,7 +35,7 @@ void Cleric::interact(Game* game) {
                     // use GamePlayer's interactHeal.
                     interactHeal(game, (Heal*) obj);
                     break;
-                case BEAC:
+                case BEACON:
                     // Beacon requires zero interaction, so do nothing.
                     break;
                 case ARMOR:

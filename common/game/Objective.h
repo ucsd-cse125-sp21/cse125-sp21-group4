@@ -13,7 +13,7 @@ enum Restriction {
 enum ObjectiveType {
     EVO,     // evolution (monster)
     HEAL,    // healing
-    BEAC,    // vision beacon
+    BEACON,    // vision beacon
     ARMOR,   // armor
 };
 

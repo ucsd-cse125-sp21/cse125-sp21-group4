@@ -101,7 +101,7 @@ char getSymbol(GridComponent* cell) {
                 return MONSTER_EVO_SYMBOL;
             else if(obj->getObjective() == ARMOR)
                 return FIGHTER_ARMOR_SYMBOL;
-            else if(obj->getObjective() == BEAC)
+            else if(obj->getObjective() == BEACON)
                 return BEACON_SYMBOL;
 
         default:
