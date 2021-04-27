@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include "GridComponent.h"
 #include "../networking/CommunicationConstants.h"
 #include "../networking/GameState.h"
