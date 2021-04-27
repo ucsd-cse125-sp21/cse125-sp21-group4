@@ -284,8 +284,45 @@ void GamePlayer::attack(Game* game) {
 }
 
 // Interact goes through the possible objectives and tries to interact with nearby objective
+// I made this a virtual method because Evolve obj requires accessing monster's evo level.
 void GamePlayer::interact(Game* game) {
     printf("Overridden Method failed.\n");
+}
+
+// Interacts with a Healing Objective
+void GamePlayer::interactHeal(Game* game, Heal * healObj) {
+    if(this->hp >= maxHP) {
+        printf("Player (%d): Full HP, do not consume objective.\n", this->id);
+        return;
+    }
+    int healAmount = healObj->getHealAmount();
+    hpIncrement(healAmount);
+
+    // Send an update to the clients: HEALING_OBJECTIVE_TAKEN
+    GameUpdate healingUpdate;
+    healingUpdate.updateType = HEAL_OBJECTIVE_TAKEN;
+    healingUpdate.id = this->id;                        // id of player being healed
+    healingUpdate.healAmount = healAmount;              // healed amount
+    healingUpdate.gridPos = healObj->getPosition();     // obj location
+    game->addUpdate(healingUpdate);
+
+    // Clean up the healing grid.
+    game->consumeObj(healObj);
+}
+
+// Interacts with an Armor Objective
+void GamePlayer::interactArmor(Game * game, Armor * armorObj) {
+    
+    // Send an update to the clients: ARMOR_OBJECTIVE_TAKEN
+    GameUpdate armorUpdate;
+    armorUpdate.updateType = ARMOR_OBJECTIVE_TAKEN;
+    armorUpdate.id = this->id;                            // id of player being healed
+    armorUpdate.healAmount = armorObj->getArmorAmount();  // healed amount
+    armorUpdate.gridPos = armorObj->getPosition();        // obj location
+    game->addUpdate(armorUpdate);
+
+    // Clean up the healing grid.
+    game->consumeObj(armorObj);
 }
 
 // Check if the player is within the range of an objective
@@ -304,7 +341,7 @@ bool GamePlayer::isWithinObjective(Objective * objective) {
 bool GamePlayer::canInteractWithObjective(Objective * objective) {
 
     // if it's a beacon then the player didn't need to press E on it.
-    if(objective->getType() == BEAC) {
+    if(objective->getObjective() == BEAC) {
         return false;
     }
 

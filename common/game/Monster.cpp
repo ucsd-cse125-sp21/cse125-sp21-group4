@@ -6,14 +6,14 @@ Monster::Monster() {
     setType(MONSTER); // Monster type game component
     setHp(MONSTER_MAX_HP); // init full health
     setAttackDamage(MONSTER_ATTACK_DAMAGE);
-    updateEvo(MONSTER_FIRST_STAGE_THRESHOLD);
+    setEvo(MONSTER_FIRST_STAGE_THRESHOLD);
 }
 
 Monster::Monster(PlayerPosition position) : GamePlayer(position){
     setType(MONSTER); // Monster type game component
     setHp(MONSTER_MAX_HP); // init full health
     setAttackDamage(MONSTER_ATTACK_DAMAGE);
-    updateEvo(MONSTER_FIRST_STAGE_THRESHOLD);
+    setEvo(MONSTER_FIRST_STAGE_THRESHOLD);
 }
 
 void Monster::attack(Game* game) {
@@ -21,7 +21,7 @@ void Monster::attack(Game* game) {
 }
 
 // To update the stage of the monster.
-void Monster::updateEvo(float evoLevel) {
+void Monster::updateEvo(Game* game, float evoLevel) {
 
     // For now update the attack damage of the monster, maybe speed another time?
     if(evoLevel >= MONSTER_FIFTH_STAGE_THRESHOLD) {
@@ -40,6 +40,15 @@ void Monster::updateEvo(float evoLevel) {
         printf("Invalid evolution level, will not update evoLevel.\n");
         return;
     }
+
+    // Checks if the evo has changed from one level to the next (int's truncate the decimal values)
+    if(abs((int) evoLevel - (int) this->evo) >= 1) {
+        GameUpdate evoUpdate;
+        evoUpdate.updateType = MONSTER_EVO_UP;
+        evoUpdate.newEvoLevel = evoLevel;
+        evoUpdate.id = this->id;
+        game->addUpdate(evoUpdate);
+    }
     
     // Update evolution of the monster.
     this->evo = evoLevel;
@@ -49,6 +58,12 @@ float Monster::getEvo() {
     return evo;
 }
 
+
+void Monster::setEvo(float evoLevel) {
+    evo =  evoLevel;
+}
+
+
 void Monster::interact(Game* game) {
     // Go through each objective and check if it's within a range
     for(int i = 0; i < game->objectives.size(); i++) {
@@ -57,28 +72,18 @@ void Monster::interact(Game* game) {
         Objective * obj = game->objectives[i];
         if(isWithinObjective(obj) && canInteractWithObjective(obj)) {
             switch(obj->getType()) {
-                case EVO:
+                case EVO:{
                     // Monster: Update Evo
                     Evolve* evoObj = (Evolve*) obj;
-                    updateEvo(evo + evoObj->getEvoAmount());
+                    updateEvo(game, evo + evoObj->getEvoAmount());
 
                     // Clean up the evo grid.
                     game->consumeObj(evoObj);
                     break;
+                }
                 case HEAL:
-
-                    // If the Monster is already full hp, do not consume the healing
-                    if(this->hp >= MONSTER_MAX_HP) {
-                        printf("Full HP, do not consume objective.\n");
-                        return;
-                    }
-
-                    // Monster: Heal 100hp
-                    Heal* healObj = (Heal *) obj;
-                    hpIncrement(healObj->getHealAmount());
-
-                    // Clean up the healing grid.
-                    game->consumeObj(healObj);
+                    // use GamePlayer's interactHeal.
+                    interactHeal(game, (Heal*) obj);
                     break;
                 case BEAC:
                     // Beacon requires zero interaction, so do nothing.

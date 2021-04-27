@@ -396,7 +396,40 @@ void Game::updateBeacon() {
 
         // Ping if beacon can ping (tickCounter is full)
         if(beacon->canPing()) {
+            
+            // if it was captured by hunter
+            if(beacon->getCaptureAmount() >= HUNTER_BEACON_CAPTURE_THRESHOLD) {
 
+                // get position of monster and send it over as udpate
+                for(int i = 0; i < PLAYER_NUM; i++) {
+                    if(players[i]->getType() == MONSTER) {
+                        Monster* monster = (Monster*) players[i];
+                        GameUpdate monsterPosUpdate;
+                        monsterPosUpdate.updateType = BEACON_PING_PLAYER;
+                        monsterPosUpdate.playerPos = monster->getPosition();
+                        monsterPosUpdate.id = monster->getID();
+                        this->addUpdate(monsterPosUpdate);
+                        break; // break, only one monster in the game.
+                    }
+                }
+
+            // if it was captured by monster
+            } else if (beacon->getCaptureAmount() <= MONSTER_BEACON_CAPTURE_THRESHOLD) {
+
+                // Get positions of all hunters and send it over as updates
+                for(int i = 0; i < PLAYER_NUM; i++) {
+                    if(players[i]->getType() != MONSTER) {
+                        GamePlayer* hunter = (GamePlayer*) players[i];
+                        GameUpdate hunterPosUpdate;
+                        hunterPosUpdate.updateType = BEACON_PING_PLAYER;
+                        hunterPosUpdate.playerPos = hunter->getPosition();
+                        hunterPosUpdate.id = hunter->getID();
+                        this->addUpdate(hunterPosUpdate);
+                    }
+                }
+            }
+
+            // reset tick counter for the beacon
             beacon->resetTickCounter();
 
         // Otherwise, increment the tick counter until it can ping
@@ -425,16 +458,33 @@ void Game::updateBeacon() {
                     captureAmount += beacon->HUNTER_CAPTURE_RATE;
                 }
             }
+
+
         }
 
         // If any players are in the area, captureAmount != 0
         if(captureAmount != 0) {
-            beacon->updateCaptureAmount(captureAmount);
+            beacon->updateCaptureAmount(this, captureAmount);
+            // printf("Capture Amount %f\n", captureAmount);
+
+            // send capturing update to all players
+            GameUpdate beaconCapturingUpdate;
+            beaconCapturingUpdate.updateType = BEACON_BEING_TAKEN;
+            beaconCapturingUpdate.beaconCaptureAmount = beacon->getCaptureAmount();
+            this->addUpdate(beaconCapturingUpdate);
 
         // If no players are around, decay the beacon amount.
-        } else {
+        } else if (beacon->getCaptureAmount() != 0) {
             beacon->decayCaptureAmount();
+            
+            // send delaying update to all players
+            GameUpdate beaconDecayingUpdate;
+            beaconDecayingUpdate.updateType = BEACON_DECAYING;
+            beaconDecayingUpdate.beaconCaptureAmount = beacon->getCaptureAmount();
+            this->addUpdate(beaconDecayingUpdate);
+
         }
+        
     }
 }
 
@@ -511,12 +561,38 @@ void Game::handleUpdate(GameUpdate update) {
         case PROJECTILE_MOVE:
             // Projectile can be identified with update.id.
             break;
-        case OBJECTIVE_BEING_TAKEN:
-            // Obj identified by update.gridPos.
+
+        // Beacon Updates:
+        case BEACON_BEING_TAKEN:
+            printf("Beacon is being captured. (%f) \n", update.beaconCaptureAmount);
             break;
-        case OBJECTIVE_TAKEN:
-            // Make the obj disappear? 
-            // Obj identified by update.gridPos.
+        case BEACON_DECAYING:
+            printf("Beacon is being decaying. (%f) \n", update.beaconCaptureAmount);
+            break;
+        case BEACON_CAPTURED:
+            printf("Beacon has been captured. \n");
+            break;
+        case BEACON_PING_PLAYER:
+            printf("Enemy Player at %f, %f.\n", update.playerPos.x, update.playerPos.y);
+            break;
+
+        // Objectives:
+        case HEAL_OBJECTIVE_TAKEN:
+            players[update.id]->hpIncrement(update.healAmount);
+            consumeObj((Objective *)gameGrids[update.gridPos.x][update.gridPos.y]);
+            break;
+        case ARMOR_OBJECTIVE_TAKEN:
+            players[update.id]->setHp(players[update.id]->getHp() + update.healAmount);
+            consumeObj((Objective *)gameGrids[update.gridPos.x][update.gridPos.y]);
+            break;
+        case EVO_OBJECTIVE_TAKEN:
+            // The level up process done in another update.
+            consumeObj((Objective *)gameGrids[update.gridPos.x][update.gridPos.y]);
+            break;
+
+        // Monster Levels Up
+        case MONSTER_EVO_UP:
+            ((Monster *)players[update.id])->setEvo(update.newEvoLevel);
             break;
         default:
             printf("Not Handled Update Type: %d", update.updateType);

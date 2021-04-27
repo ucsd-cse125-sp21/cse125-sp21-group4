@@ -12,7 +12,8 @@ public:
     void attack (Game* game);
     void interact (Game* game);
 
-    void updateEvo(float evoLevel);
+    void updateEvo(Game* game, float evoLevel);
+    void setEvo(float evo);
     float getEvo();
 };
 

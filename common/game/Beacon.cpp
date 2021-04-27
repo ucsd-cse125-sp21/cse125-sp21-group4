@@ -24,8 +24,21 @@ bool Beacon::canPing(){
     return tickCounter >= frequency;
 }
 
-void Beacon::updateCaptureAmount(float captureDelta){
-    captureAmount += captureDelta;
+void Beacon::updateCaptureAmount(Game* game, float captureDelta){
+
+    // If it's not captured, update the capture amount
+    if(!captured) {
+        captureAmount += captureDelta;
+
+        // If it's past the threshold, update captured boolean.
+        if(captureAmount <= MONSTER_BEACON_CAPTURE_THRESHOLD || captureAmount >= HUNTER_BEACON_CAPTURE_THRESHOLD) {
+            captured = true;
+            GameUpdate beaconCapturedUpdate;
+            beaconCapturedUpdate.updateType = BEACON_CAPTURED;
+            beaconCapturedUpdate.beaconCaptureAmount = captureAmount;
+            game->addUpdate(beaconCapturedUpdate);
+        }
+    }
 }
 void Beacon::decayCaptureAmount(){
     if(captureAmount < 0) {
@@ -33,6 +46,10 @@ void Beacon::decayCaptureAmount(){
     } else if (captureAmount > 0) {
         captureAmount -= DECAY_CAPTURE_RATE;
     }
+}
+
+float Beacon::getCaptureAmount() {
+    return captureAmount;
 }
 
 void Beacon::incrementTickCounter(){

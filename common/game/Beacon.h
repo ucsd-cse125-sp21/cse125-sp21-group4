@@ -2,6 +2,8 @@
 #define _BEACON_
 
 #include "Objective.h"
+#include "Game.h"
+#include "../networking/CommunicationConstants.h"
 
 class Beacon : public Objective {
     private:
@@ -24,8 +26,9 @@ class Beacon : public Objective {
         bool isCaptured();
         bool canPing();
 
-        void updateCaptureAmount(float captureDelta);
+        void updateCaptureAmount(Game * game, float captureDelta);
         void decayCaptureAmount();
+        float getCaptureAmount();
 
         void incrementTickCounter();
         void resetTickCounter();
