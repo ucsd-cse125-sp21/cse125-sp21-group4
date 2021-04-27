@@ -125,6 +125,7 @@
     <ClInclude Include="Main.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="stb_image.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
