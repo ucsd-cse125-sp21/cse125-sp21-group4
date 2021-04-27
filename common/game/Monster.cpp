@@ -5,6 +5,7 @@
 Monster::Monster() { 
     setType(MONSTER); // Monster type game component
     setHp(MONSTER_MAX_HP); // init full health
+    maxHP = MONSTER_MAX_HP;
     setAttackDamage(MONSTER_ATTACK_DAMAGE);
     setEvo(MONSTER_FIRST_STAGE_THRESHOLD);
 }
@@ -12,6 +13,7 @@ Monster::Monster() {
 Monster::Monster(PlayerPosition position) : GamePlayer(position){
     setType(MONSTER); // Monster type game component
     setHp(MONSTER_MAX_HP); // init full health
+    maxHP = MONSTER_MAX_HP;
     setAttackDamage(MONSTER_ATTACK_DAMAGE);
     setEvo(MONSTER_FIRST_STAGE_THRESHOLD);
 }
@@ -71,7 +73,7 @@ void Monster::interact(Game* game) {
         // If player is close enough to interact with this objective and can interact with objective
         Objective * obj = game->objectives[i];
         if(isWithinObjective(obj) && canInteractWithObjective(obj)) {
-            switch(obj->getType()) {
+            switch(obj->getObjective()) {
                 case EVO:{
                     // Monster: Update Evo
                     Evolve* evoObj = (Evolve*) obj;

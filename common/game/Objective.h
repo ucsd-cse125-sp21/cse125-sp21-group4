@@ -5,7 +5,7 @@
 
 // restrict objective to Restriction
 enum Restriction {
-    R_FIGHTER, // 1
+    R_HUNTER, // 1
     R_MONSTER, // 2
     R_NEUTRAL, // 3
 };

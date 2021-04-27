@@ -27,7 +27,7 @@ void Mage::interact(Game* game) {
         // If player is close enough to interact with this objective and can interact with objective
         Objective * obj = game->objectives[i];
         if(isWithinObjective(obj) && canInteractWithObjective(obj)) {
-            switch(obj->getType()) {
+            switch(obj->getObjective()) {
                 case EVO:
                     printf("Interacted with Invalid Evo Obj Type.\n");
                     break;
