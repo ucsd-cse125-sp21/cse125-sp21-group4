@@ -149,3 +149,7 @@ void CommunicationClient::validateRecv(int iResult) {
     }
 
 }
+
+int CommunicationClient::getId() {
+    return id;
+}

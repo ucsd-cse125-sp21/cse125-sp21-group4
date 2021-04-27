@@ -2,9 +2,11 @@
 #define _MONSTER_H
 
 #include "GamePlayer.h"
+#include <chrono>
 
 class Monster : public GamePlayer {
-protected:
+private:
+    std::chrono::steady_clock::time_point lastAttackTime;
     float evo;
 public:
     Monster(); // Constructor for GameComponent

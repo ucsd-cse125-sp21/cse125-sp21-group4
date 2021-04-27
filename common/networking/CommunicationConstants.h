@@ -3,9 +3,9 @@
 
 #include "../game/GridComponent.h"
 
-#define DEFAULT_PORT "31524"
+#define DEFAULT_PORT "31545"
 
-// #define ERICS_LOCAL_SERVER "192.168.0.110"
+//#define ERICS_LOCAL_SERVER "192.168.0.110"
 #define ERICS_LOCAL_SERVER "127.0.0.1"
 
 #define TICK_TIME 33 // 33ms == 30 tick server. 1 second / 30 ticks = 33 ms
@@ -18,9 +18,6 @@ enum CLIENT_INPUT{
     NO_MOVE,
     ATTACK, // general attack for now
     INTERACT, // used to interact with objectives
-    // MONSTER_SPIT_RANGED_ATTACK,
-    // MONSTER_MELEE_ATTACK,
-    // HUNTER_SWORD_ATTACK,
 };
 
 // Type of update sent to the server

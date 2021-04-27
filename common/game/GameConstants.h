@@ -36,7 +36,7 @@
 // Atack Rate Constants
 #define FIGHTER_ATTACK_TIME_INTERVAL 500 // 0.5s = 500 ms
 #define ROGUE_ATTACK_TIME_INTERVAL 500 // 0.5s = 500 ms
-
+#define MONSTER_ATTACK_TIME_INTERVAL 500 // 0.5s = 500 ms
 
 // Player Bouding Box Size Constants
 #define FIGHTER_WIDTH 4
@@ -55,9 +55,11 @@
 // Player attack distance constants
 #define FIGHTER_ATTACK_DISTANCE 2
 #define ROGUE_ATTACK_DISTANCE 20
+#define MONSTER_RANGED_ATTACK_DISTANCE 20
 
 // Player attack speed (projectile moving speed)
 #define ROGUE_ARROW_SPEED 2 // 2 units per tick
+#define MONSTER_RANGED_SPEED 2
 
 // Monster specific constants
 #define MONSTER_FIRST_STAGE_THRESHOLD 1.f
@@ -102,6 +104,7 @@ enum PlayerType {
 enum ProjectileType {
     ROGUE_ARROW,
     MAGE_FIREBALL,
+    MONSTER_RANGED,
     // MAGE_SHOOT,
     // CLERIC_SHOOT,
     // MONSTER_SHOOT,

@@ -42,6 +42,7 @@ int __cdecl main(int argc, char **argv)
     // initialize the game instance
     Game* game = new Game();
     // game->printGameGrids();
+    std::cout << "Player ID: " << commClient->getId() << "\n";
     game->printPlayers();
     GameState gameState = GameState();
 
@@ -90,8 +91,9 @@ int __cdecl main(int argc, char **argv)
         //     game->printGameState(gameState);
         // }
         if(updates.size() > 0) {
+            std::cout << "Player ID: " << commClient->getId() << "\n";
             game->handleUpdates(updates);
-            game->printPlayers();
+            game->printPlayers();           
         }
 
 
