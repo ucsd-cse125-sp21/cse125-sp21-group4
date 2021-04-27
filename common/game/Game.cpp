@@ -631,6 +631,7 @@ void Game::printStats() {
 
 void Game::consumeObj(Objective * obj) {
     GridPosition objPos = obj->getPosition();
+    objectives.erase(std::find(objectives.begin(),objectives.end(), obj));
     delete gameGrids[objPos.x][objPos.y];
     gameGrids[objPos.x][objPos.y] = new Space(objPos);
 }

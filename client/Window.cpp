@@ -251,10 +251,6 @@ void Window::handleUpdate(GameUpdate update) {
 		}
 		case PROJECTILE_MOVE:
             break;
-        case OBJECTIVE_BEING_TAKEN:
-            break;
-        case OBJECTIVE_TAKEN:
-            break;
         default:
             printf("Not Handled Update Type: %d", update.updateType);
             break;
