@@ -69,6 +69,9 @@ int __cdecl main(int argc, char **argv)
                 case 'j':
                     sendInput = ATTACK;
                     break;
+                case 'e':
+                    sendInput = INTERACT;
+                    break;
                 case 3:
                     exit(1);
             }
@@ -97,7 +100,7 @@ int __cdecl main(int argc, char **argv)
         // reset send input for next input
         sendInput = NO_MOVE;
 
-        usleep(25000);
+        usleep(5000);
         
 
         // do {

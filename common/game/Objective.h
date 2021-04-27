@@ -5,7 +5,7 @@
 
 // restrict objective to Restriction
 enum Restriction {
-    R_FIGHTER, // 1
+    R_HUNTER, // 1
     R_MONSTER, // 2
     R_NEUTRAL, // 3
 };
@@ -13,7 +13,7 @@ enum Restriction {
 enum ObjectiveType {
     EVO,     // evolution (monster)
     HEAL,    // healing
-    BEAC,    // vision beacon
+    BEACON,    // vision beacon
     ARMOR,   // armor
 };
 
@@ -21,6 +21,7 @@ class Objective : public GridComponent {
     protected:
         Restriction restrict;
         ObjectiveType type;
+        float interactionRange;
 
     public:
         Objective();
@@ -31,6 +32,9 @@ class Objective : public GridComponent {
 
         void setObjective(ObjectiveType t);
         ObjectiveType getObjective();
+
+        void setInteractionRange(float range);
+        float getInteractionRange();
 };
 
 #endif

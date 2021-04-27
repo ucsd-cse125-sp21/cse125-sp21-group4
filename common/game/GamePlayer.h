@@ -4,6 +4,12 @@
 #include "Game.h"
 #include <cmath>
 
+// Include Objective types to implement interactions with objectives
+#include "Armor.h"
+#include "Beacon.h"
+#include "Evolve.h"
+#include "Healing.h"
+
 // A GamePlayer's Bouding Box looks like
 //          width
 //     --------------
@@ -21,6 +27,7 @@ protected:
     PlayerType type;
     PlayerPosition position; // position struct for player
     int hp; // health for GamePlayer
+    int maxHP; // max health for GamePlayer
     int attackDamage; // harmness made per attack
     Direction faceDirection; // the direction the player is facing
 
@@ -55,6 +62,12 @@ public:
     void move (Game* game, Direction direction, float distance); 
     virtual void attack (Game* game);
     void hpDecrement (int damage);
+    void hpIncrement (int heal);
+    void interactHeal (Game* game, Heal* heal);
+    void interactArmor (Game* game, Armor* armor);
+    virtual void interact (Game* game);
+    bool isWithinObjective(Objective * objective);
+    bool canInteractWithObjective(Objective * objective);
     bool isDead ();
     
     bool isEnemy (GamePlayer* otherPlayer);

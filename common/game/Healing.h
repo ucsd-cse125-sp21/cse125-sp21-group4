@@ -3,6 +3,7 @@
 
 #include "Objective.h"
 
+
 class Heal : public Objective {
     private:
         int h_amount; // amount to heal

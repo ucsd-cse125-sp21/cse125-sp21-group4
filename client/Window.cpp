@@ -265,8 +265,16 @@ void Window::handleUpdate(GameUpdate update) {
 // This function checks if a certain key is being pressed or held down.
 void Window::updateLastInput() {
 
+	// E key
+	if (keyboard[GLFW_KEY_E]) {
+		lastInput = INTERACT;
+
+	// J key
+	} else if (keyboard[GLFW_KEY_J]) {
+		lastInput = ATTACK;
+
 	// W key
-	if(keyboard[GLFW_KEY_W]) {
+	} else if (keyboard[GLFW_KEY_W]) {
 		lastInput = MOVE_FORWARD;
 
 	// A key
