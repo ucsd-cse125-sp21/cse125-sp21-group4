@@ -25,13 +25,17 @@ public:
     std::vector<GameUpdate> updates; // Buffers updates so it can be sent to clients
     std::vector<Objective *> objectives; // Keeps track of all the objectives in the game.
     std::vector<Projectile*> projectiles; // Keeps track of all Projectile objects in the game.
+    Beacon* beacon; // only 1 beacon objective in the whole map and used to determine players in capture area
 
     // public member functions
     Game(); // default constructor
     void initPlayers(); // init playerList
     void initGameGrids(); // initialize gameGrids
+
     void cleanGameGrids(); 
     void cleanPlayers();
+    void consumeObj(Objective *);
+
     GameState getGameState();
     static bool sameGameState (GameState s1, GameState s2);
     void printGameState (GameState gameState);
@@ -39,6 +43,7 @@ public:
 
     bool handleInputs(CLIENT_INPUT playersInputs[PLAYER_NUM]);
     void updateProjectiles();
+    void updateBeacon();
 
     void printGameGrids();
     void printPlayers();

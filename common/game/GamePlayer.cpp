@@ -264,6 +264,15 @@ void GamePlayer::hpDecrement (int damage) {
     hp -= damage;
 }
 
+void GamePlayer::hpIncrement (int heal) {
+    // If there's extra hp, just heal up to maxHP
+    if (hp + heal > maxHP) {
+        hp = maxHP;
+    } else {
+        hp += heal;
+    }
+}
+
 bool GamePlayer::isDead () {
     return hp <= 0;
 }
@@ -276,33 +285,7 @@ void GamePlayer::attack(Game* game) {
 
 // Interact goes through the possible objectives and tries to interact with nearby objective
 void GamePlayer::interact(Game* game) {
-
-    // Go through each objective and check if it's within a range
-    for(int i = 0; i < game->objectives.size(); i++) {
-
-        // If player is close enough to interact with this objective and can interact with objective
-        Objective * obj = game->objectives[i];
-        if(isWithinObjective(obj) && canInteractWithObjective(obj)) {
-            switch(obj->getType()) {
-                case EVO:
-                    // TODO: Implement Evolution Mechanism for monster
-                    break;
-                case HEAL:
-                    // TODO: Implement Healing logic for Players/Monsters
-                    break;
-                case BEAC:
-                    // TODO: Implement Beacon Logic (capturing logic)
-                    break;
-                case ARMOR:
-                    // TODO: Implement Armor Logic (Extra HP?)
-                    break;
-                default:
-                    printf("Interacted with Invalid Objective Type.\n");
-                    break;
-            }
-        }
-    }
-    
+    printf("Overridden Method failed.\n");
 }
 
 // Check if the player is within the range of an objective
@@ -319,6 +302,11 @@ bool GamePlayer::isWithinObjective(Objective * objective) {
 
 // Check if player's type is valid to interact with the objective
 bool GamePlayer::canInteractWithObjective(Objective * objective) {
+
+    // if it's a beacon then the player didn't need to press E on it.
+    if(objective->getType() == BEAC) {
+        return false;
+    }
 
     // If the objective is for the monster or neutral, then a monster can interact it.
     if(this->getType() == MONSTER && (objective->getRestriction() == R_MONSTER || objective->getRestriction() == R_NEUTRAL)) {

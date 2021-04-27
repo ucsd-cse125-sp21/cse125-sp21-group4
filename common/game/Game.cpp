@@ -182,7 +182,7 @@ void Game::initGameGrids() {
                 }
                 else if (j == test_beac_width && i == test_beac_height) {
                     gameGrids[i][j] = new Beacon(position);
-                    objectives.push_back((Objective *)gameGrids[i][j]);
+                    beacon = (Beacon*) gameGrids[i][j];
                 }
                 else {
                     gameGrids[i][j] = new Space(position);
@@ -385,6 +385,58 @@ void Game::updateProjectiles () {
     projectiles = newProjectiles;
 }
 
+/**
+ *  updateBeacon() will check who is near the beacon and change the beacon's status based on
+ *  whether or not it was captured or is being captured.
+ */
+void Game::updateBeacon() {
+
+    // Captured Phase: just ping the enemy team
+    if(beacon->isCaptured()) {
+
+        // Ping if beacon can ping (tickCounter is full)
+        if(beacon->canPing()) {
+
+            beacon->resetTickCounter();
+
+        // Otherwise, increment the tick counter until it can ping
+        } else {
+            beacon->incrementTickCounter();
+        }
+
+
+    // Capturing Phase: check if players are in the beacon range
+    } else {
+        float captureAmount = 0;
+        for(int i = 0; i < PLAYER_NUM; i++) {
+            GamePlayer* player = players[i];
+            
+            // Squared Distance
+            GridPosition beaconPos = beacon->getPosition();
+            PlayerPosition playerPos = player->getPosition();
+            float squaredDistanceX =  pow(playerPos.x - beaconPos.x, 2);
+            float squaredDistanceY = pow(playerPos.y - beaconPos.y, 2);
+
+            // squared distance used instead of distance because less computation required.
+            if (squaredDistanceX + squaredDistanceY <= pow(beacon->getInteractionRange(), 2)) {
+                if(player->getType() == MONSTER) {
+                    captureAmount -= beacon->MONSTER_CAPTURE_RATE;
+                } else {
+                    captureAmount += beacon->HUNTER_CAPTURE_RATE;
+                }
+            }
+        }
+
+        // If any players are in the area, captureAmount != 0
+        if(captureAmount != 0) {
+            beacon->updateCaptureAmount(captureAmount);
+
+        // If no players are around, decay the beacon amount.
+        } else {
+            beacon->decayCaptureAmount();
+        }
+    }
+}
 
 
 void Game::printGameGrids () {
@@ -497,4 +549,10 @@ void Game::printStats() {
     cout << "Monster Evo amount - " << ((Evolve*) gameGrids[test_mevo_height][test_mevo_width])->getEvoAmount() << endl;
     cout << "Fighter Armor amount - " << ((Armor*) gameGrids[test_farm_height][test_farm_width])->getArmorAmount() << endl;
     cout << "Beacon Frequency (units unknown) - " << ((Beacon*) gameGrids[test_beac_height][test_beac_width])->getFrequency() << endl;   
+}
+
+void Game::consumeObj(Objective * obj) {
+    GridPosition objPos = obj->getPosition();
+    delete gameGrids[objPos.x][objPos.y];
+    gameGrids[objPos.x][objPos.y] = new Space(objPos);
 }

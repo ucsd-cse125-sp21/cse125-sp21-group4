@@ -4,12 +4,14 @@
 Rogue::Rogue() { 
     setType(ROGUE); // Fighter type game component
     setHp(ROGUE_MAX_HP); // init full health
+    maxHP = ROGUE_MAX_HP;
     setAttackDamage(ROGUE_ATTACK_DAMAGE);
 }
 
 Rogue::Rogue(PlayerPosition position) : GamePlayer(position) {
     setType(ROGUE); // Fighter type game component
     setHp(ROGUE_MAX_HP); // init full health
+    maxHP = ROGUE_MAX_HP;
     setAttackDamage(ROGUE_ATTACK_DAMAGE);
 }
 

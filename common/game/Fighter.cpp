@@ -4,12 +4,14 @@
 Fighter::Fighter() { 
     setType(FIGHTER); // Fighter type game component
     setHp(FIGHTER_MAX_HP); // init full health
+    maxHP = FIGHTER_MAX_HP;
     setAttackDamage(FIGHTER_ATTACK_DAMAGE);
 }
 
 Fighter::Fighter(PlayerPosition position) : GamePlayer(position) {
     setType(FIGHTER); // Fighter type game component
     setHp(FIGHTER_MAX_HP); // init full health
+    maxHP = FIGHTER_MAX_HP;
     setAttackDamage(FIGHTER_ATTACK_DAMAGE);
 }
 
