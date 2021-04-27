@@ -88,7 +88,7 @@ int __cdecl main(int argc, char **argv)
         //     game->printGameState(gameState);
         // }
         if(updates.size() > 0) {
-            std::cout << "Current player is " << commClient->getId() << "\n";
+            std::cout << "Player ID: " << commClient->getId() << "\n";
             game->handleUpdates(updates);
             game->printPlayers();           
         }
