@@ -234,6 +234,8 @@ void Window::handleUpdate(GameUpdate update) {
     switch(update.updateType) {
         case PLAYER_DAMAGE_TAKEN:
             break;
+		case PLAYER_HP_INCREMENT:
+			break;
         case PLAYER_MOVE:
 		{
 			chars[update.id]->moveToGivenDelta(update.floatDeltaX, update.floatDeltaY);

@@ -21,6 +21,7 @@ protected:
     PlayerType type;
     PlayerPosition position; // position struct for player
     int hp; // health for GamePlayer
+    int maxHp;
     int attackDamage; // harmness made per attack
     Direction faceDirection; // the direction the player is facing
     float speed; // move speed
@@ -62,6 +63,7 @@ public:
     virtual void attack (Game* game);
     virtual void uniqueAttack (Game* game);
     void hpDecrement (int damage);
+    void hpIncrement (int amount);
     bool isDead ();
     
     bool isEnemy (GamePlayer* otherPlayer);

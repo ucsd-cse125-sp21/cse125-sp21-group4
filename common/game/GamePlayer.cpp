@@ -282,6 +282,10 @@ void GamePlayer::hpDecrement (int damage) {
     hp -= damage;
 }
 
+void GamePlayer::hpIncrement (int amount) {
+    hp = std::min(maxHp, hp + amount);
+}
+
 bool GamePlayer::isDead () {
     return hp <= 0;
 }

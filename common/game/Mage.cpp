@@ -5,12 +5,14 @@ Mage::Mage() {
     setType(MAGE); // Fighter type game component
     setHp(MAGE_MAX_HP); // init full health
     setAttackDamage(MAGE_ATTACK_DAMAGE);
+    maxHp = MAGE_MAX_HP;
 }
 
 Mage::Mage(PlayerPosition position) : GamePlayer(position) {
     setType(MAGE); // Fighter type game component
     setHp(MAGE_MAX_HP); // init full health
     setAttackDamage(MAGE_ATTACK_DAMAGE);
+    maxHp = MAGE_MAX_HP;
 }
 
 // overide GamePlayer's attack

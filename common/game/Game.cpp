@@ -503,6 +503,9 @@ void Game::handleUpdate(GameUpdate update) {
         case PLAYER_DAMAGE_TAKEN:
             players[update.id]->hpDecrement(update.damageTaken);
             break;
+        case PLAYER_HP_INCREMENT:
+            players[update.id]->hpIncrement(update.damageTaken);
+            break;
         case PLAYER_MOVE:
         // Need curly braces because I am declaring new variables inside the case statement
         {

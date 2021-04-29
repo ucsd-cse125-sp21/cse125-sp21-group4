@@ -26,6 +26,7 @@ enum CLIENT_INPUT{
 // Type of update sent to the server
 enum UPDATE_TYPE {
     PLAYER_DAMAGE_TAKEN,
+    PLAYER_HP_INCREMENT,
     PLAYER_MOVE,
     PROJECTILE_MOVE,
     OBJECTIVE_BEING_TAKEN,

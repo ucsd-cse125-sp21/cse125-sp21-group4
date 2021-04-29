@@ -5,12 +5,14 @@ Cleric::Cleric() {
     setType(CLERIC); // Fighter type game component
     setHp(CLERIC_MAX_HP); // init full health
     setAttackDamage(CLERIC_ATTACK_DAMAGE);
+    maxHp = CLERIC_MAX_HP;
 }
 
 Cleric::Cleric(PlayerPosition position) : GamePlayer(position) {
     setType(CLERIC); // Fighter type game component
     setHp(CLERIC_MAX_HP); // init full health
     setAttackDamage(CLERIC_ATTACK_DAMAGE);
+    maxHp = CLERIC_MAX_HP;
 }
 
 // overide GamePlayer's attack
@@ -51,4 +53,50 @@ void Cleric::uniqueAttack(Game* game) {
     }
 
     lastUniqueAttackTime = currentTime; // update the lastUniqueAttackTime as this attack
+
+
+    // draw the healing aura region
+    PlayerPosition healingRegion = PlayerPosition();
+    healingRegion.x = position.x;
+    healingRegion.y = position.y;
+
+    healingRegion.width = HEALING_AURA_WIDTH;
+    healingRegion.height = HEALING_AURA_HEIGHT;
+
+    // for every hunter, if their bounding box overlaps the healingRegion,
+    // increase their hp
+    float p1ULX = getUpperLeftCoordinateX(healingRegion, false);
+    float p1ULY = getUpperLeftCoordinateY(healingRegion, false);
+    float p1BRX = getBottomRightCoordinateX(healingRegion, false);
+    float p1BRY = getBottomRightCoordinateY(healingRegion, false);
+
+    for (int i = 0; i < PLAYER_NUM; i++) {
+        // skip the player itself
+        if (game->players[i] == this) continue;
+        GamePlayer* otherPlayer = game->players[i];
+        float p2ULX = getUpperLeftCoordinateX(otherPlayer->getPosition(), true);
+        float p2ULY = getUpperLeftCoordinateY(otherPlayer->getPosition(), true);
+        float p2BRX = getBottomRightCoordinateX(otherPlayer->getPosition(), true);
+        float p2BRY = getBottomRightCoordinateY(otherPlayer->getPosition(), true);
+
+        // https://www.geeksforgeeks.org/find-two-rectangles-overlap/
+        // if one box is on left side of other
+        if (p1ULX >= p2BRX || p2ULX >= p1BRX) continue;
+        // if one box is above the other
+        if (p1ULY >= p2BRY || p2ULY >= p1BRY) continue;
+
+        if (!canAttack(game->players[i])) {
+            int oldHp = game->players[i]->getHp();
+            game->players[i]->hpIncrement(HEALING_AURA_HEALING_AMOUNT);
+            int incAmount = game->players[i]->getHp() - oldHp;
+
+
+            // queue this update to be send to other players
+            GameUpdate gameUpdate;
+            gameUpdate.updateType = PLAYER_HP_INCREMENT;
+            gameUpdate.id = i;
+            gameUpdate.damageTaken = incAmount;
+            game->addUpdate(gameUpdate);
+        }
+    }
 }
