@@ -41,3 +41,14 @@ void Cleric::attack(Game* game) {
     p->damage = getAttackDamage();
     game->projectiles.push_back(p);
 }
+
+void Cleric::uniqueAttack(Game* game) {
+    auto currentTime = std::chrono::steady_clock::now();
+    std::chrono::duration<float> duration = currentTime - lastUniqueAttackTime;
+    if (std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() 
+                                            < HEALING_AURA_TIME_INTERVAL) {
+        return;
+    }
+
+    lastUniqueAttackTime = currentTime; // update the lastUniqueAttackTime as this attack
+}

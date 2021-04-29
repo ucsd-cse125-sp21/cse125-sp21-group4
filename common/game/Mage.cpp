@@ -50,7 +50,7 @@ void Mage::uniqueAttack(Game* game) {
         return;
     }
 
-    lastUniqueAttackTime = currentTime; // update the lastAttackTime as this attack
+    lastUniqueAttackTime = currentTime; // update the lastUniqueAttackTime as this attack
 
     ProjectilePosition position = {
         getPosition().x,

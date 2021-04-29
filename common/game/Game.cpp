@@ -337,6 +337,7 @@ bool projectileIsCollidingEnemy (Projectile* p, Game* game) {
                 // create an event to add the speed back later
                 GameEvent* event = new GameEvent();
                 event->type = SPEED_CHANGE;
+                event->ownerID = p->ownerID;
                 event->targetID = i;
                 event->amount = FIREBALL_SPEED_DEC;
                 event->time = std::chrono::steady_clock::now() + 
@@ -398,8 +399,15 @@ void Game::updateProjectiles () {
 void Game::processEvent (GameEvent* event) {
     switch (event->type)
     {
-        case HP_DEC:
-            players[event->targetID]->hpDecrement(event->amount);
+        case HP_DEC: {
+                players[event->targetID]->hpDecrement(event->amount);
+                // queue this update to be send to other players
+                GameUpdate gameUpdate;
+                gameUpdate.updateType = PLAYER_DAMAGE_TAKEN;
+                gameUpdate.id = event->targetID;
+                gameUpdate.damageTaken = event->amount;
+                addUpdate(gameUpdate);
+            }
             break;
         case SPEED_CHANGE:
             players[event->targetID]->speedChange(event->amount);

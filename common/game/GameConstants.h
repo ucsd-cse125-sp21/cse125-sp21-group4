@@ -57,11 +57,19 @@
 
 
 // Player unique skill constants
+// Fighter sword attack will apply damage overtime:
+// 2 damages over 4 seconds. Timer resets on the next hit
+#define FIGHTER_OVERTIME_DAMAGE_INTERVAL 2000 // 2000ms = 2s
+#define FIGHTER_OVERTIME_DAMAGE_NUM 2
+// ------------------------------------------------------
 #define FIREBALL_SPEED_DEC 0.5 // decrease the speed by  0.5 unit per tick
 #define FIREBALL_EFFECT_TIME 3000 // 3s = 3000ms
 #define FIREBALL_TIME_INTERVAL 10000 // 10s = 10,000ms
 #define FIREBALL_DISTANCE 20
 #define FIREBALL_SPEED 1
+
+#define HEALING_AURA_TIME_INTERVAL 10000 // 10s = 10,000ms
+
 
 
 #define DELTA 0.001
