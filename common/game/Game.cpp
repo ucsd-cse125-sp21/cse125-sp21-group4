@@ -94,7 +94,7 @@ char getSymbol(GridComponent* cell) {
 
         case OBJECTIVE:
             if(obj->getObjective() == HEAL) {
-                if (obj->getRestriction() == R_FIGHTER)
+                if (obj->getRestriction() == R_HUNTER)
                     return FIGHTER_HEAL_SYMBOL;
                 else
                     return MONSTER_HEAL_SYMBOL;
@@ -103,7 +103,7 @@ char getSymbol(GridComponent* cell) {
                 return MONSTER_EVO_SYMBOL;
             else if(obj->getObjective() == ARMOR)
                 return FIGHTER_ARMOR_SYMBOL;
-            else if(obj->getObjective() == BEAC)
+            else if(obj->getObjective() == BEACON)
                 return BEACON_SYMBOL;
 
         default:
@@ -133,23 +133,23 @@ char getSymbol(GridComponent* cell) {
 void Game::initGameGrids() {
 
     // testing purposes
-    int test_rock_width = (MAP_WIDTH / GRID_WIDTH) / 2;
-    int test_rock_height = (MAP_HEIGHT / GRID_HEIGHT) / 2;
+    int test_rock_width = 30;
+    int test_rock_height = 30;
 
-    int test_fheal_width = (MAP_WIDTH / GRID_WIDTH) / 2;
-    int test_fheal_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 1;
+    int test_fheal_width = 35;
+    int test_fheal_height = 35;
 
-    int test_mheal_width = (MAP_WIDTH / GRID_WIDTH) / 2;
-    int test_mheal_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 2;
+    int test_mheal_width = 40;
+    int test_mheal_height = 40;
     
-    int test_mevo_width = (MAP_WIDTH / GRID_WIDTH) / 2;
-    int test_mevo_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 3;
+    int test_mevo_width = 45;
+    int test_mevo_height = 45;
 
-    int test_farm_width = (MAP_WIDTH / GRID_WIDTH) / 2;
-    int test_farm_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 4;
+    int test_farm_width = 50;
+    int test_farm_height = 50;
 
-    int test_beac_width = (MAP_WIDTH / GRID_WIDTH) / 2;
-    int test_beac_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 5;
+    int test_beac_width = 55;
+    int test_beac_height = 55;
 
     for (int i = 0; i < MAP_HEIGHT / GRID_HEIGHT; i++) {
         for (int j = 0; j < MAP_WIDTH / GRID_WIDTH; j++) {
@@ -157,25 +157,38 @@ void Game::initGameGrids() {
             position.x = j;
             position.y = i;
             // put obstacles on the boundary
-            if (isBoundary(j, i))
+            if (isBoundary(j, i)) {
                 gameGrids[i][j] = new Obstacle(position);
+            }
             else {
                 
                 // testing purposes
-                if(j == test_rock_width && i == test_rock_height) 
+                if(j == test_rock_width && i == test_rock_height) {
                     gameGrids[i][j] = new Rock(position);
-                else if (j == test_fheal_width && i == test_fheal_height)
-                    gameGrids[i][j] = new Heal(position, R_FIGHTER);
-                else if (j == test_mheal_width && i == test_mheal_height)
+                }
+                else if (j == test_fheal_width && i == test_fheal_height) {
+                    gameGrids[i][j] = new Heal(position, R_HUNTER);
+                    objectives.push_back((Objective *)gameGrids[i][j]);
+                }
+                else if (j == test_mheal_width && i == test_mheal_height) {
                     gameGrids[i][j] = new Heal(position, R_MONSTER);
-                else if (j == test_mevo_width && i == test_mevo_height)
+                    objectives.push_back((Objective *)gameGrids[i][j]);
+                }
+                else if (j == test_mevo_width && i == test_mevo_height) {
                     gameGrids[i][j] = new Evolve(position);
-                else if (j == test_farm_width && i == test_farm_height)
-                    gameGrids[i][j] = new Armor(position);
-                else if (j == test_beac_width && i == test_beac_height)
+                    objectives.push_back((Objective *)gameGrids[i][j]);
+                }
+                else if (j == test_farm_width && i == test_farm_height) {
+                    gameGrids[i][j] = new Armor(position, R_HUNTER);
+                    objectives.push_back((Objective *)gameGrids[i][j]);
+                }
+                else if (j == test_beac_width && i == test_beac_height) {
                     gameGrids[i][j] = new Beacon(position);
-                else 
+                    beacon = (Beacon*) gameGrids[i][j];
+                }
+                else {
                     gameGrids[i][j] = new Space(position);
+                }
 
             }
         }
@@ -394,6 +407,110 @@ void Game::updateProjectiles () {
     projectiles = newProjectiles;
 }
 
+/**
+ *  updateBeacon() will check who is near the beacon and change the beacon's status based on
+ *  whether or not it was captured or is being captured.
+ */
+void Game::updateBeacon() {
+
+    // Captured Phase: just ping the enemy team
+    if(beacon->isCaptured()) {
+
+        // Ping if beacon can ping (tickCounter is full)
+        if(beacon->canPing()) {
+            
+            // if it was captured by hunter
+            if(beacon->getCaptureAmount() >= HUNTER_BEACON_CAPTURE_THRESHOLD) {
+
+                // get position of monster and send it over as udpate
+                for(int i = 0; i < PLAYER_NUM; i++) {
+                    if(players[i]->getType() == MONSTER) {
+                        Monster* monster = (Monster*) players[i];
+                        GameUpdate monsterPosUpdate;
+                        monsterPosUpdate.updateType = BEACON_PING_PLAYER;
+                        monsterPosUpdate.playerPos = monster->getPosition();
+                        monsterPosUpdate.id = monster->getID();
+                        this->addUpdate(monsterPosUpdate);
+                        break; // break, only one monster in the game.
+                    }
+                }
+
+            // if it was captured by monster
+            } else if (beacon->getCaptureAmount() <= MONSTER_BEACON_CAPTURE_THRESHOLD) {
+
+                // Get positions of all hunters and send it over as updates
+                for(int i = 0; i < PLAYER_NUM; i++) {
+                    if(players[i]->getType() != MONSTER) {
+                        GamePlayer* hunter = (GamePlayer*) players[i];
+                        GameUpdate hunterPosUpdate;
+                        hunterPosUpdate.updateType = BEACON_PING_PLAYER;
+                        hunterPosUpdate.playerPos = hunter->getPosition();
+                        hunterPosUpdate.id = hunter->getID();
+                        this->addUpdate(hunterPosUpdate);
+                    }
+                }
+            }
+
+            // reset tick counter for the beacon
+            beacon->resetTickCounter();
+
+        // Otherwise, increment the tick counter until it can ping
+        } else {
+            beacon->incrementTickCounter();
+        }
+
+
+    // Capturing Phase: check if players are in the beacon range
+    } else {
+        float captureAmount = 0;
+        bool playersInArea = false;
+        for(int i = 0; i < PLAYER_NUM; i++) {
+            GamePlayer* player = players[i];
+            
+            // Squared Distance
+            GridPosition beaconPos = beacon->getPosition();
+            PlayerPosition playerPos = player->getPosition();
+            float squaredDistanceX =  pow(playerPos.x - beaconPos.x, 2);
+            float squaredDistanceY = pow(playerPos.y - beaconPos.y, 2);
+
+            // squared distance used instead of distance because less computation required.
+            if (squaredDistanceX + squaredDistanceY <= pow(beacon->getInteractionRange(), 2)) {
+                playersInArea = true;
+                if(player->getType() == MONSTER) {
+                    captureAmount -= beacon->MONSTER_CAPTURE_RATE;
+                } else {
+                    captureAmount += beacon->HUNTER_CAPTURE_RATE;
+                }
+            }
+
+
+        }
+
+        // If any players are in the area, captureAmount != 0
+        if(captureAmount != 0 && playersInArea) {
+            beacon->updateCaptureAmount(this, captureAmount);
+            // printf("Capture Amount %f\n", captureAmount);
+
+            // send capturing update to all players
+            GameUpdate beaconCapturingUpdate;
+            beaconCapturingUpdate.updateType = BEACON_BEING_TAKEN;
+            beaconCapturingUpdate.beaconCaptureAmount = beacon->getCaptureAmount();
+            this->addUpdate(beaconCapturingUpdate);
+
+        // If no players are around, decay the beacon amount.
+        } else if (beacon->getCaptureAmount() < -1.f || beacon->getCaptureAmount() > 1.f) {
+            beacon->decayCaptureAmount();
+            
+            // send delaying update to all players
+            GameUpdate beaconDecayingUpdate;
+            beaconDecayingUpdate.updateType = BEACON_DECAYING;
+            beaconDecayingUpdate.beaconCaptureAmount = beacon->getCaptureAmount();
+            this->addUpdate(beaconDecayingUpdate);
+
+        }
+        
+    }
+}
 
 /* Process a single event */
 void Game::processEvent (GameEvent* event) {
@@ -519,12 +636,38 @@ void Game::handleUpdate(GameUpdate update) {
         case PROJECTILE_MOVE:
             // Projectile can be identified with update.id.
             break;
-        case OBJECTIVE_BEING_TAKEN:
-            // Obj identified by update.gridPos.
+
+        // Beacon Updates:
+        case BEACON_BEING_TAKEN:
+            printf("Beacon is being captured. (%f) \n", update.beaconCaptureAmount);
             break;
-        case OBJECTIVE_TAKEN:
-            // Make the obj disappear? 
-            // Obj identified by update.gridPos.
+        case BEACON_DECAYING:
+            printf("Beacon is being decaying. (%f) \n", update.beaconCaptureAmount);
+            break;
+        case BEACON_CAPTURED:
+            printf("Beacon has been captured. \n");
+            break;
+        case BEACON_PING_PLAYER:
+            printf("Enemy Player at %f, %f.\n", update.playerPos.x, update.playerPos.y);
+            break;
+
+        // Objectives:
+        case HEAL_OBJECTIVE_TAKEN:
+            players[update.id]->hpIncrement(update.healAmount);
+            consumeObj((Objective *)gameGrids[update.gridPos.x][update.gridPos.y]);
+            break;
+        case ARMOR_OBJECTIVE_TAKEN:
+            players[update.id]->setHp(players[update.id]->getHp() + update.healAmount);
+            consumeObj((Objective *)gameGrids[update.gridPos.x][update.gridPos.y]);
+            break;
+        case EVO_OBJECTIVE_TAKEN:
+            // The level up process done in another update.
+            consumeObj((Objective *)gameGrids[update.gridPos.x][update.gridPos.y]);
+            break;
+
+        // Monster Levels Up
+        case MONSTER_EVO_UP:
+            ((Monster *)players[update.id])->setEvo(update.newEvoLevel);
             break;
         default:
             printf("Not Handled Update Type: %d", update.updateType);
@@ -534,27 +677,34 @@ void Game::handleUpdate(GameUpdate update) {
 // testing  purposes
 void Game::printStats() {
 
-    int test_rock_width = (MAP_WIDTH / GRID_WIDTH) / 2;
-    int test_rock_height = (MAP_HEIGHT / GRID_HEIGHT) / 2;
+    int test_rock_width = 30;
+    int test_rock_height = 30;
 
-    int test_fheal_width = (MAP_WIDTH / GRID_WIDTH) / 2;
-    int test_fheal_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 1;
+    int test_fheal_width = 35;
+    int test_fheal_height = 35;
 
-    int test_mheal_width = (MAP_WIDTH / GRID_WIDTH) / 2;
-    int test_mheal_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 2;
+    int test_mheal_width = 40;
+    int test_mheal_height = 40;
     
-    int test_mevo_width = (MAP_WIDTH / GRID_WIDTH) / 2;
-    int test_mevo_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 3;
+    int test_mevo_width = 45;
+    int test_mevo_height = 45;
 
-    int test_farm_width = (MAP_WIDTH / GRID_WIDTH) / 2;
-    int test_farm_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 4;
+    int test_farm_width = 50;
+    int test_farm_height = 50;
 
-    int test_beac_width = (MAP_WIDTH / GRID_WIDTH) / 2;
-    int test_beac_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 5;
+    int test_beac_width = 55;
+    int test_beac_height = 55;
 
     cout << "Fighter Heal amount - " << ((Heal*) gameGrids[test_fheal_height][test_fheal_width])->getHealAmount() << endl;
     cout << "Monster Heal amount - " << ((Heal*) gameGrids[test_mheal_height][test_mheal_width])->getHealAmount() << endl;
     cout << "Monster Evo amount - " << ((Evolve*) gameGrids[test_mevo_height][test_mevo_width])->getEvoAmount() << endl;
     cout << "Fighter Armor amount - " << ((Armor*) gameGrids[test_farm_height][test_farm_width])->getArmorAmount() << endl;
     cout << "Beacon Frequency (units unknown) - " << ((Beacon*) gameGrids[test_beac_height][test_beac_width])->getFrequency() << endl;   
+}
+
+void Game::consumeObj(Objective * obj) {
+    GridPosition objPos = obj->getPosition();
+    objectives.erase(std::find(objectives.begin(),objectives.end(), obj));
+    delete gameGrids[objPos.x][objPos.y];
+    gameGrids[objPos.x][objPos.y] = new Space(objPos);
 }

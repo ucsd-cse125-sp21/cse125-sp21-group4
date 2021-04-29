@@ -8,6 +8,17 @@
 #define PLAYER_NUM 4 // used to change how many clients the server will accept
 #define MAX_PLAYERS 4  // used to determine the game's absolute maximum player count
 
+
+// Interaction Ranges for Objectives
+#define BEACON_INTERACTION_RANGE 15
+#define ARMOR_INTERACTION_RANGE 3
+#define EVO_INTERACTION_RANGE 3
+#define HEALING_INTERACTION_RANGE 3
+
+// BEACON THRESHOLDS
+#define MONSTER_BEACON_CAPTURE_THRESHOLD -30.f
+#define HUNTER_BEACON_CAPTURE_THRESHOLD 30.f
+
 // MAX HP Constants
 #define FIGHTER_MAX_HP 100
 #define MAGE_MAX_HP 100
@@ -28,6 +39,7 @@
 #define MAGE_ATTACK_TIME_INTERVAL 300 // 0.3s = 300 ms
 #define CLERIC_ATTACK_TIME_INTERVAL 300 // 0.3s = 300 ms
 
+#define MONSTER_ATTACK_TIME_INTERVAL 500 // 0.5s = 500 ms
 
 // Player Bouding Box Size Constants
 #define FIGHTER_WIDTH 4
@@ -73,6 +85,20 @@
 #define HEALING_AURA_HEIGHT 14
 #define HEALING_AURA_HEALING_AMOUNT 20
 
+#define MONSTER_RANGED_ATTACK_DISTANCE 20
+
+// Player attack speed (projectile moving speed)
+#define ROGUE_ARROW_SPEED 2 // 2 units per tick
+#define MONSTER_RANGED_SPEED 2
+
+// Monster specific constants
+#define MONSTER_FIRST_STAGE_THRESHOLD 1.f
+#define MONSTER_SECOND_STAGE_THRESHOLD 2.f
+#define MONSTER_THIRD_STAGE_THRESHOLD 3.f
+#define MONSTER_FOURTH_STAGE_THRESHOLD 4.f
+#define MONSTER_FIFTH_STAGE_THRESHOLD 5.f
+
+#define EVO_AMOUNT 1.5f
 
 
 #define DELTA 0.001
@@ -110,6 +136,9 @@ enum ProjectileType {
     MAGE_SHOOT,
     CLERIC_SHOOT,
     MAGE_FIREBALL,
+    MONSTER_RANGED,
+    // MAGE_SHOOT,
+    // CLERIC_SHOOT,
     // MONSTER_SHOOT,
 };
 
@@ -126,7 +155,7 @@ struct ProjectilePosition {
     float x;
     float y;
 };
-typedef PlayerPosition PlayerPosition;
+typedef ProjectilePosition ProjectilePosition;
 
 
 #endif

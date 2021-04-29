@@ -18,6 +18,7 @@ int MouseX, MouseY;
 
 // The shader program id
 GLuint Window::shaderProgram;
+GLuint Window::texShader;
 
 // projection Matrices 
 glm::mat4 Window::projection;
@@ -38,6 +39,7 @@ CLIENT_INPUT Window::lastInput = NO_MOVE;
 bool Window::initializeProgram() {
 	// Create a shader program with a vertex shader and a fragment shader.
 	shaderProgram = LoadShaders("shaders/shader/shader.vert", "shaders/shader/shader.frag");
+	texShader = LoadShaders("shaders/shader/texture.vert", "shaders/shader/texture.frag");
 	// Check the shader program.
 	if (!shaderProgram)
 	{
@@ -66,7 +68,7 @@ rotation axis, rotation in radian, scale factor in float, model color)
 bool Window::initializeObjects()
 {
 	//chars
-	chars.push_back(new Character("shaders/character/cube.obj", &projection, &view, shaderProgram, 
+	/*chars.push_back(new Character("shaders/character/cube.obj", &projection, &view, shaderProgram, 
 		glm::vec3(-5.f, 1.f, -5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f)));
 	chars.push_back(new Character("shaders/character/cube.obj", &projection, &view, shaderProgram,
 		glm::vec3(5.f, 1.f, -5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(45.f), 1.f, glm::vec3(.5f, 1.f, .5f)));
@@ -76,7 +78,13 @@ bool Window::initializeObjects()
 		glm::vec3(5.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(60.f), 0.5f, glm::vec3(1.f, .3f, 1.f)));
 	//env
 	envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram, 
-	glm::vec3(0.f,0.f,0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
+	glm::vec3(0.f,0.f,0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));*/
+
+	chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, texShader,
+		glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f),
+		"shaders/character/square2.png"));
+	envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram,
+		glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
 	return true;
 }
 
@@ -245,10 +253,6 @@ void Window::handleUpdate(GameUpdate update) {
 		}
 		case PROJECTILE_MOVE:
             break;
-        case OBJECTIVE_BEING_TAKEN:
-            break;
-        case OBJECTIVE_TAKEN:
-            break;
         default:
             printf("Not Handled Update Type: %d", update.updateType);
             break;
@@ -259,8 +263,16 @@ void Window::handleUpdate(GameUpdate update) {
 // This function checks if a certain key is being pressed or held down.
 void Window::updateLastInput() {
 
+	// E key
+	if (keyboard[GLFW_KEY_E]) {
+		lastInput = INTERACT;
+
+	// J key
+	} else if (keyboard[GLFW_KEY_J]) {
+		lastInput = ATTACK;
+
 	// W key
-	if(keyboard[GLFW_KEY_W]) {
+	} else if (keyboard[GLFW_KEY_W]) {
 		lastInput = MOVE_FORWARD;
 
 	// A key

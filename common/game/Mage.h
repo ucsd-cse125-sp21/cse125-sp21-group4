@@ -14,6 +14,7 @@ public:
 
     void attack (Game* game);
     void uniqueAttack (Game* game);
+    void interact (Game* game);
 };
 
 #endif

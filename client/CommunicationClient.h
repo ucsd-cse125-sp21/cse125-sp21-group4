@@ -37,5 +37,6 @@ public:
     void cleanup(); // cleans up the client connection
     std::vector<GameUpdate> receiveGameUpdates();
     void validateRecv(int iResult);
+    int getId();
 };
 #endif

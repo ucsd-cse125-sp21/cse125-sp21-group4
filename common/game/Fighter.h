@@ -12,6 +12,7 @@ public:
     Fighter(PlayerPosition position); // Constructor for GameComponent
 
     void attack (Game* game);
+    void interact (Game* game);
 };
 
 #endif
