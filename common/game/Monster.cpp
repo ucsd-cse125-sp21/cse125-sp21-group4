@@ -5,7 +5,7 @@
 Monster::Monster() { 
     setType(MONSTER); // Monster type game component
     setHp(MONSTER_MAX_HP); // init full health
-    maxHP = MONSTER_MAX_HP;
+    maxHp = MONSTER_MAX_HP;
     setAttackDamage(MONSTER_ATTACK_DAMAGE);
     setEvo(MONSTER_FIRST_STAGE_THRESHOLD);
 }
@@ -13,7 +13,7 @@ Monster::Monster() {
 Monster::Monster(PlayerPosition position) : GamePlayer(position){
     setType(MONSTER); // Monster type game component
     setHp(MONSTER_MAX_HP); // init full health
-    maxHP = MONSTER_MAX_HP;
+    maxHp = MONSTER_MAX_HP;
     setAttackDamage(MONSTER_ATTACK_DAMAGE);
     setEvo(MONSTER_FIRST_STAGE_THRESHOLD);
 }
@@ -38,7 +38,7 @@ void Monster::attack(Game* game) {
     p->origin = position;
     p->currentPosition = position; 
     p->maxDistance = MONSTER_RANGED_ATTACK_DISTANCE; 
-    p->ownerType = getType();
+    p->ownerID = getID();
     p->type = MONSTER_RANGED; 
     p->speed = MONSTER_RANGED_SPEED; //this?
     p->direction = getFaceDirection();

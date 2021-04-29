@@ -27,9 +27,10 @@ protected:
     PlayerType type;
     PlayerPosition position; // position struct for player
     int hp; // health for GamePlayer
-    int maxHP; // max health for GamePlayer
+    int maxHp;
     int attackDamage; // harmness made per attack
     Direction faceDirection; // the direction the player is facing
+    float speed; // move speed
 
     int id; // Used for determining playerID
 
@@ -47,6 +48,11 @@ public:
     void setAttackDamage (int newAttackDamage);
     Direction getFaceDirection (); // faceDirection getter
     void setFaceDirection (Direction newDirection); // faceDirection setter
+    float getSpeed ();
+    void setSpeed (float newSpeed);
+    void slowDown (float amount);
+    void speedUp (float amount);
+    void speedChange(float amount);
 
     float getUpperLeftCoordinateX (PlayerPosition position, bool isPlayer);
     float getUpperLeftCoordinateY (PlayerPosition position, bool isPlayer);
@@ -59,8 +65,9 @@ public:
     bool canAttack (GamePlayer* player);
     static bool samePosition (PlayerPosition p1, PlayerPosition p2);
 
-    void move (Game* game, Direction direction, float distance); 
+    void move (Game* game, Direction direction); 
     virtual void attack (Game* game);
+    virtual void uniqueAttack (Game* game);
     void hpDecrement (int damage);
     void hpIncrement (int heal);
     void interactHeal (Game* game, Heal* heal);

@@ -9,6 +9,7 @@
 #include "../networking/GameState.h"
 #include "Objective.h"
 #include "Projectile.h"
+#include "GameEvent.h"
 
 
 
@@ -24,6 +25,7 @@ public:
     PlayerList players; // PlayerList is an size-4-array of GamePlayer 
                         // (either Fighter type or Monster type for now)
 
+    std::vector<GameEvent*> events;
     std::vector<GameUpdate> updates; // Buffers updates so it can be sent to clients
     std::vector<Objective *> objectives; // Keeps track of all the objectives in the game.
     std::vector<Projectile*> projectiles; // Keeps track of all Projectile objects in the game.
@@ -45,6 +47,8 @@ public:
 
     bool handleInputs(CLIENT_INPUT playersInputs[PLAYER_NUM]);
     void updateProjectiles();
+    void processEvent (GameEvent* event);
+    void updateGameEvents();
     void updateBeacon();
 
     void printGameGrids();

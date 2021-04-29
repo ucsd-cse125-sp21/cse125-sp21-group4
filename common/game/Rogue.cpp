@@ -4,14 +4,14 @@
 Rogue::Rogue() { 
     setType(ROGUE); // Fighter type game component
     setHp(ROGUE_MAX_HP); // init full health
-    maxHP = ROGUE_MAX_HP;
+    maxHp = ROGUE_MAX_HP;
     setAttackDamage(ROGUE_ATTACK_DAMAGE);
 }
 
 Rogue::Rogue(PlayerPosition position) : GamePlayer(position) {
     setType(ROGUE); // Fighter type game component
     setHp(ROGUE_MAX_HP); // init full health
-    maxHP = ROGUE_MAX_HP;
+    maxHp = ROGUE_MAX_HP;
     setAttackDamage(ROGUE_ATTACK_DAMAGE);
 }
 
@@ -36,7 +36,7 @@ void Rogue::attack(Game* game) {
     p->origin = position;
     p->currentPosition = position; 
     p->maxDistance = ROGUE_ATTACK_DISTANCE;
-    p->ownerType = getType();
+    p->ownerID = getID();
     p->type = ROGUE_ARROW;
     p->speed = ROGUE_ARROW_SPEED;
     p->direction = getFaceDirection();
@@ -63,7 +63,7 @@ void Rogue::interact(Game* game) {
                     // Beacon requires zero interaction, so do nothing.
                     break;
                 case ARMOR:
-                    // Armor is just extra health (does not care about maxHP)
+                    // Armor is just extra health (does not care about maxHp)
                     interactArmor(game, (Armor*) obj);
                     break;
                 default:
