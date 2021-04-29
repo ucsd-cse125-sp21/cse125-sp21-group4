@@ -308,7 +308,7 @@ void GamePlayer::interact(Game* game) {
 
 // Interacts with a Healing Objective
 void GamePlayer::interactHeal(Game* game, Heal * healObj) {
-    if(this->hp >= maxHP) {
+    if(this->hp >= maxHp) {
         printf("Player (%d): Full HP, do not consume objective.\n", this->id);
         return;
     }
@@ -396,13 +396,11 @@ void GamePlayer::handleUserInput (Game* game, CLIENT_INPUT userInput) {
         case ATTACK:
             attack(game);
             break;
-<<<<<<< HEAD
         case UNIQUE_ATTACK:
             uniqueAttack(game);
-=======
+            break;
         case INTERACT:
             interact(game);
->>>>>>> main
             break;
         default:
             // NO_MOVE and other input does not trigger any action

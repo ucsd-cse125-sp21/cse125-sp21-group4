@@ -4,7 +4,6 @@
 Cleric::Cleric() { 
     setType(CLERIC); // Fighter type game component
     setHp(CLERIC_MAX_HP); // init full health
-    maxHP = CLERIC_MAX_HP;
     setAttackDamage(CLERIC_ATTACK_DAMAGE);
     maxHp = CLERIC_MAX_HP;
 }
@@ -12,7 +11,6 @@ Cleric::Cleric() {
 Cleric::Cleric(PlayerPosition position) : GamePlayer(position) {
     setType(CLERIC); // Fighter type game component
     setHp(CLERIC_MAX_HP); // init full health
-    maxHP = CLERIC_MAX_HP;
     setAttackDamage(CLERIC_ATTACK_DAMAGE);
     maxHp = CLERIC_MAX_HP;
 }

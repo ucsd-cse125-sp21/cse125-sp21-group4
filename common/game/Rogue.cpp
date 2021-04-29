@@ -63,7 +63,7 @@ void Rogue::interact(Game* game) {
                     // Beacon requires zero interaction, so do nothing.
                     break;
                 case ARMOR:
-                    // Armor is just extra health (does not care about maxHP)
+                    // Armor is just extra health (does not care about maxHp)
                     interactArmor(game, (Armor*) obj);
                     break;
                 default:

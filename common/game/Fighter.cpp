@@ -4,7 +4,7 @@
 Fighter::Fighter() { 
     setType(FIGHTER); // Fighter type game component
     setHp(FIGHTER_MAX_HP); // init full health
-    maxpP = FIGHTER_MAX_HP;
+    maxHp = FIGHTER_MAX_HP;
     setAttackDamage(FIGHTER_ATTACK_DAMAGE);
 }
 
@@ -135,7 +135,7 @@ void Fighter::interact(Game* game) {
                     // Beacon requires zero interaction, so do nothing.
                     break;
                 case ARMOR:
-                    // Armor is just extra health (does not care about maxHP)
+                    // Armor is just extra health (does not care about maxHp)
                     interactArmor(game, (Armor*) obj);
                     break;
                 default:

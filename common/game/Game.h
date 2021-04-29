@@ -25,8 +25,6 @@ public:
     PlayerList players; // PlayerList is an size-4-array of GamePlayer 
                         // (either Fighter type or Monster type for now)
 
-    std::vector<GameUpdate> updates;
-    std::vector<Projectile*> projectiles;
     std::vector<GameEvent*> events;
     std::vector<GameUpdate> updates; // Buffers updates so it can be sent to clients
     std::vector<Objective *> objectives; // Keeps track of all the objectives in the game.
