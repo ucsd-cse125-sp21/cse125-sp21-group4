@@ -2,6 +2,9 @@
 #define _GAME_H_
 
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
 #include <vector>
 #include "GridComponent.h"
 #include "../networking/CommunicationConstants.h"

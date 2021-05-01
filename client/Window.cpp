@@ -24,7 +24,7 @@ GLuint Window::texShader;
 glm::mat4 Window::projection;
 
 //this is the position of the camera
-glm::vec3 Window::eyePos(0, 10, 10);
+glm::vec3 Window::eyePos(0, 10, 10); // x y z
 // this is the direction where the camera is staring at
 glm::vec3 Window::lookAtPoint(0, 0, 0);
 // this is the upward direction for the camera. Think of this as the angle where your head is
