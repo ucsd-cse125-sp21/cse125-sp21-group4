@@ -59,10 +59,7 @@ void print_versions()
  */
 int main(int argc, char* argv[])
 {
-	// Create CommunicationClient object to talk to server
-#ifdef SERVER_ENABLED
-	CommunicationClient* commClient = new CommunicationClient();
-#endif
+
 	// Create the GLFW window.
 	GLFWwindow* window = Window::createWindow(800, 600);
 	if (!window) exit(EXIT_FAILURE);

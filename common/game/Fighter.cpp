@@ -4,12 +4,14 @@
 Fighter::Fighter() { 
     setType(FIGHTER); // Fighter type game component
     setHp(FIGHTER_MAX_HP); // init full health
+    maxHp = FIGHTER_MAX_HP;
     setAttackDamage(FIGHTER_ATTACK_DAMAGE);
 }
 
 Fighter::Fighter(PlayerPosition position) : GamePlayer(position) {
     setType(FIGHTER); // Fighter type game component
     setHp(FIGHTER_MAX_HP); // init full health
+    maxHp = FIGHTER_MAX_HP;
     setAttackDamage(FIGHTER_ATTACK_DAMAGE);
 }
 
@@ -82,6 +84,27 @@ void Fighter::attack(Game* game) {
 
         if (canAttack(game->players[i])) {
             game->players[i]->hpDecrement(attackDamage);
+            // cancel all the prescheduled damage overtime
+            std::vector<GameEvent*> newEvents;
+            for (auto iter = game->events.begin(); iter != game->events.end(); iter++) {
+                GameEvent* event = *iter;
+                if (event->ownerID == getID() && event->type == HP_DEC) delete event;
+                else newEvents.push_back(event);
+            }   
+            game->events = newEvents;    
+            
+            // schedule overtime damage
+            for (int n = 0; n < FIGHTER_OVERTIME_DAMAGE_NUM; n++) {
+                GameEvent* event = new GameEvent();
+                event->type = HP_DEC;
+                event->ownerID = getID();
+                event->targetID = i;
+                event->amount = attackDamage;
+                event->time = std::chrono::steady_clock::now() + 
+                            std::chrono::milliseconds((n+1)*FIGHTER_OVERTIME_DAMAGE_INTERVAL);
+                game->events.push_back(event);
+            }
+
 
             // queue this update to be send to other players
             GameUpdate gameUpdate;
@@ -89,6 +112,40 @@ void Fighter::attack(Game* game) {
             gameUpdate.id = i;
             gameUpdate.damageTaken = attackDamage;
             game->addUpdate(gameUpdate);
+        }
+    }
+}
+
+void Fighter::interact(Game* game) {
+    // Go through each objective and check if it's within a range
+    for(int i = 0; i < game->objectives.size(); i++) {
+
+        // If player is close enough to interact with this objective and can interact with objective
+        Objective * obj = game->objectives[i];
+        if(isWithinObjective(obj) && canInteractWithObjective(obj)) {
+            switch(obj->getObjective()) {
+                case EVO:
+                    printf("Interacted with Invalid Evo Obj Type.\n");
+                    break;
+                case HEAL:
+                    // use GamePlayer's interactHeal.
+                    interactHeal(game, (Heal*) obj);
+                    break;
+                case BEACON:
+                    // Beacon requires zero interaction, so do nothing.
+                    break;
+                case ARMOR:
+                    // Armor is just extra health (does not care about maxHp)
+                    interactArmor(game, (Armor*) obj);
+                    break;
+                default:
+                    printf("Interacted with Invalid Objective Type.\n");
+                    break;
+            }
+
+            // Players should only interact with one objective at a time
+            // so this return statement saves computation time from running across all objectives
+            return;
         }
     }
 }

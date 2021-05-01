@@ -3,12 +3,13 @@
 
 #include "Objective.h"
 
+
 class Armor : public Objective {
     private:
         int armor_amount; // amount of armor
 
     public:
-        Armor(GridPosition position, Restriction r = R_FIGHTER);
+        Armor(GridPosition position, Restriction r = R_HUNTER);
 
         int getArmorAmount();
 };

@@ -66,6 +66,10 @@ CommunicationClient::CommunicationClient() {
         // printf("Player ID: %d", id);
     }
 
+    // Make the server socket non-blocking
+    u_long nonblocking = 1;
+    ioctlsocket(serverSocket, FIONBIO, &nonblocking);
+
 }
 void CommunicationClient::sendInput(CLIENT_INPUT sendInput) {
     int iResult;
@@ -110,7 +114,7 @@ std::vector<GameUpdate> CommunicationClient::receiveGameUpdates() {
     std::vector<GameUpdate> updates;
 
     // Get the amount of bytes of updates we should get
-    int numUpdates;
+    int numUpdates = 0;
     int iResult = recv(serverSocket, (char *) &numUpdates, sizeof(int), 0);
     validateRecv(iResult);
     // printf("Number of Updates: %d\n", numUpdates);
@@ -118,6 +122,7 @@ std::vector<GameUpdate> CommunicationClient::receiveGameUpdates() {
     if(numUpdates == 0) {
         return updates;
     }
+    // printf("Number of Actual Updates: %d\n", numUpdates);
 
     // Now receive that many bytes of input
     updates.resize(numUpdates);
@@ -142,10 +147,20 @@ void CommunicationClient::validateRecv(int iResult) {
 
     // Errors with recv
     else {
-        printf("recv failed with error: %d\n", WSAGetLastError());
-        closesocket(serverSocket);
-        WSACleanup();
-        exit(1);
+        int errorCode = WSAGetLastError();
+        if(errorCode == WSAEWOULDBLOCK) {
+            // printf("nonblocking error from recv()\n");
+            
+        } else {
+            printf("error with recv(): %d\n", WSAGetLastError());
+            closesocket(serverSocket);
+            WSACleanup();
+            exit(1);
+        }
     }
 
+}
+
+int CommunicationClient::getId() {
+    return id;
 }

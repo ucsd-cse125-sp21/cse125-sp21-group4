@@ -242,6 +242,8 @@ void Window::handleUpdate(GameUpdate update) {
     switch(update.updateType) {
         case PLAYER_DAMAGE_TAKEN:
             break;
+		case PLAYER_HP_INCREMENT:
+			break;
         case PLAYER_MOVE:
 		{
 			chars[update.id]->moveToGivenDelta(update.floatDeltaX, update.floatDeltaY);
@@ -250,10 +252,6 @@ void Window::handleUpdate(GameUpdate update) {
         
 		}
 		case PROJECTILE_MOVE:
-            break;
-        case OBJECTIVE_BEING_TAKEN:
-            break;
-        case OBJECTIVE_TAKEN:
             break;
         default:
             printf("Not Handled Update Type: %d", update.updateType);
@@ -265,8 +263,16 @@ void Window::handleUpdate(GameUpdate update) {
 // This function checks if a certain key is being pressed or held down.
 void Window::updateLastInput() {
 
+	// E key
+	if (keyboard[GLFW_KEY_E]) {
+		lastInput = INTERACT;
+
+	// J key
+	} else if (keyboard[GLFW_KEY_J]) {
+		lastInput = ATTACK;
+
 	// W key
-	if(keyboard[GLFW_KEY_W]) {
+	} else if (keyboard[GLFW_KEY_W]) {
 		lastInput = MOVE_FORWARD;
 
 	// A key
