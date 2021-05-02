@@ -7,7 +7,7 @@
 #define GRID_HEIGHT 1 // GRID_HEIGHT should be able to fully divide MAP_HEIGHT
 #define PLAYER_NUM 4 // used to change how many clients the server will accept
 #define MAX_PLAYERS 4  // used to determine the game's absolute maximum player count
-
+#define SELECT_SCREEN_TIME 30 // 30 seconds to select jobs
 
 // Interaction Ranges for Objectives
 #define BEACON_INTERACTION_RANGE 15
@@ -111,6 +111,12 @@ const float P2_SPAWN_POSITION[2] {15.0, 5.0};
 const float P3_SPAWN_POSITION[2] {5.0, 15.0};
 const float P4_SPAWN_POSITION[2] {15.0, 15.0};
 
+const float SPAWN_POSITIONS [4][2] = {
+    {5.0, 5.0},
+    {15.0, 5.0},
+    {5.0, 15.0},
+    {70.0, 70.0}
+};
 
 #define MOVE_DISTANCE 1
 

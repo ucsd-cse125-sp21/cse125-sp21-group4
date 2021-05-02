@@ -11,6 +11,7 @@ bool Window::keyboard[KEYBOARD_SIZE];
 //objects to render
 vector<Character*> Window::chars; //all the characters players get to control
 vector<EnvElement*> Window::envs; //all the environmental static objects
+vector<Character*> Window::selectScreenElements; // I use character instead of a separate class bc stb_image had issues with being included twice (and requires to be included in cpp and not h)
 
 // Interaction Variables
 bool LeftDown, RightDown;
@@ -79,7 +80,36 @@ bool Window::initializeObjects()
 	//env
 	envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram, 
 	glm::vec3(0.f,0.f,0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));*/
+	
+	// Select Screen Background
+	selectScreenElements.push_back(new Character("shaders/character/billboard.obj", &projection, &view, texShader,
+		glm::vec3(0.f, 20.f, 0.f), glm::vec3(1.f, 0.f, 0.f), glm::radians(180.f), 7.f, glm::vec3(1.f, .5f, .5f),
+		"shaders/select_screen/character_select_background.png"));
 
+	// Each Job Buttons
+	selectScreenElements.push_back(new Character("shaders/character/billboard.obj", &projection, &view, texShader,
+		glm::vec3(0.f, 20.f, .1f), glm::vec3(1.f, 0.f, 0.f), glm::radians(180.f), 3.f, glm::vec3(1.f, .5f, .5f),
+		"shaders/select_screen/rogue_unselected.png"));
+		
+	selectScreenElements.push_back(new Character("shaders/character/billboard.obj", &projection, &view, texShader,
+		glm::vec3(0.f, 20.f, .1f), glm::vec3(1.f, 0.f, 0.f), glm::radians(180.f), 3.f, glm::vec3(1.f, .5f, .5f),
+		"shaders/select_screen/mage_unselected.png"));
+		
+	selectScreenElements.push_back(new Character("shaders/character/billboard.obj", &projection, &view, texShader,
+		glm::vec3(0.f, 20.f, .1f), glm::vec3(1.f, 0.f, 0.f), glm::radians(180.f), 3.f, glm::vec3(1.f, .5f, .5f),
+		"shaders/select_screen/cleric_unselected.png"));
+		
+	selectScreenElements.push_back(new Character("shaders/character/billboard.obj", &projection, &view, texShader,
+		glm::vec3(0.f, 20.f, .1f), glm::vec3(1.f, 0.f, 0.f), glm::radians(180.f), 3.f, glm::vec3(1.f, .5f, .5f),
+		"shaders/select_screen/fighter_unselected.png"));
+
+
+	// Look at the Select Screen first
+	eyePos = glm::vec3(0, 20, 9);
+	lookAtPoint = glm::vec3(0,20,0);
+	view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window::upVector);
+	
+	
 	chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, texShader,
 		glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/character/square2.png"));
@@ -166,6 +196,10 @@ void Window::displayCallback(GLFWwindow* window)
 
 	//draw all the characters and environmental elements
 	int i;
+	for (i = 0; i < selectScreenElements.size(); i++) {
+		selectScreenElements[i]->draw();
+	}
+
 	for (i = 0; i < chars.size(); i++) {
 		chars[i]->draw();
 	}

@@ -28,45 +28,80 @@ using namespace std;
 
 Game::Game() {
     initGameGrids();
-    initPlayers();
+    // initPlayers(); Will init players when the game starts and we know the jobs
+    initSelectScreenStructures();
+
+    // Give players SELECT_SCREEN_TIME seconds to select jobs
+    GameEvent* gameStartEvent = new GameEvent();
+    gameStartEvent->type = SPEED_CHANGE;
+    gameStartEvent->time = std::chrono::steady_clock::now() + 
+                    std::chrono::seconds(SELECT_SCREEN_TIME);
+    this->events.push_back(gameStartEvent);
 }
 
+// initializes the map structure for easier selecting of jobs
+void Game::initSelectScreenStructures() {
+    availableJobs = {CLERIC, FIGHTER, MAGE, ROGUE};
+    started = false; // game will not start for another 30 seconds
+    
+    idToJobType[0] = UNKNOWN; // UNKNOWN == has not chosen
+    idToJobType[1] = UNKNOWN; 
+    idToJobType[2] = UNKNOWN;
+    idToJobType[3] = MONSTER; // Player 3 is always MONSTER for now
+}
 
 /*
     Initialize players in the game
     First three players will be fighters and the fourth will be monster
 */
 void Game::initPlayers () {
-    PlayerPosition position = PlayerPosition();
-    position.x = P1_SPAWN_POSITION[0];
-    position.y = P1_SPAWN_POSITION[1];
-    position.width = FIGHTER_WIDTH;
-    position.height = FIGHTER_HEIGHT;
-    players[0] = new Fighter(position);
-    players[0]->setID(0);
 
-    position.x = P2_SPAWN_POSITION[0];
-    position.y = P2_SPAWN_POSITION[1];
-    players[1] = new Mage(position);
-    players[1]->setID(1);
-
-    
-    position.x = P3_SPAWN_POSITION[0];
-    position.y = P3_SPAWN_POSITION[1];
-    players[2] = new Cleric(position);
-    players[2]->setID(2);
-
-
-    position.x = P4_SPAWN_POSITION[0];
-    position.y = P4_SPAWN_POSITION[1];
-    position.width = MONSTER_WIDTH;
-    position.height = MONSTER_HEIGHT;
-    players[3] = new Monster(position);
-    players[3]->setID(3);
+    for (int i = 0; i < MAX_PLAYERS; i++) {
+        players[i]->setID(i);
+        
+        PlayerPosition position = PlayerPosition();
+        position.x = SPAWN_POSITIONS[i][0];
+        position.y = SPAWN_POSITIONS[i][1];
+        bool isUnknown = false;
+        switch(idToJobType[i]) {
+            case CLERIC:
+                position.width = CLERIC_WIDTH;
+                position.height = CLERIC_HEIGHT;
+                players[i] = new Cleric(position);
+                break;
+            case FIGHTER:
+                position.width = FIGHTER_WIDTH;
+                position.height = FIGHTER_HEIGHT;
+                players[i] = new Fighter(position);
+                break;
+            case MAGE:
+                position.width = MAGE_WIDTH;
+                position.height = MAGE_HEIGHT;
+                players[i] = new Mage(position);
+                break;
+            case ROGUE:
+                position.width = ROGUE_WIDTH;
+                position.height = ROGUE_HEIGHT;
+                players[i] = new Rogue(position);
+                break;
+            case MONSTER:
+                position.width = MONSTER_WIDTH;
+                position.height = MONSTER_HEIGHT;
+                players[i] = new Monster(position);
+                break;
+            case UNKNOWN: {
+                PlayerType availableJob = *availableJobs.begin();
+                idToJobType[i] = availableJob;
+                availableJobs.erase(availableJob);
+                i--; // decrement to restart the process for this player
+                break;
+            }
+            default:
+                break;
+        }
+    }
 
 }
-
-
 
 /* return true if (x, y) is the boundary */
 bool isBoundary (int widthIndex, int heightIndex) {
@@ -529,6 +564,12 @@ void Game::processEvent (GameEvent* event) {
         case SPEED_CHANGE:
             players[event->targetID]->speedChange(event->amount);
             break;
+        case GAME_START:
+            this->started = true;
+
+            // now it has started, we need to initialize all the players' positions and roles
+            initPlayers();
+            break;
         default:
             break;
     }
@@ -669,6 +710,11 @@ void Game::handleUpdate(GameUpdate update) {
         case MONSTER_EVO_UP:
             ((Monster *)players[update.id])->setEvo(update.newEvoLevel);
             break;
+
+
+        // Add Role Claims
+        // TODO: add role claims -> has to change player instances.
+
         default:
             printf("Not Handled Update Type: %d", update.updateType);
             break;

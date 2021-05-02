@@ -2,6 +2,7 @@
 #define CONSTANTS_HEADER
 
 #include "../game/GridComponent.h"
+#include "../game/GameConstants.h"
 
 #define DEFAULT_PORT "31545"
 
@@ -22,6 +23,12 @@ enum CLIENT_INPUT{
     // MONSTER_MELEE_ATTACK,
     // HUNTER_SWORD_ATTACK,
     INTERACT, // used to interact with objectives
+
+    // These inputs are so players can claim a role
+    CLAIM_FIGHTER,
+    CLAIM_CLERIC,
+    CLAIM_MAGE, 
+    CLAIM_ROGUE,
 };
 
 // Type of update sent to the server
@@ -38,7 +45,11 @@ enum UPDATE_TYPE {
     ARMOR_OBJECTIVE_TAKEN,
     EVO_OBJECTIVE_TAKEN,
     MONSTER_EVO_UP,
+    ROLE_CLAIMED, // Role claimed
+
+
     INVALID_UPDATE, // this will be sent if people forget to update the updateType
+
 
 };
 
@@ -54,6 +65,7 @@ struct GameUpdate {
     float floatDeltaX = 0; // used for player/projectile movement
     float floatDeltaY = 0; // used for player/projectile movement
     float beaconCaptureAmount = -9999;
+    PlayerType roleClaimed = UNKNOWN;
 };
 
 

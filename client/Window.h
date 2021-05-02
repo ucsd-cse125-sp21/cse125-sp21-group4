@@ -24,6 +24,7 @@ public:
 	//objects to render
 	static vector<Character*> chars;
 	static vector<EnvElement*> envs;
+	static vector<Character*> selectScreenElements;
 
 	// Shader Program 
 	static GLuint shaderProgram;

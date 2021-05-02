@@ -402,9 +402,78 @@ void GamePlayer::handleUserInput (Game* game, CLIENT_INPUT userInput) {
         case INTERACT:
             interact(game);
             break;
+        case CLAIM_CLERIC:
+        case CLAIM_ROGUE:
+        case CLAIM_FIGHTER:
+        case CLAIM_MAGE:
+            if(!game->started) {
+                handleUserClaim(game, userInput);
+            }
+            break;
         default:
             // NO_MOVE and other input does not trigger any action
             break;
+    }
+}
+void GamePlayer::handleUserClaim (Game* game, CLIENT_INPUT claimType) {
+    if(game->idToJobType[this->id] == UNKNOWN) {
+        switch(claimType) {
+            case CLAIM_CLERIC:
+                if(game->availableJobs.find(CLERIC) == game->availableJobs.end()) {
+                    game->idToJobType[this->id] = CLERIC;
+                    game->availableJobs.erase(CLERIC);
+
+                    // send update to the rest of the clients
+                    GameUpdate gameUpdate;
+                    gameUpdate.updateType = ROLE_CLAIMED;
+                    gameUpdate.id = this->id;
+                    gameUpdate.roleClaimed = CLERIC;
+                    game->addUpdate(gameUpdate);
+                }
+                break;
+            case CLAIM_ROGUE:
+                if(game->availableJobs.find(ROGUE) == game->availableJobs.end()) {
+                    game->idToJobType[this->id] = ROGUE;
+                    game->availableJobs.erase(ROGUE);
+
+                    // send update to the rest of the clients
+                    GameUpdate gameUpdate;
+                    gameUpdate.updateType = ROLE_CLAIMED;
+                    gameUpdate.id = this->id;
+                    gameUpdate.roleClaimed = ROGUE;
+                    game->addUpdate(gameUpdate);
+                }
+                break;
+            case CLAIM_FIGHTER:
+                if(game->availableJobs.find(FIGHTER) == game->availableJobs.end()) {
+                    game->idToJobType[this->id] = FIGHTER;
+                    game->availableJobs.erase(FIGHTER);
+
+                    // send update to the rest of the clients
+                    GameUpdate gameUpdate;
+                    gameUpdate.updateType = ROLE_CLAIMED;
+                    gameUpdate.id = this->id;
+                    gameUpdate.roleClaimed = FIGHTER;
+                    game->addUpdate(gameUpdate);
+                }
+                break;
+            case CLAIM_MAGE:
+                if(game->availableJobs.find(MAGE) == game->availableJobs.end()) {
+                    game->idToJobType[this->id] = MAGE;
+                    game->availableJobs.erase(MAGE);
+
+                    // send update to the rest of the clients
+                    GameUpdate gameUpdate;
+                    gameUpdate.updateType = ROLE_CLAIMED;
+                    gameUpdate.id = this->id;
+                    gameUpdate.roleClaimed = MAGE;
+                    game->addUpdate(gameUpdate);
+                }
+                break;
+            default:
+                printf("Error: handleUserClaim got invalid CLIENT_INPUT.\n");
+                break;
+        }
     }
 }
 
