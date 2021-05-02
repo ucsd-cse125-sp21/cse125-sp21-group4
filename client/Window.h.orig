@@ -5,10 +5,7 @@
 #include "shader.h"
 #include "Character.h"
 #include "EnvElement.h"
-<<<<<<< HEAD
 //#include "../common/constants.h"
-=======
->>>>>>> main
 #include "CommunicationClient.h"
 #include "../common/networking/CommunicationConstants.h"
 

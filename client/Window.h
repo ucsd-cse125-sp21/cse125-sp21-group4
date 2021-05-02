@@ -12,6 +12,11 @@
 #include "CommunicationClient.h"
 #include "../common/networking/CommunicationConstants.h"
 
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <iostream>
+
 class Window
 {
 public:

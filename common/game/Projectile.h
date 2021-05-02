@@ -9,7 +9,7 @@ public:
     ProjectilePosition origin;
     ProjectilePosition currentPosition;
     float maxDistance;
-    PlayerType ownerType;
+    int ownerID;
     ProjectileType type;
     float speed; // traveling distance per server tick
     Direction direction; // the direction it flies to

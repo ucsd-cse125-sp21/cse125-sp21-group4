@@ -3,6 +3,8 @@
 #include "Monster.h"
 #include "Fighter.h"
 #include "Rogue.h"
+#include "Mage.h"
+#include "Cleric.h"
 #include "Space.h"
 #include "Rock.h"
 #include "Evolve.h"
@@ -11,6 +13,7 @@
 #include "Healing.h"
 #include "Beacon.h"
 
+// Map symbols
 #define ROCK_SYMBOL 'R'
 #define SPACE_SYMBOL ' '
 #define BEACON_SYMBOL 'B'
@@ -45,13 +48,13 @@ void Game::initPlayers () {
 
     position.x = P2_SPAWN_POSITION[0];
     position.y = P2_SPAWN_POSITION[1];
-    players[1] = new Rogue(position);
+    players[1] = new Mage(position);
     players[1]->setID(1);
 
     
     position.x = P3_SPAWN_POSITION[0];
     position.y = P3_SPAWN_POSITION[1];
-    players[2] = new Fighter(position);
+    players[2] = new Cleric(position);
     players[2]->setID(2);
 
 
@@ -131,6 +134,77 @@ char getSymbol(GridComponent* cell) {
 void Game::initGameGrids() {
 
     // testing purposes
+//<<<<<<< 
+    // int test_rock_width = (MAP_WIDTH / GRID_WIDTH) / 2;
+    // int test_rock_height = (MAP_HEIGHT / GRID_HEIGHT) / 2;
+
+    // int test_fheal_width = (MAP_WIDTH / GRID_WIDTH) / 2;
+    // int test_fheal_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 1;
+
+    // int test_mheal_width = (MAP_WIDTH / GRID_WIDTH) / 2;
+    // int test_mheal_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 2;
+    
+    // int test_mevo_width = (MAP_WIDTH / GRID_WIDTH) / 2;
+    // int test_mevo_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 3;
+
+    // int test_farm_width = (MAP_WIDTH / GRID_WIDTH) / 2;
+    // int test_farm_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 4;
+
+    // int test_beac_width = (MAP_WIDTH / GRID_WIDTH) / 2;
+    // int test_beac_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 5;
+
+    // for (int i = 0; i < MAP_HEIGHT / GRID_HEIGHT; i++) {
+    //     for (int j = 0; j < MAP_WIDTH / GRID_WIDTH; j++) {
+    //         GridPosition position;
+    //         position.x = j;
+    //         position.y = i;
+    //         // put obstacles on the boundary
+    //         if (isBoundary(j, i))
+    //             gameGrids[i][j] = new Obstacle(position);
+    //         else {
+                
+    //             // testing purposes
+    //             if(j == test_rock_width && i == test_rock_height) 
+    //                 gameGrids[i][j] = new Rock(position);
+    //             else if (j == test_fheal_width && i == test_fheal_height)
+    //                 gameGrids[i][j] = new Heal(position, R_FIGHTER);
+    //             else if (j == test_mheal_width && i == test_mheal_height)
+    //                 gameGrids[i][j] = new Heal(position, R_MONSTER);
+    //             else if (j == test_mevo_width && i == test_mevo_height)
+    //                 gameGrids[i][j] = new Evolve(position);
+    //             else if (j == test_farm_width && i == test_farm_height)
+    //                 gameGrids[i][j] = new Armor(position);
+    //             else if (j == test_beac_width && i == test_beac_height)
+    //                 gameGrids[i][j] = new Beacon(position);
+    //             else 
+    //                 gameGrids[i][j] = new Space(position);
+
+    //         }
+    //     }
+    // }
+    // ifstream map_file("../assets/layout/map.csv");
+    // string line;
+    // string id;
+
+    // int i = 0;
+    // int j = 0;
+
+    // while(getline(map_file, line)) {
+    //     stringstream ss(line);
+        
+    //     while(getline(ss, id, ',')) {
+    //         GridPosition position;
+    //         position.x = j;
+    //         position.y = i;
+
+    //         switch(id) {
+    //             case OBST_ID:
+    //                 gameGrids[i][j] = new Obstacle(position); // should be a tree
+    //             case BEAC_ID:
+    //                 gameGrids[i][j] = new Beacon(position);
+    //             default:
+    //                 gameGrids[i][j] = new Space(position);
+//=======
     int test_rock_width = 30;
     int test_rock_height = 30;
 
@@ -188,8 +262,13 @@ void Game::initGameGrids() {
                     gameGrids[i][j] = new Space(position);
                 }
 
+//>>>>>>> origin/main
             }
+
+            j++;
         }
+
+        i++;
     }
 }
 
@@ -329,12 +408,12 @@ bool projectileIsCollidingEnemy (Projectile* p, Game* game) {
 
     for (int i = 0; i < PLAYER_NUM; i++) {
         // skip dead players
-        if (game->players[i]->isDead()) continue;
-        // can only attack enemy
-        if (game->players[i]->getType() == MONSTER && p->ownerType == MONSTER) continue;
-        if (game->players[i]->getType() != MONSTER && p->ownerType != MONSTER) continue;
-
         GamePlayer* otherPlayer = game->players[i];
+        if (otherPlayer->isDead()) continue;
+
+        // can only attack enemy
+        if (!game->players[p->ownerID]->canAttack(otherPlayer)) continue;
+
         float p2ULX = otherPlayer->getUpperLeftCoordinateX(otherPlayer->getPosition(), true);
         float p2ULY = otherPlayer->getUpperLeftCoordinateY(otherPlayer->getPosition(), true);
         float p2BRX = otherPlayer->getBottomRightCoordinateX(otherPlayer->getPosition(), true);
@@ -342,20 +421,40 @@ bool projectileIsCollidingEnemy (Projectile* p, Game* game) {
 
         if (x >= p2ULX && x <= p2BRX && y >= p2ULY && y <= p2BRY) {
             hit = true;
-            otherPlayer->hpDecrement(p->damage);
 
-            // queue this update to be send to other players
-            GameUpdate gameUpdate;
-            gameUpdate.updateType = PLAYER_DAMAGE_TAKEN;
-            gameUpdate.id = i;
-            gameUpdate.damageTaken = p->damage;
-            game->addUpdate(gameUpdate);
+            // projectile will cause effect
+            if (p->type == MAGE_FIREBALL) {
+                otherPlayer->slowDown(FIREBALL_SPEED_DEC);
+
+                // create an event to add the speed back later
+                GameEvent* event = new GameEvent();
+                event->type = SPEED_CHANGE;
+                event->ownerID = p->ownerID;
+                event->targetID = i;
+                event->amount = FIREBALL_SPEED_DEC;
+                event->time = std::chrono::steady_clock::now() + 
+                                std::chrono::milliseconds(FIREBALL_EFFECT_TIME);
+                game->events.push_back(event);
+            }
+            // projectile will only cause damage 
+            else {
+                otherPlayer->hpDecrement(p->damage);
+
+                // queue this update to be send to other players
+                GameUpdate gameUpdate;
+                gameUpdate.updateType = PLAYER_DAMAGE_TAKEN;
+                gameUpdate.id = i;
+                gameUpdate.damageTaken = p->damage;
+                game->addUpdate(gameUpdate);
+            }
+
         }
 
     }
 
     return hit;
 }
+
 
 
 /*
@@ -525,6 +624,54 @@ void Game::checkEnd() {
     addUpdate(gameEndUpdate);
 }
 
+/* Process a single event */
+void Game::processEvent (GameEvent* event) {
+    switch (event->type)
+    {
+        case HP_DEC: {
+                players[event->targetID]->hpDecrement(event->amount);
+                // queue this update to be send to other players
+                GameUpdate gameUpdate;
+                gameUpdate.updateType = PLAYER_DAMAGE_TAKEN;
+                gameUpdate.id = event->targetID;
+                gameUpdate.damageTaken = event->amount;
+                addUpdate(gameUpdate);
+            }
+            break;
+        case SPEED_CHANGE:
+            players[event->targetID]->speedChange(event->amount);
+            break;
+        default:
+            break;
+    }
+}
+
+
+/*
+    Update events vector per server tick.
+    If the currentTime has passed the event->time, execute the event and remove
+    from the vector
+*/
+void Game::updateGameEvents () {
+    std::vector<GameEvent*> newEvents;
+    for (auto iter = events.begin(); iter != events.end(); iter++) {
+        GameEvent* event = *iter;
+
+        auto currentTime = std::chrono::steady_clock::now();
+        std::chrono::duration<float> timeDiff = currentTime - event->time;
+        // if current time has passed the expected trigger time, execute the event
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(timeDiff).count() >= 0) {
+            processEvent(event);
+            delete event;
+        } else {
+            newEvents.push_back(event);
+        }
+    }
+
+    events = newEvents;
+}
+
+
 
 void Game::printGameGrids () {
     for (int i = 0; i < MAP_HEIGHT / GRID_HEIGHT; i++) {
@@ -548,8 +695,8 @@ void Game::printPlayers () {
             cout << " (dead)";
         cout << "\n";
     }
-
-    printStats();
+    //initGameGrids();
+    //printStats();
 }
 
 /* =========================================================================
@@ -587,6 +734,9 @@ void Game::handleUpdate(GameUpdate update) {
     switch(update.updateType) {
         case PLAYER_DAMAGE_TAKEN:
             players[update.id]->hpDecrement(update.damageTaken);
+            break;
+        case PLAYER_HP_INCREMENT:
+            players[update.id]->hpIncrement(update.damageTaken);
             break;
         case PLAYER_MOVE:
         // Need curly braces because I am declaring new variables inside the case statement
@@ -653,6 +803,32 @@ void Game::handleUpdate(GameUpdate update) {
 // testing  purposes
 void Game::printStats() {
 
+// <<<<<<< 
+//     return;
+    // int test_rock_width = (MAP_WIDTH / GRID_WIDTH) / 2;
+    // int test_rock_height = (MAP_HEIGHT / GRID_HEIGHT) / 2;
+
+    // int test_fheal_width = (MAP_WIDTH / GRID_WIDTH) / 2;
+    // int test_fheal_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 1;
+
+    // int test_mheal_width = (MAP_WIDTH / GRID_WIDTH) / 2;
+    // int test_mheal_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 2;
+    
+    // int test_mevo_width = (MAP_WIDTH / GRID_WIDTH) / 2;
+    // int test_mevo_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 3;
+
+    // int test_farm_width = (MAP_WIDTH / GRID_WIDTH) / 2;
+    // int test_farm_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 4;
+
+    // int test_beac_width = (MAP_WIDTH / GRID_WIDTH) / 2;
+    // int test_beac_height = ((MAP_HEIGHT / GRID_WIDTH) / 2) - 5;
+
+    // cout << "Fighter Heal amount - " << ((Heal*) gameGrids[test_fheal_height][test_fheal_width])->getHealAmount() << endl;
+    // cout << "Monster Heal amount - " << ((Heal*) gameGrids[test_mheal_height][test_mheal_width])->getHealAmount() << endl;
+    // cout << "Monster Evo amount - " << ((Evolve*) gameGrids[test_mevo_height][test_mevo_width])->getEvoAmount() << endl;
+    // cout << "Fighter Armor amount - " << ((Armor*) gameGrids[test_farm_height][test_farm_width])->getArmorAmount() << endl;
+    // cout << "Beacon Frequency (units unknown) - " << ((Beacon*) gameGrids[test_beac_height][test_beac_width])->getFrequency() << endl;   
+//=======
     int test_rock_width = 30;
     int test_rock_height = 30;
 
@@ -683,4 +859,5 @@ void Game::consumeObj(Objective * obj) {
     objectives.erase(std::find(objectives.begin(),objectives.end(), obj));
     delete gameGrids[objPos.x][objPos.y];
     gameGrids[objPos.x][objPos.y] = new Space(objPos);
+//>>>>>>> origin/main
 }
