@@ -16,6 +16,7 @@ bool Window::keyboard[KEYBOARD_SIZE];
 //objects to render
 vector<Character*> Window::chars; //all the characters players get to control
 vector<EnvElement*> Window::envs; //all the environmental static objects
+Character* Window::clientChar;
 
 // Interaction Variables
 bool LeftDown, RightDown;
@@ -29,7 +30,7 @@ GLuint Window::texShader;
 glm::mat4 Window::projection;
 
 //this is the position of the camera
-glm::vec3 Window::eyePos(0, 1000, 150); // x y z
+glm::vec3 Window::eyePos(0, 1500, 150); // x y z
 // this is the direction where the camera is staring at
 glm::vec3 Window::lookAtPoint(0, 0, 0);
 // this is the upward direction for the camera. Think of this as the angle where your head is
@@ -88,7 +89,7 @@ bool Window::initializeObjects()
 	// chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, texShader,
 	// 	glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f),
 	// 	"shaders/character/square2.png"));
-
+	
 	ifstream map_file("../assets/layout/map.csv");
     string line;
     string id;
@@ -143,6 +144,10 @@ bool Window::initializeObjects()
 
 	envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram,
 		glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
+
+	//chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+		//glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f),
+		//"shaders/character/sprite1.png"));
 
 	return true;
 }
@@ -216,6 +221,10 @@ void Window::idleCallback()
 	// cout << "updating game" << endl;
 	Window::handleUpdates(updates);
 #endif
+	//update camera location
+	//lookAtPoint = clientChar->pos;
+	eyePos = lookAtPoint + glm::vec3(0.f, 5.f, 5.f);
+	view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window::upVector);
 }
 
 void Window::displayCallback(GLFWwindow* window)
@@ -225,12 +234,12 @@ void Window::displayCallback(GLFWwindow* window)
 
 	//draw all the characters and environmental elements
 	int i;
-	for (i = 0; i < chars.size(); i++) {
-		chars[i]->draw();
-	}
-
 	for (i = 0; i < envs.size(); i++) {
 		envs[i]->draw();
+	}
+
+	for (i = 0; i < chars.size(); i++) {
+		chars[i]->draw();
 	}
 
 	glfwPollEvents();
