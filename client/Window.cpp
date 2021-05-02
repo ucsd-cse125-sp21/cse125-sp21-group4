@@ -1,5 +1,10 @@
 #include "Window.h"
 
+// Tile IDs
+#define SPACE_ID   -1
+#define OBST_ID     2
+#define BEAC_ID   200
+
 // Window Properties
 int Window::width;
 int Window::height;
@@ -11,7 +16,11 @@ bool Window::keyboard[KEYBOARD_SIZE];
 //objects to render
 vector<Character*> Window::chars; //all the characters players get to control
 vector<EnvElement*> Window::envs; //all the environmental static objects
+<<<<<<< HEAD
 vector<Character*> Window::selectScreenElements; // I use character instead of a separate class bc stb_image had issues with being included twice (and requires to be included in cpp and not h)
+=======
+Character* Window::clientChar;
+>>>>>>> main
 
 // Interaction Variables
 bool LeftDown, RightDown;
@@ -25,7 +34,7 @@ GLuint Window::texShader;
 glm::mat4 Window::projection;
 
 //this is the position of the camera
-glm::vec3 Window::eyePos(0, 10, 10);
+glm::vec3 Window::eyePos(0, 1500, 150); // x y z
 // this is the direction where the camera is staring at
 glm::vec3 Window::lookAtPoint(0, 0, 0);
 // this is the upward direction for the camera. Think of this as the angle where your head is
@@ -109,12 +118,69 @@ bool Window::initializeObjects()
 	lookAtPoint = glm::vec3(0,20,0);
 	view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window::upVector);
 	
+	// chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, texShader,
+	// 	glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f),
+	// 	"shaders/character/square2.png"));
 	
-	chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, texShader,
-		glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f),
-		"shaders/character/square2.png"));
+	ifstream map_file("../assets/layout/map.csv");
+    string line;
+    string id;
+
+    int i = 0, j = 0;
+
+	int x = 0, y = 0, z = 0;
+
+    while(getline(map_file, line)) {
+        stringstream ss(line);
+        
+        while(getline(ss, id, ',')) {
+			//std::cout << std::stoi(id) << '\n';
+			// (horiz - pos right, vert - pos up, screen - pos towards you)
+			//std::cout << "i: " << i << "j: " << j << '\n';
+            switch(std::stoi(id)) {
+				
+                case OBST_ID:
+					envs.push_back(new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram, 
+						glm::vec3(2.*j, 1.f, 2.*i), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f))); // blocks are 2 wide
+					break;
+                case BEAC_ID:
+					envs.push_back(new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram, 
+						glm::vec3(2.*j, 1.f, 2.*i), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, 1.f, 1.f))); // blocks are 2 wide
+					break;
+				case SPACE_ID:
+                    break;
+
+                default:
+					std::cout << "Invalid id " << id << '\n';
+					std::cout << "i: " << i << "j: " << j << '\n';
+					return false;
+			}
+			
+			++j;
+		}
+		++i;
+		j = 0;
+	}
+
+	// envs.push_back(new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram, 
+	// 	glm::vec3(-5.f, 1.f, -5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f))); // blocks are 2 wide
+	
+	// envs.push_back(new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram, 
+	// 	glm::vec3(-3.f, 1.f, -5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, 1.f)));
+	
+	// envs.push_back(new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram, 
+	// 	glm::vec3(-5.f, 1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, 1.f, .5f)));
+
+	// envs.push_back(new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram, 
+	// 	glm::vec3(5.f, 1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(.5f, .5f, .5f)));
+
 	envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram,
 		glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
+
+	//chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+		//glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f),
+		//"shaders/character/sprite1.png"));
+
 	return true;
 }
 
@@ -187,6 +253,10 @@ void Window::idleCallback()
 	// cout << "updating game" << endl;
 	Window::handleUpdates(updates);
 #endif
+	//update camera location
+	//lookAtPoint = clientChar->pos;
+	eyePos = lookAtPoint + glm::vec3(0.f, 5.f, 5.f);
+	view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window::upVector);
 }
 
 void Window::displayCallback(GLFWwindow* window)
@@ -196,6 +266,7 @@ void Window::displayCallback(GLFWwindow* window)
 
 	//draw all the characters and environmental elements
 	int i;
+<<<<<<< HEAD
 	for (i = 0; i < selectScreenElements.size(); i++) {
 		selectScreenElements[i]->draw();
 	}
@@ -204,8 +275,14 @@ void Window::displayCallback(GLFWwindow* window)
 		chars[i]->draw();
 	}
 
+=======
+>>>>>>> main
 	for (i = 0; i < envs.size(); i++) {
 		envs[i]->draw();
+	}
+
+	for (i = 0; i < chars.size(); i++) {
+		chars[i]->draw();
 	}
 
 	glfwPollEvents();
@@ -322,3 +399,4 @@ void Window::updateLastInput() {
 		lastInput = MOVE_RIGHT;
 	}
 }
+

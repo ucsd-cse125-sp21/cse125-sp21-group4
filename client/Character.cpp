@@ -5,27 +5,38 @@
 /*
 	constructor usage:
 	projection p, view v, and shader s are taken cared of in Window class.
-	translation trnas is the initial position where you want to place this object;
+	translation trans is the initial position where you want to place this object;
 	rotAxis is the the axis you want to rotate about;
 	rotRad  is the amount of rotation you want in RADIAN;
 	scale is a factor you want to scale the initial object;
 	color c is the initial model color; default is black
 */
 
-Character::Character(string fileName, glm::mat4* p, glm::mat4* v, GLuint s,
-	glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale,
+Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPos,
+	GLuint s, glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale,
 	glm::vec3 c, char* textFile) {
-	
+
 	// initial translation will bthe initial position
 	pos = trans;
-	model = glm::translate(trans) * glm::rotate(rotRad, rotAxis) * glm::scale(glm::vec3(scale));
+	scaleMtx = glm::scale(glm::vec3(scale));
+	model = glm::translate(trans) * glm::rotate(rotRad, rotAxis) * scaleMtx;
 	projection = p;
 	view = v;
+	eyep = vPos;
 	shader = s;
 	// default color is black
 	color = c;
 	// if path is NOT given at construction time, hasTexture will be false.
 	hasTexture = loadTexture(textFile);
+
+	//animation related
+	frameIdx = 0;
+	currState = idle;
+	prevState = idle;
+	currTime = clock();
+	prevTime = currTime;
+	animSequence.push_back(&idleTex); //order must match the enum in header file
+	animSequence.push_back(&moveTex);
 
 	std::vector<glm::vec3> normalp;
 	std::vector<glm::vec3> pointsp;
@@ -183,11 +194,18 @@ void Character::draw(glm::mat4 c) {
 	glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, false, glm::value_ptr(*view));
 	glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, false, glm::value_ptr(*projection));
 	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, glm::value_ptr(m));
-	glUniform3fv(glGetUniformLocation(shader, "viewPos"), 1, glm::value_ptr(eyep));
+	glUniform3fv(glGetUniformLocation(shader, "viewPos"), 1, glm::value_ptr(*eyep));
 	glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(color));
 
 	// Bind the VAO
 	glBindVertexArray(VAO);
+
+	glDisable(GL_DEPTH_TEST);
+
+	glDepthMask(GL_FALSE);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	if (hasTexture) {
 		//cout << "has texture" << endl;
@@ -197,6 +215,8 @@ void Character::draw(glm::mat4 c) {
 
 	glDrawElements(GL_TRIANGLES, 3 * triangles.size(), GL_UNSIGNED_INT, 0);
 
+	glDisable(GL_BLEND);
+
 	// Unbind the VAO and shader program
 	glBindVertexArray(0);
 	glUseProgram(0);
@@ -205,22 +225,15 @@ void Character::draw(glm::mat4 c) {
 
 //no longer used
 void Character::move(int dir) {
-	// default dir 1 is forward in positive Z direction
-	glm::vec3 movement(0.0f, 0.0f, 0.05f);
-	if (dir == 2) { // dir2 is backward in negative Z direction
-		movement = movement * -1.f;
-	}else if (dir == 3) { // left
-		movement = glm::vec3(-0.05f, 0.0f, 0.0f);
-	}else if (dir == 4) { // right
-		movement = glm::vec3(0.05f, 0.0f, 0.0f);
-	}
-	pos += movement;
-	model = glm::mat4(1) * glm::translate(pos);
 }
 
 void Character::moveTo(glm::vec3 newPos) {
+	if (pos == newPos)
+		currState = idle;
+	else
+		currState = moving;
 	pos = newPos;
-	model = glm::mat4(1) * glm::translate(pos);
+	model = glm::translate(pos) * scaleMtx;
 }
 
 
@@ -237,7 +250,23 @@ void Character::moveToGivenDelta(float deltaX, float deltaY) {
 }
 
 void Character::update() {
-
+	currTime = clock();
+	if (currState != prevState) {
+		frameIdx = 0; // start a new sequence of animation
+		textId = (*animSequence[currState])[frameIdx];
+		prevState = currState;
+	}
+	else {
+		float timeDiff = (float)(currTime - prevTime) / CLOCKS_PER_SEC;
+		if (timeDiff >= ANIMATION_INTERVAL) {
+			// check if on the last frame of a sequence
+			if (++frameIdx == (*animSequence[currState]).size())
+				frameIdx = 0;
+			textId = (*animSequence[currState])[frameIdx];
+			prevState = currState;
+		}
+	}
+	prevTime = currTime;
 }
 
 void Character::updateView(glm::mat4, glm::vec3) {
@@ -257,18 +286,20 @@ bool Character::loadTexture(char* texturePath) {
 	}
 
 	int ftw, fth, channels;
-	unsigned char* data = stbi_load(texturePath, &ftw, &fth, &channels, 3);
+	stbi_set_flip_vertically_on_load(true);
+	unsigned char* data = stbi_load(texturePath, &ftw, &fth, &channels, STBI_rgb_alpha);
 	if (data == NULL) {
 		cout << "cannot load texture at " << texturePath << endl;
 		return false;
 	}
+	cout << "num of channels: " << channels << endl;
 	glGenTextures(1, &textId);
 	glBindTexture(GL_TEXTURE_2D, textId);
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, ftw, fth, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ftw, fth, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(data);
 	return true;
