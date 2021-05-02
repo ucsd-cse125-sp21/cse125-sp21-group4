@@ -266,17 +266,10 @@ void Window::displayCallback(GLFWwindow* window)
 
 	//draw all the characters and environmental elements
 	int i;
-<<<<<<< HEAD
 	for (i = 0; i < selectScreenElements.size(); i++) {
 		selectScreenElements[i]->draw();
 	}
-
-	for (i = 0; i < chars.size(); i++) {
-		chars[i]->draw();
-	}
-
-=======
->>>>>>> main
+	
 	for (i = 0; i < envs.size(); i++) {
 		envs[i]->draw();
 	}
