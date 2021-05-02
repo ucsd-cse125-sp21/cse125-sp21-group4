@@ -46,6 +46,7 @@ public:
     bool handleInputs(CLIENT_INPUT playersInputs[PLAYER_NUM]);
     void updateProjectiles();
     void updateBeacon();
+    void checkEnd();
 
     void printGameGrids();
     void printPlayers();

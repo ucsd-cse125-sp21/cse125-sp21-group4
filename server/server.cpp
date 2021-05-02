@@ -46,6 +46,7 @@ int main(void)
         game->handleInputs(actions.playersInputs);
         game->updateProjectiles(); // should this be a good place to update projectile?
         game->updateBeacon(); // used to determine players inside the beacon capture area
+        game->checkEnd();
 
 
         // 3. Send the latest GameState to client
