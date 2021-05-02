@@ -25,11 +25,6 @@
 #define MONSTER_HEAL_SYMBOL 'J'
 #define FIGHTER_ARMOR_SYMBOL 'A'
 
-// Tile IDs
-#define SPACE_ID   "-1"
-#define OBST_ID     "2"
-#define BEAC_ID   "200"
-
 using namespace std;
 
 Game::Game() {
@@ -139,7 +134,7 @@ char getSymbol(GridComponent* cell) {
 void Game::initGameGrids() {
 
     // testing purposes
-<<<<<<< HEAD
+//<<<<<<< HEAD
     // int test_rock_width = (MAP_WIDTH / GRID_WIDTH) / 2;
     // int test_rock_height = (MAP_HEIGHT / GRID_HEIGHT) / 2;
 

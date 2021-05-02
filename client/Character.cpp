@@ -5,7 +5,7 @@
 /*
 	constructor usage:
 	projection p, view v, and shader s are taken cared of in Window class.
-	translation trnas is the initial position where you want to place this object;
+	translation trans is the initial position where you want to place this object;
 	rotAxis is the the axis you want to rotate about;
 	rotRad  is the amount of rotation you want in RADIAN;
 	scale is a factor you want to scale the initial object;
