@@ -46,6 +46,7 @@ enum UPDATE_TYPE {
     EVO_OBJECTIVE_TAKEN,
     MONSTER_EVO_UP,
     ROLE_CLAIMED, // Role claimed
+    GAME_STARTED, // Game Start
 
 
     INVALID_UPDATE, // this will be sent if people forget to update the updateType

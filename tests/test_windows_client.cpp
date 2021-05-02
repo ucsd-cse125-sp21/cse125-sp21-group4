@@ -43,7 +43,7 @@ int __cdecl main(int argc, char **argv)
     Game* game = new Game();
     // game->printGameGrids();
     std::cout << "Player ID: " << commClient->getId() << "\n";
-    game->printPlayers();
+    game->printSelectingScreen();
     GameState gameState = GameState();
 
     while(1) {
@@ -72,8 +72,17 @@ int __cdecl main(int argc, char **argv)
                 case 'k':
                     sendInput = UNIQUE_ATTACK;
                     break;
-                case 'e':
-                    sendInput = INTERACT;
+                case '1':
+                    sendInput = CLAIM_FIGHTER;
+                    break;
+                case '2':
+                    sendInput = CLAIM_MAGE;
+                    break;
+                case '3':
+                    sendInput = CLAIM_CLERIC;
+                    break;
+                case '4':
+                    sendInput = CLAIM_ROGUE;
                     break;
                 case 3:
                     exit(1);
@@ -92,11 +101,15 @@ int __cdecl main(int argc, char **argv)
         // if (!game->sameGameState(gameState, newGameState)) {
         //     gameState = newGameState;
         //     game->printGameState(gameState);
-        // }
-        if(updates.size() > 0) {
+        // }   
+        if (updates.size() > 0) {
             std::cout << "Player ID: " << commClient->getId() << "\n";
             game->handleUpdates(updates);
-            game->printPlayers();           
+            if(game->started) {
+                game->printPlayers();           
+            } else {
+                game->printSelectingScreen();
+            }
         }
 
 

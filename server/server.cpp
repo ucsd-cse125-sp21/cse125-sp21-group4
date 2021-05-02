@@ -10,12 +10,13 @@
 int main(void)
 {
     // Initialize game server that will take inputs from commServer
-    Game* game = new Game();
+    Game* game = new Game(); // true is passed because we need to know if this is the server or not.
 
     // Initialize communication server that will interface with the clients
     CommunicationServer* commServer = new CommunicationServer();
 
-
+    // All players have connected by now...
+    game->startSelectTimer();
     
     /**
      * Basic server architecture:
@@ -44,9 +45,11 @@ int main(void)
         }
 
         game->handleInputs(actions.playersInputs);
-        game->updateProjectiles(); // should this be a good place to update projectile?
         game->updateGameEvents();
-        game->updateBeacon(); // used to determine players inside the beacon capture area
+        if (game->started) {
+            game->updateProjectiles(); // should this be a good place to update projectile?
+            game->updateBeacon(); // used to determine players inside the beacon capture area
+        }
 
 
         // 3. Send the latest GameState to client

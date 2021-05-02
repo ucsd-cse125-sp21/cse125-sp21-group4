@@ -40,6 +40,7 @@ public:
 
     PlayerType getType();
     void setType(PlayerType newType);
+    const std::string getTypeToString();
     PlayerPosition getPosition();
     void setPosition(PlayerPosition newPosition);
     int getHp ();
@@ -80,7 +81,6 @@ public:
     bool isEnemy (GamePlayer* otherPlayer);
 
     void handleUserInput (Game* game, CLIENT_INPUT userInput);
-    void handleUserClaim (Game* game, CLIENT_INPUT claimType);
 
     void setID(int newID); // used to know what the id of the player is
     int getID();

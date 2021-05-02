@@ -41,6 +41,7 @@ public:
     void initPlayers(); // init playerList
     void initGameGrids(); // initialize gameGrids
     void initSelectScreenStructures(); // initialize the job class to player map
+    void startSelectTimer(); // starts the timer for players to choose a class
 
     void cleanGameGrids(); 
     void cleanPlayers();
@@ -52,6 +53,7 @@ public:
     ~Game(); // destructor
 
     bool handleInputs(CLIENT_INPUT playersInputs[PLAYER_NUM]);
+    void handleUserClaim(CLIENT_INPUT claimType, int playerID);
     void updateProjectiles();
     void processEvent (GameEvent* event);
     void updateGameEvents();
@@ -60,6 +62,7 @@ public:
     void printGameGrids();
     void printPlayers();
     void printStats();
+    void printSelectingScreen();
 
     // Network Optimization: GameUpdates
     void addUpdate(GameUpdate update);
