@@ -2,6 +2,15 @@
 #define _CHARACTER_H_
 
 #include "Object.h"
+#include <time.h>
+
+#define ANIMATION_INTERVAL 0.2
+
+enum CharState {
+	idle,
+	moving
+	//add more for other actions
+};
 
 class Character : Object {
 private:
@@ -15,21 +24,33 @@ private:
 	GLuint EBO;
 
 	glm::mat4 model;
-	glm::mat4 * view;
-	glm::mat4 * projection;
+	glm::mat4* view;
+	glm::mat4* projection;
+	glm::mat4 scaleMtx;
 	GLuint shader;
+
+	CharState currState;
+	CharState prevState;
+
+	time_t currTime;
+	time_t prevTime;
 
 	bool hasTexture;
 	GLuint textId;
+	std::vector<GLuint> idleTex;
+	std::vector<GLuint> moveTex;
+	std::vector<std::vector<GLuint>*> animSequence;
+	int frameIdx;
+	//add more for attack and other actions
 
-	glm::vec3 eyep;
+	glm::vec3 * eyep;
 	glm::vec3 color;
 
+public:
 	//character specific status such as positions, stats etc
 	glm::vec3 pos;
 	//...
 
-public:
 	/*
 	constructor usage:
 	projection p, view v, and shader s are taken cared of in Window class.
@@ -39,9 +60,9 @@ public:
 	scale is a factor you want to scale the initial object;
 	color c is the initial model color; default is black
 */
-	Character(string fileName, glm::mat4 * proj, glm::mat4 * view, GLuint shader,
-		glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale,
-		glm::vec3 c = glm::vec3(0.f,0.f,0.f), char * textFile = "");
+	Character(string fileName, glm::mat4* proj, glm::mat4* view, glm::vec3* viewPos,
+		GLuint shader, glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale,
+		glm::vec3 c = glm::vec3(0.f, 0.f, 0.f), char* textFile = "");
 	void draw(glm::mat4 c = glm::mat4(1));
 	void update();
 	void move(int); // no longer used
