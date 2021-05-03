@@ -23,7 +23,7 @@
 
 
 class GamePlayer {
-public:
+protected:
     PlayerType type;
     PlayerPosition position; // position struct for player
     int hp; // health for GamePlayer
