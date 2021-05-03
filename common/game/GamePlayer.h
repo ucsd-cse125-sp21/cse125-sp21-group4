@@ -40,6 +40,7 @@ public:
 
     PlayerType getType();
     void setType(PlayerType newType);
+    const std::string getTypeToString();
     PlayerPosition getPosition();
     void setPosition(PlayerPosition newPosition);
     int getHp ();

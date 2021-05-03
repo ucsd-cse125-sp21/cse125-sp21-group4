@@ -29,45 +29,86 @@ using namespace std;
 
 Game::Game() {
     initGameGrids();
-    initPlayers();
+    // initPlayers(); Will init players when the game starts and we know the jobs
+    initSelectScreenStructures();
+
 }
 
+// initializes the map structure for easier selecting of jobs
+void Game::initSelectScreenStructures() {
+    renderCount = 0;
+    availableJobs = {CLERIC, FIGHTER, MAGE, ROGUE};
+    started = false; // game will not start for another 30 seconds
+    
+    idToJobType[0] = UNKNOWN; // UNKNOWN == has not chosen
+    idToJobType[1] = UNKNOWN; 
+    idToJobType[2] = UNKNOWN;
+    idToJobType[3] = MONSTER; // Player 3 is always MONSTER for now
+}
 
 /*
     Initialize players in the game
     First three players will be fighters and the fourth will be monster
 */
 void Game::initPlayers () {
-    PlayerPosition position = PlayerPosition();
-    position.x = P1_SPAWN_POSITION[0];
-    position.y = P1_SPAWN_POSITION[1];
-    position.width = FIGHTER_WIDTH;
-    position.height = FIGHTER_HEIGHT;
-    players[0] = new Fighter(position);
-    players[0]->setID(0);
 
-    position.x = P2_SPAWN_POSITION[0];
-    position.y = P2_SPAWN_POSITION[1];
-    players[1] = new Mage(position);
-    players[1]->setID(1);
+    // For each player, get their positions and set their classes
+    for (int i = 0; i < MAX_PLAYERS; i++) {
+        
+        PlayerPosition position = PlayerPosition();
+        position.x = SPAWN_POSITIONS[i][0];
+        position.y = SPAWN_POSITIONS[i][1];
+        switch(idToJobType[i]) {
+            case CLERIC:
+                position.width = CLERIC_WIDTH;
+                position.height = CLERIC_HEIGHT;
+                players[i] = new Cleric(position);
+                players[i]->setID(i);
+                break;
+            case FIGHTER:
+                position.width = FIGHTER_WIDTH;
+                position.height = FIGHTER_HEIGHT;
+                players[i] = new Fighter(position);
+                players[i]->setID(i);
+                break;
+            case MAGE:
+                position.width = MAGE_WIDTH;
+                position.height = MAGE_HEIGHT;
+                players[i] = new Mage(position);
+                players[i]->setID(i);
+                break;
+            case ROGUE:
+                position.width = ROGUE_WIDTH;
+                position.height = ROGUE_HEIGHT;
+                players[i] = new Rogue(position);
+                players[i]->setID(i);
+                break;
+            case MONSTER:
+                position.width = MONSTER_WIDTH;
+                position.height = MONSTER_HEIGHT;
+                players[i] = new Monster(position);
+                players[i]->setID(i);
+                break;
+            case UNKNOWN: {
+                PlayerType availableJob = *availableJobs.begin();
+                idToJobType[i] = availableJob;
+                availableJobs.erase(availableJob);
+                i--; // decrement to restart the process for this player
 
-    
-    position.x = P3_SPAWN_POSITION[0];
-    position.y = P3_SPAWN_POSITION[1];
-    players[2] = new Cleric(position);
-    players[2]->setID(2);
-
-
-    position.x = P4_SPAWN_POSITION[0];
-    position.y = P4_SPAWN_POSITION[1];
-    position.width = MONSTER_WIDTH;
-    position.height = MONSTER_HEIGHT;
-    players[3] = new Monster(position);
-    players[3]->setID(3);
+                // We want to send ROLE_CLAIMED update for this player because it was not sent before.
+                GameUpdate gameUpdate;
+                gameUpdate.updateType = ROLE_CLAIMED;
+                gameUpdate.id = i + 1;
+                gameUpdate.roleClaimed = availableJob;
+                addUpdate(gameUpdate);
+                break;
+            }
+            default:
+                break;
+        }
+    }
 
 }
-
-
 
 /* return true if (x, y) is the boundary */
 bool isBoundary (int widthIndex, int heightIndex) {
@@ -265,11 +306,20 @@ void Game::initGameGrids() {
 //>>>>>>> origin/main
             }
 
-            j++;
+            // j++;
         }
 
-        i++;
+        // i++;
     }
+}
+
+void Game::startSelectTimer() {
+    // Give players SELECT_SCREEN_TIME seconds to select jobs
+    GameEvent* gameStartEvent = new GameEvent();
+    gameStartEvent->type = GAME_START;
+    gameStartEvent->time = std::chrono::steady_clock::now() + 
+                    std::chrono::seconds(SELECT_SCREEN_TIME);
+    this->events.push_back(gameStartEvent);
 }
 
 void Game::cleanGameGrids() {
@@ -336,9 +386,97 @@ bool Game::handleInputs(CLIENT_INPUT playersInputs[PLAYER_NUM]) {
                        // this is used to test on console, this can be removed later
     for (int i = 0; i < PLAYER_NUM; i++) {
         if (playersInputs[i] != NO_MOVE) flag = true;
-        players[i]->handleUserInput(this, playersInputs[i]);
+
+        // The selecting screen should not rely on players because those objects have not been created
+        switch(playersInputs[i]) {
+            case CLAIM_CLERIC:
+            case CLAIM_FIGHTER:
+            case CLAIM_MAGE:
+            case CLAIM_ROGUE:
+                // If game started, we shouldn't be handling this.
+                if(!started) {
+                    handleUserClaim(playersInputs[i], i);
+                }
+                break;
+            case DONE_RENDERING:
+                if(!started && renderCount >= PLAYER_NUM) {
+                    // All players have connected by now...
+                    startSelectTimer();
+                }
+                renderCount++;
+            default:
+                if(started) {
+                    players[i]->handleUserInput(this, playersInputs[i]);
+                }
+                break;
+        }
     }
     return flag;
+}
+
+
+void Game::handleUserClaim (CLIENT_INPUT claimType, int playerID) {
+
+    // If player has not locked into a role yet.
+    if(idToJobType[playerID] == UNKNOWN) {
+        switch(claimType) {
+            case CLAIM_CLERIC:
+                if(availableJobs.find(CLERIC) != availableJobs.end()) {
+                    idToJobType[playerID] = CLERIC;
+                    availableJobs.erase(CLERIC);
+
+                    // send update to the rest of the clients
+                    GameUpdate gameUpdate;
+                    gameUpdate.updateType = ROLE_CLAIMED;
+                    gameUpdate.id = playerID;
+                    gameUpdate.roleClaimed = CLERIC;
+                    addUpdate(gameUpdate);
+                }
+                break;
+            case CLAIM_ROGUE:
+                if(availableJobs.find(ROGUE) != availableJobs.end()) {
+                    idToJobType[playerID] = ROGUE;
+                    availableJobs.erase(ROGUE);
+
+                    // send update to the rest of the clients
+                    GameUpdate gameUpdate;
+                    gameUpdate.updateType = ROLE_CLAIMED;
+                    gameUpdate.id = playerID;
+                    gameUpdate.roleClaimed = ROGUE;
+                    addUpdate(gameUpdate);
+                }
+                break;
+            case CLAIM_FIGHTER:
+                if(availableJobs.find(FIGHTER) != availableJobs.end()) {
+                    idToJobType[playerID] = FIGHTER;
+                    availableJobs.erase(FIGHTER);
+
+                    // send update to the rest of the clients
+                    GameUpdate gameUpdate;
+                    gameUpdate.updateType = ROLE_CLAIMED;
+                    gameUpdate.id = playerID;
+                    gameUpdate.roleClaimed = FIGHTER;
+                    addUpdate(gameUpdate);
+                }
+                break;
+            case CLAIM_MAGE:
+                if(availableJobs.find(MAGE) != availableJobs.end()) {
+                    idToJobType[playerID] = MAGE;
+                    availableJobs.erase(MAGE);
+
+                    // send update to the rest of the clients
+                    GameUpdate gameUpdate;
+                    gameUpdate.updateType = ROLE_CLAIMED;
+                    gameUpdate.id = playerID;
+                    gameUpdate.roleClaimed = MAGE;
+                    addUpdate(gameUpdate);
+                }
+                break;
+            default:
+                printf("Error: handleUserClaim got invalid CLIENT_INPUT.\n");
+                break;
+        }
+    }
 }
 
 void projectileMove(Projectile* p) {
@@ -641,6 +779,17 @@ void Game::processEvent (GameEvent* event) {
         case SPEED_CHANGE:
             players[event->targetID]->speedChange(event->amount);
             break;
+        case GAME_START: {
+            this->started = true;
+
+            // now it has started, we need to initialize all the players' positions and roles
+            initPlayers();
+
+            GameUpdate gameUpdate;
+            gameUpdate.updateType = GAME_STARTED;
+            addUpdate(gameUpdate);
+            break;
+        }
         default:
             break;
     }
@@ -688,6 +837,7 @@ void Game::printGameGrids () {
 void Game::printPlayers () {
     for (int i = 0; i < PLAYER_NUM; i++) {
         cout << "Player " << (i+1) << ": ";
+        cout << "[" << players[i]->getTypeToString() << "] ";
         cout << "(" << players[i]->getPosition().x << ", ";
         cout << players[i]->getPosition().y << "), ";
         cout << "hp: " << players[i]->getHp();
@@ -697,6 +847,54 @@ void Game::printPlayers () {
     }
     //initGameGrids();
     //printStats();
+}
+
+void Game::printSelectingScreen() {
+    for(int i = 0; i < MAX_PLAYERS; i++) {
+        printf("Player %d ", i);
+        switch(idToJobType[i]) {
+            case CLERIC:
+                printf("has locked into CLERIC.\n");
+                break;
+            case FIGHTER:
+                printf("has locked into FIGHTER.\n");
+                break;
+            case MAGE:
+                printf("has locked into MAGE.\n");
+                break;
+            case ROGUE:
+                printf("has locked into ROGUE.\n");
+                break;
+            case MONSTER:
+                printf("has locked into MONSTER.\n");
+                break;
+            case UNKNOWN: 
+                printf("has not locked in.\n");
+                break;
+            default:
+                break;
+
+        }
+    }
+    printf("========= Available Jobs ===========\n");
+    for(auto job = availableJobs.begin(); job != availableJobs.end(); job++) {
+        switch(*job) {
+            case FIGHTER:
+                printf("FIGHTER \t(Press 1 to lock in)\n");
+                break;
+            case MAGE:
+                printf("MAGE    \t(Press 2 to lock in)\n");
+                break;
+            case CLERIC:
+                printf("CLERIC  \t(Press 3 to lock in)\n");
+                break;
+            case ROGUE:
+                printf("ROGUE   \t(Press 4 to lock in)\n");
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 /* =========================================================================
@@ -785,6 +983,19 @@ void Game::handleUpdate(GameUpdate update) {
             ((Monster *)players[update.id])->setEvo(update.newEvoLevel);
             break;
 
+
+        // Add Role Claims has to change player instances.
+        case ROLE_CLAIMED:
+            idToJobType[update.id] = update.roleClaimed;
+            availableJobs.erase(update.roleClaimed);
+            break;  
+
+        // GAME_STARTED is sent by the server.
+        case GAME_STARTED:
+            this->started = true;
+            initPlayers(); // need to init because client hasn't initialized players
+            break;
+
         // Game End
         case GAME_END:
             if (update.endStatus == 1)
@@ -800,6 +1011,14 @@ void Game::handleUpdate(GameUpdate update) {
             break;
     }
 }
+
+void Game::consumeObj(Objective * obj) {
+    GridPosition objPos = obj->getPosition();
+    objectives.erase(std::find(objectives.begin(),objectives.end(), obj));
+    delete gameGrids[objPos.x][objPos.y];
+    gameGrids[objPos.x][objPos.y] = new Space(objPos);
+}
+
 // testing  purposes
 void Game::printStats() {
 
@@ -852,12 +1071,4 @@ void Game::printStats() {
     cout << "Monster Evo amount - " << ((Evolve*) gameGrids[test_mevo_height][test_mevo_width])->getEvoAmount() << endl;
     cout << "Fighter Armor amount - " << ((Armor*) gameGrids[test_farm_height][test_farm_width])->getArmorAmount() << endl;
     cout << "Beacon Frequency (units unknown) - " << ((Beacon*) gameGrids[test_beac_height][test_beac_width])->getFrequency() << endl;   
-}
-
-void Game::consumeObj(Objective * obj) {
-    GridPosition objPos = obj->getPosition();
-    objectives.erase(std::find(objectives.begin(),objectives.end(), obj));
-    delete gameGrids[objPos.x][objPos.y];
-    gameGrids[objPos.x][objPos.y] = new Space(objPos);
-//>>>>>>> origin/main
 }

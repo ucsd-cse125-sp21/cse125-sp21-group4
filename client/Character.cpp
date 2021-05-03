@@ -230,8 +230,9 @@ void Character::move(int dir) {
 void Character::moveTo(glm::vec3 newPos) {
 	if (pos == newPos)
 		currState = idle;
-	else
-		currState = moving;
+	// TODO: Uncomment this else once we add moving animations
+	// else
+	// 	currState = moving;
 	pos = newPos;
 	model = glm::translate(pos) * scaleMtx;
 }
