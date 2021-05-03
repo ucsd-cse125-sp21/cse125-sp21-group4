@@ -69,7 +69,8 @@ public:
 	void moveTo(glm::vec3);
 	void updateView(glm::mat4, glm::vec3);
 	void moveToGivenDelta(float deltaX, float deltaY);
-	bool loadTexture(char* texturePath);
+	GLuint loadTexture(string texturePath);
+	bool loadAnimation(CharState state, string animFile);
 };
 
 #endif
