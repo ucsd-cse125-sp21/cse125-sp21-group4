@@ -15,8 +15,6 @@ int main(void)
     // Initialize communication server that will interface with the clients
     CommunicationServer* commServer = new CommunicationServer();
 
-    // All players have connected by now...
-    game->startSelectTimer();
     
     /**
      * Basic server architecture:

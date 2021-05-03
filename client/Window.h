@@ -53,6 +53,7 @@ public:
 
 	// Used to determine whether or not camera should be looking at player or select screen
 	static bool gameStarted;
+	static bool doneInitialRender;
 
 	// Act as Constructors and desctructors 
 	static bool initializeProgram();

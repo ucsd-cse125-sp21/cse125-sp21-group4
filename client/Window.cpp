@@ -12,7 +12,7 @@ const char* Window::windowTitle = "CSE125_GAME";
 CommunicationClient* Window::client;
 bool Window::keyboard[KEYBOARD_SIZE];
 bool Window::gameStarted;
-
+bool Window::doneInitialRender;
 
 //objects to render
 vector<Character*> Window::chars; //all the characters players get to control
@@ -66,6 +66,7 @@ bool Window::initializeProgram() {
 	}
 
 	Window::gameStarted = false;
+	Window::doneInitialRender = false;
 
 	return true;
 }
@@ -114,6 +115,7 @@ bool Window::initializeObjects()
 	envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram,
 		glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
 	
+	
 	/*
 	ifstream map_file("../assets/layout/map.csv");
     string line;
@@ -122,7 +124,6 @@ bool Window::initializeObjects()
     int i = 0, j = 0;
 
 	int x = 0, y = 0, z = 0;
-
     while(getline(map_file, line)) {
         stringstream ss(line);
         
@@ -300,6 +301,14 @@ void Window::displayCallback(GLFWwindow* window)
 
 	glfwPollEvents();
 	glfwSwapBuffers(window);
+	if(!doneInitialRender) {
+	#ifdef SERVER_ENABLED
+		// send update that we've finished rendering to the server
+		client->sendInput(DONE_RENDERING);
+		Sleep(TICK_TIME * 1000);
+	#endif
+		doneInitialRender = true;
+	}
 }
 
 

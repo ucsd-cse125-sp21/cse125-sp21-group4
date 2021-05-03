@@ -37,6 +37,7 @@ public:
     std::vector<Projectile*> projectiles; // Keeps track of all Projectile objects in the game.
     Beacon* beacon; // only 1 beacon objective in the whole map and used to determine players in capture area
 
+    int renderCount;
     bool started; // used to determine if we've passed the initial screen.
 
     // public member functions

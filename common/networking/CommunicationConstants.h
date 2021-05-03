@@ -29,6 +29,9 @@ enum CLIENT_INPUT{
     CLAIM_CLERIC,
     CLAIM_MAGE, 
     CLAIM_ROGUE,
+
+    // Used to tell the server to start the select screen timer
+    DONE_RENDERING,
 };
 
 // Type of update sent to the server

@@ -36,6 +36,7 @@ Game::Game() {
 
 // initializes the map structure for easier selecting of jobs
 void Game::initSelectScreenStructures() {
+    renderCount = 0;
     availableJobs = {CLERIC, FIGHTER, MAGE, ROGUE};
     started = false; // game will not start for another 30 seconds
     
@@ -397,6 +398,12 @@ bool Game::handleInputs(CLIENT_INPUT playersInputs[PLAYER_NUM]) {
                     handleUserClaim(playersInputs[i], i);
                 }
                 break;
+            case DONE_RENDERING:
+                if(!started && renderCount >= PLAYER_NUM) {
+                    // All players have connected by now...
+                    startSelectTimer();
+                }
+                renderCount++;
             default:
                 if(started) {
                     players[i]->handleUserInput(this, playersInputs[i]);

@@ -46,6 +46,11 @@ int __cdecl main(int argc, char **argv)
     game->printSelectingScreen();
     GameState gameState = GameState();
 
+    sendInput = DONE_RENDERING;
+    commClient->sendInput(sendInput);
+    usleep(TICK_TIME * 1000);
+
+
     while(1) {
         
         // 1. Handle input (keyboard input here)
