@@ -32,7 +32,7 @@ GLuint Window::texShader;
 glm::mat4 Window::projection;
 
 //this is the position of the camera
-glm::vec3 Window::eyePos(0, 1500, 150); // x y z
+glm::vec3 Window::eyePos(0, 10, 5); // x y z
 // this is the direction where the camera is staring at
 glm::vec3 Window::lookAtPoint(0, 0, 0);
 // this is the upward direction for the camera. Think of this as the angle where your head is
@@ -77,26 +77,9 @@ rotation axis, rotation in radian, scale factor in float, model color)
 */
 bool Window::initializeObjects()
 {
-	//chars
-	// chars.push_back(new Character("shaders/character/cube.obj", &projection, &view, shaderProgram, 
-	// 	glm::vec3(-5.f, 1.f, -5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f)));
-	// chars.push_back(new Character("shaders/character/cube.obj", &projection, &view, shaderProgram,
-	// 	glm::vec3(5.f, 1.f, -5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(45.f), 1.f, glm::vec3(.5f, 1.f, .5f)));
-	// chars.push_back(new Character("shaders/character/cube.obj", &projection, &view, shaderProgram,
-	// 	glm::vec3(-5.f, 1.f, 5.f), glm::vec3(0.f, 0.f, 1.f), glm::radians(45.f), 1.6f, glm::vec3(.5f, .5f, 1.f)));
-	// chars.push_back(new Character("shaders/character/cube.obj", &projection, &view, shaderProgram,
-	// 	glm::vec3(5.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(60.f), 0.5f, glm::vec3(1.f, .3f, 1.f)));
-	//env
-	// envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram, 
-	// glm::vec3(0.f,0.f,0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
-	
-	// Look at the Select Screen first
-	// eyePos = glm::vec3(0, 100, 1);
-	// lookAtPoint = glm::vec3(0, 110, 0);
-	// view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window::upVector);
 
 	//  ==========  Select Screen  ========== 
-	glm::vec3 selectScreenLocation = eyePos + glm::vec3(0.f, -10.f, 0.f);
+	glm::vec3 selectScreenLocation = eyePos + glm::vec3(0.f, -100.f, 0.f);
 	float rotateAmount = glm::radians(-45.f);
 	lookAtPoint = selectScreenLocation;
 	selectScreenElements.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
@@ -128,13 +111,10 @@ bool Window::initializeObjects()
 	//  ==========  End of Select Screen  ========== 
 
 	//  ==========  Environment Initialization  ========== 
-	envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram,
-		glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
+	// envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram,
+	// 	glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
 	
-	// chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, texShader,
-	// 	glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f),
-	// 	"shaders/character/square2.png"));
-	
+	/*
 	ifstream map_file("../assets/layout/map.csv");
     string line;
     string id;
@@ -173,7 +153,7 @@ bool Window::initializeObjects()
 		}
 		++i;
 		j = 0;
-	}
+	} */
 
 	// envs.push_back(new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram, 
 	// 	glm::vec3(-5.f, 1.f, -5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f))); // blocks are 2 wide
@@ -194,17 +174,23 @@ bool Window::initializeObjects()
 	// Characters on the map now (scaled 3x)
 	chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 		glm::vec3(5.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 3.f, glm::vec3(1.f, .5f, .5f),
-		"shaders/character/sprite1.png"));	
+		"shaders/character/MAGE_LEFT_IDLE"));	
 	chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 		glm::vec3(15.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 3.f, glm::vec3(1.f, .5f, .5f),
-		"shaders/character/sprite1.png"));	
+		"shaders/character/MAGE_LEFT_IDLE"));	
 	chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 		glm::vec3(5.f, 1.f, 15.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 3.f, glm::vec3(1.f, .5f, .5f),
-		"shaders/character/sprite1.png"));	
+		"shaders/character/MAGE_LEFT_IDLE"));	
 	chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 		glm::vec3(70.f, 1.f, 70.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 3.f, glm::vec3(1.f, .5f, .5f),
-		"shaders/character/sprite1.png"));	
+		"shaders/character/MAGE_LEFT_IDLE"));	
+
+	#ifdef SERVER_ENABLED
 	clientChar = chars[client->getId()];
+	#else 
+	clientChar = chars[0];
+	// gameStarted = true;
+	#endif
 
 	//  ==========  End of Character Initialization ========== 
 
@@ -286,6 +272,11 @@ void Window::idleCallback()
 	}
 	eyePos = lookAtPoint + glm::vec3(0.f, 5.f, 5.f);
 	view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window::upVector);
+
+	int i;
+	for (i = 0; i < chars.size(); i++) {
+		chars[i]->update();
+	}
 }
 
 void Window::displayCallback(GLFWwindow* window)
