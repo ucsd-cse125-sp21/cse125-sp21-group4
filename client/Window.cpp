@@ -190,7 +190,7 @@ bool Window::initializeObjects()
 	clientChar = chars[client->getId()];
 	#else 
 	clientChar = chars[0];
-	// gameStarted = true;
+	gameStarted = true;
 	#endif
 
 	//  ==========  End of Character Initialization ========== 
@@ -305,7 +305,7 @@ void Window::displayCallback(GLFWwindow* window)
 	#ifdef SERVER_ENABLED
 		// send update that we've finished rendering to the server
 		client->sendInput(DONE_RENDERING);
-		Sleep(TICK_TIME * 1000);
+		Sleep(TICK_TIME);
 	#endif
 		doneInitialRender = true;
 	}
