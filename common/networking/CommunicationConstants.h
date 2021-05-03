@@ -38,6 +38,7 @@ enum UPDATE_TYPE {
     ARMOR_OBJECTIVE_TAKEN,
     EVO_OBJECTIVE_TAKEN,
     MONSTER_EVO_UP,
+    GAME_END, // endStatus can be 1(hunters win), 2(monster win), 3(tie)
     INVALID_UPDATE, // this will be sent if people forget to update the updateType
 
 };
@@ -48,6 +49,7 @@ struct GameUpdate {
     int id = -1; // -1 instead of 0 because 0 is a valid player id.
     int damageTaken = 0; // Used for a damage taken event
     int healAmount = 0; // Used for a healing event
+    int endStatus = 0;
     GridPosition gridPos = {0,0}; // Used for objectives and obstacles
     PlayerPosition playerPos = {0.f, 0.f}; // Used for player positions
     float newEvoLevel = -1.f; // Used for monster stage tracking
