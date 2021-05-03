@@ -3,6 +3,7 @@
 enum EventType {
     HP_DEC,
     SPEED_CHANGE,
+    GAME_START,
 };
 
 class GameEvent {

@@ -10,6 +10,25 @@ GamePlayer::GamePlayer(PlayerPosition position) {
 
 PlayerType GamePlayer::getType () { return type; }
 
+
+
+const std::string GamePlayer::getTypeToString() {
+    switch(this->type) {
+        case CLERIC:   
+            return "CLERIC";
+        case ROGUE:
+            return "ROGUE";
+        case FIGHTER:
+            return "FIGHTER";
+        case MAGE:
+            return "MAGE";  
+        case MONSTER:
+            return "MONSTER"; 
+        default:
+            return "UNKNOWN";
+    }
+}
+
 void GamePlayer::setType (PlayerType newType) { type = newType; }
 
 PlayerPosition GamePlayer::getPosition() { return position; }
