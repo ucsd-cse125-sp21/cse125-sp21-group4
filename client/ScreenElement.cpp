@@ -1,3 +1,4 @@
+// Copied straight from older Character files because screen element does not need animations
 #include "ScreenElement.h"
 
 // #define STB_IMAGE_IMPLEMENTATION

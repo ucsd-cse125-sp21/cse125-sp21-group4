@@ -17,7 +17,7 @@ bool Window::doneInitialRender;
 //objects to render
 vector<Character*> Window::chars; //all the characters players get to control
 vector<EnvElement*> Window::envs; //all the environmental static objects
-vector<ScreenElement*> Window::selectScreenElements; // I use character instead of a separate class bc stb_image had issues with being included twice (and requires to be included in cpp and not h)
+vector<ScreenElement*> Window::selectScreenElements; 
 Character* Window::clientChar;
 
 // Interaction Variables
