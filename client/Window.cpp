@@ -17,7 +17,7 @@ bool Window::gameStarted;
 //objects to render
 vector<Character*> Window::chars; //all the characters players get to control
 vector<EnvElement*> Window::envs; //all the environmental static objects
-vector<Character*> Window::selectScreenElements; // I use character instead of a separate class bc stb_image had issues with being included twice (and requires to be included in cpp and not h)
+vector<ScreenElement*> Window::selectScreenElements; // I use character instead of a separate class bc stb_image had issues with being included twice (and requires to be included in cpp and not h)
 Character* Window::clientChar;
 
 // Interaction Variables
@@ -82,37 +82,37 @@ bool Window::initializeObjects()
 	glm::vec3 selectScreenLocation = eyePos + glm::vec3(0.f, -100.f, 0.f);
 	float rotateAmount = glm::radians(-45.f);
 	lookAtPoint = selectScreenLocation;
-	selectScreenElements.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
+	selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
 		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/character_select_background.png"));
 	
 
 	// Each Job Buttons
 	// (1) Fighter
-	selectScreenElements.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
+	selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
 		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/fighter_unselected.png"));
 		
 	// (2) Mage
-	selectScreenElements.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
+	selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
 		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/mage_unselected.png"));
 		
 	// (3) Cleric
-	selectScreenElements.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
+	selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
 		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/cleric_unselected.png"));
 		
 	// (4) Rogue
-	selectScreenElements.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
+	selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
 		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/rogue_unselected.png"));
 
 	//  ==========  End of Select Screen  ========== 
 
 	//  ==========  Environment Initialization  ========== 
-	// envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram,
-	// 	glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
+	envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram,
+		glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
 	
 	/*
 	ifstream map_file("../assets/layout/map.csv");
