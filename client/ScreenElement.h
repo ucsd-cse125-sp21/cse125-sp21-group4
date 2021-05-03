@@ -1,3 +1,5 @@
+// Copied straight from older Character files because screen element does not need animations
+
 #ifndef _SCREENELEMENT_H_
 #define _SCREENELEMENT_H_
 
