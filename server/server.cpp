@@ -10,7 +10,7 @@
 int main(void)
 {
     // Initialize game server that will take inputs from commServer
-    Game* game = new Game(); // true is passed because we need to know if this is the server or not.
+    Game* game = new Game(); 
 
     // Initialize communication server that will interface with the clients
     CommunicationServer* commServer = new CommunicationServer();
