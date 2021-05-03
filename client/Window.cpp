@@ -32,7 +32,7 @@ GLuint Window::texShader;
 glm::mat4 Window::projection;
 
 //this is the position of the camera
-glm::vec3 Window::eyePos(0, 10, 5); // x y z
+glm::vec3 Window::eyePos(0, 20, 20); // x y z
 // this is the direction where the camera is staring at
 glm::vec3 Window::lookAtPoint(0, 0, 0);
 // this is the upward direction for the camera. Think of this as the angle where your head is
@@ -175,20 +175,16 @@ bool Window::initializeObjects()
 	// Characters on the map now (scaled 3x)
 	chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 		glm::vec3(5.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 3.f, glm::vec3(1.f, .5f, .5f),
-		"shaders/character/MAGE_LEFT_IDLE"));	
+		"shaders/character/MAGE"));	
 	chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 		glm::vec3(15.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 3.f, glm::vec3(1.f, .5f, .5f),
-		"shaders/character/MAGE_LEFT_IDLE"));	
+		"shaders/character/MAGE"));	
 	chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 		glm::vec3(5.f, 1.f, 15.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 3.f, glm::vec3(1.f, .5f, .5f),
-		"shaders/character/MAGE_LEFT_IDLE"));	
+		"shaders/character/MAGE"));	
 	chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-<<<<<<< HEAD
 		glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 2.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/character/MAGE"));
-=======
-		glm::vec3(70.f, 1.f, 70.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 3.f, glm::vec3(1.f, .5f, .5f),
-		"shaders/character/MAGE_LEFT_IDLE"));	
 
 	#ifdef SERVER_ENABLED
 	clientChar = chars[client->getId()];
@@ -198,7 +194,6 @@ bool Window::initializeObjects()
 	#endif
 
 	//  ==========  End of Character Initialization ========== 
->>>>>>> 10bbb8ef7b6cb61e7a88e16f75dfee2287cd7431
 
 	return true;
 }
@@ -279,10 +274,10 @@ void Window::idleCallback()
 	eyePos = lookAtPoint + glm::vec3(0.f, 5.f, 5.f);
 	view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window::upVector);
 
-	/*int i;
+	int i;
 	for (i = 0; i < chars.size(); i++) {
 		chars[i]->update();
-	}*/
+	}
 }
 
 void Window::displayCallback(GLFWwindow* window)
