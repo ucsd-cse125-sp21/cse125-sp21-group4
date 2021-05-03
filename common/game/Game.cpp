@@ -62,26 +62,31 @@ void Game::initPlayers () {
                 position.width = CLERIC_WIDTH;
                 position.height = CLERIC_HEIGHT;
                 players[i] = new Cleric(position);
+                players[i]->setID(i);
                 break;
             case FIGHTER:
                 position.width = FIGHTER_WIDTH;
                 position.height = FIGHTER_HEIGHT;
                 players[i] = new Fighter(position);
+                players[i]->setID(i);
                 break;
             case MAGE:
                 position.width = MAGE_WIDTH;
                 position.height = MAGE_HEIGHT;
                 players[i] = new Mage(position);
+                players[i]->setID(i);
                 break;
             case ROGUE:
                 position.width = ROGUE_WIDTH;
                 position.height = ROGUE_HEIGHT;
                 players[i] = new Rogue(position);
+                players[i]->setID(i);
                 break;
             case MONSTER:
                 position.width = MONSTER_WIDTH;
                 position.height = MONSTER_HEIGHT;
                 players[i] = new Monster(position);
+                players[i]->setID(i);
                 break;
             case UNKNOWN: {
                 PlayerType availableJob = *availableJobs.begin();
@@ -100,7 +105,6 @@ void Game::initPlayers () {
             default:
                 break;
         }
-        players[i]->setID(i);
     }
 
 }
@@ -301,10 +305,10 @@ void Game::initGameGrids() {
 //>>>>>>> origin/main
             }
 
-            j++;
+            // j++;
         }
 
-        i++;
+        // i++;
     }
 }
 
