@@ -61,6 +61,7 @@ public:
     void processEvent (GameEvent* event);
     void updateGameEvents();
     void updateBeacon();
+    void checkEnd();
 
     void printGameGrids();
     void printPlayers();

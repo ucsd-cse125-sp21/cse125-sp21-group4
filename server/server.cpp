@@ -49,6 +49,7 @@ int main(void)
         if (game->started) {
             game->updateProjectiles(); // should this be a good place to update projectile?
             game->updateBeacon(); // used to determine players inside the beacon capture area
+            game->checkEnd();
         }
 
 

@@ -170,7 +170,7 @@ char getSymbol(GridComponent* cell) {
 void Game::initGameGrids() {
 
     // testing purposes
-//<<<<<<< HEAD
+//<<<<<<< 
     // int test_rock_width = (MAP_WIDTH / GRID_WIDTH) / 2;
     // int test_rock_height = (MAP_HEIGHT / GRID_HEIGHT) / 2;
 
@@ -495,7 +495,7 @@ void projectileMove(Projectile* p) {
     2. outside of the map
     3. hit the obstacle
 
-    Note: isEnd will not check any collision
+    Note: checkEnd will not check any collision
 */
 bool projectileIsEnd(Projectile* p, Game* game) {
     // 1. flying distance exceeds maxDistance
@@ -534,7 +534,9 @@ bool projectileIsCollidingEnemy (Projectile* p, Game* game) {
     bool hit = false;
 
     for (int i = 0; i < PLAYER_NUM; i++) {
+        // skip dead players
         GamePlayer* otherPlayer = game->players[i];
+        if (otherPlayer->isDead()) continue;
 
         // can only attack enemy
         if (!game->players[p->ownerID]->canAttack(otherPlayer)) continue;
@@ -716,6 +718,39 @@ void Game::updateBeacon() {
     }
 }
 
+/*
+    Return 0 if the game is not end.
+    Return 1 if hunters win.
+    Return 2 if monster wins.
+    Return 3 if there is a tie.
+*/
+void Game::checkEnd() {
+    int deadHunterNum = 0;
+    int deadMonsterNum = 0;
+
+    for (int i = 0; i < PLAYER_NUM; i++) {
+        if (players[i]->getType() == MONSTER && players[i]->isDead())
+            deadMonsterNum += 1;
+        else if (players[i]->getType() != MONSTER && players[i]->isDead())
+            deadHunterNum += 1;
+    }
+
+    int endStatus = 0;
+    // if monster died, return 1 if there is at least one hunter survived
+    if (deadMonsterNum == 1)
+        endStatus = deadHunterNum != PLAYER_NUM - 1 ? 1 : 3;
+    // if all hunters died, return 2 if the monster is not dead
+    else if (deadHunterNum == PLAYER_NUM - 1)
+        endStatus = 2;
+    // otherwise, game continues
+    if (endStatus == 0) return;
+
+    GameUpdate gameEndUpdate;
+    gameEndUpdate.updateType = GAME_END;
+    gameEndUpdate.endStatus = endStatus;
+    addUpdate(gameEndUpdate);
+}
+
 /* Process a single event */
 void Game::processEvent (GameEvent* event) {
     switch (event->type)
@@ -794,7 +829,10 @@ void Game::printPlayers () {
         cout << "[" << players[i]->getTypeToString() << "] ";
         cout << "(" << players[i]->getPosition().x << ", ";
         cout << players[i]->getPosition().y << "), ";
-        cout << "hp: " << players[i]->getHp() << "\n";
+        cout << "hp: " << players[i]->getHp();
+        if (players[i]->isDead())
+            cout << " (dead)";
+        cout << "\n";
     }
     //initGameGrids();
     //printStats();
@@ -947,6 +985,16 @@ void Game::handleUpdate(GameUpdate update) {
             initPlayers(); // need to init because client hasn't initialized players
             break;
 
+        // Game End
+        case GAME_END:
+            if (update.endStatus == 1)
+                printf("Game ends with status %d: hunters win!\n", update.endStatus);
+            if (update.endStatus == 2)
+                printf("Game ends with status %d: monster wins!\n", update.endStatus);
+            if (update.endStatus == 3)
+                printf("Game ends with status %d: tie!\n", update.endStatus);
+            exit(0);
+            break;
         default:
             printf("Not Handled Update Type: %d", update.updateType);
             break;
@@ -963,7 +1011,7 @@ void Game::consumeObj(Objective * obj) {
 // testing  purposes
 void Game::printStats() {
 
-// <<<<<<< HEAD
+// <<<<<<< 
 //     return;
     // int test_rock_width = (MAP_WIDTH / GRID_WIDTH) / 2;
     // int test_rock_height = (MAP_HEIGHT / GRID_HEIGHT) / 2;
