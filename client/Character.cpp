@@ -4,7 +4,7 @@
 
 /*
 	constructor usage:
-	projection p, view v, and shader s are taken cared of in Window class.
+	projection p, view v, view position, and shader s are taken cared of in Window class.
 	translation trans is the initial position where you want to place this object;
 	rotAxis is the the axis you want to rotate about;
 	rotRad  is the amount of rotation you want in RADIAN;
@@ -15,6 +15,15 @@
 Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPos,
 	GLuint s, glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale,
 	glm::vec3 c, char* textFile) {
+
+	//animation related
+	frameIdx = 0;
+	currState = idle;
+	prevState = idle;
+	currTime = clock();
+	prevTime = currTime;
+	animSequence.push_back(&idleTex); //order must match the enum in header file
+	animSequence.push_back(&moveTex);
 
 	// initial translation will bthe initial position
 	pos = trans;
@@ -27,16 +36,7 @@ Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPo
 	// default color is black
 	color = c;
 	// if path is NOT given at construction time, hasTexture will be false.
-	hasTexture = loadTexture(textFile);
-
-	//animation related
-	frameIdx = 0;
-	currState = idle;
-	prevState = idle;
-	currTime = clock();
-	prevTime = currTime;
-	animSequence.push_back(&idleTex); //order must match the enum in header file
-	animSequence.push_back(&moveTex);
+	hasTexture = loadAnimation(idle, textFile);
 
 	std::vector<glm::vec3> normalp;
 	std::vector<glm::vec3> pointsp;
@@ -259,20 +259,24 @@ void Character::update() {
 	else {
 		float timeDiff = (float)(currTime - prevTime) / CLOCKS_PER_SEC;
 		if (timeDiff >= ANIMATION_INTERVAL) {
+			cout << "current state "<< currState << endl;
 			// check if on the last frame of a sequence
-			if (++frameIdx == (*animSequence[currState]).size())
+			if (frameIdx + 1 == (*animSequence[currState]).size())
 				frameIdx = 0;
+			else
+				frameIdx++;
 			textId = (*animSequence[currState])[frameIdx];
 			prevState = currState;
+			prevTime = currTime;
 		}
 	}
-	prevTime = currTime;
 }
 
 void Character::updateView(glm::mat4, glm::vec3) {
 }
 
-bool Character::loadTexture(char* texturePath) {
+GLuint Character::loadTexture(string path) {
+	const char* texturePath = path.c_str();
 	if (strcmp(texturePath, "") == 0)
 		return false;
 	FILE* f;
@@ -293,8 +297,10 @@ bool Character::loadTexture(char* texturePath) {
 		return false;
 	}
 	cout << "num of channels: " << channels << endl;
-	glGenTextures(1, &textId);
-	glBindTexture(GL_TEXTURE_2D, textId);
+	
+	GLuint tid;
+	glGenTextures(1, &tid);
+	glBindTexture(GL_TEXTURE_2D, tid);
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -302,5 +308,35 @@ bool Character::loadTexture(char* texturePath) {
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ftw, fth, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(data);
+	return tid;
+}
+
+/*
+	usage:to load an animation sequence for one state of this character
+	-state is the state this animation is for, such as idle, moving, attacking, check enum in header
+	-animFolder is the folder containing the texture assets of this animation. The arguement for
+	this parameter should just be the folder path without ending "/"; a good example would be 
+	"shaders/character/MAGE_LEFT_IDLE". 
+	In this folder there needs to be an "index.txt" file containing all the actual texture files with 
+	leading "/" like "/attack1.png"
+*/
+
+bool Character::loadAnimation(CharState state, string animFolder) {
+	cout << animFolder+ "/index.txt" << endl;
+	std::ifstream objFile(animFolder + "/index.txt");
+	if (!objFile.is_open()) {
+		cout << "cannot open size file";
+		return false;
+	}
+	cout << "got here0" << endl;
+	vector<GLuint> * animation = animSequence[state];
+	cout << "got here1" << endl;
+	std::string line;
+	while (std::getline(objFile, line)) {
+		cout << "got here2" << endl;
+		string texFile =animFolder + line;
+		cout << texFile << endl;
+		animation->push_back(loadTexture(texFile.c_str()));
+	}
 	return true;
 }
