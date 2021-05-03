@@ -131,7 +131,7 @@ bool Window::initializeObjects()
 
 	chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 		glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 2.f, glm::vec3(1.f, .5f, .5f),
-		"shaders/character/MAGE_LEFT_IDLE"));
+		"shaders/character/MAGE"));
 
 	return true;
 }
@@ -210,10 +210,10 @@ void Window::idleCallback()
 	eyePos = lookAtPoint + glm::vec3(0.f, 5.f, 5.f);
 	view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window::upVector);
 
-	int i;
+	/*int i;
 	for (i = 0; i < chars.size(); i++) {
 		chars[i]->update();
-	}
+	}*/
 }
 
 void Window::displayCallback(GLFWwindow* window)

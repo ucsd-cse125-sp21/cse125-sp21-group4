@@ -4,7 +4,7 @@
 #include "Object.h"
 #include <time.h>
 
-#define ANIMATION_INTERVAL 0.2
+#define ANIMATION_INTERVAL 0.1
 
 enum CharState {
 	idle,
@@ -71,6 +71,7 @@ public:
 	void moveToGivenDelta(float deltaX, float deltaY);
 	GLuint loadTexture(string texturePath);
 	bool loadAnimation(CharState state, string animFile);
+	bool loadAnimationAssets(string assetFolder);
 };
 
 #endif

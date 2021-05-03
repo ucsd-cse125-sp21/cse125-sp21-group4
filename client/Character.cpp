@@ -36,7 +36,7 @@ Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPo
 	// default color is black
 	color = c;
 	// if path is NOT given at construction time, hasTexture will be false.
-	hasTexture = loadAnimation(idle, textFile);
+	hasTexture = loadAnimationAssets(textFile);
 
 	std::vector<glm::vec3> normalp;
 	std::vector<glm::vec3> pointsp;
@@ -259,7 +259,6 @@ void Character::update() {
 	else {
 		float timeDiff = (float)(currTime - prevTime) / CLOCKS_PER_SEC;
 		if (timeDiff >= ANIMATION_INTERVAL) {
-			cout << "current state "<< currState << endl;
 			// check if on the last frame of a sequence
 			if (frameIdx + 1 == (*animSequence[currState]).size())
 				frameIdx = 0;
@@ -296,7 +295,7 @@ GLuint Character::loadTexture(string path) {
 		cout << "cannot load texture at " << texturePath << endl;
 		return false;
 	}
-	cout << "num of channels: " << channels << endl;
+	//cout << "num of channels: " << channels << endl;
 	
 	GLuint tid;
 	glGenTextures(1, &tid);
@@ -308,6 +307,7 @@ GLuint Character::loadTexture(string path) {
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ftw, fth, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(data);
+	fclose(f);
 	return tid;
 }
 
@@ -322,21 +322,43 @@ GLuint Character::loadTexture(string path) {
 */
 
 bool Character::loadAnimation(CharState state, string animFolder) {
-	cout << animFolder+ "/index.txt" << endl;
+	//cout << animFolder << endl;
 	std::ifstream objFile(animFolder + "/index.txt");
 	if (!objFile.is_open()) {
-		cout << "cannot open size file";
+		cout << "cannot open anim size file in " << animFolder << endl;
 		return false;
 	}
-	cout << "got here0" << endl;
 	vector<GLuint> * animation = animSequence[state];
-	cout << "got here1" << endl;
 	std::string line;
 	while (std::getline(objFile, line)) {
-		cout << "got here2" << endl;
 		string texFile =animFolder + line;
-		cout << texFile << endl;
+		//cout << texFile << endl;
 		animation->push_back(loadTexture(texFile.c_str()));
 	}
+	objFile.close();
+	return true;
+}
+
+bool Character::loadAnimationAssets(string assetFolder) {
+	std::ifstream objFile(assetFolder + "/index.txt");
+	if (!objFile.is_open()) {
+		cout << "cannot open asset size file in " << assetFolder << endl;
+		return false;
+	}
+
+	std::string line;
+	while (std::getline(objFile, line)) {
+		std::stringstream ss;
+		ss << line;
+		int state;
+		string animFolder;
+		ss >> state >> animFolder;
+		//cout << state << " " << animFolder;
+		if (!loadAnimation((CharState)state, assetFolder + animFolder)) {
+			cout << "cannot load asset in " << animFolder << endl;
+			return false;
+		}
+	}
+	objFile.close();
 	return true;
 }
