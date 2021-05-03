@@ -11,6 +11,7 @@ int Window::height;
 const char* Window::windowTitle = "CSE125_GAME";
 CommunicationClient* Window::client;
 bool Window::keyboard[KEYBOARD_SIZE];
+bool Window::gameStarted;
 
 
 //objects to render
@@ -64,6 +65,8 @@ bool Window::initializeProgram() {
 		keyboard[i] = false;
 	}
 
+	Window::gameStarted = false;
+
 	return true;
 }
 
@@ -75,46 +78,58 @@ rotation axis, rotation in radian, scale factor in float, model color)
 bool Window::initializeObjects()
 {
 	//chars
-	/*chars.push_back(new Character("shaders/character/cube.obj", &projection, &view, shaderProgram, 
-		glm::vec3(-5.f, 1.f, -5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f)));
-	chars.push_back(new Character("shaders/character/cube.obj", &projection, &view, shaderProgram,
-		glm::vec3(5.f, 1.f, -5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(45.f), 1.f, glm::vec3(.5f, 1.f, .5f)));
-	chars.push_back(new Character("shaders/character/cube.obj", &projection, &view, shaderProgram,
-		glm::vec3(-5.f, 1.f, 5.f), glm::vec3(0.f, 0.f, 1.f), glm::radians(45.f), 1.6f, glm::vec3(.5f, .5f, 1.f)));
-	chars.push_back(new Character("shaders/character/cube.obj", &projection, &view, shaderProgram,
-		glm::vec3(5.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(60.f), 0.5f, glm::vec3(1.f, .3f, 1.f)));
+	// chars.push_back(new Character("shaders/character/cube.obj", &projection, &view, shaderProgram, 
+	// 	glm::vec3(-5.f, 1.f, -5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f)));
+	// chars.push_back(new Character("shaders/character/cube.obj", &projection, &view, shaderProgram,
+	// 	glm::vec3(5.f, 1.f, -5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(45.f), 1.f, glm::vec3(.5f, 1.f, .5f)));
+	// chars.push_back(new Character("shaders/character/cube.obj", &projection, &view, shaderProgram,
+	// 	glm::vec3(-5.f, 1.f, 5.f), glm::vec3(0.f, 0.f, 1.f), glm::radians(45.f), 1.6f, glm::vec3(.5f, .5f, 1.f)));
+	// chars.push_back(new Character("shaders/character/cube.obj", &projection, &view, shaderProgram,
+	// 	glm::vec3(5.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(60.f), 0.5f, glm::vec3(1.f, .3f, 1.f)));
 	//env
-	envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram, 
-	glm::vec3(0.f,0.f,0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));*/
+	// envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram, 
+	// glm::vec3(0.f,0.f,0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
 	
 	// Look at the Select Screen first
 	// eyePos = glm::vec3(0, 100, 1);
 	// lookAtPoint = glm::vec3(0, 110, 0);
 	// view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window::upVector);
 
-	// Select Screen Background
-	// selectScreenElements.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
-	// 	glm::vec3(0.f, 110.f, 0.f), glm::vec3(1.f, 0.f, 0.f), glm::radians(90.f), 5.f, glm::vec3(1.f, .5f, .5f),
-	// 	"shaders/select_screen/character_select_background.png"));
+	//  ==========  Select Screen  ========== 
+	glm::vec3 selectScreenLocation = eyePos + glm::vec3(0.f, -10.f, 0.f);
+	float rotateAmount = glm::radians(-45.f);
+	lookAtPoint = selectScreenLocation;
+	selectScreenElements.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
+		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
+		"shaders/select_screen/character_select_background.png"));
+	
 
 	// Each Job Buttons
-	// selectScreenElements.push_back(new EnvElement("shaders/character/billboard.obj", &projection, &view, texShader,
-	// 	glm::vec3(0.f, 20.f, .1f), glm::vec3(1.f, 0.f, 0.f), glm::radians(0.f), 3.f, glm::vec3(1.f, .5f, .5f),
-	// 	"shaders/select_screen/rogue_unselected.png"));
+	// (1) Fighter
+	selectScreenElements.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
+		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
+		"shaders/select_screen/fighter_unselected.png"));
 		
-	// selectScreenElements.push_back(new EnvElement("shaders/character/billboard.obj", &projection, &view, texShader,
-	// 	glm::vec3(0.f, 20.f, .1f), glm::vec3(1.f, 0.f, 0.f), glm::radians(0.f), 3.f, glm::vec3(1.f, .5f, .5f),
-	// 	"shaders/select_screen/mage_unselected.png"));
+	// (2) Mage
+	selectScreenElements.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
+		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
+		"shaders/select_screen/mage_unselected.png"));
 		
-	// selectScreenElements.push_back(new EnvElement("shaders/character/billboard.obj", &projection, &view, texShader,
-	// 	glm::vec3(0.f, 20.f, .1f), glm::vec3(1.f, 0.f, 0.f), glm::radians(0.f), 3.f, glm::vec3(1.f, .5f, .5f),
-	// 	"shaders/select_screen/cleric_unselected.png"));
+	// (3) Cleric
+	selectScreenElements.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
+		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
+		"shaders/select_screen/cleric_unselected.png"));
 		
-	// selectScreenElements.push_back(new EnvElement("shaders/character/billboard.obj", &projection, &view, texShader,
-	// 	glm::vec3(0.f, 20.f, .1f), glm::vec3(1.f, 0.f, 0.f), glm::radians(0.f), 3.f, glm::vec3(1.f, .5f, .5f),
-	// 	"shaders/select_screen/fighter_unselected.png"));
+	// (4) Rogue
+	selectScreenElements.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
+		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
+		"shaders/select_screen/rogue_unselected.png"));
 
+	//  ==========  End of Select Screen  ========== 
 
+	//  ==========  Environment Initialization  ========== 
+	envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram,
+		glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
 	
 	// chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, texShader,
 	// 	glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f),
@@ -172,12 +187,26 @@ bool Window::initializeObjects()
 	// envs.push_back(new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram, 
 	// 	glm::vec3(5.f, 1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(.5f, .5f, .5f)));
 
-	envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram,
-		glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
+	//  ==========  End of Environment Initialization  ========== 
 
-	//chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-		//glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f),
-		//"shaders/character/sprite1.png"));
+	//  ==========  Character Initialization   ========== 
+
+	// Characters on the map now (scaled 3x)
+	chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+		glm::vec3(5.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 3.f, glm::vec3(1.f, .5f, .5f),
+		"shaders/character/sprite1.png"));	
+	chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+		glm::vec3(15.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 3.f, glm::vec3(1.f, .5f, .5f),
+		"shaders/character/sprite1.png"));	
+	chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+		glm::vec3(5.f, 1.f, 15.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 3.f, glm::vec3(1.f, .5f, .5f),
+		"shaders/character/sprite1.png"));	
+	chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+		glm::vec3(70.f, 1.f, 70.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 3.f, glm::vec3(1.f, .5f, .5f),
+		"shaders/character/sprite1.png"));	
+	clientChar = chars[client->getId()];
+
+	//  ==========  End of Character Initialization ========== 
 
 	return true;
 }
@@ -252,7 +281,9 @@ void Window::idleCallback()
 	Window::handleUpdates(updates);
 #endif
 	//update camera location
-	//lookAtPoint = clientChar->pos;
+	if(Window::gameStarted) {
+		lookAtPoint = clientChar->pos;
+	}
 	eyePos = lookAtPoint + glm::vec3(0.f, 5.f, 5.f);
 	view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window::upVector);
 }
@@ -335,8 +366,25 @@ void Window::handleUpdates(std::vector<GameUpdate> updates) {
 
     for(int i = 0; i < numOfUpdates; i++) {
         Window::handleUpdate(updates[i]);
-		printf("Update received: type: %d, id: %d, gridX: %d, gridY: %d, floatX: %f, floatY: %f", updates[i].updateType, updates[i].id, updates[i].gridPos.x, updates[i].gridPos.y, updates[i].floatDeltaX, updates[i].floatDeltaY);
+		printf("Update received: type: %d, id: %d, gridX: %d, gridY: %d, floatX: %f, floatY: %f\n", updates[i].updateType, updates[i].id, updates[i].gridPos.x, updates[i].gridPos.y, updates[i].floatDeltaX, updates[i].floatDeltaY);
     }
+}
+
+void Window::handleRoleClaim(GameUpdate update) {
+	switch(update.roleClaimed) {
+		case FIGHTER:
+			selectScreenElements[1]->loadTexture("shaders/select_screen/fighter_selected.png");
+			break;
+		case MAGE:
+			selectScreenElements[2]->loadTexture("shaders/select_screen/mage_selected.png");
+			break;
+		case CLERIC:
+			selectScreenElements[3]->loadTexture("shaders/select_screen/cleric_selected.png");
+			break;
+		case ROGUE:
+			selectScreenElements[4]->loadTexture("shaders/select_screen/rogue_selected.png");
+			break;
+	}
 }
 
 // Handles specific update on the graphics side.
@@ -349,14 +397,20 @@ void Window::handleUpdate(GameUpdate update) {
         case PLAYER_MOVE:
 		{
 			chars[update.id]->moveToGivenDelta(update.floatDeltaX, update.floatDeltaY);
-			printf("Character %d moved with deltaX: %f, deltaY: %f", update.id, update.floatDeltaX, update.floatDeltaY);
+			printf("Character %d moved with deltaX: %f, deltaY: %f\n", update.id, update.floatDeltaX, update.floatDeltaY);
             break;
         
 		}
 		case PROJECTILE_MOVE:
             break;
+		case GAME_STARTED:
+			Window::gameStarted = true;
+			break;
+		case ROLE_CLAIMED:
+			Window::handleRoleClaim(update);
+            break;
         default:
-            printf("Not Handled Update Type: %d", update.updateType);
+            printf("Not Handled Update Type: %d\n", update.updateType);
             break;
     }
 }
@@ -388,6 +442,23 @@ void Window::updateLastInput() {
 	// D key
 	} else if(keyboard[GLFW_KEY_D]) {
 		lastInput = MOVE_RIGHT;
+
+	// 1 key (claim fighter)
+	} else if(keyboard[GLFW_KEY_1]) {
+		lastInput = CLAIM_FIGHTER;
+
+	// 2 key (claim mage)
+	} else if(keyboard[GLFW_KEY_2]) {
+		lastInput = CLAIM_MAGE;
+
+	// 3 key (claim cleric)
+	} else if(keyboard[GLFW_KEY_3]) {
+		lastInput = CLAIM_CLERIC;
+
+	// 4 key (claim rogue)
+	} else if(keyboard[GLFW_KEY_4]) {
+		lastInput = CLAIM_ROGUE;
+		
 	}
 }
 

@@ -106,10 +106,10 @@
 // Spawn position for players 1,2,3,4 in format of {x, y}
 // It is required that these spawn regions will not collide with
 // each other or obstacles at the start
-const float P1_SPAWN_POSITION[2] = {5.0, 5.0};
-const float P2_SPAWN_POSITION[2] {15.0, 5.0};
-const float P3_SPAWN_POSITION[2] {5.0, 15.0};
-const float P4_SPAWN_POSITION[2] {15.0, 15.0};
+// const float P1_SPAWN_POSITION[2] = {5.0, 5.0};
+// const float P2_SPAWN_POSITION[2] {15.0, 5.0};
+// const float P3_SPAWN_POSITION[2] {5.0, 15.0};
+// const float P4_SPAWN_POSITION[2] {15.0, 15.0};
 
 const float SPAWN_POSITIONS [4][2] = {
     {5.0, 5.0},
