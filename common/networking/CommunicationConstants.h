@@ -4,7 +4,7 @@
 #include "../game/GridComponent.h"
 #include "../game/GameConstants.h"
 
-#define DEFAULT_PORT "31545"
+#define DEFAULT_PORT "27168"
 
 //#define ERICS_LOCAL_SERVER "192.168.0.110"
 #define ERICS_LOCAL_SERVER "127.0.0.1"
