@@ -156,17 +156,6 @@ bool Window::initializeObjects()
 		j = 0;
 	} */
 
-	// envs.push_back(new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram, 
-	// 	glm::vec3(-5.f, 1.f, -5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f))); // blocks are 2 wide
-	
-	// envs.push_back(new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram, 
-	// 	glm::vec3(-3.f, 1.f, -5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, 1.f)));
-	
-	// envs.push_back(new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram, 
-	// 	glm::vec3(-5.f, 1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, 1.f, .5f)));
-
-	// envs.push_back(new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram, 
-	// 	glm::vec3(5.f, 1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(.5f, .5f, .5f)));
 
 	//  ==========  End of Environment Initialization  ========== 
 
@@ -174,16 +163,16 @@ bool Window::initializeObjects()
 
 	// Characters on the map now (scaled 3x)
 	chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-		glm::vec3(5.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 3.f, glm::vec3(1.f, .5f, .5f),
+		glm::vec3(5.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/character/MAGE"));	
 	chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-		glm::vec3(15.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 3.f, glm::vec3(1.f, .5f, .5f),
+		glm::vec3(15.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/character/MAGE"));	
 	chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-		glm::vec3(5.f, 1.f, 15.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 3.f, glm::vec3(1.f, .5f, .5f),
+		glm::vec3(5.f, 1.f, 15.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/character/MAGE"));	
 	chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-		glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 2.f, glm::vec3(1.f, .5f, .5f),
+		glm::vec3(70.f, 1.f, 70.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/character/MAGE"));
 
 	#ifdef SERVER_ENABLED
