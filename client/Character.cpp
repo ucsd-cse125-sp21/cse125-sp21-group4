@@ -200,9 +200,9 @@ void Character::draw(glm::mat4 c) {
 	// Bind the VAO
 	glBindVertexArray(VAO);
 
-	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 
-	glDepthMask(GL_FALSE);
+	glDepthMask(GL_TRUE);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
