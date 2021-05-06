@@ -38,7 +38,6 @@
 #define ROGUE_ATTACK_TIME_INTERVAL 500 // 0.5s = 500 ms
 #define MAGE_ATTACK_TIME_INTERVAL 300 // 0.3s = 300 ms
 #define CLERIC_ATTACK_TIME_INTERVAL 300 // 0.3s = 300 ms
-
 #define MONSTER_ATTACK_TIME_INTERVAL 500 // 0.5s = 500 ms
 
 // Player Bouding Box Size Constants
@@ -57,6 +56,7 @@
 
 // Player attack distance constants
 #define FIGHTER_ATTACK_DISTANCE 2
+#define MONSTER_ATTACK_DISTANCE 2
 #define ROGUE_ATTACK_DISTANCE 20
 #define MAGE_ATTACK_DISTANCE 20
 #define CLERIC_ATTACK_DISTANCE 15
@@ -86,7 +86,8 @@
 #define HEALING_AURA_HEALING_AMOUNT 20
 
 #define MONSTER_RANGED_ATTACK_DISTANCE 20
-
+#define MONSTER_OVERTIME_DAMAGE_INTERVAL 2000 // 2000ms = 2s
+#define MONSTER_OVERTIME_DAMAGE_NUM 2
 // Player attack speed (projectile moving speed)
 #define ROGUE_ARROW_SPEED 2 // 2 units per tick
 #define MONSTER_RANGED_SPEED 2

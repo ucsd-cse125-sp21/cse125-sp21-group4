@@ -12,6 +12,7 @@ public:
     Monster(); // Constructor for GameComponent
     Monster(PlayerPosition position); // Constructor for GameComponent
     void attack (Game* game);
+    void uniqueAttack (Game* game);
     void interact (Game* game);
 
     void updateEvo(Game* game, float evoLevel);
