@@ -36,6 +36,15 @@
     <ClCompile Include="ScreenElement.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="nanovg\nanovg.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\HealthBar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\GUIManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Character.h">
@@ -66,6 +75,30 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ScreenElement.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nanovg\nanovg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nanovg\nanovg_gl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nanovg\fontstash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nanovg\nanovg_gl_utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nanovg\stb_truetype.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HealthBar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\GUIManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\HealthBar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

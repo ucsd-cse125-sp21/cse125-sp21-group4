@@ -44,6 +44,10 @@ glm::mat4 Window::view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window
 // last input from the window
 CLIENT_INPUT Window::lastInput = NO_MOVE;
 
+// GUI manager
+GUIManager* Window::guiManager;
+
+
 bool Window::initializeProgram() {
 	// Create a shader program with a vertex shader and a fragment shader.
 	shaderProgram = LoadShaders("shaders/shader/shader.vert", "shaders/shader/shader.frag");
@@ -58,12 +62,18 @@ bool Window::initializeProgram() {
 #ifdef SERVER_ENABLED
 	client = new CommunicationClient();
 	cout << "Communication Established" << endl;
+	
+	// if the id is 3, then set the hpBar to be max monster
+	if(client->getId() == 3) {
+		guiManager->healthBar->initGivenPlayerType(MONSTER);
+	}
 #endif // SERVER_ENABLED
 
 	// Setup the keyboard.
 	for(int i = 0; i < KEYBOARD_SIZE; i++) {
 		keyboard[i] = false;
 	}
+
 
 	Window::gameStarted = false;
 	Window::doneInitialRender = false;
@@ -177,6 +187,7 @@ bool Window::initializeObjects()
 
 	#ifdef SERVER_ENABLED
 	clientChar = chars[client->getId()];
+
 	#else 
 	clientChar = chars[0];
 	gameStarted = true;
@@ -186,6 +197,8 @@ bool Window::initializeObjects()
 
 	return true;
 }
+
+// End of Nano GUI Methods
 
 void Window::cleanUp()
 {
@@ -218,6 +231,15 @@ GLFWwindow* Window::createWindow(int width, int height)
 		std::cerr << "Failed to initialize GLEW" << std::endl;
 		return NULL;
 	}
+
+	// Initialize the GUI Manager
+	int fbWidth, fbHeight;
+	glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+	Window::guiManager = new GUIManager(width, height, fbWidth, fbHeight);
+#ifndef SERVER_ENABLED // Client-only (no server)	
+	guiManager->setHUDVisible(true);
+#endif
+
 	// Set swap interval to 1 if you want buffer 
 	glfwSwapInterval(0);
 
@@ -233,8 +255,16 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 	// Set the viewport size.
 	glViewport(0, 0, width, height);
 
+
+
+	// Update the GUIManager's window height/width
+	int fbWidth, fbHeight;
+	glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+	guiManager->resizeWindow(width, height, fbWidth, fbHeight);
+
 	// Set the projection matrix.
 	Window::projection = glm::perspective(glm::radians(80.0), double(width) / (double)height, 0.5, 1000.0);
+
 	// update projection matrix for all the objects
 	int i;
 	for (i = 0; i < chars.size(); i++) {
@@ -274,6 +304,7 @@ void Window::displayCallback(GLFWwindow* window)
 	// Clear the color and depth buffers.
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
 	//draw all the characters and environmental elements
 	int i;
 	for (i = 0; i < selectScreenElements.size(); i++) {
@@ -287,6 +318,9 @@ void Window::displayCallback(GLFWwindow* window)
 	for (i = 0; i < chars.size(); i++) {
 		chars[i]->draw();
 	}
+
+	Window::guiManager->draw();
+
 
 	glfwPollEvents();
 	glfwSwapBuffers(window);
@@ -374,14 +408,25 @@ void Window::handleRoleClaim(GameUpdate update) {
 			selectScreenElements[4]->loadTexture("shaders/select_screen/rogue_selected.png");
 			break;
 	}
+
+	// Initializes the hp bar to the given player's role
+	if(update.id == client->getId()) {
+		guiManager->healthBar->initGivenPlayerType(update.roleClaimed);
+	}
 }
 
 // Handles specific update on the graphics side.
 void Window::handleUpdate(GameUpdate update) {
     switch(update.updateType) {
         case PLAYER_DAMAGE_TAKEN:
+			if(update.id == client->getId()) {
+				guiManager->healthBar->decrementHp(update.damageTaken);
+			}
             break;
 		case PLAYER_HP_INCREMENT:
+			if(update.id == client->getId()) {
+				guiManager->healthBar->incrementHp(update.healAmount);
+			}
 			break;
         case PLAYER_MOVE:
 		{
@@ -394,6 +439,7 @@ void Window::handleUpdate(GameUpdate update) {
             break;
 		case GAME_STARTED:
 			Window::gameStarted = true;
+			guiManager->setHUDVisible(true); // sets the hud visible
 			break;
 		case ROLE_CLAIMED:
 			Window::handleRoleClaim(update);
@@ -450,4 +496,3 @@ void Window::updateLastInput() {
 		
 	}
 }
-

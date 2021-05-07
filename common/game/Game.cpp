@@ -404,6 +404,7 @@ bool Game::handleInputs(CLIENT_INPUT playersInputs[PLAYER_NUM]) {
                     startSelectTimer();
                 }
                 renderCount++;
+                printf("RenderCount: %d\n", renderCount);
             default:
                 if(started) {
                     players[i]->handleUserInput(this, playersInputs[i]);
