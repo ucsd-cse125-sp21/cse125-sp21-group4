@@ -399,11 +399,11 @@ bool Game::handleInputs(CLIENT_INPUT playersInputs[PLAYER_NUM]) {
                 }
                 break;
             case DONE_RENDERING:
+                renderCount++;
                 if(!started && renderCount >= PLAYER_NUM) {
                     // All players have connected by now...
                     startSelectTimer();
                 }
-                renderCount++;
             default:
                 if(started) {
                     players[i]->handleUserInput(this, playersInputs[i]);
