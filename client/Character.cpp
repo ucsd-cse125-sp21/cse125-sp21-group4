@@ -202,7 +202,7 @@ void Character::draw(glm::mat4 c) {
 	float scaleY = sqrt(m[1][0]*m[1][0]+m[1][1]*m[1][1]+m[0][2]*m[1][2]);
 	float scaleZ = sqrt(m[2][0]*m[2][0]+m[2][1]*m[2][1]+m[0][2]*m[2][2]);
 
-	glm::vec3 x = glm::cross(glm::vec3(0.f, 1.f, 0.f), z);
+	glm::vec3 x = glm::cross(glm::vec3(0.f, 0.1f, 0.f), z);
 	glm::vec3 y = glm::cross(x, z);
 	glm::vec3 xn = glm::normalize(x);
 	glm::vec3 yn = glm::normalize(y);
