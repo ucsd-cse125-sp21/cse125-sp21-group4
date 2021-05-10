@@ -1,5 +1,4 @@
 #include "HealthBar.h"
-#include "../../common/game/GameConstants.h"
 
 HealthBar::HealthBar(NVGcontext* vg) {
     this->vg = vg;

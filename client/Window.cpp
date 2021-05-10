@@ -370,10 +370,6 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	MouseX = (int)currX;
 	MouseY = (int)currY;
 
-	if(!gameStarted) {
-		guiManager->handleMouseSelect(MouseX, MouseY);
-	}
-
 	if (LeftDown) {
 		return;
 	}
@@ -420,6 +416,7 @@ void Window::handleRoleClaim(GameUpdate update) {
 	if(update.id == client->getId()) {
 		guiManager->healthBar->initGivenPlayerType(update.roleClaimed);
 		guiManager->miniMap->setCurrentPlayer(client->getId(), update.roleClaimed);
+		guiManager->selectScreen->hasClaimed = true;
 	} else {
 		guiManager->miniMap->setPlayerType(update.id, update.roleClaimed);
 	}
@@ -507,21 +504,37 @@ void Window::updateLastInput() {
 	} else if(keyboard[GLFW_KEY_D]) {
 		lastInput = MOVE_RIGHT;
 
-	// 1 key (claim fighter)
+	// 1 key (select fighter)
 	} else if(keyboard[GLFW_KEY_1]) {
-		lastInput = CLAIM_FIGHTER;
+		guiManager->selectScreen->handleSelecting(FIGHTER);
 
-	// 2 key (claim mage)
+	// 2 key (select mage)
 	} else if(keyboard[GLFW_KEY_2]) {
-		lastInput = CLAIM_MAGE;
+		guiManager->selectScreen->handleSelecting(MAGE);
 
-	// 3 key (claim cleric)
+	// 3 key (select cleric)
 	} else if(keyboard[GLFW_KEY_3]) {
-		lastInput = CLAIM_CLERIC;
+		guiManager->selectScreen->handleSelecting(CLERIC);
 
-	// 4 key (claim rogue)
+	// 4 key (select rogue)
 	} else if(keyboard[GLFW_KEY_4]) {
-		lastInput = CLAIM_ROGUE;
-		
+		guiManager->selectScreen->handleSelecting(ROGUE);
+	
+	// enter key (claim selected role)
+	} else if (keyboard[GLFW_KEY_ENTER]) {
+		switch(guiManager->selectScreen->selecting) {
+			case FIGHTER:
+				lastInput = CLAIM_FIGHTER;
+				break;
+			case MAGE:
+				lastInput = CLAIM_MAGE;
+				break;
+			case CLERIC:
+				lastInput = CLAIM_CLERIC;
+				break;
+			case ROGUE:
+				lastInput = CLAIM_ROGUE;
+				break;
+		}
 	}
 }

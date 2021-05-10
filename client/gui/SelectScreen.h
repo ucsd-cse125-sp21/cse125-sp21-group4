@@ -14,7 +14,8 @@ public:
     NVGcontext* vg;
     bool isVisible;
     bool isMonster;
-    PlayerType selected;
+    bool hasClaimed;
+    PlayerType selecting;
     std::map<PlayerType, bool> claimed;
     vector<ScreenElement*> selectScreenElements; 
     
@@ -25,7 +26,7 @@ public:
     void setVisible(bool visible);
     void setMonster(bool);
     void handleRoleClaimed(PlayerType);
-    void handleMouseSelect(float windowWidth, float windowHeight, int mouseX, int mouseY);
+    void handleSelecting(PlayerType roleSelected);
 };
 
 #endif

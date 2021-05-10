@@ -62,7 +62,7 @@ void GUIManager::setSelectScreenVisible(bool visibility) {
 }
 
 void GUIManager::handleMouseSelect(int x, int y) {
-	selectScreen->handleMouseSelect(this->windowWidth, this->windowHeight, x, y);
+	// might need this if we decide to add mouse support.
 }
 
 

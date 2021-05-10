@@ -1,5 +1,4 @@
 #include "MiniMap.h"
-#include "../../common/game/GameConstants.h"
 
 MiniMap::MiniMap(NVGcontext* vg) {
     this->vg = vg;

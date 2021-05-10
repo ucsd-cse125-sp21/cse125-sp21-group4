@@ -15,6 +15,8 @@ int main(void)
     // Initialize communication server that will interface with the clients
     CommunicationServer* commServer = new CommunicationServer();
 
+    // TOOD: All players have joined
+
     
     /**
      * Basic server architecture:

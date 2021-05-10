@@ -4,7 +4,15 @@ SelectScreen::SelectScreen(NVGcontext* vg) {
     this->vg = vg;
 	isVisible = false;
     isMonster = false;
+    hasClaimed = false;
 
+    claimed[FIGHTER] = false;
+    claimed[MAGE] = false;
+    claimed[CLERIC] = false;
+    claimed[ROGUE] = false;
+    selecting = UNKNOWN;
+
+    // ScreenElements are initialized by Window.cpp.
 }
 
 
@@ -42,6 +50,17 @@ void SelectScreen::draw(float windowWidth, float windowHeight) {
         for(int i = 0; i < selectScreenElements.size(); i++) {
             selectScreenElements[i]->draw();
         }
+
+        // Draw instructions to tell player how to choose a role.
+        // awaiting for other players text
+        nvgFontSize(vg, 16.f);
+        nvgFontFace(vg, "sans-bold");
+        nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
+
+        nvgFontBlur(vg, 0);
+        nvgFillColor(vg, nvgRGBA(0, 0, 0, 255));
+        nvgText(vg, windowWidth/2, windowHeight - windowHeight/11, "Press 1-4 to select a role. Press Enter to claim your role.", NULL);
+
     }
 	nvgRestore(vg); 
 }
@@ -67,8 +86,47 @@ void SelectScreen::handleRoleClaimed(PlayerType role) {
 			selectScreenElements[4]->loadTexture("shaders/select_screen/rogue_selected.png");
 			break;
 	}
+    claimed[role] = true;
 }
 
-void SelectScreen::handleMouseSelect(float windowWidth, float windowHeight, int mouseX, int mouseY) {
-    // TODO: handle mouse click/select
+void SelectScreen::handleSelecting(PlayerType roleSelecting) {
+
+    // If it's already claimed, do not allow texture change.
+    if(claimed[roleSelecting] || hasClaimed) {
+        return;
+    }
+
+    // reset old selecting texture to unselected.
+    switch (selecting) {
+        case FIGHTER:
+			selectScreenElements[1]->loadTexture("shaders/select_screen/fighter_unselected.png");
+            break;
+        case MAGE:
+			selectScreenElements[2]->loadTexture("shaders/select_screen/mage_unselected.png");
+            break;
+        case CLERIC:
+			selectScreenElements[3]->loadTexture("shaders/select_screen/cleric_unselected.png");
+            break;
+        case ROGUE:
+			selectScreenElements[4]->loadTexture("shaders/select_screen/rogue_unselected.png");
+            break;
+    }
+
+    selecting = roleSelecting;
+
+    // selecting on new button
+    switch (roleSelecting) {
+        case FIGHTER:
+			selectScreenElements[1]->loadTexture("shaders/select_screen/fighter_selecting.png");
+            break;
+        case MAGE:
+			selectScreenElements[2]->loadTexture("shaders/select_screen/mage_selecting.png");
+            break;
+        case CLERIC:
+			selectScreenElements[3]->loadTexture("shaders/select_screen/cleric_selecting.png");
+            break;
+        case ROGUE:
+			selectScreenElements[4]->loadTexture("shaders/select_screen/rogue_selecting.png");
+            break;
+    }
 }
