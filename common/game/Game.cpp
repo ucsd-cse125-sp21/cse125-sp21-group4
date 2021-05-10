@@ -715,7 +715,7 @@ void Game::updateBeacon() {
             this->addUpdate(beaconCapturingUpdate);
 
         // If no players are around, decay the beacon amount.
-        } else if (beacon->getCaptureAmount() < -1.f || beacon->getCaptureAmount() > 1.f) {
+        } else if (beacon->getCaptureAmount() < DECAY_LOWER_THRESHOLD || beacon->getCaptureAmount() > DECAY_UPPER_THRESHOLD) {
             beacon->decayCaptureAmount();
             
             // send delaying update to all players
@@ -934,7 +934,7 @@ void Game::handleUpdate(GameUpdate update) {
             players[update.id]->hpDecrement(update.damageTaken);
             break;
         case PLAYER_HP_INCREMENT:
-            players[update.id]->hpIncrement(update.damageTaken);
+            players[update.id]->hpIncrement(update.healAmount);
             break;
         case PLAYER_MOVE:
         // Need curly braces because I am declaring new variables inside the case statement

@@ -95,7 +95,7 @@ void Cleric::uniqueAttack(Game* game) {
             GameUpdate gameUpdate;
             gameUpdate.updateType = PLAYER_HP_INCREMENT;
             gameUpdate.id = i;
-            gameUpdate.damageTaken = incAmount;
+            gameUpdate.healAmount = incAmount;
             game->addUpdate(gameUpdate);
         }
     }

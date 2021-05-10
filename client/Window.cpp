@@ -67,6 +67,7 @@ bool Window::initializeProgram() {
 	if(client->getId() == 3) {
 		guiManager->healthBar->initGivenPlayerType(MONSTER);
 	}
+	guiManager->miniMap->setCurrentPlayer(3, MONSTER); // Monster is currently id = 3
 #endif // SERVER_ENABLED
 
 	// Setup the keyboard.
@@ -412,6 +413,9 @@ void Window::handleRoleClaim(GameUpdate update) {
 	// Initializes the hp bar to the given player's role
 	if(update.id == client->getId()) {
 		guiManager->healthBar->initGivenPlayerType(update.roleClaimed);
+		guiManager->miniMap->setCurrentPlayer(client->getId(), update.roleClaimed);
+	} else {
+		guiManager->miniMap->setPlayerType(update.id, update.roleClaimed);
 	}
 }
 
@@ -431,6 +435,7 @@ void Window::handleUpdate(GameUpdate update) {
         case PLAYER_MOVE:
 		{
 			chars[update.id]->moveToGivenDelta(update.floatDeltaX, update.floatDeltaY);
+			guiManager->miniMap->updatePlayerPositionDelta(update.id, update.floatDeltaX, update.floatDeltaY);
 			printf("Character %d moved with deltaX: %f, deltaY: %f\n", update.id, update.floatDeltaX, update.floatDeltaY);
             break;
         
@@ -444,6 +449,19 @@ void Window::handleUpdate(GameUpdate update) {
 		case ROLE_CLAIMED:
 			Window::handleRoleClaim(update);
             break;
+		
+		// Beacon bar updates
+		case BEACON_BEING_TAKEN:
+		case BEACON_DECAYING:
+			guiManager->beaconBar->setAmount(update.beaconCaptureAmount);
+			break;
+		case BEACON_CAPTURED:
+			guiManager->beaconBar->setAmount(update.beaconCaptureAmount);
+			guiManager->miniMap->handleCaptureEvent(update.beaconCaptureAmount);
+			break;
+		case BEACON_PING_PLAYER:
+			guiManager->miniMap->updatePingPosition(update.id, update.playerPos);
+			break;
         default:
             printf("Not Handled Update Type: %d\n", update.updateType);
             break;
@@ -461,6 +479,10 @@ void Window::updateLastInput() {
 	// J key
 	} else if (keyboard[GLFW_KEY_J]) {
 		lastInput = ATTACK;
+
+	// K key
+	} else if (keyboard[GLFW_KEY_K]) {
+		lastInput = UNIQUE_ATTACK;
 
 	// W key
 	} else if (keyboard[GLFW_KEY_W]) {

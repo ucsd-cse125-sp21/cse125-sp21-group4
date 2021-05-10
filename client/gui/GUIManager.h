@@ -3,6 +3,8 @@
 
 #include "../Core.h" // GL required for the NanoGUI.
 #include "HealthBar.h"
+#include "BeaconBar.h"
+#include "MiniMap.h"
 #include "../nanovg/nanovg.h"
 
 class GUIManager    
@@ -17,8 +19,8 @@ public:
 
     // HUD Elements
     HealthBar* healthBar;
-    
-
+    BeaconBar* beaconBar;
+    MiniMap* miniMap;
 
     GUIManager(int width, int height, int fbWidth, int fbHeight);
     void resizeWindow(int width, int height, int fbWidth, int fbHeight);

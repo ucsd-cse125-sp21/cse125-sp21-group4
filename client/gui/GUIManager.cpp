@@ -24,12 +24,16 @@ GUIManager::GUIManager(int width, int height, int fbWidth, int fbHeight) {
 	nvgCreateFont(vg, "sans-light", "./nanovg/Roboto-Light.ttf");
 
 	healthBar = new HealthBar(vg);
+	beaconBar = new BeaconBar(vg);
+	miniMap = new MiniMap(vg);
 }
 
 void GUIManager::draw() {
 	nvgBeginFrame(vg, this->windowWidth, this->windowHeight, this->pixelRatio);
 	// starter code window: this->drawWindow("Test", 50, 50, this->windowWidth / 4, this->windowHeight / 4);
 	healthBar->draw(30, 14 * this->windowHeight / 16, this->windowWidth / 2.5, this->windowHeight / 16);
+	beaconBar->draw(30, this->windowHeight / 16, this->windowWidth - 60, this->windowHeight / 64);
+	miniMap->draw(this->windowWidth - (MAP_WIDTH / 3), this->windowHeight - (MAP_HEIGHT / 3), (MAP_WIDTH / 3), (MAP_HEIGHT / 3));
 
 	nvgEndFrame(vg);
 }
@@ -46,6 +50,8 @@ void GUIManager::resizeWindow(int width, int height, int fbWidth, int fbHeight) 
 
 void GUIManager::setHUDVisible(bool hudVisible) {
 	healthBar->setVisible(hudVisible);
+	beaconBar->setVisible(hudVisible);
+	miniMap->setVisible(hudVisible);
 }
 
 // Example NanoVG method from https://github.com/memononen/nanovg. We can delete this later.

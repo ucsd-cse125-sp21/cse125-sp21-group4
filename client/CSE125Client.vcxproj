@@ -113,8 +113,10 @@
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="CommunicationClient.cpp" />
     <ClCompile Include="EnvElement.cpp" />
+    <ClCompile Include="gui\BeaconBar.cpp" />
     <ClCompile Include="gui\GUIManager.cpp" />
     <ClCompile Include="gui\HealthBar.cpp" />
+    <ClCompile Include="gui\MiniMap.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="nanovg\nanovg.c" />
     <ClCompile Include="ScreenElement.cpp" />
@@ -126,8 +128,10 @@
     <ClInclude Include="CommunicationClient.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="EnvElement.h" />
+    <ClInclude Include="gui\BeaconBar.h" />
     <ClInclude Include="gui\GUIManager.h" />
     <ClInclude Include="gui\HealthBar.h" />
+    <ClInclude Include="gui\MiniMap.h" />
     <ClInclude Include="HealthBar.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="nanovg\fontstash.h" />
