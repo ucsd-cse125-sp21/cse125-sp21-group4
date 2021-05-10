@@ -27,6 +27,7 @@ GUIManager::GUIManager(int width, int height, int fbWidth, int fbHeight) {
 	beaconBar = new BeaconBar(vg);
 	miniMap = new MiniMap(vg);
 	selectScreen = new SelectScreen(vg);
+	connectingScreen = new ConnectingScreen(vg);
 }
 
 void GUIManager::draw() {
@@ -35,8 +36,8 @@ void GUIManager::draw() {
 	healthBar->draw(30, 14 * this->windowHeight / 16, this->windowWidth / 2.5, this->windowHeight / 16);
 	beaconBar->draw(30, this->windowHeight / 16, this->windowWidth - 60, this->windowHeight / 64);
 	miniMap->draw(this->windowWidth - (MAP_WIDTH / 3), this->windowHeight - (MAP_HEIGHT / 3), (MAP_WIDTH / 3), (MAP_HEIGHT / 3));
-
 	selectScreen->draw(this->windowWidth, this->windowHeight);
+	connectingScreen->draw(this->windowWidth, this->windowHeight);
 
 	nvgEndFrame(vg);
 }
@@ -59,6 +60,10 @@ void GUIManager::setHUDVisible(bool visibility) {
 
 void GUIManager::setSelectScreenVisible(bool visibility) {
 	selectScreen->setVisible(visibility);
+}
+
+void GUIManager::setConnectingScreenVisible(bool visibility) {
+	connectingScreen->setVisible(visibility);
 }
 
 void GUIManager::handleMouseSelect(int x, int y) {

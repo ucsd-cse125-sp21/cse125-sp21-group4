@@ -237,8 +237,9 @@ GLFWwindow* Window::createWindow(int width, int height)
 	int fbWidth, fbHeight;
 	glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
 	Window::guiManager = new GUIManager(width, height, fbWidth, fbHeight);
-	guiManager->setSelectScreenVisible(true);
+	guiManager->setConnectingScreenVisible(true);
 #ifndef SERVER_ENABLED // Client-only (no server)	
+	guiManager->setConnectingScreenVisible(false);
 	guiManager->setHUDVisible(true);
 #endif
 
@@ -465,6 +466,10 @@ void Window::handleUpdate(GameUpdate update) {
 			break;
 		case BEACON_PING_PLAYER:
 			guiManager->miniMap->updatePingPosition(update.id, update.playerPos);
+			break;
+		case ALL_PLAYERS_JOINED:
+			guiManager->setSelectScreenVisible(true);
+			guiManager->setConnectingScreenVisible(false);
 			break;
         default:
             printf("Not Handled Update Type: %d\n", update.updateType);

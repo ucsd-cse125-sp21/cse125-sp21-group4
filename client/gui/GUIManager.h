@@ -6,6 +6,7 @@
 #include "BeaconBar.h"
 #include "MiniMap.h"
 #include "SelectScreen.h"
+#include "ConnectingScreen.h"
 #include "../nanovg/nanovg.h"
 
 class GUIManager    
@@ -23,6 +24,7 @@ public:
     BeaconBar* beaconBar;
     MiniMap* miniMap;
     SelectScreen* selectScreen;
+    ConnectingScreen* connectingScreen;
 
     GUIManager(int width, int height, int fbWidth, int fbHeight);
     void resizeWindow(int width, int height, int fbWidth, int fbHeight);
@@ -30,6 +32,7 @@ public:
     void draw();
     void setHUDVisible(bool visibility);
     void setSelectScreenVisible(bool visibility);
+    void setConnectingScreenVisible(bool visibility);
     void handleMouseSelect(int x, int y);
 };
 

@@ -118,6 +118,7 @@
     <ClCompile Include="gui\HealthBar.cpp" />
     <ClCompile Include="gui\MiniMap.cpp" />
     <ClCompile Include="gui\SelectScreen.cpp" />
+    <ClCompile Include="gui\ConnectingScreen.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="nanovg\nanovg.c" />
     <ClCompile Include="ScreenElement.cpp" />
@@ -134,6 +135,7 @@
     <ClInclude Include="gui\HealthBar.h" />
     <ClInclude Include="gui\MiniMap.h" />
     <ClInclude Include="gui\SelectScreen.h" />
+    <ClInclude Include="gui\ConnectingScreen.h" />
     <ClInclude Include="HealthBar.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="nanovg\fontstash.h" />
