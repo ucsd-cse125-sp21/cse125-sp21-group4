@@ -7,6 +7,7 @@
 #include "../ScreenElement.h"
 #include <string>
 #include <map>
+#include <chrono>
 
 class SelectScreen {
 
@@ -18,6 +19,7 @@ public:
     PlayerType selecting;
     std::map<PlayerType, bool> claimed;
     vector<ScreenElement*> selectScreenElements; 
+    std::chrono::steady_clock::time_point timeSelectStarted;
     
 
 
@@ -27,6 +29,7 @@ public:
     void setMonster(bool);
     void handleRoleClaimed(PlayerType);
     void handleSelecting(PlayerType roleSelected);
+    void startTimer();
 };
 
 #endif

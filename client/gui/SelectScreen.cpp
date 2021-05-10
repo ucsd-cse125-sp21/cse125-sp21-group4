@@ -25,6 +25,9 @@ void SelectScreen::draw(float windowWidth, float windowHeight) {
 
 	nvgSave(vg); 
 
+    auto now = std::chrono::steady_clock::now();
+    std::chrono::duration<float> duration = now - timeSelectStarted;
+    int numSecsLeft = SELECT_SCREEN_TIME - std::chrono::duration_cast<std::chrono::seconds>(duration).count();
     // If monster, display something else for the player to see.
     if(isMonster) {
 
@@ -42,7 +45,8 @@ void SelectScreen::draw(float windowWidth, float windowHeight) {
 
         nvgFontBlur(vg, 0);
         nvgFillColor(vg, nvgRGBA(200, 200, 200, 255));
-        nvgText(vg, windowWidth/2, windowHeight/2, "Waiting for Hunters to choose jobs...", NULL);
+        std::string text = "Waiting for Hunters to choose jobs (Countdown: " + std::to_string(numSecsLeft) + ").";
+        nvgText(vg, windowWidth/2, windowHeight/2, text.c_str(), NULL);
         
 
     // If not monster, display the select screen.
@@ -53,13 +57,15 @@ void SelectScreen::draw(float windowWidth, float windowHeight) {
 
         // Draw instructions to tell player how to choose a role.
         // awaiting for other players text
-        nvgFontSize(vg, 16.f);
+        nvgFontSize(vg, windowHeight/48);
         nvgFontFace(vg, "sans-bold");
         nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
 
         nvgFontBlur(vg, 0);
         nvgFillColor(vg, nvgRGBA(0, 0, 0, 255));
-        nvgText(vg, windowWidth/2, windowHeight - windowHeight/11, "Press 1-4 to select a role. Press Enter to claim your role.", NULL);
+        std::string text = "Press 1-4 to select a role. Press Enter to claim your role (" +    
+            std::to_string(numSecsLeft) + " seconds remaining).";
+        nvgText(vg, windowWidth/2, windowHeight - windowHeight/11, text.c_str() , NULL);
 
     }
 	nvgRestore(vg); 
@@ -129,4 +135,9 @@ void SelectScreen::handleSelecting(PlayerType roleSelecting) {
 			selectScreenElements[4]->loadTexture("shaders/select_screen/rogue_selecting.png");
             break;
     }
+}
+
+
+void SelectScreen::startTimer() {
+    timeSelectStarted = std::chrono::steady_clock::now();
 }

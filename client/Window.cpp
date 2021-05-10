@@ -469,6 +469,7 @@ void Window::handleUpdate(GameUpdate update) {
 			break;
 		case ALL_PLAYERS_JOINED:
 			guiManager->setSelectScreenVisible(true);
+			guiManager->selectScreen->startTimer();
 			guiManager->setConnectingScreenVisible(false);
 			break;
         default:
