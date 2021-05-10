@@ -58,8 +58,7 @@ public:
 	static bool gameStarted;
 	static bool doneInitialRender;
 
-	// NVG Context
-	// static NVGcontext* vg;
+	// GUI Manager (HUD)
 	static GUIManager* guiManager;
 
 	// Act as Constructors and desctructors 

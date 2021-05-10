@@ -17,7 +17,6 @@ bool Window::doneInitialRender;
 //objects to render
 vector<Character*> Window::chars; //all the characters players get to control
 vector<EnvElement*> Window::envs; //all the environmental static objects
-vector<ScreenElement*> Window::selectScreenElements; 
 Character* Window::clientChar;
 
 // Interaction Variables
@@ -66,6 +65,7 @@ bool Window::initializeProgram() {
 	// if the id is 3, then set the hpBar to be max monster
 	if(client->getId() == 3) {
 		guiManager->healthBar->initGivenPlayerType(MONSTER);
+		guiManager->selectScreen->setMonster(true);
 	}
 	guiManager->miniMap->setCurrentPlayer(3, MONSTER); // Monster is currently id = 3
 #endif // SERVER_ENABLED
@@ -94,29 +94,29 @@ bool Window::initializeObjects()
 	glm::vec3 selectScreenLocation = eyePos + glm::vec3(0.f, -100.f, 0.f);
 	float rotateAmount = glm::radians(-45.f);
 	lookAtPoint = selectScreenLocation;
-	selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
+	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
 		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/character_select_background.png"));
 	
 
 	// Each Job Buttons
 	// (1) Fighter
-	selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
+	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
 		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/fighter_unselected.png"));
 		
 	// (2) Mage
-	selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
+	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
 		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/mage_unselected.png"));
 		
 	// (3) Cleric
-	selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
+	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
 		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/cleric_unselected.png"));
 		
 	// (4) Rogue
-	selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
+	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
 		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/rogue_unselected.png"));
 
@@ -237,6 +237,7 @@ GLFWwindow* Window::createWindow(int width, int height)
 	int fbWidth, fbHeight;
 	glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
 	Window::guiManager = new GUIManager(width, height, fbWidth, fbHeight);
+	guiManager->setSelectScreenVisible(true);
 #ifndef SERVER_ENABLED // Client-only (no server)	
 	guiManager->setHUDVisible(true);
 #endif
@@ -308,9 +309,10 @@ void Window::displayCallback(GLFWwindow* window)
 
 	//draw all the characters and environmental elements
 	int i;
-	for (i = 0; i < selectScreenElements.size(); i++) {
-		selectScreenElements[i]->draw();
-	}
+	// for (i = 0; i < guiManager->selectScreen->selectScreenElements.size(); i++) {
+	// 	guiManager->selectScreen->selectScreenElements[i]->draw();
+	// }
+
 
 	for (i = 0; i < envs.size(); i++) {
 		envs[i]->draw();
@@ -368,6 +370,10 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	MouseX = (int)currX;
 	MouseY = (int)currY;
 
+	if(!gameStarted) {
+		guiManager->handleMouseSelect(MouseX, MouseY);
+	}
+
 	if (LeftDown) {
 		return;
 	}
@@ -395,22 +401,22 @@ void Window::handleUpdates(std::vector<GameUpdate> updates) {
 }
 
 void Window::handleRoleClaim(GameUpdate update) {
+	
+	guiManager->selectScreen->handleRoleClaimed(update.roleClaimed);
+
 	switch(update.roleClaimed) {
 		case FIGHTER:
-			selectScreenElements[1]->loadTexture("shaders/select_screen/fighter_selected.png");
 			break;
 		case MAGE:
-			selectScreenElements[2]->loadTexture("shaders/select_screen/mage_selected.png");
 			break;
 		case CLERIC:
-			selectScreenElements[3]->loadTexture("shaders/select_screen/cleric_selected.png");
 			break;
 		case ROGUE:
-			selectScreenElements[4]->loadTexture("shaders/select_screen/rogue_selected.png");
 			break;
 	}
 
 	// Initializes the hp bar to the given player's role
+	// Also sets the player's role and id for the minimap
 	if(update.id == client->getId()) {
 		guiManager->healthBar->initGivenPlayerType(update.roleClaimed);
 		guiManager->miniMap->setCurrentPlayer(client->getId(), update.roleClaimed);
@@ -444,6 +450,7 @@ void Window::handleUpdate(GameUpdate update) {
             break;
 		case GAME_STARTED:
 			Window::gameStarted = true;
+			guiManager->setSelectScreenVisible(false); // disable the selects creen
 			guiManager->setHUDVisible(true); // sets the hud visible
 			break;
 		case ROLE_CLAIMED:

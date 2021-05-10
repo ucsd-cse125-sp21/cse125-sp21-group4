@@ -26,6 +26,7 @@ GUIManager::GUIManager(int width, int height, int fbWidth, int fbHeight) {
 	healthBar = new HealthBar(vg);
 	beaconBar = new BeaconBar(vg);
 	miniMap = new MiniMap(vg);
+	selectScreen = new SelectScreen(vg);
 }
 
 void GUIManager::draw() {
@@ -34,6 +35,8 @@ void GUIManager::draw() {
 	healthBar->draw(30, 14 * this->windowHeight / 16, this->windowWidth / 2.5, this->windowHeight / 16);
 	beaconBar->draw(30, this->windowHeight / 16, this->windowWidth - 60, this->windowHeight / 64);
 	miniMap->draw(this->windowWidth - (MAP_WIDTH / 3), this->windowHeight - (MAP_HEIGHT / 3), (MAP_WIDTH / 3), (MAP_HEIGHT / 3));
+
+	selectScreen->draw(this->windowWidth, this->windowHeight);
 
 	nvgEndFrame(vg);
 }
@@ -48,11 +51,20 @@ void GUIManager::resizeWindow(int width, int height, int fbWidth, int fbHeight) 
 }
 
 
-void GUIManager::setHUDVisible(bool hudVisible) {
-	healthBar->setVisible(hudVisible);
-	beaconBar->setVisible(hudVisible);
-	miniMap->setVisible(hudVisible);
+void GUIManager::setHUDVisible(bool visibility) {
+	healthBar->setVisible(visibility);
+	beaconBar->setVisible(visibility);
+	miniMap->setVisible(visibility);
 }
+
+void GUIManager::setSelectScreenVisible(bool visibility) {
+	selectScreen->setVisible(visibility);
+}
+
+void GUIManager::handleMouseSelect(int x, int y) {
+	selectScreen->handleMouseSelect(this->windowWidth, this->windowHeight, x, y);
+}
+
 
 // Example NanoVG method from https://github.com/memononen/nanovg. We can delete this later.
 // Right now I'm using it as example code to draw new elements

@@ -1,3 +1,5 @@
+#ifndef _GUI_HEALTHBAR_H_
+#define _GUI_HEALTHBAR_H_
 
 #include "../Core.h" // GL required for the NanoGUI.
 #include "../nanovg/nanovg.h"
@@ -24,3 +26,5 @@ public:
 
 
 };
+
+#endif

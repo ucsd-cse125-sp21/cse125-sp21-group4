@@ -1,3 +1,5 @@
+#ifndef _GUI_BEACONBAR_H_
+#define _GUI_BEACONBAR_H_
 
 #include "../Core.h" // GL required for the NanoGUI.
 #include "../nanovg/nanovg.h"
@@ -17,3 +19,5 @@ public:
     void draw(float x, float y, float w, float h);
     void setVisible(bool visible);
 };
+
+#endif

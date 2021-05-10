@@ -1,3 +1,5 @@
+#ifndef _GUI_MINIMAP_H_
+#define _GUI_MINIMAP_H_
 
 #include "../Core.h" // GL required for the NanoGUI.
 #include "../nanovg/nanovg.h"
@@ -27,3 +29,4 @@ public:
     void updatePingPosition(int, PlayerPosition);
     void handleCaptureEvent(float);
 };
+#endif

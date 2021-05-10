@@ -1,5 +1,4 @@
 #include "BeaconBar.h"
-#include "../../common/game/GameConstants.h"
 
 BeaconBar::BeaconBar(NVGcontext* vg) {
     this->vg = vg;
