@@ -241,6 +241,7 @@ GLFWwindow* Window::createWindow(int width, int height)
 #ifndef SERVER_ENABLED // Client-only (no server)	
 	guiManager->setConnectingScreenVisible(false);
 	guiManager->setHUDVisible(true);
+	guiManager->beaconBar->setAmount(18.f);
 #endif
 
 	// Set swap interval to 1 if you want buffer 
