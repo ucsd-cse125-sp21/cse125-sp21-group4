@@ -190,6 +190,35 @@ void Character::draw(glm::mat4 c) {
 	glm::mat4 m = model * c;
 	glUseProgram(shader);
 
+
+	// ======== Fix the Distorted Character Issue ================
+	// get straight line from camera to center of character
+	glm::vec3 z = glm::vec3(0.f, 0.f, 0.f);
+	for (int i = 0; i < 3; i++) {
+		z[i] = pos[i] - (*eyep)[i];
+	}
+
+	float scaleX = sqrt(m[0][0]*m[0][0]+m[0][1]*m[0][1]+m[0][2]*m[0][2]);
+	float scaleY = sqrt(m[1][0]*m[1][0]+m[1][1]*m[1][1]+m[0][2]*m[1][2]);
+	float scaleZ = sqrt(m[2][0]*m[2][0]+m[2][1]*m[2][1]+m[0][2]*m[2][2]);
+
+	glm::vec3 x = glm::cross(glm::vec3(0.f, 0.1f, 0.f), z);
+	glm::vec3 y = glm::cross(x, z);
+	glm::vec3 xn = glm::normalize(x);
+	glm::vec3 yn = glm::normalize(y);
+	glm::vec3 zn = glm::normalize(z);
+
+	// rotate the character so it will parallel with the line from camera to character
+	for (int i = 0; i < 3;  i++) m[i][0] = xn[i];
+	for (int i = 0; i < 3;  i++) m[i][1] = yn[i];
+	for (int i = 0; i < 3;  i++) m[i][2] = zn[i];
+	// restore scaling
+	m[0][0] = scaleX;
+	m[1][1] = scaleY;
+	m[2][2] = scaleZ;
+	// ========================================================
+
+
 	// Get the shader variable locations and send the uniform data to the shader 
 	glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, false, glm::value_ptr(*view));
 	glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, false, glm::value_ptr(*projection));
