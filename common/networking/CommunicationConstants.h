@@ -40,16 +40,20 @@ enum UPDATE_TYPE {
     PLAYER_HP_INCREMENT,
     PLAYER_MOVE,
     PROJECTILE_MOVE,
+
     BEACON_BEING_TAKEN,
     BEACON_DECAYING,
     BEACON_CAPTURED,
     BEACON_PING_PLAYER,
+
     HEAL_OBJECTIVE_TAKEN,
     ARMOR_OBJECTIVE_TAKEN,
     EVO_OBJECTIVE_TAKEN,
     MONSTER_EVO_UP,
+
     ROLE_CLAIMED, // Role claimed
     GAME_STARTED, // Game Start
+    ALL_PLAYERS_JOINED, // Tells the client that all players have joined
 
 
     GAME_END, // endStatus can be 1(hunters win), 2(monster win), 3(tie)

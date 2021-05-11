@@ -12,11 +12,14 @@
 //#include "../common/constants.h"
 #include "CommunicationClient.h"
 #include "../common/networking/CommunicationConstants.h"
+#include "gui/GUIManager.h"
 
 #include <fstream>
 #include <string>
 #include <sstream>
 #include <iostream>
+
+
 
 class Window
 {
@@ -54,6 +57,9 @@ public:
 	// Used to determine whether or not camera should be looking at player or select screen
 	static bool gameStarted;
 	static bool doneInitialRender;
+
+	// GUI Manager (HUD)
+	static GUIManager* guiManager;
 
 	// Act as Constructors and desctructors 
 	static bool initializeProgram();

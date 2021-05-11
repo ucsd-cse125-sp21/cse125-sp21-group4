@@ -15,6 +15,10 @@ int main(void)
     // Initialize communication server that will interface with the clients
     CommunicationServer* commServer = new CommunicationServer();
 
+    // All players have joined
+    GameUpdate allJoined;
+    allJoined.updateType = ALL_PLAYERS_JOINED;
+    game->addUpdate(allJoined);
     
     /**
      * Basic server architecture:
