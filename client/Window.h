@@ -9,6 +9,7 @@
 #include "Character.h"
 #include "EnvElement.h"
 #include "ScreenElement.h"
+#include "SpatialHashTable.h"
 //#include "../common/constants.h"
 #include "CommunicationClient.h"
 #include "../common/networking/CommunicationConstants.h"
@@ -29,6 +30,7 @@ public:
 	static int height;
 	static const char* windowTitle;
 	static CommunicationClient * client;
+	static SpatialHashTable table;
 
 	//objects to render
 	static vector<Character*> chars;
