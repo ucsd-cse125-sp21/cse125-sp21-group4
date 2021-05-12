@@ -4,6 +4,8 @@
 #include "../game/GridComponent.h"
 #include "../game/GameConstants.h"
 
+#include <chrono>
+
 #define DEFAULT_PORT "27168"
 
 //#define ERICS_LOCAL_SERVER "192.168.0.110"
@@ -76,6 +78,7 @@ struct GameUpdate {
     float floatDeltaY = 0; // used for player/projectile movement
     float beaconCaptureAmount = -9999;
     PlayerType roleClaimed = UNKNOWN;
+    std::chrono::steady_clock::time_point selectTimerStartTime; // Used for an accurate countdown timer
 };
 
 

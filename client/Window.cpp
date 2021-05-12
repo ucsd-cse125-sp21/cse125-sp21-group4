@@ -128,9 +128,8 @@ bool Window::initializeObjects()
 	//proximity rendering should be inserted into "table"
 	envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram,
 		glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
-	
-	
-	
+
+
 	ifstream map_file("../assets/layout/map.csv");
     string line;
     string id;
@@ -498,7 +497,7 @@ void Window::handleUpdate(GameUpdate update) {
 			break;
 		case ALL_PLAYERS_JOINED:
 			guiManager->setSelectScreenVisible(true);
-			guiManager->selectScreen->startTimer();
+			guiManager->selectScreen->startTimer(update.selectTimerStartTime);
 			guiManager->setConnectingScreenVisible(false);
 			break;
         default:

@@ -400,8 +400,15 @@ bool Game::handleInputs(CLIENT_INPUT playersInputs[PLAYER_NUM]) {
                 break;
             case DONE_RENDERING:
                 renderCount++;
+                // printf("Render Count: %d\n", renderCount);
                 if(!started && renderCount >= PLAYER_NUM) {
-                    // All players have connected by now...
+                    // All players have joined
+                    GameUpdate allJoined;
+                    allJoined.updateType = ALL_PLAYERS_JOINED;
+                    allJoined.selectTimerStartTime = std::chrono::steady_clock::now();
+                    this->addUpdate(allJoined);
+
+                    // All players have connected by now, so start the select timer
                     startSelectTimer();
                 }
             default:

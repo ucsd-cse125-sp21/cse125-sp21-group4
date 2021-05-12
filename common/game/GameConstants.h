@@ -7,7 +7,7 @@
 #define GRID_HEIGHT 1 // GRID_HEIGHT should be able to fully divide MAP_HEIGHT
 #define PLAYER_NUM 4 // used to change how many clients the server will accept
 #define MAX_PLAYERS 4  // used to determine the game's absolute maximum player count
-#define SELECT_SCREEN_TIME 15 // 15 seconds to select jobs
+#define SELECT_SCREEN_TIME 20 // 20 seconds to select jobs
 
 // Interaction Ranges for Objectives
 #define BEACON_INTERACTION_RANGE 15

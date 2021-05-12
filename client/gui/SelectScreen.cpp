@@ -138,6 +138,6 @@ void SelectScreen::handleSelecting(PlayerType roleSelecting) {
 }
 
 
-void SelectScreen::startTimer() {
-    timeSelectStarted = std::chrono::steady_clock::now();
+void SelectScreen::startTimer(std::chrono::steady_clock::time_point startTime) {
+    timeSelectStarted = startTime;
 }

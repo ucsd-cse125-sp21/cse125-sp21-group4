@@ -29,7 +29,7 @@ public:
     void setMonster(bool);
     void handleRoleClaimed(PlayerType);
     void handleSelecting(PlayerType roleSelected);
-    void startTimer();
+    void startTimer(std::chrono::steady_clock::time_point);
 };
 
 #endif
