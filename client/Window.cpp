@@ -10,6 +10,7 @@ int Window::width;
 int Window::height;
 const char* Window::windowTitle = "CSE125_GAME";
 CommunicationClient* Window::client;
+SpatialHashTable Window::table(5000, 8.f);
 bool Window::keyboard[KEYBOARD_SIZE];
 bool Window::gameStarted;
 bool Window::doneInitialRender;
@@ -123,11 +124,13 @@ bool Window::initializeObjects()
 	//  ==========  End of Select Screen  ========== 
 
 	//  ==========  Environment Initialization  ========== 
+	//NOTE: envs now only contain environment objects that are globally viewable. All other objects that require
+	//proximity rendering should be inserted into "table"
 	envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram,
 		glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
 	
 	
-	/*
+	
 	ifstream map_file("../assets/layout/map.csv");
     string line;
     string id;
@@ -144,14 +147,18 @@ bool Window::initializeObjects()
 			//std::cout << "i: " << i << "j: " << j << '\n';
             switch(std::stoi(id)) {
 				
-                case OBST_ID:
-					envs.push_back(new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram, 
-						glm::vec3(2.*j, 1.f, 2.*i), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f))); // blocks are 2 wide
-					break;
-                case BEAC_ID:
-					envs.push_back(new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram, 
-						glm::vec3(2.*j, 1.f, 2.*i), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, 1.f, 1.f))); // blocks are 2 wide
-					break;
+			case OBST_ID: {
+				EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
+					glm::vec3(2. * j, 1.f, 2. * i), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f));
+				table.insert(e);
+				break;
+			}
+			case BEAC_ID: {
+				EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
+					glm::vec3(2. * j, 1.f, 2. * i), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, 1.f, 1.f));
+				table.insert(e);
+				break;
+			}
 				case SPACE_ID:
                     break;
 
@@ -165,7 +172,7 @@ bool Window::initializeObjects()
 		}
 		++i;
 		j = 0;
-	} */
+	} 
 
 
 	//  ==========  End of Environment Initialization  ========== 
@@ -315,9 +322,30 @@ void Window::displayCallback(GLFWwindow* window)
 	// 	guiManager->selectScreen->selectScreenElements[i]->draw();
 	// }
 
-
+	//first draw all globally viewable objects
 	for (i = 0; i < envs.size(); i++) {
 		envs[i]->draw();
+	}
+
+	//then selectively draw objects nearby this player
+	vector<EnvElement*> result;
+	float h = 8.0f;
+	int j;
+	glm::vec3 base1(-1.f * h, 0.f, 0.f);
+	for (j = 0; j < 3; j++) {
+		int k;
+		glm::vec3 base2(0.f, 0.f, -1.f * h);
+		for (k = 0; k < 3; k++) {
+			glm::vec3 loc = base1 + base2 + clientChar->pos;
+			Cell* cell = table.getCell(loc);
+			if (cell != NULL && cell->items.size() != 0)
+				result.insert(result.end(), cell->items.begin(), cell->items.end());
+			base2 += glm::vec3(0.f, 0.f, 1.f * h);
+		}
+		base1 += glm::vec3(1.f * h, 0.f, 0.f);
+	}
+	for (i = 0; i < result.size(); i++) {
+		result[i]->draw();
 	}
 
 	for (i = 0; i < chars.size(); i++) {
