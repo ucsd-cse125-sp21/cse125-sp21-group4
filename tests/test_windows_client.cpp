@@ -26,7 +26,13 @@
 
 int __cdecl main(int argc, char **argv) 
 {
+
+    if(argc != 2) {
+        printf("Usage: ./client.exe [ipv4 address of server]\n");
+        exit(1);
+    }
     CommunicationClient* commClient = new CommunicationClient();
+    commClient->connectTo(std::string(argv[1]));
     /** 
      * Client is connected now. The simple client architecture goes as follows:
      *  1. Handle input (client side)

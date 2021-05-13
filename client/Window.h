@@ -90,6 +90,9 @@ public:
 
 	// Used to set lastInput based on keyboard inputs
 	static void Window::updateLastInput(); 
+
+	// Used to connect to server
+	static bool Window::connectCommClient(std::string);
 };
 
 #endif

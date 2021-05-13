@@ -59,18 +59,9 @@ bool Window::initializeProgram() {
 		return false;
 	}
 
-#ifdef SERVER_ENABLED
-	client = new CommunicationClient();
-	cout << "Communication Established" << endl;
-	
-	// if the id is 3, then set the hpBar to be max monster
-	if(client->getId() == 3) {
-		guiManager->healthBar->initGivenPlayerType(MONSTER);
-		guiManager->selectScreen->setMonster(true);
-	}
-	guiManager->miniMap->setCurrentPlayer(3, MONSTER); // Monster is currently id = 3
-#endif // SERVER_ENABLED
-
+	#ifdef SERVER_ENABLED
+		client = new CommunicationClient();
+	#endif
 	// Setup the keyboard.
 	for(int i = 0; i < KEYBOARD_SIZE; i++) {
 		keyboard[i] = false;
@@ -192,14 +183,6 @@ bool Window::initializeObjects()
 		glm::vec3(70.f, 1.f, 70.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/character/MAGE"));
 
-	#ifdef SERVER_ENABLED
-	clientChar = chars[client->getId()];
-
-	#else 
-	clientChar = chars[0];
-	gameStarted = true;
-	#endif
-
 	//  ==========  End of Character Initialization ========== 
 
 	return true;
@@ -287,17 +270,21 @@ void Window::idleCallback()
 
 	Window::updateLastInput();
 #ifdef SERVER_ENABLED
-	// 1 + 2. Get the latest input and send it to the server
-	client->sendInput(Window::lastInput);
-	// 3. Receive updated gamestate from server
-	std::vector<GameUpdate> updates = client->receiveGameUpdates();
+	if(client->isConnected()) {
+		// 1 + 2. Get the latest input and send it to the server
+		client->sendInput(Window::lastInput);
+
+		// 3. Receive updated gamestate from server
+		std::vector<GameUpdate> updates = client->receiveGameUpdates();
+
+		// cout << "updating game" << endl;
+		Window::handleUpdates(updates);
+	}
 	lastInput = NO_MOVE;
 
-	// cout << "updating game" << endl;
-	Window::handleUpdates(updates);
 #endif
 	//update camera location
-	if(Window::gameStarted) {
+	if(Window::gameStarted && clientChar != nullptr) {
 		lookAtPoint = clientChar->pos;
 	}
 	eyePos = lookAtPoint + glm::vec3(0.f, 5.f, 5.f);
@@ -317,9 +304,6 @@ void Window::displayCallback(GLFWwindow* window)
 
 	//draw all the characters and environmental elements
 	int i;
-	// for (i = 0; i < guiManager->selectScreen->selectScreenElements.size(); i++) {
-	// 	guiManager->selectScreen->selectScreenElements[i]->draw();
-	// }
 
 	//first draw all globally viewable objects
 	for (i = 0; i < envs.size(); i++) {
@@ -335,7 +319,10 @@ void Window::displayCallback(GLFWwindow* window)
 		int k;
 		glm::vec3 base2(0.f, 0.f, -1.f * h);
 		for (k = 0; k < 3; k++) {
-			glm::vec3 loc = base1 + base2 + clientChar->pos;
+			glm::vec3 loc = base1 + base2;
+			if(clientChar != nullptr) {
+				loc += clientChar->pos;
+			}
 			Cell* cell = table.getCell(loc);
 			if (cell != NULL && cell->items.size() != 0)
 				result.insert(result.end(), cell->items.begin(), cell->items.end());
@@ -356,7 +343,7 @@ void Window::displayCallback(GLFWwindow* window)
 
 	glfwPollEvents();
 	glfwSwapBuffers(window);
-	if(!doneInitialRender) {
+	if(!doneInitialRender && client->isConnected()) {
 	#ifdef SERVER_ENABLED
 		// send update that we've finished rendering to the server
 		client->sendInput(DONE_RENDERING);
@@ -373,6 +360,9 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	if (action == GLFW_PRESS)
 	{
 		keyboard[key] = true;
+		if (!guiManager->connectingScreen->hasConnectedToServer) {
+			guiManager->connectingScreen->handleKeyInput(key, window);
+		}
 
 	 // Check for a key release.
 	} else if (action == GLFW_RELEASE) {
@@ -540,20 +530,30 @@ void Window::updateLastInput() {
 
 	// 1 key (select fighter)
 	} else if(keyboard[GLFW_KEY_1]) {
-		guiManager->selectScreen->handleSelecting(FIGHTER);
-
+		if (guiManager->connectingScreen->hasConnectedToServer) {
+			guiManager->selectScreen->handleSelecting(FIGHTER);
+		}
 	// 2 key (select mage)
 	} else if(keyboard[GLFW_KEY_2]) {
-		guiManager->selectScreen->handleSelecting(MAGE);
+		
+		if (guiManager->connectingScreen->hasConnectedToServer) {
+			guiManager->selectScreen->handleSelecting(MAGE);
+		}
 
 	// 3 key (select cleric)
 	} else if(keyboard[GLFW_KEY_3]) {
-		guiManager->selectScreen->handleSelecting(CLERIC);
+		
+		if (guiManager->connectingScreen->hasConnectedToServer) {
+			guiManager->selectScreen->handleSelecting(CLERIC);
+		}
 
 	// 4 key (select rogue)
 	} else if(keyboard[GLFW_KEY_4]) {
-		guiManager->selectScreen->handleSelecting(ROGUE);
-	
+		
+		if (guiManager->connectingScreen->hasConnectedToServer) {
+			guiManager->selectScreen->handleSelecting(ROGUE);
+		}
+		
 	// enter key (claim selected role)
 	} else if (keyboard[GLFW_KEY_ENTER]) {
 		switch(guiManager->selectScreen->selecting) {
@@ -571,4 +571,33 @@ void Window::updateLastInput() {
 				break;
 		}
 	}
+}
+
+bool Window::connectCommClient(std::string serverIP) {
+	
+	#ifdef SERVER_ENABLED
+	
+	if(!client->connectTo(serverIP)) {
+		return false;
+	}
+
+	cout << "Communication Established" << endl;
+	
+	// if the id is 3, then set the hpBar to be max monster
+	if(client->getId() == 3) {
+		guiManager->healthBar->initGivenPlayerType(MONSTER);
+		guiManager->selectScreen->setMonster(true);
+	}
+	guiManager->miniMap->setCurrentPlayer(3, MONSTER); // Monster is currently id = 3
+	#endif // SERVER_ENABLED
+	
+	#ifdef SERVER_ENABLED
+	clientChar = chars[client->getId()];
+
+	#else 
+	clientChar = chars[0];
+	gameStarted = true;
+	#endif
+
+	return true;
 }

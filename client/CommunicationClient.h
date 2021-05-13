@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <vector>
+#include <string>
 
 
 // Need to link with Ws2_32.lib, Mswsock.lib, and Advapi32.lib
@@ -28,15 +29,18 @@ private:
     SOCKET serverSocket;
     int id;
     GameState gameState;
+    bool connected;
 
 public:
     CommunicationClient(); // Constructor for CommunicationClient for communication with server
 
+    bool connectTo(std::string);
     void sendInput(CLIENT_INPUT); // sendInput will send the keypress/action by client to the server
     GameState receiveGameState(); // client receives a new gameState from server and returns it to client main
     void cleanup(); // cleans up the client connection
     std::vector<GameUpdate> receiveGameUpdates();
     void validateRecv(int iResult);
     int getId();
+    bool isConnected();
 };
 #endif
