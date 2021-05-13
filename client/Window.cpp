@@ -59,6 +59,7 @@ bool Window::initializeProgram() {
 		return false;
 	}
 
+	// CommunicationClient no longer blocks on constructor. It will block on connectTo().
 	client = new CommunicationClient();
 
 	// Setup the keyboard.
