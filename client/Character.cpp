@@ -289,7 +289,12 @@ void Character::update() {
 	}
 	else {
 		float timeDiff = (float)(currTime - prevTime) / CLOCKS_PER_SEC;
-		if (timeDiff >= ANIMATION_INTERVAL) {
+		
+		// interval depends on the currState of the animation
+		float interval = currState == idle 		? 	IDLE_ANIMATION_INTERVAL  : 
+						 currState == attacking ? 	ATTACK_ANIMATION_INTERVAL:
+						 							WALK_ANIMATION_INTERVAL;
+		if (timeDiff >= interval) {
 			// check if on the last frame of a sequence
 			if (frameIdx + 1 == (*animSequence[currState]).size()) {
 				frameIdx = 0;

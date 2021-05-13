@@ -4,7 +4,9 @@
 #include "Object.h"
 #include <time.h>
 
-#define ANIMATION_INTERVAL 0.1
+#define IDLE_ANIMATION_INTERVAL 0.2
+#define ATTACK_ANIMATION_INTERVAL 0.075
+#define WALK_ANIMATION_INTERVAL 0.1
 
 enum CharState {
 	idle,
