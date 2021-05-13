@@ -8,7 +8,8 @@
 
 enum CharState {
 	idle,
-	moving
+	moving,
+	attacking
 	//add more for other actions
 };
 
@@ -39,6 +40,7 @@ private:
 	GLuint textId;
 	std::vector<GLuint> idleTex;
 	std::vector<GLuint> moveTex;
+	std::vector<GLuint> attackTex;
 	std::vector<std::vector<GLuint>*> animSequence;
 	int frameIdx;
 	//add more for attack and other actions
@@ -72,6 +74,7 @@ public:
 	GLuint loadTexture(string texturePath);
 	bool loadAnimation(CharState state, string animFile);
 	bool loadAnimationAssets(string assetFolder);
+	void setState(CharState state);
 };
 
 #endif

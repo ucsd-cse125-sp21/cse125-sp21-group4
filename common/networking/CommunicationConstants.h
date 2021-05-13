@@ -39,6 +39,7 @@ enum UPDATE_TYPE {
     PLAYER_DAMAGE_TAKEN,
     PLAYER_HP_INCREMENT,
     PLAYER_MOVE,
+    PLAYER_ATTACK,
     PROJECTILE_MOVE,
     BEACON_BEING_TAKEN,
     BEACON_DECAYING,
@@ -65,6 +66,7 @@ struct GameUpdate {
     int damageTaken = 0; // Used for a damage taken event
     int healAmount = 0; // Used for a healing event
     int endStatus = 0;
+    int attackAmount = 0;
     GridPosition gridPos = {0,0}; // Used for objectives and obstacles
     PlayerPosition playerPos = {0.f, 0.f}; // Used for player positions
     float newEvoLevel = -1.f; // Used for monster stage tracking
