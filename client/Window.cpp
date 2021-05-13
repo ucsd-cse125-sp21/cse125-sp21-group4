@@ -59,9 +59,9 @@ bool Window::initializeProgram() {
 		return false;
 	}
 
-	#ifdef SERVER_ENABLED
-		client = new CommunicationClient();
-	#endif
+	// CommunicationClient no longer blocks on constructor. It will block on connectTo().
+	client = new CommunicationClient();
+
 	// Setup the keyboard.
 	for(int i = 0; i < KEYBOARD_SIZE; i++) {
 		keyboard[i] = false;
@@ -191,13 +191,16 @@ bool Window::initializeObjects()
 	// gameStarted = true;
 	// #endif
 
+	/* ===== THIS #ifndef CODE IS ONLY FOR NON-CONNECTED CLIENTS TO IMPROVE GRAPHICS DEVELOPMENT ==== */
 	#ifndef SERVER_ENABLED
-	chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+	chars[0] = new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 		glm::vec3(5.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
-		"shaders/character/MAGE"));	
+		"shaders/character/MAGE");	
 	clientChar = chars[0];
 	Window::gameStarted = true;
 	#endif
+	/* ===== end of #ifndef (no-server client) code ==== */
+
 
 	chars[3] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 		glm::vec3(SPAWN_POSITIONS[3][0], 1.f, SPAWN_POSITIONS[3][1]), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
@@ -247,11 +250,14 @@ GLFWwindow* Window::createWindow(int width, int height)
 	glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
 	Window::guiManager = new GUIManager(width, height, fbWidth, fbHeight);
 	guiManager->setConnectingScreenVisible(true);
+
+	/* ===== THIS #ifndef CODE IS ONLY FOR NON-CONNECTED CLIENTS TO IMPROVE GRAPHICS DEVELOPMENT ==== */
 #ifndef SERVER_ENABLED // Client-only (no server)	
 	guiManager->setConnectingScreenVisible(false);
 	guiManager->setHUDVisible(true);
 	guiManager->beaconBar->setAmount(18.f);
 #endif
+	/* ===== end of #ifndef (no-server client) code ==== */
 
 	// Set swap interval to 1 if you want buffer 
 	glfwSwapInterval(0);
@@ -312,7 +318,9 @@ void Window::idleCallback()
 
 	int i;
 	for (i = 0; i < chars.size() && Window::gameStarted; i++) {
-		chars[i]->update();
+		if (chars[i] != nullptr) {
+			chars[i]->update();
+		}
 	}
 }
 
@@ -355,7 +363,9 @@ void Window::displayCallback(GLFWwindow* window)
 	}
 
 	for (i = 0; i < chars.size() && Window::gameStarted; i++) {
-		chars[i]->draw();
+		if (chars[i] != nullptr) {
+			chars[i]->draw();
+		}
 	}
 
 	Window::guiManager->draw();
@@ -624,6 +634,26 @@ void Window::updateLastInput() {
 				break;
 		}
 	}
+
+	/* ===== THIS #ifndef CODE IS ONLY FOR NON-CONNECTED CLIENTS TO IMPROVE GRAPHICS DEVELOPMENT ==== */
+	#ifndef SERVER_ENABLED
+	if (keyboard[GLFW_KEY_W]) {
+		chars[0]->moveToGivenDelta(0, -INIT_SPEED);
+        
+	// A key
+	} else if(keyboard[GLFW_KEY_A]) {
+		chars[0]->moveToGivenDelta(-INIT_SPEED, 0);
+
+	// S key
+	} else if(keyboard[GLFW_KEY_S]) {
+		chars[0]->moveToGivenDelta(0, INIT_SPEED);
+		
+	// D key
+	} else if(keyboard[GLFW_KEY_D]) {
+		chars[0]->moveToGivenDelta(INIT_SPEED, 0);
+	}
+	#endif
+	/* ===== end of #ifndef (no-server client) code ==== */
 }
 
 bool Window::connectCommClient(std::string serverIP) {
