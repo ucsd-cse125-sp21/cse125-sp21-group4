@@ -43,7 +43,6 @@ void Cleric::attack(Game* game) {
     p->damage = getAttackDamage();
     game->projectiles.push_back(p);
 
-
     // Send an update to the clients: HEALING_OBJECTIVE_TAKEN
     GameUpdate attackUpdate;
     attackUpdate.updateType = PLAYER_ATTACK;
@@ -51,7 +50,6 @@ void Cleric::attack(Game* game) {
     attackUpdate.attackAmount = getAttackDamage();     // attack damage amount
     attackUpdate.roleClaimed = CLERIC;
     game->addUpdate(attackUpdate);
-
 }
 
 void Cleric::uniqueAttack(Game* game) {

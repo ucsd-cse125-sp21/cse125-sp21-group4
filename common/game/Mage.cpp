@@ -50,7 +50,6 @@ void Mage::attack(Game* game) {
     attackUpdate.attackAmount = getAttackDamage();     // attack damage amount
     attackUpdate.roleClaimed = MAGE;
     game->addUpdate(attackUpdate);
-
 }
 
 void Mage::uniqueAttack(Game* game) {

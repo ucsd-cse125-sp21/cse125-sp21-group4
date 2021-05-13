@@ -87,10 +87,11 @@ public:
 	static void handleUpdates(std::vector<GameUpdate> updates);
 	static void handleRoleClaim(GameUpdate update);
 	static void handleUpdate(GameUpdate update);
-	static void Window::handleAttack(GameUpdate update);
 
 	// Used to set lastInput based on keyboard inputs
 	static void Window::updateLastInput(); 
+
+	static void Window::handleAttack(GameUpdate update);
 };
 
 #endif

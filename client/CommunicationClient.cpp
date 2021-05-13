@@ -122,7 +122,7 @@ std::vector<GameUpdate> CommunicationClient::receiveGameUpdates() {
     if(numUpdates == 0) {
         return updates;
     }
-    printf("Number of Actual Updates: %d\n", numUpdates);
+    // printf("Number of Actual Updates: %d\n", numUpdates);
 
     // Now receive that many bytes of input
     updates.resize(numUpdates);
