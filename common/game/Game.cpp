@@ -1026,6 +1026,44 @@ void Game::consumeObj(Objective * obj) {
     gameGrids[objPos.x][objPos.y] = new Space(objPos);
 }
 
+void Game::checkEvoLevel() {
+    // For the monster, updateEvo if they crossed the HP threshold
+    for (auto i = 0; i < PLAYER_NUM; i++) {
+        if (players[i]->getType() == MONSTER) {
+            Monster * monster = (Monster*) players[i];
+            //increase monster evo every server tick by MONSTER_EVO_TICK_INCREMENT
+            monster->updateEvo(this, monster->getEvo() + MONSTER_EVO_TICK_INCREMENT);
+            // printf("Monster evo level: ");
+            // printf("%f\n", monster->getEvo());
+
+            if (monster->getHp() <= 0.2 * MONSTER_MAX_HP) { 
+                if (monster->getEvo() < MONSTER_FIFTH_STAGE_THRESHOLD) {
+                    monster->updateEvo(this, MONSTER_FIFTH_STAGE_THRESHOLD) ;
+                }
+            } else if (monster->getHp() <= 0.4 * MONSTER_MAX_HP) {
+                if (monster->getEvo() < MONSTER_FOURTH_STAGE_THRESHOLD) {
+                    monster->updateEvo(this, MONSTER_FOURTH_STAGE_THRESHOLD);
+                }
+            } else if (monster->getHp() <= 0.6 * MONSTER_MAX_HP) {
+                if (monster->getEvo() < MONSTER_THIRD_STAGE_THRESHOLD) {
+                    monster->updateEvo(this, MONSTER_THIRD_STAGE_THRESHOLD);
+                }
+            } else if (monster->getHp() <= 0.8 * MONSTER_MAX_HP) { 
+                if (monster->getEvo() < MONSTER_SECOND_STAGE_THRESHOLD) {
+                    monster->updateEvo(this, MONSTER_SECOND_STAGE_THRESHOLD);
+                }
+            } else if (monster->getHp() <= MONSTER_MAX_HP) { 
+                if (monster->getEvo() < MONSTER_FIRST_STAGE_THRESHOLD) {
+                    monster->updateEvo(this, MONSTER_FIRST_STAGE_THRESHOLD);
+                }
+            } else {
+                printf("Do not need to update evoLevel based on HP.\n");
+                return;
+            }
+        }
+    } 
+}
+
 // testing  purposes
 void Game::printStats() {
 

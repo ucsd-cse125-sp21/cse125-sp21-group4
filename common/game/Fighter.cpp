@@ -114,6 +114,14 @@ void Fighter::attack(Game* game) {
             game->addUpdate(gameUpdate);
         }
     }
+
+    // Send an update to the clients: HEALING_OBJECTIVE_TAKEN
+    GameUpdate attackUpdate;
+    attackUpdate.updateType = PLAYER_ATTACK;
+    attackUpdate.id = this->id;                        // id of player attacking
+    attackUpdate.attackAmount = getAttackDamage();     // attack damage amount
+    attackUpdate.roleClaimed = FIGHTER;
+    game->addUpdate(attackUpdate);
 }
 
 void Fighter::interact(Game* game) {
