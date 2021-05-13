@@ -120,12 +120,11 @@ void Monster::uniqueAttack(Game* game) {
         }
     }
 }
-
 // To update the stage of the monster.
 void Monster::updateEvo(Game* game, float evoLevel) {
-
+    
     // For now update the attack damage of the monster, maybe speed another time?
-    if(evoLevel >= MONSTER_FIFTH_STAGE_THRESHOLD) {
+    if (evoLevel >= MONSTER_FIFTH_STAGE_THRESHOLD) {
         setAttackDamage(MONSTER_ATTACK_DAMAGE + 4);
     } else if (evoLevel >= MONSTER_FOURTH_STAGE_THRESHOLD) {
         setAttackDamage(MONSTER_ATTACK_DAMAGE + 3);
