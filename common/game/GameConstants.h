@@ -99,6 +99,9 @@
 #define MONSTER_FOURTH_STAGE_THRESHOLD 4.f
 #define MONSTER_FIFTH_STAGE_THRESHOLD 5.f
 
+// Increase Monster Evo every tick by this amount
+#define MONSTER_EVO_TICK_INCREMENT 0.0001f
+
 #define EVO_AMOUNT 1.5f
 
 
