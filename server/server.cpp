@@ -14,7 +14,6 @@ int main(void)
 
     // Initialize communication server that will interface with the clients
     CommunicationServer* commServer = new CommunicationServer();
-
     
     /**
      * Basic server architecture:
@@ -47,6 +46,7 @@ int main(void)
         if (game->started) {
             game->updateProjectiles(); // should this be a good place to update projectile?
             game->updateBeacon(); // used to determine players inside the beacon capture area
+            game->checkEvoLevel(); // used to determine monster evolution level
             game->checkEnd();
         }
 

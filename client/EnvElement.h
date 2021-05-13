@@ -25,9 +25,10 @@ private:
 	glm::vec3 eyep;
 	glm::vec3 color;
 
-	glm::vec3 pos;
 
 public:
+	glm::vec3 pos;
+
 	/*
 	constructor usage:
 	projection p, view v, and shader s are taken cared of in Window class.

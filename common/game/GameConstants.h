@@ -7,7 +7,7 @@
 #define GRID_HEIGHT 1 // GRID_HEIGHT should be able to fully divide MAP_HEIGHT
 #define PLAYER_NUM 4 // used to change how many clients the server will accept
 #define MAX_PLAYERS 4  // used to determine the game's absolute maximum player count
-#define SELECT_SCREEN_TIME 15 // 15 seconds to select jobs
+#define SELECT_SCREEN_TIME 20 // 20 seconds to select jobs
 
 // Interaction Ranges for Objectives
 #define BEACON_INTERACTION_RANGE 15
@@ -18,6 +18,8 @@
 // BEACON THRESHOLDS
 #define MONSTER_BEACON_CAPTURE_THRESHOLD -30.f
 #define HUNTER_BEACON_CAPTURE_THRESHOLD 30.f
+#define DECAY_UPPER_THRESHOLD 1.f
+#define DECAY_LOWER_THRESHOLD -1.f
 
 // MAX HP Constants
 #define FIGHTER_MAX_HP 100
@@ -38,7 +40,6 @@
 #define ROGUE_ATTACK_TIME_INTERVAL 500 // 0.5s = 500 ms
 #define MAGE_ATTACK_TIME_INTERVAL 300 // 0.3s = 300 ms
 #define CLERIC_ATTACK_TIME_INTERVAL 300 // 0.3s = 300 ms
-
 #define MONSTER_ATTACK_TIME_INTERVAL 500 // 0.5s = 500 ms
 
 // Player Bouding Box Size Constants
@@ -57,6 +58,7 @@
 
 // Player attack distance constants
 #define FIGHTER_ATTACK_DISTANCE 2
+#define MONSTER_ATTACK_DISTANCE 2
 #define ROGUE_ATTACK_DISTANCE 20
 #define MAGE_ATTACK_DISTANCE 20
 #define CLERIC_ATTACK_DISTANCE 15
@@ -86,7 +88,6 @@
 #define HEALING_AURA_HEALING_AMOUNT 20
 
 #define MONSTER_RANGED_ATTACK_DISTANCE 20
-
 // Player attack speed (projectile moving speed)
 #define ROGUE_ARROW_SPEED 2 // 2 units per tick
 #define MONSTER_RANGED_SPEED 2
@@ -97,6 +98,9 @@
 #define MONSTER_THIRD_STAGE_THRESHOLD 3.f
 #define MONSTER_FOURTH_STAGE_THRESHOLD 4.f
 #define MONSTER_FIFTH_STAGE_THRESHOLD 5.f
+
+// Increase Monster Evo every tick by this amount
+#define MONSTER_EVO_TICK_INCREMENT 0.0001f
 
 #define EVO_AMOUNT 1.5f
 

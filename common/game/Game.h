@@ -75,6 +75,8 @@ public:
 
     void handleUpdates(std::vector<GameUpdate> updates);
     void handleUpdate(GameUpdate update);
+
+    void checkEvoLevel();
 };
 
 

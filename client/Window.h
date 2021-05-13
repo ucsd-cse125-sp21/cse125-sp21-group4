@@ -9,14 +9,18 @@
 #include "Character.h"
 #include "EnvElement.h"
 #include "ScreenElement.h"
+#include "SpatialHashTable.h"
 //#include "../common/constants.h"
 #include "CommunicationClient.h"
 #include "../common/networking/CommunicationConstants.h"
+#include "gui/GUIManager.h"
 
 #include <fstream>
 #include <string>
 #include <sstream>
 #include <iostream>
+
+
 
 class Window
 {
@@ -26,6 +30,7 @@ public:
 	static int height;
 	static const char* windowTitle;
 	static CommunicationClient * client;
+	static SpatialHashTable table;
 
 	//objects to render
 	static vector<Character*> chars;
@@ -54,6 +59,9 @@ public:
 	// Used to determine whether or not camera should be looking at player or select screen
 	static bool gameStarted;
 	static bool doneInitialRender;
+
+	// GUI Manager (HUD)
+	static GUIManager* guiManager;
 
 	// Act as Constructors and desctructors 
 	static bool initializeProgram();

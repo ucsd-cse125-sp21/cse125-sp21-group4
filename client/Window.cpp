@@ -10,6 +10,7 @@ int Window::width;
 int Window::height;
 const char* Window::windowTitle = "CSE125_GAME";
 CommunicationClient* Window::client;
+SpatialHashTable Window::table(5000, 8.f);
 bool Window::keyboard[KEYBOARD_SIZE];
 bool Window::gameStarted;
 bool Window::doneInitialRender;
@@ -17,7 +18,6 @@ bool Window::doneInitialRender;
 //objects to render
 vector<Character*> Window::chars; //all the characters players get to control
 vector<EnvElement*> Window::envs; //all the environmental static objects
-vector<ScreenElement*> Window::selectScreenElements; 
 Character* Window::clientChar;
 
 // Interaction Variables
@@ -44,6 +44,10 @@ glm::mat4 Window::view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window
 // last input from the window
 CLIENT_INPUT Window::lastInput = NO_MOVE;
 
+// GUI manager
+GUIManager* Window::guiManager;
+
+
 bool Window::initializeProgram() {
 	// Create a shader program with a vertex shader and a fragment shader.
 	shaderProgram = LoadShaders("shaders/shader/shader.vert", "shaders/shader/shader.frag");
@@ -58,12 +62,20 @@ bool Window::initializeProgram() {
 #ifdef SERVER_ENABLED
 	client = new CommunicationClient();
 	cout << "Communication Established" << endl;
+	
+	// if the id is 3, then set the hpBar to be max monster
+	if(client->getId() == 3) {
+		guiManager->healthBar->initGivenPlayerType(MONSTER);
+		guiManager->selectScreen->setMonster(true);
+	}
+	guiManager->miniMap->setCurrentPlayer(3, MONSTER); // Monster is currently id = 3
 #endif // SERVER_ENABLED
 
 	// Setup the keyboard.
 	for(int i = 0; i < KEYBOARD_SIZE; i++) {
 		keyboard[i] = false;
 	}
+
 
 	Window::gameStarted = false;
 	Window::doneInitialRender = false;
@@ -83,40 +95,41 @@ bool Window::initializeObjects()
 	glm::vec3 selectScreenLocation = eyePos + glm::vec3(0.f, -100.f, 0.f);
 	float rotateAmount = glm::radians(-45.f);
 	lookAtPoint = selectScreenLocation;
-	selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
+	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
 		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/character_select_background.png"));
 	
 
 	// Each Job Buttons
 	// (1) Fighter
-	selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
+	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
 		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/fighter_unselected.png"));
 		
 	// (2) Mage
-	selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
+	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
 		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/mage_unselected.png"));
 		
 	// (3) Cleric
-	selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
+	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
 		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/cleric_unselected.png"));
 		
 	// (4) Rogue
-	selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
+	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
 		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/rogue_unselected.png"));
 
 	//  ==========  End of Select Screen  ========== 
 
 	//  ==========  Environment Initialization  ========== 
+	//NOTE: envs now only contain environment objects that are globally viewable. All other objects that require
+	//proximity rendering should be inserted into "table"
 	envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram,
 		glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
-	
-	
-	/*
+
+
 	ifstream map_file("../assets/layout/map.csv");
     string line;
     string id;
@@ -133,14 +146,18 @@ bool Window::initializeObjects()
 			//std::cout << "i: " << i << "j: " << j << '\n';
             switch(std::stoi(id)) {
 				
-                case OBST_ID:
-					envs.push_back(new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram, 
-						glm::vec3(2.*j, 1.f, 2.*i), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f))); // blocks are 2 wide
-					break;
-                case BEAC_ID:
-					envs.push_back(new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram, 
-						glm::vec3(2.*j, 1.f, 2.*i), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, 1.f, 1.f))); // blocks are 2 wide
-					break;
+			case OBST_ID: {
+				EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
+					glm::vec3(2. * j, 1.f, 2. * i), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f));
+				table.insert(e);
+				break;
+			}
+			case BEAC_ID: {
+				EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
+					glm::vec3(2. * j, 1.f, 2. * i), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, 1.f, 1.f));
+				table.insert(e);
+				break;
+			}
 				case SPACE_ID:
                     break;
 
@@ -154,7 +171,7 @@ bool Window::initializeObjects()
 		}
 		++i;
 		j = 0;
-	} */
+	} 
 
 
 	//  ==========  End of Environment Initialization  ========== 
@@ -177,6 +194,7 @@ bool Window::initializeObjects()
 
 	#ifdef SERVER_ENABLED
 	clientChar = chars[client->getId()];
+
 	#else 
 	clientChar = chars[0];
 	gameStarted = true;
@@ -186,6 +204,8 @@ bool Window::initializeObjects()
 
 	return true;
 }
+
+// End of Nano GUI Methods
 
 void Window::cleanUp()
 {
@@ -218,6 +238,18 @@ GLFWwindow* Window::createWindow(int width, int height)
 		std::cerr << "Failed to initialize GLEW" << std::endl;
 		return NULL;
 	}
+
+	// Initialize the GUI Manager
+	int fbWidth, fbHeight;
+	glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+	Window::guiManager = new GUIManager(width, height, fbWidth, fbHeight);
+	guiManager->setConnectingScreenVisible(true);
+#ifndef SERVER_ENABLED // Client-only (no server)	
+	guiManager->setConnectingScreenVisible(false);
+	guiManager->setHUDVisible(true);
+	guiManager->beaconBar->setAmount(18.f);
+#endif
+
 	// Set swap interval to 1 if you want buffer 
 	glfwSwapInterval(0);
 
@@ -233,8 +265,16 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 	// Set the viewport size.
 	glViewport(0, 0, width, height);
 
+
+
+	// Update the GUIManager's window height/width
+	int fbWidth, fbHeight;
+	glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+	guiManager->resizeWindow(width, height, fbWidth, fbHeight);
+
 	// Set the projection matrix.
 	Window::projection = glm::perspective(glm::radians(80.0), double(width) / (double)height, 0.5, 1000.0);
+
 	// update projection matrix for all the objects
 	int i;
 	for (i = 0; i < chars.size(); i++) {
@@ -274,19 +314,45 @@ void Window::displayCallback(GLFWwindow* window)
 	// Clear the color and depth buffers.
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
 	//draw all the characters and environmental elements
 	int i;
-	for (i = 0; i < selectScreenElements.size(); i++) {
-		selectScreenElements[i]->draw();
-	}
+	// for (i = 0; i < guiManager->selectScreen->selectScreenElements.size(); i++) {
+	// 	guiManager->selectScreen->selectScreenElements[i]->draw();
+	// }
 
+	//first draw all globally viewable objects
 	for (i = 0; i < envs.size(); i++) {
 		envs[i]->draw();
+	}
+
+	//then selectively draw objects nearby this player
+	vector<EnvElement*> result;
+	float h = 8.0f;
+	int j;
+	glm::vec3 base1(-1.f * h, 0.f, 0.f);
+	for (j = 0; j < 3; j++) {
+		int k;
+		glm::vec3 base2(0.f, 0.f, -1.f * h);
+		for (k = 0; k < 3; k++) {
+			glm::vec3 loc = base1 + base2 + clientChar->pos;
+			Cell* cell = table.getCell(loc);
+			if (cell != NULL && cell->items.size() != 0)
+				result.insert(result.end(), cell->items.begin(), cell->items.end());
+			base2 += glm::vec3(0.f, 0.f, 1.f * h);
+		}
+		base1 += glm::vec3(1.f * h, 0.f, 0.f);
+	}
+	for (i = 0; i < result.size(); i++) {
+		result[i]->draw();
 	}
 
 	for (i = 0; i < chars.size(); i++) {
 		chars[i]->draw();
 	}
+
+	Window::guiManager->draw();
+
 
 	glfwPollEvents();
 	glfwSwapBuffers(window);
@@ -360,19 +426,28 @@ void Window::handleUpdates(std::vector<GameUpdate> updates) {
 }
 
 void Window::handleRoleClaim(GameUpdate update) {
+	
+	guiManager->selectScreen->handleRoleClaimed(update.roleClaimed);
+
 	switch(update.roleClaimed) {
 		case FIGHTER:
-			selectScreenElements[1]->loadTexture("shaders/select_screen/fighter_selected.png");
 			break;
 		case MAGE:
-			selectScreenElements[2]->loadTexture("shaders/select_screen/mage_selected.png");
 			break;
 		case CLERIC:
-			selectScreenElements[3]->loadTexture("shaders/select_screen/cleric_selected.png");
 			break;
 		case ROGUE:
-			selectScreenElements[4]->loadTexture("shaders/select_screen/rogue_selected.png");
 			break;
+	}
+
+	// Initializes the hp bar to the given player's role
+	// Also sets the player's role and id for the minimap
+	if(update.id == client->getId()) {
+		guiManager->healthBar->initGivenPlayerType(update.roleClaimed);
+		guiManager->miniMap->setCurrentPlayer(client->getId(), update.roleClaimed);
+		guiManager->selectScreen->hasClaimed = true;
+	} else {
+		guiManager->miniMap->setPlayerType(update.id, update.roleClaimed);
 	}
 }
 
@@ -380,12 +455,19 @@ void Window::handleRoleClaim(GameUpdate update) {
 void Window::handleUpdate(GameUpdate update) {
     switch(update.updateType) {
         case PLAYER_DAMAGE_TAKEN:
+			if(update.id == client->getId()) {
+				guiManager->healthBar->decrementHp(update.damageTaken);
+			}
             break;
 		case PLAYER_HP_INCREMENT:
+			if(update.id == client->getId()) {
+				guiManager->healthBar->incrementHp(update.healAmount);
+			}
 			break;
         case PLAYER_MOVE:
 		{
 			chars[update.id]->moveToGivenDelta(update.floatDeltaX, update.floatDeltaY);
+			guiManager->miniMap->updatePlayerPositionDelta(update.id, update.floatDeltaX, update.floatDeltaY);
 			printf("Character %d moved with deltaX: %f, deltaY: %f\n", update.id, update.floatDeltaX, update.floatDeltaY);
             break;
         
@@ -394,10 +476,30 @@ void Window::handleUpdate(GameUpdate update) {
             break;
 		case GAME_STARTED:
 			Window::gameStarted = true;
+			guiManager->setSelectScreenVisible(false); // disable the selects creen
+			guiManager->setHUDVisible(true); // sets the hud visible
 			break;
 		case ROLE_CLAIMED:
 			Window::handleRoleClaim(update);
             break;
+		
+		// Beacon bar updates
+		case BEACON_BEING_TAKEN:
+		case BEACON_DECAYING:
+			guiManager->beaconBar->setAmount(update.beaconCaptureAmount);
+			break;
+		case BEACON_CAPTURED:
+			guiManager->beaconBar->setAmount(update.beaconCaptureAmount);
+			guiManager->miniMap->handleCaptureEvent(update.beaconCaptureAmount);
+			break;
+		case BEACON_PING_PLAYER:
+			guiManager->miniMap->updatePingPosition(update.id, update.playerPos);
+			break;
+		case ALL_PLAYERS_JOINED:
+			guiManager->setSelectScreenVisible(true);
+			guiManager->selectScreen->startTimer(update.selectTimerStartTime);
+			guiManager->setConnectingScreenVisible(false);
+			break;
         default:
             printf("Not Handled Update Type: %d\n", update.updateType);
             break;
@@ -416,6 +518,10 @@ void Window::updateLastInput() {
 	} else if (keyboard[GLFW_KEY_J]) {
 		lastInput = ATTACK;
 
+	// K key
+	} else if (keyboard[GLFW_KEY_K]) {
+		lastInput = UNIQUE_ATTACK;
+
 	// W key
 	} else if (keyboard[GLFW_KEY_W]) {
 		lastInput = MOVE_FORWARD;
@@ -432,22 +538,37 @@ void Window::updateLastInput() {
 	} else if(keyboard[GLFW_KEY_D]) {
 		lastInput = MOVE_RIGHT;
 
-	// 1 key (claim fighter)
+	// 1 key (select fighter)
 	} else if(keyboard[GLFW_KEY_1]) {
-		lastInput = CLAIM_FIGHTER;
+		guiManager->selectScreen->handleSelecting(FIGHTER);
 
-	// 2 key (claim mage)
+	// 2 key (select mage)
 	} else if(keyboard[GLFW_KEY_2]) {
-		lastInput = CLAIM_MAGE;
+		guiManager->selectScreen->handleSelecting(MAGE);
 
-	// 3 key (claim cleric)
+	// 3 key (select cleric)
 	} else if(keyboard[GLFW_KEY_3]) {
-		lastInput = CLAIM_CLERIC;
+		guiManager->selectScreen->handleSelecting(CLERIC);
 
-	// 4 key (claim rogue)
+	// 4 key (select rogue)
 	} else if(keyboard[GLFW_KEY_4]) {
-		lastInput = CLAIM_ROGUE;
-		
+		guiManager->selectScreen->handleSelecting(ROGUE);
+	
+	// enter key (claim selected role)
+	} else if (keyboard[GLFW_KEY_ENTER]) {
+		switch(guiManager->selectScreen->selecting) {
+			case FIGHTER:
+				lastInput = CLAIM_FIGHTER;
+				break;
+			case MAGE:
+				lastInput = CLAIM_MAGE;
+				break;
+			case CLERIC:
+				lastInput = CLAIM_CLERIC;
+				break;
+			case ROGUE:
+				lastInput = CLAIM_ROGUE;
+				break;
+		}
 	}
 }
-

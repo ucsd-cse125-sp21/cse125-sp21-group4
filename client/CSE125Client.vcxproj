@@ -110,23 +110,46 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Cell.cpp" />
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="CommunicationClient.cpp" />
     <ClCompile Include="EnvElement.cpp" />
+    <ClCompile Include="gui\BeaconBar.cpp" />
+    <ClCompile Include="gui\GUIManager.cpp" />
+    <ClCompile Include="gui\HealthBar.cpp" />
+    <ClCompile Include="gui\MiniMap.cpp" />
+    <ClCompile Include="gui\SelectScreen.cpp" />
+    <ClCompile Include="gui\ConnectingScreen.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="nanovg\nanovg.c" />
     <ClCompile Include="ScreenElement.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="SpatialHashTable.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Cell.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="CommunicationClient.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="EnvElement.h" />
+    <ClInclude Include="gui\BeaconBar.h" />
+    <ClInclude Include="gui\GUIManager.h" />
+    <ClInclude Include="gui\HealthBar.h" />
+    <ClInclude Include="gui\MiniMap.h" />
+    <ClInclude Include="gui\SelectScreen.h" />
+    <ClInclude Include="gui\ConnectingScreen.h" />
+    <ClInclude Include="HealthBar.h" />
     <ClInclude Include="Main.h" />
+    <ClInclude Include="nanovg\fontstash.h" />
+    <ClInclude Include="nanovg\nanovg.h" />
+    <ClInclude Include="nanovg\nanovg_gl.h" />
+    <ClInclude Include="nanovg\nanovg_gl_utils.h" />
+    <ClInclude Include="nanovg\stb_truetype.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="ScreenElement.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="SpatialHashTable.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
@@ -135,16 +158,16 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="packages\glm.0.9.9.800\build\native\glm.targets" Condition="Exists('packages\glm.0.9.9.800\build\native\glm.targets')" />
     <Import Project="packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets" Condition="Exists('packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets')" />
     <Import Project="packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets" Condition="Exists('packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets')" />
+    <Import Project="packages\glm.0.9.9.800\build\native\glm.targets" Condition="Exists('packages\glm.0.9.9.800\build\native\glm.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('packages\glm.0.9.9.800\build\native\glm.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\glm.0.9.9.800\build\native\glm.targets'))" />
     <Error Condition="!Exists('packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets'))" />
     <Error Condition="!Exists('packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets'))" />
+    <Error Condition="!Exists('packages\glm.0.9.9.800\build\native\glm.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\glm.0.9.9.800\build\native\glm.targets'))" />
   </Target>
 </Project>

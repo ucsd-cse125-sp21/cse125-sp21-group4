@@ -4,6 +4,8 @@
 #include "../game/GridComponent.h"
 #include "../game/GameConstants.h"
 
+#include <chrono>
+
 #define DEFAULT_PORT "27168"
 
 //#define ERICS_LOCAL_SERVER "192.168.0.110"
@@ -41,16 +43,20 @@ enum UPDATE_TYPE {
     PLAYER_MOVE,
     PLAYER_ATTACK,
     PROJECTILE_MOVE,
+
     BEACON_BEING_TAKEN,
     BEACON_DECAYING,
     BEACON_CAPTURED,
     BEACON_PING_PLAYER,
+
     HEAL_OBJECTIVE_TAKEN,
     ARMOR_OBJECTIVE_TAKEN,
     EVO_OBJECTIVE_TAKEN,
     MONSTER_EVO_UP,
+
     ROLE_CLAIMED, // Role claimed
     GAME_STARTED, // Game Start
+    ALL_PLAYERS_JOINED, // Tells the client that all players have joined
 
 
     GAME_END, // endStatus can be 1(hunters win), 2(monster win), 3(tie)
@@ -74,6 +80,7 @@ struct GameUpdate {
     float floatDeltaY = 0; // used for player/projectile movement
     float beaconCaptureAmount = -9999;
     PlayerType roleClaimed = UNKNOWN;
+    std::chrono::steady_clock::time_point selectTimerStartTime; // Used for an accurate countdown timer
 };
 
 

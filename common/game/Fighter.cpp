@@ -29,7 +29,7 @@ Fighter::Fighter(PlayerPosition position) : GamePlayer(position) {
 */
 void Fighter::attack(Game* game) {
 
-    // two consecutive attacks must have a tiem interval of at least FIGHTER_ATTACK_TIME_INTERVAL
+    // two consecutive attacks must have a time interval of at least FIGHTER_ATTACK_TIME_INTERVAL
     // otherwise, the second attack will not be initiated
     auto currentTime = std::chrono::steady_clock::now();
     std::chrono::duration<float> duration = currentTime - lastAttackTime;

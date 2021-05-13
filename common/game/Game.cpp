@@ -400,8 +400,15 @@ bool Game::handleInputs(CLIENT_INPUT playersInputs[PLAYER_NUM]) {
                 break;
             case DONE_RENDERING:
                 renderCount++;
+                // printf("Render Count: %d\n", renderCount);
                 if(!started && renderCount >= PLAYER_NUM) {
-                    // All players have connected by now...
+                    // All players have joined
+                    GameUpdate allJoined;
+                    allJoined.updateType = ALL_PLAYERS_JOINED;
+                    allJoined.selectTimerStartTime = std::chrono::steady_clock::now();
+                    this->addUpdate(allJoined);
+
+                    // All players have connected by now, so start the select timer
                     startSelectTimer();
                 }
             default:
@@ -715,7 +722,7 @@ void Game::updateBeacon() {
             this->addUpdate(beaconCapturingUpdate);
 
         // If no players are around, decay the beacon amount.
-        } else if (beacon->getCaptureAmount() < -1.f || beacon->getCaptureAmount() > 1.f) {
+        } else if (beacon->getCaptureAmount() < DECAY_LOWER_THRESHOLD || beacon->getCaptureAmount() > DECAY_UPPER_THRESHOLD) {
             beacon->decayCaptureAmount();
             
             // send delaying update to all players
@@ -934,7 +941,7 @@ void Game::handleUpdate(GameUpdate update) {
             players[update.id]->hpDecrement(update.damageTaken);
             break;
         case PLAYER_HP_INCREMENT:
-            players[update.id]->hpIncrement(update.damageTaken);
+            players[update.id]->hpIncrement(update.healAmount);
             break;
         case PLAYER_MOVE:
         // Need curly braces because I am declaring new variables inside the case statement
@@ -1017,6 +1024,44 @@ void Game::consumeObj(Objective * obj) {
     objectives.erase(std::find(objectives.begin(),objectives.end(), obj));
     delete gameGrids[objPos.x][objPos.y];
     gameGrids[objPos.x][objPos.y] = new Space(objPos);
+}
+
+void Game::checkEvoLevel() {
+    // For the monster, updateEvo if they crossed the HP threshold
+    for (auto i = 0; i < PLAYER_NUM; i++) {
+        if (players[i]->getType() == MONSTER) {
+            Monster * monster = (Monster*) players[i];
+            //increase monster evo every server tick by MONSTER_EVO_TICK_INCREMENT
+            monster->updateEvo(this, monster->getEvo() + MONSTER_EVO_TICK_INCREMENT);
+            // printf("Monster evo level: ");
+            // printf("%f\n", monster->getEvo());
+
+            if (monster->getHp() <= 0.2 * MONSTER_MAX_HP) { 
+                if (monster->getEvo() < MONSTER_FIFTH_STAGE_THRESHOLD) {
+                    monster->updateEvo(this, MONSTER_FIFTH_STAGE_THRESHOLD) ;
+                }
+            } else if (monster->getHp() <= 0.4 * MONSTER_MAX_HP) {
+                if (monster->getEvo() < MONSTER_FOURTH_STAGE_THRESHOLD) {
+                    monster->updateEvo(this, MONSTER_FOURTH_STAGE_THRESHOLD);
+                }
+            } else if (monster->getHp() <= 0.6 * MONSTER_MAX_HP) {
+                if (monster->getEvo() < MONSTER_THIRD_STAGE_THRESHOLD) {
+                    monster->updateEvo(this, MONSTER_THIRD_STAGE_THRESHOLD);
+                }
+            } else if (monster->getHp() <= 0.8 * MONSTER_MAX_HP) { 
+                if (monster->getEvo() < MONSTER_SECOND_STAGE_THRESHOLD) {
+                    monster->updateEvo(this, MONSTER_SECOND_STAGE_THRESHOLD);
+                }
+            } else if (monster->getHp() <= MONSTER_MAX_HP) { 
+                if (monster->getEvo() < MONSTER_FIRST_STAGE_THRESHOLD) {
+                    monster->updateEvo(this, MONSTER_FIRST_STAGE_THRESHOLD);
+                }
+            } else {
+                printf("Do not need to update evoLevel based on HP.\n");
+                return;
+            }
+        }
+    } 
 }
 
 // testing  purposes
