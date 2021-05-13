@@ -209,7 +209,7 @@ bool Window::initializeObjects()
 	#endif
 
 	chars[3] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-		glm::vec3(115.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
+		glm::vec3(SPAWN_POSITIONS[3][0], 1.f, SPAWN_POSITIONS[3][1]), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/character/MAGE"));
 	
 	if(client->getId() == 3) clientChar = chars[3];
@@ -445,31 +445,27 @@ void Window::handleRoleClaim(GameUpdate update) {
 
 	switch(update.roleClaimed) {
 		case FIGHTER:
-			guiManager->selectScreen->selectScreenElements[1]->loadTexture("shaders/select_screen/fighter_selected.png");
 			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-				glm::vec3(5.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
-				"shaders/character/FIGHTER"));	
+				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
+				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/FIGHTER"));	
 			chars[update.id]->loadAnimationAssets("shaders/character/FIGHTER");
 			break;
 		case MAGE:
-			guiManager->selectScreen->selectScreenElements[2]->loadTexture("shaders/select_screen/mage_selected.png");
 			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-				glm::vec3(15.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
-				"shaders/character/MAGE"));	
+				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
+				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MAGE"));	
 			chars[update.id]->loadAnimationAssets("shaders/character/MAGE");
 			break;
 		case CLERIC:
-			guiManager->selectScreen->selectScreenElements[3]->loadTexture("shaders/select_screen/cleric_selected.png");
 			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-				glm::vec3(5.f, 1.f, 15.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
-				"shaders/character/CLERIC"));	
+				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
+				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/CLERIC"));	
 			chars[update.id]->loadAnimationAssets("shaders/character/CLERIC");
 			break;
 		case ROGUE:
-			guiManager->selectScreen->selectScreenElements[4]->loadTexture("shaders/select_screen/rogue_selected.png");
 			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-				glm::vec3(70.f, 1.f, 70.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
-				"shaders/character/ROGUE"));
+				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
+				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/ROGUE"));
 			chars[update.id]->loadAnimationAssets("shaders/character/ROGUE");
 			break;
 	}
