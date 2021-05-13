@@ -445,24 +445,28 @@ void Window::handleRoleClaim(GameUpdate update) {
 				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
 				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/FIGHTER"));	
 			chars[update.id]->loadAnimationAssets("shaders/character/FIGHTER");
+			chars[update.id]->loadAnimationAssets("shaders/character/FIGHTER/ATTACK");
 			break;
 		case MAGE:
 			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
 				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MAGE"));	
 			chars[update.id]->loadAnimationAssets("shaders/character/MAGE");
+			chars[update.id]->loadAnimationAssets("shaders/character/MAGE/ATTACK");
 			break;
 		case CLERIC:
 			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
 				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/CLERIC"));	
 			chars[update.id]->loadAnimationAssets("shaders/character/CLERIC");
+			chars[update.id]->loadAnimationAssets("shaders/character/CLERIC/ATTACK");
 			break;
 		case ROGUE:
 			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
 				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/ROGUE"));
 			chars[update.id]->loadAnimationAssets("shaders/character/ROGUE");
+			chars[update.id]->loadAnimationAssets("shaders/character/ROGUE/ATTACK");
 			break;
 	}
 
@@ -543,27 +547,6 @@ void Window::handleUpdate(GameUpdate update) {
 void Window::handleAttack(GameUpdate update) {
 	printf("Player %id is attacking\n", update.id);
 	chars[update.id]->setState(attacking);
-	switch(update.roleClaimed) {
-		case FIGHTER:
-			chars[update.id]->loadAnimationAssets("shaders/character/FIGHTER/ATTACK");
-			//chars[update.id]->loadAnimationAssets("shaders/character/FIGHTER");
-			break;
-		case MAGE:
-			chars[update.id]->loadAnimationAssets("shaders/character/MAGE/ATTACK");
-			//chars[update.id]->loadAnimationAssets("shaders/character/MAGE");
-			break;
-		case CLERIC:
-			chars[update.id]->loadAnimationAssets("shaders/character/CLERIC/ATTACK");
-			//chars[update.id]->loadAnimationAssets("shaders/character/CLERIC");
-			break;
-		case ROGUE:
-			chars[update.id]->loadAnimationAssets("shaders/character/ROGUE/ATTACK");
-			//chars[update.id]->loadAnimationAssets("shaders/character/ROGUE");
-			break;
-		default:
-			printf("ATTACK: Role not recognized\n");
-			break;
-	}
 }
 
 
