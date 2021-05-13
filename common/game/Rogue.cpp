@@ -42,6 +42,14 @@ void Rogue::attack(Game* game) {
     p->direction = getFaceDirection();
     p->damage = getAttackDamage();
     game->projectiles.push_back(p);
+
+    // Send an update to the clients: HEALING_OBJECTIVE_TAKEN
+    GameUpdate attackUpdate;
+    attackUpdate.updateType = PLAYER_ATTACK;
+    attackUpdate.id = this->id;                        // id of player attacking
+    attackUpdate.attackAmount = getAttackDamage();     // attack damage amount
+    attackUpdate.roleClaimed = ROGUE;
+    game->addUpdate(attackUpdate);
 }
 
 void Rogue::interact(Game* game) {

@@ -24,6 +24,7 @@ Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPo
 	prevTime = currTime;
 	animSequence.push_back(&idleTex); //order must match the enum in header file
 	animSequence.push_back(&moveTex);
+	animSequence.push_back(&attackTex);
 
 	// initial translation will bthe initial position
 	pos = trans;
@@ -290,8 +291,10 @@ void Character::update() {
 		float timeDiff = (float)(currTime - prevTime) / CLOCKS_PER_SEC;
 		if (timeDiff >= ANIMATION_INTERVAL) {
 			// check if on the last frame of a sequence
-			if (frameIdx + 1 == (*animSequence[currState]).size())
+			if (frameIdx + 1 == (*animSequence[currState]).size()) {
 				frameIdx = 0;
+				if(currState == attacking) currState = idle; // get out of attack state. May need more complicated reset later.
+			}
 			else
 				frameIdx++;
 			textId = (*animSequence[currState])[frameIdx];
@@ -391,4 +394,8 @@ bool Character::loadAnimationAssets(string assetFolder) {
 	}
 	objFile.close();
 	return true;
+}
+
+void Character::setState(CharState state) {
+	currState = state;
 }

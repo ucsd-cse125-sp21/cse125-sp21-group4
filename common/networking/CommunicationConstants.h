@@ -40,6 +40,7 @@ enum CLIENT_INPUT{
 enum UPDATE_TYPE {
     PLAYER_DAMAGE_TAKEN,
     PLAYER_HP_INCREMENT,
+    PLAYER_ATTACK,
     PLAYER_MOVE,
     PROJECTILE_MOVE,
 
@@ -69,6 +70,7 @@ struct GameUpdate {
     UPDATE_TYPE updateType = INVALID_UPDATE;
     int id = -1; // -1 instead of 0 because 0 is a valid player id.
     int damageTaken = 0; // Used for a damage taken event
+    int attackAmount = 0; // amount of damage per attack
     int healAmount = 0; // Used for a healing event
     int endStatus = 0;
     GridPosition gridPos = {0,0}; // Used for objectives and obstacles

@@ -90,6 +90,8 @@ public:
 
 	// Used to set lastInput based on keyboard inputs
 	static void Window::updateLastInput(); 
+
+	static void Window::handleAttack(GameUpdate update);
 };
 
 #endif

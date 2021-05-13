@@ -16,7 +16,7 @@ bool Window::gameStarted;
 bool Window::doneInitialRender;
 
 //objects to render
-vector<Character*> Window::chars; //all the characters players get to control
+vector<Character*> Window::chars(4); //all the characters players get to control
 vector<EnvElement*> Window::envs; //all the environmental static objects
 Character* Window::clientChar;
 
@@ -179,26 +179,40 @@ bool Window::initializeObjects()
 	//  ==========  Character Initialization   ========== 
 
 	// Characters on the map now (scaled 3x)
+	// chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+	// 	glm::vec3(5.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
+	// 	"shaders/character/MAGE"));	
+	// chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+	// 	glm::vec3(15.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
+	// 	"shaders/character/MAGE"));	
+	// chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+	// 	glm::vec3(5.f, 1.f, 15.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
+	// 	"shaders/character/MAGE"));	
+	// chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+	// 	glm::vec3(70.f, 1.f, 70.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
+	// 	"shaders/character/MAGE"));
+
+	// #ifdef SERVER_ENABLED
+	// clientChar = chars[client->getId()];
+
+	// #else 
+	// clientChar = chars[0];
+	// gameStarted = true;
+	// #endif
+
+	#ifndef SERVER_ENABLED
 	chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 		glm::vec3(5.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/character/MAGE"));	
-	chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-		glm::vec3(15.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
-		"shaders/character/MAGE"));	
-	chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-		glm::vec3(5.f, 1.f, 15.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
-		"shaders/character/MAGE"));	
-	chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-		glm::vec3(70.f, 1.f, 70.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
-		"shaders/character/MAGE"));
-
-	#ifdef SERVER_ENABLED
-	clientChar = chars[client->getId()];
-
-	#else 
 	clientChar = chars[0];
-	gameStarted = true;
+	Window::gameStarted = true;
 	#endif
+
+	chars[3] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+		glm::vec3(SPAWN_POSITIONS[3][0], 1.f, SPAWN_POSITIONS[3][1]), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
+		"shaders/character/MAGE"));
+	
+	if(client->getId() == 3) clientChar = chars[3];
 
 	//  ==========  End of Character Initialization ========== 
 
@@ -304,7 +318,7 @@ void Window::idleCallback()
 	view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window::upVector);
 
 	int i;
-	for (i = 0; i < chars.size(); i++) {
+	for (i = 0; i < chars.size() && Window::gameStarted; i++) {
 		chars[i]->update();
 	}
 }
@@ -331,7 +345,7 @@ void Window::displayCallback(GLFWwindow* window)
 	float h = 8.0f;
 	int j;
 	glm::vec3 base1(-1.f * h, 0.f, 0.f);
-	for (j = 0; j < 3; j++) {
+	for (j = 0; j < 3 && Window::gameStarted; j++) {
 		int k;
 		glm::vec3 base2(0.f, 0.f, -1.f * h);
 		for (k = 0; k < 3; k++) {
@@ -347,7 +361,7 @@ void Window::displayCallback(GLFWwindow* window)
 		result[i]->draw();
 	}
 
-	for (i = 0; i < chars.size(); i++) {
+	for (i = 0; i < chars.size() && Window::gameStarted; i++) {
 		chars[i]->draw();
 	}
 
@@ -431,14 +445,34 @@ void Window::handleRoleClaim(GameUpdate update) {
 
 	switch(update.roleClaimed) {
 		case FIGHTER:
+			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
+				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/FIGHTER"));	
+			chars[update.id]->loadAnimationAssets("shaders/character/FIGHTER");
 			break;
 		case MAGE:
+			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
+				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MAGE"));	
+			chars[update.id]->loadAnimationAssets("shaders/character/MAGE");
 			break;
 		case CLERIC:
+			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
+				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/CLERIC"));	
+			chars[update.id]->loadAnimationAssets("shaders/character/CLERIC");
 			break;
 		case ROGUE:
+			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
+				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/ROGUE"));
+			chars[update.id]->loadAnimationAssets("shaders/character/ROGUE");
 			break;
 	}
+
+	#ifdef SERVER_ENABLED
+	if(update.id == client->getId()) clientChar = chars[client->getId()];
+	#endif
 
 	// Initializes the hp bar to the given player's role
 	// Also sets the player's role and id for the minimap
@@ -482,7 +516,10 @@ void Window::handleUpdate(GameUpdate update) {
 		case ROLE_CLAIMED:
 			Window::handleRoleClaim(update);
             break;
-		
+		case PLAYER_ATTACK:
+			printf("Calling handleAttack()\n");
+			Window::handleAttack(update);
+			break;
 		// Beacon bar updates
 		case BEACON_BEING_TAKEN:
 		case BEACON_DECAYING:
@@ -504,6 +541,32 @@ void Window::handleUpdate(GameUpdate update) {
             printf("Not Handled Update Type: %d\n", update.updateType);
             break;
     }
+}
+
+void Window::handleAttack(GameUpdate update) {
+	printf("Player %id is attacking\n", update.id);
+	chars[update.id]->setState(attacking);
+	switch(update.roleClaimed) {
+		case FIGHTER:
+			chars[update.id]->loadAnimationAssets("shaders/character/FIGHTER/ATTACK");
+			//chars[update.id]->loadAnimationAssets("shaders/character/FIGHTER");
+			break;
+		case MAGE:
+			chars[update.id]->loadAnimationAssets("shaders/character/MAGE/ATTACK");
+			//chars[update.id]->loadAnimationAssets("shaders/character/MAGE");
+			break;
+		case CLERIC:
+			chars[update.id]->loadAnimationAssets("shaders/character/CLERIC/ATTACK");
+			//chars[update.id]->loadAnimationAssets("shaders/character/CLERIC");
+			break;
+		case ROGUE:
+			chars[update.id]->loadAnimationAssets("shaders/character/ROGUE/ATTACK");
+			//chars[update.id]->loadAnimationAssets("shaders/character/ROGUE");
+			break;
+		default:
+			printf("ATTACK: Role not recognized\n");
+			break;
+	}
 }
 
 
