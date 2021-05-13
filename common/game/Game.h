@@ -6,6 +6,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <set>
 #include <algorithm>
 #include "GridComponent.h"
 #include "../networking/CommunicationConstants.h"
@@ -27,6 +28,8 @@ public:
     Grids gameGrids; // Grids is a 2d array of GameGrid pointers
     PlayerList players; // PlayerList is an size-4-array of GamePlayer 
                         // (either Fighter type or Monster type for now)
+    PlayerType idToJobType [MAX_PLAYERS]; // used for selecting purposes, -1 == not taken
+    std::set<PlayerType> availableJobs;
 
     std::vector<GameEvent*> events;
     std::vector<GameUpdate> updates; // Buffers updates so it can be sent to clients
@@ -34,10 +37,15 @@ public:
     std::vector<Projectile*> projectiles; // Keeps track of all Projectile objects in the game.
     Beacon* beacon; // only 1 beacon objective in the whole map and used to determine players in capture area
 
+    int renderCount;
+    bool started; // used to determine if we've passed the initial screen.
+
     // public member functions
     Game(); // default constructor
     void initPlayers(); // init playerList
     void initGameGrids(); // initialize gameGrids
+    void initSelectScreenStructures(); // initialize the job class to player map
+    void startSelectTimer(); // starts the timer for players to choose a class
 
     void cleanGameGrids(); 
     void cleanPlayers();
@@ -49,14 +57,17 @@ public:
     ~Game(); // destructor
 
     bool handleInputs(CLIENT_INPUT playersInputs[PLAYER_NUM]);
+    void handleUserClaim(CLIENT_INPUT claimType, int playerID);
     void updateProjectiles();
     void processEvent (GameEvent* event);
     void updateGameEvents();
     void updateBeacon();
+    void checkEnd();
 
     void printGameGrids();
     void printPlayers();
     void printStats();
+    void printSelectingScreen();
 
     // Network Optimization: GameUpdates
     void addUpdate(GameUpdate update);

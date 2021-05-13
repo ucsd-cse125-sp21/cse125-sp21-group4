@@ -2,8 +2,9 @@
 #define CONSTANTS_HEADER
 
 #include "../game/GridComponent.h"
+#include "../game/GameConstants.h"
 
-#define DEFAULT_PORT "31545"
+#define DEFAULT_PORT "27168"
 
 //#define ERICS_LOCAL_SERVER "192.168.0.110"
 #define ERICS_LOCAL_SERVER "127.0.0.1"
@@ -22,6 +23,15 @@ enum CLIENT_INPUT{
     // MONSTER_MELEE_ATTACK,
     // HUNTER_SWORD_ATTACK,
     INTERACT, // used to interact with objectives
+
+    // These inputs are so players can claim a role
+    CLAIM_FIGHTER,
+    CLAIM_CLERIC,
+    CLAIM_MAGE, 
+    CLAIM_ROGUE,
+
+    // Used to tell the server to start the select screen timer
+    DONE_RENDERING,
 };
 
 // Type of update sent to the server
@@ -38,7 +48,13 @@ enum UPDATE_TYPE {
     ARMOR_OBJECTIVE_TAKEN,
     EVO_OBJECTIVE_TAKEN,
     MONSTER_EVO_UP,
+    ROLE_CLAIMED, // Role claimed
+    GAME_STARTED, // Game Start
+
+
+    GAME_END, // endStatus can be 1(hunters win), 2(monster win), 3(tie)
     INVALID_UPDATE, // this will be sent if people forget to update the updateType
+
 
 };
 
@@ -48,12 +64,14 @@ struct GameUpdate {
     int id = -1; // -1 instead of 0 because 0 is a valid player id.
     int damageTaken = 0; // Used for a damage taken event
     int healAmount = 0; // Used for a healing event
+    int endStatus = 0;
     GridPosition gridPos = {0,0}; // Used for objectives and obstacles
     PlayerPosition playerPos = {0.f, 0.f}; // Used for player positions
     float newEvoLevel = -1.f; // Used for monster stage tracking
     float floatDeltaX = 0; // used for player/projectile movement
     float floatDeltaY = 0; // used for player/projectile movement
     float beaconCaptureAmount = -9999;
+    PlayerType roleClaimed = UNKNOWN;
 };
 
 

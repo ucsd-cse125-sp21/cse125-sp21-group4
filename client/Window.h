@@ -2,12 +2,13 @@
 #define _WINDOW_H_
 
 #define KEYBOARD_SIZE 350
-//#define SERVER_ENABLED
+#define SERVER_ENABLED
 
 #include "Main.h"
 #include "shader.h"
 #include "Character.h"
 #include "EnvElement.h"
+#include "ScreenElement.h"
 //#include "../common/constants.h"
 #include "CommunicationClient.h"
 #include "../common/networking/CommunicationConstants.h"
@@ -29,6 +30,8 @@ public:
 	//objects to render
 	static vector<Character*> chars;
 	static vector<EnvElement*> envs;
+	static vector<ScreenElement*> selectScreenElements;
+	static Character* clientChar;
 
 	// Shader Program 
 	static GLuint shaderProgram;
@@ -47,6 +50,10 @@ public:
 
 	// Keyboard keys that are being held down or pressed
 	static bool keyboard[KEYBOARD_SIZE];
+
+	// Used to determine whether or not camera should be looking at player or select screen
+	static bool gameStarted;
+	static bool doneInitialRender;
 
 	// Act as Constructors and desctructors 
 	static bool initializeProgram();
@@ -70,6 +77,7 @@ public:
 
 	// Used to handle GameUpdates from the CommunicationClient
 	static void handleUpdates(std::vector<GameUpdate> updates);
+	static void handleRoleClaim(GameUpdate update);
 	static void handleUpdate(GameUpdate update);
 
 	// Used to set lastInput based on keyboard inputs

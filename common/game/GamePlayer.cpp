@@ -10,6 +10,25 @@ GamePlayer::GamePlayer(PlayerPosition position) {
 
 PlayerType GamePlayer::getType () { return type; }
 
+
+
+const std::string GamePlayer::getTypeToString() {
+    switch(this->type) {
+        case CLERIC:   
+            return "CLERIC";
+        case ROGUE:
+            return "ROGUE";
+        case FIGHTER:
+            return "FIGHTER";
+        case MAGE:
+            return "MAGE";  
+        case MONSTER:
+            return "MONSTER"; 
+        default:
+            return "UNKNOWN";
+    }
+}
+
 void GamePlayer::setType (PlayerType newType) { type = newType; }
 
 PlayerPosition GamePlayer::getPosition() { return position; }
@@ -131,6 +150,8 @@ bool GamePlayer::isCollidingPlayer (Game* game, PlayerPosition currentPosition) 
     for (int i = 0; i < PLAYER_NUM; i++) {
         // skip the player itself
         if (game->players[i] == this) continue;
+        // skip dead players
+        if (game->players[i]->isDead()) continue;
         GamePlayer* otherPlayer = game->players[i];
         float p2ULX = getUpperLeftCoordinateX(otherPlayer->position, true);
         float p2ULY = getUpperLeftCoordinateY(otherPlayer->position, true);
@@ -379,6 +400,9 @@ bool GamePlayer::canInteractWithObjective(Objective * objective) {
 
 
 void GamePlayer::handleUserInput (Game* game, CLIENT_INPUT userInput) {
+    // if player is dead, stop handling input
+    if (isDead()) return;
+
     switch (userInput) {
         // Eric TODO: add gameupdates
         case MOVE_FORWARD:
