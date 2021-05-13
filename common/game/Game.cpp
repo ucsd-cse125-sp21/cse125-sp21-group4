@@ -400,7 +400,7 @@ bool Game::handleInputs(CLIENT_INPUT playersInputs[PLAYER_NUM]) {
                 break;
             case DONE_RENDERING:
                 renderCount++;
-                // printf("Render Count: %d\n", renderCount);
+                printf("Players Rendered & Joined Count: %d\n", renderCount);
                 if(!started && renderCount >= PLAYER_NUM) {
                     // All players have joined
                     GameUpdate allJoined;

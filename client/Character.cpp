@@ -289,7 +289,23 @@ void Character::update() {
 	}
 	else {
 		float timeDiff = (float)(currTime - prevTime) / CLOCKS_PER_SEC;
-		if (timeDiff >= ANIMATION_INTERVAL) {
+		
+		// interval depends on the currState of the animation
+		float interval = IDLE_ANIMATION_INTERVAL;
+		switch(currState) {
+			case idle:
+				interval = IDLE_ANIMATION_INTERVAL;
+				break;
+			case attacking:
+				interval = ATTACK_ANIMATION_INTERVAL;
+				break;
+			case moving:
+				interval = MOVING_ANIMATION_INTERVAL;
+				break;
+			default:
+				printf("Invalid animation state. Update the switch statement.\n");
+		}
+		if (timeDiff >= interval) {
 			// check if on the last frame of a sequence
 			if (frameIdx + 1 == (*animSequence[currState]).size()) {
 				frameIdx = 0;

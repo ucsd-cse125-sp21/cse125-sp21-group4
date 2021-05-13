@@ -2,6 +2,11 @@
 
 
 CommunicationClient::CommunicationClient() {
+    connected = false;
+}
+
+bool CommunicationClient::connectTo(std::string serverIP) {
+
     WSADATA wsaData;
     int iResult;
     
@@ -9,7 +14,7 @@ CommunicationClient::CommunicationClient() {
     iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
     if (iResult != 0) {
         printf("WSAStartup failed with error: %d\n", iResult);
-        exit(1);
+        return false;
     }
 
     // setup the address info for the server to connect to
@@ -23,11 +28,11 @@ CommunicationClient::CommunicationClient() {
 
     // Resolve the server address and port
     serverSocket = INVALID_SOCKET;
-    iResult = getaddrinfo(ERICS_LOCAL_SERVER, DEFAULT_PORT, &hints, &result);
+    iResult = getaddrinfo(serverIP.c_str(), DEFAULT_PORT, &hints, &result);
     if (iResult != 0) {
         printf("getaddrinfo failed with error: %d\n", iResult);
         WSACleanup();
-        exit(1);
+        return false;
     }
 
     // Attempt to connect to an address until one succeeds
@@ -39,7 +44,7 @@ CommunicationClient::CommunicationClient() {
         if (serverSocket == INVALID_SOCKET) {
             printf("socket failed with error: %ld\n", WSAGetLastError());
             WSACleanup();
-            exit(1);
+            return false;
         }
 
         // Connect to server.
@@ -56,7 +61,7 @@ CommunicationClient::CommunicationClient() {
     if (serverSocket == INVALID_SOCKET) {
         printf("Unable to connect to server!\n");
         WSACleanup();
-        exit(1);
+        return false;
     }
     
     id = -1;
@@ -70,7 +75,10 @@ CommunicationClient::CommunicationClient() {
     u_long nonblocking = 1;
     ioctlsocket(serverSocket, FIONBIO, &nonblocking);
 
+    connected = true;
+    return true;
 }
+
 void CommunicationClient::sendInput(CLIENT_INPUT sendInput) {
     int iResult;
     // 2. Send input to server (if any)
@@ -163,4 +171,8 @@ void CommunicationClient::validateRecv(int iResult) {
 
 int CommunicationClient::getId() {
     return id;
+}
+
+bool CommunicationClient::isConnected() {
+    return connected;
 }
