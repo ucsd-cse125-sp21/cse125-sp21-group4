@@ -6,6 +6,8 @@ Mage::Mage() {
     setHp(MAGE_MAX_HP); // init full health
     maxHp = MAGE_MAX_HP;
     setAttackDamage(MAGE_ATTACK_DAMAGE);
+    setAcceleration(MAGE_ACCELERATION);
+    setMaxSpeed(MAGE_MAX_SPEED);
 }
 
 Mage::Mage(PlayerPosition position) : GamePlayer(position) {
@@ -13,6 +15,8 @@ Mage::Mage(PlayerPosition position) : GamePlayer(position) {
     setHp(MAGE_MAX_HP); // init full health
     maxHp = MAGE_MAX_HP;
     setAttackDamage(MAGE_ATTACK_DAMAGE);
+    setAcceleration(MAGE_ACCELERATION);
+    setMaxSpeed(MAGE_MAX_SPEED);
 }
 
 // overide GamePlayer's attack
