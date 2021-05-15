@@ -6,6 +6,8 @@ Cleric::Cleric() {
     setHp(CLERIC_MAX_HP); // init full health
     setAttackDamage(CLERIC_ATTACK_DAMAGE);
     maxHp = CLERIC_MAX_HP;
+    setAcceleration(CLERIC_ACCELERATION);
+    setMaxSpeed(CLERIC_MAX_SPEED);
 }
 
 Cleric::Cleric(PlayerPosition position) : GamePlayer(position) {
@@ -13,6 +15,8 @@ Cleric::Cleric(PlayerPosition position) : GamePlayer(position) {
     setHp(CLERIC_MAX_HP); // init full health
     setAttackDamage(CLERIC_ATTACK_DAMAGE);
     maxHp = CLERIC_MAX_HP;
+    setAcceleration(CLERIC_ACCELERATION);
+    setMaxSpeed(CLERIC_MAX_SPEED);
 }
 
 // overide GamePlayer's attack

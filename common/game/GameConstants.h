@@ -63,6 +63,19 @@
 #define MAGE_ATTACK_DISTANCE 20
 #define CLERIC_ATTACK_DISTANCE 15
 
+// Player movement constants
+#define FIGHTER_ACCELERATION 0.05
+#define FIGHTER_MAX_SPEED 1
+#define MAGE_ACCELERATION 0.05
+#define MAGE_MAX_SPEED 1
+#define CLERIC_ACCELERATION 0.05
+#define CLERIC_MAX_SPEED 1
+#define ROGUE_ACCELERATION 0.05
+#define ROGUE_MAX_SPEED 1
+#define MONSTER_ACCELERATION 0.05
+#define MONSTER_MAX_SPEED 1
+
+
 
 // Player attack speed (projectile moving speed)
 #define ROGUE_ARROW_SPEED 2 // 2 units per tick

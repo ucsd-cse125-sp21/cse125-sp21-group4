@@ -6,6 +6,8 @@ Rogue::Rogue() {
     setHp(ROGUE_MAX_HP); // init full health
     maxHp = ROGUE_MAX_HP;
     setAttackDamage(ROGUE_ATTACK_DAMAGE);
+    setAcceleration(ROGUE_ACCELERATION);
+    setMaxSpeed(ROGUE_MAX_SPEED);
 }
 
 Rogue::Rogue(PlayerPosition position) : GamePlayer(position) {
@@ -13,6 +15,8 @@ Rogue::Rogue(PlayerPosition position) : GamePlayer(position) {
     setHp(ROGUE_MAX_HP); // init full health
     maxHp = ROGUE_MAX_HP;
     setAttackDamage(ROGUE_ATTACK_DAMAGE);
+    setAcceleration(ROGUE_ACCELERATION);
+    setMaxSpeed(ROGUE_MAX_SPEED);
 }
 
 // overide GamePlayer's attack

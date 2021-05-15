@@ -8,6 +8,8 @@ Monster::Monster() {
     maxHp = MONSTER_MAX_HP;
     setAttackDamage(MONSTER_ATTACK_DAMAGE);
     setEvo(MONSTER_FIRST_STAGE_THRESHOLD);
+    setAcceleration(MONSTER_ACCELERATION);
+    setMaxSpeed(MONSTER_MAX_SPEED);
 }
 
 Monster::Monster(PlayerPosition position) : GamePlayer(position){
@@ -16,6 +18,8 @@ Monster::Monster(PlayerPosition position) : GamePlayer(position){
     maxHp = MONSTER_MAX_HP;
     setAttackDamage(MONSTER_ATTACK_DAMAGE);
     setEvo(MONSTER_FIRST_STAGE_THRESHOLD);
+    setAcceleration(MONSTER_ACCELERATION);
+    setMaxSpeed(MONSTER_MAX_SPEED);
 }
 
 // monster ranged attack

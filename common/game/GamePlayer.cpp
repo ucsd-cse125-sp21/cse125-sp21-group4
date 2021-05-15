@@ -5,7 +5,7 @@ GamePlayer::GamePlayer() {}
 GamePlayer::GamePlayer(PlayerPosition position) {
     type = UNKNOWN;
     setPosition(position);
-    setSpeed(INIT_SPEED);
+    setSpeed(0); // init speed is 0
 }
 
 PlayerType GamePlayer::getType () { return type; }
@@ -57,6 +57,14 @@ void GamePlayer::setFaceDirection(Direction newDirection) {
 float GamePlayer::getSpeed() { return speed; }
 
 void GamePlayer::setSpeed(float newSpeed) { speed = newSpeed; }
+
+float GamePlayer::getAcceleration() { return acceleration; }
+
+void GamePlayer::setAcceleration(float newAcceleration) { acceleration = newAcceleration; }
+
+float GamePlayer::getMaxSpeed() { return maxSpeed; }
+
+void GamePlayer::setMaxSpeed (float newMaxSpeed) {maxSpeed = newMaxSpeed;}
 
 void GamePlayer::speedChange(float amount) {
     if (amount > 0) speedUp(amount);
@@ -264,6 +272,20 @@ bool GamePlayer::samePosition (PlayerPosition p1, PlayerPosition p2) {
     We assume player position is valid here (player position does not go beyond map)
 */
 void GamePlayer::move (Game* game, Direction direction) {
+    // cancel prescheduled "speed goes back to 0" event
+    std::vector<GameEvent*> newEvents;
+    for (auto iter = game->events.begin(); iter != game->events.end(); iter++) {
+        GameEvent* event = *iter;
+        if (event->ownerID == getID() && event->targetID == getID() && event->type == SPEED_CHANGE) delete event;
+        else newEvents.push_back(event);
+    }   
+    game->events = newEvents;   
+    
+    printf("direction: %d, facedirection: %d\n", direction, faceDirection);
+
+    // if player changes direction, set speed back to 0
+    if (direction != getFaceDirection()) speed = 0;
+    else speed = std::min(speed + acceleration, maxSpeed);
 
     // turn the face direction as the parameter direction no matter the movement is succ or not
     setFaceDirection(direction);
@@ -284,7 +306,20 @@ void GamePlayer::move (Game* game, Direction direction) {
     }
 
     // if destination is invalid, return immediately
-    if (!canMoveTo(game, destPosition)) return;
+    if (!canMoveTo(game, destPosition)) {
+        // player destination invalid, change speed to 0
+        speed = 0;
+        return;
+    }
+
+    // schedule a "speed back to 0" event, if there is no consecutive move, acceleration process terminate
+    GameEvent* event = new GameEvent();
+    event->type = SPEED_CHANGE;
+    event->ownerID = getID();
+    event->targetID = getID();
+    event->amount = -1 * speed;
+    event->time = std::chrono::steady_clock::now() + std::chrono::milliseconds(TICK_TIME);
+    game->events.push_back(event);
 
     // push update onto queue for clients to know that a player has moved
     GameUpdate gameUpdate;
