@@ -1,3 +1,4 @@
+#pragma once
 #ifndef _PROJECTILEELEMENT_H_
 #define _PROJECTILEELEMENT_H_
 
@@ -15,8 +16,8 @@ private:
 	GLuint EBO;
 
 	glm::mat4 model;
-	glm::mat4 * view;
-	glm::mat4 * projection;
+	glm::mat4* view;
+	glm::mat4* projection;
 	GLuint shader;
 
 	bool hasTexture;
@@ -38,9 +39,9 @@ public:
 	scale is a factor you want to scale the initial object;
 	color c is the initial model color; default is black
 */
-	ProjectileElement(string fileName, glm::mat4 * proj, glm::mat4 * view, GLuint shader,
+	ProjectileElement(string fileName, glm::mat4* proj, glm::mat4* view, GLuint shader,
 		glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale,
-		glm::vec3 c = glm::vec3(0.f, 0.f, 0.f), char * textFile = "");
+		glm::vec3 c = glm::vec3(0.f, 0.f, 0.f), char* textFile = "");
 	void draw(glm::mat4 c = glm::mat4(1));
 	void update();
 	void updateView(glm::mat4, glm::vec3);

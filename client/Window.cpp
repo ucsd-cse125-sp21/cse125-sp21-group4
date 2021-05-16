@@ -18,6 +18,7 @@ bool Window::doneInitialRender;
 //objects to render
 vector<Character*> Window::chars(4); //all the characters players get to control
 vector<EnvElement*> Window::envs; //all the environmental static objects
+vector<ProjectileElement*> Window::projectiles; //all the environmental static objects
 Character* Window::clientChar;
 
 // Interaction Variables
@@ -304,7 +305,12 @@ void Window::idleCallback()
 		std::vector<GameUpdate> updates = client->receiveGameUpdates();
 
 		// clear out previous projectiles
-		Window::projectiles.clear();
+		auto iter = projectiles.begin();
+		while (iter != projectiles.end()) {
+			delete (*iter);
+			iter = projectiles.erase(iter);
+		}
+
 		// cout << "updating game" << endl;
 		Window::handleUpdates(updates);
 	}
@@ -369,6 +375,12 @@ void Window::displayCallback(GLFWwindow* window)
 		if (chars[i] != nullptr) {
 			chars[i]->draw();
 		}
+	}
+
+	// cout << "ready to draw projectiles\n";
+	for (i = 0; i < projectiles.size() && Window::gameStarted; i++) {
+		cout << "drawing projectile " << i << "\n";
+		projectiles[i]->draw();
 	}
 
 	Window::guiManager->draw();
@@ -522,13 +534,8 @@ void Window::handleUpdate(GameUpdate update) {
 		}
 		case PROJECTILE_MOVE:
 		{
-			Projectile p;
-			p.type = update.projectileType;
-			p.currentPosition.x = update.playerPos.x;
-			p.currentPosition.y = update.playerPos.y;
-			p.direction = update.direction;
-
-			glm::vec3 trans = glm::vec3(p.currentPosition.x, 1.f, p.currentPosition.y);
+			cout << "================== projectile ==============\n";
+			glm::vec3 trans = glm::vec3(update.playerPos.x, 1.f, update.playerPos.y);
 			glm::vec3 rotAxis = glm::vec3(0.f, 1.f, 0.f);
 			float rotRad = glm::radians(0.f);
 			float scale = 1.f;
@@ -537,8 +544,10 @@ void Window::handleUpdate(GameUpdate update) {
 
 			ProjectileElement* pEle = new ProjectileElement("shaders/character/billboard.obj", &projection, &view, shaderProgram,
 															trans, rotAxis, rotRad, scale, color, textFile);
+			
 			projectiles.push_back(pEle);
 
+			cout << "projectile from " << update.playerPos.x << ", " << update.playerPos.y << "\n";
             break;
 		}
 		case GAME_STARTED:

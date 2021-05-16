@@ -12,9 +12,9 @@
 	color c is the initial model color; default is black
 */
 
-ProjectileElement::ProjectileElement(string fileName, glm::mat4 * p, glm::mat4 * v, GLuint s, 
+ProjectileElement::ProjectileElement(string fileName, glm::mat4* p, glm::mat4* v, GLuint s,
 	glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale, glm::vec3 c, char* textFile) {
-	
+
 	// initial translation will bthe initial position
 	pos = trans;
 	model = glm::rotate(rotRad, rotAxis) * glm::translate(trans) * glm::scale(glm::vec3(scale));
@@ -169,9 +169,12 @@ ProjectileElement::ProjectileElement(string fileName, glm::mat4 * p, glm::mat4 *
 	// Unbind the VBO/VAO
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+
+	cout << "projectile element initialized\n";
 }
 
 void ProjectileElement::draw(glm::mat4 c) {
+	cout << "drawing projectile element \n";
 	//model used in the shader would be this model mult with passed down transform model
 	glm::mat4 m = model * c;
 	glUseProgram(shader);
