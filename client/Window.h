@@ -8,11 +8,13 @@
 #include "shader.h"
 #include "Character.h"
 #include "EnvElement.h"
+#include "ProjectileElement.h"
 #include "ScreenElement.h"
 #include "SpatialHashTable.h"
 //#include "../common/constants.h"
 #include "CommunicationClient.h"
 #include "../common/networking/CommunicationConstants.h"
+#include "../common/game/Projectile.h"
 #include "gui/GUIManager.h"
 
 #include <fstream>
@@ -35,6 +37,7 @@ public:
 	//objects to render
 	static vector<Character*> chars;
 	static vector<EnvElement*> envs;
+	static vector<ProjectileElement*> projectiles;
 	static vector<ScreenElement*> selectScreenElements;
 	static Character* clientChar;
 

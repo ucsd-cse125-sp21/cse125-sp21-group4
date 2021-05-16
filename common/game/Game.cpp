@@ -627,6 +627,15 @@ void Game::updateProjectiles () {
             continue;
         }
         newProjectiles.push_back(*iter);
+
+        // send projectile state to each clients
+        GameUpdate projectileUpdate;
+        projectileUpdate.updateType = PROJECTILE_MOVE;
+        projectileUpdate.id = (*iter)->ownerID;
+        projectileUpdate.projectileType = (*iter)->type;
+        projectileUpdate.direction = (*iter)->direction;
+        projectileUpdate.playerPos = {(*iter)->currentPosition.x, (*iter)->currentPosition.y};
+        addUpdate(projectileUpdate);
     }
     projectiles = newProjectiles;
 }

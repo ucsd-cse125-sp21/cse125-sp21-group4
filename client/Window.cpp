@@ -303,6 +303,8 @@ void Window::idleCallback()
 		// 3. Receive updated gamestate from server
 		std::vector<GameUpdate> updates = client->receiveGameUpdates();
 
+		// clear out previous projectiles
+		Window::projectiles.clear();
 		// cout << "updating game" << endl;
 		Window::handleUpdates(updates);
 	}
@@ -322,6 +324,7 @@ void Window::idleCallback()
 			chars[i]->update();
 		}
 	}
+
 }
 
 void Window::displayCallback(GLFWwindow* window)
@@ -518,7 +521,26 @@ void Window::handleUpdate(GameUpdate update) {
         
 		}
 		case PROJECTILE_MOVE:
+		{
+			Projectile p;
+			p.type = update.projectileType;
+			p.currentPosition.x = update.playerPos.x;
+			p.currentPosition.y = update.playerPos.y;
+			p.direction = update.direction;
+
+			glm::vec3 trans = glm::vec3(p.currentPosition.x, 1.f, p.currentPosition.y);
+			glm::vec3 rotAxis = glm::vec3(0.f, 1.f, 0.f);
+			float rotRad = glm::radians(0.f);
+			float scale = 1.f;
+			glm::vec3 color = glm::vec3(1.f, .5f, .5f);
+			char* textFile = "shaders/projectile/arrow_up.png";
+
+			ProjectileElement* pEle = new ProjectileElement("shaders/character/billboard.obj", &projection, &view, shaderProgram,
+															trans, rotAxis, rotRad, scale, color, textFile);
+			projectiles.push_back(pEle);
+
             break;
+		}
 		case GAME_STARTED:
 			Window::gameStarted = true;
 			guiManager->setSelectScreenVisible(false); // disable the selects creen
