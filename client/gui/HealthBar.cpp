@@ -3,8 +3,11 @@
 HealthBar::HealthBar(NVGcontext* vg) {
     this->vg = vg;
     maxHp = 144;
-    hp = 123;
+    hp = 60;
+	shadowHp = 123;
 	isVisible = false;
+	barColor = redColor; // default red
+	shadowColor = shadowRedColor;
 }
 
 void HealthBar::setHp(int hp) {
@@ -61,12 +64,58 @@ void HealthBar::draw(float x, float y, float w, float h) {
 	nvgFillColor(vg, nvgRGBA(28, 30, 34, 192));
 	nvgFill(vg);
 
-    // hp bar
-    float hpWidth = w * (float) hp / (float) maxHp;
+	auto now = std::chrono::steady_clock::now();
+	std::chrono::duration<float> durationSinceFlash = now - lastFlash;
+	auto durationInMilliSeconds = std::chrono::duration_cast<std::chrono::milliseconds>(durationSinceFlash).count();
+
+	// If now < flashUntil && it's been > INTERVAL since last Flash, switch colors
+	if(now < flashUntil && durationInMilliSeconds > HPBAR_DAMAGE_TAKEN_FLASHING_INTERVAL_MS) {
+
+		// Sufficient to just check one datafield because health bar can only be two colors
+		if(barColor.r == redColor.r) {
+			barColor = whiteColor;
+			shadowColor = whiteColor;
+		} else {
+			barColor = redColor;
+			shadowColor = shadowRedColor;
+		}
+		lastFlash = now;
+
+	// else if now >= flashUntil, return back to red color.
+	} else if (now >= flashUntil) {
+		barColor = redColor;
+		shadowColor = shadowRedColor;
+	}
+
+	// If actualBarHp is not equal to hp, increment or decrement it towards the hp
+	std::chrono::duration<float> durationSinceShadowChange = now - lastShadowChange;
+	auto shadowDurationInMilliSeconds = std::chrono::duration_cast<std::chrono::milliseconds>(durationSinceShadowChange).count();
+
+	if(shadowDurationInMilliSeconds > HPBAR_SHADOW_HP_INTERVAL_MS) {
+		if (shadowHp > hp) {
+			shadowHp--;
+		} else if (shadowHp < hp) {
+			shadowHp++;
+		}
+		lastShadowChange = now;
+	}
+
+    // shadow hp bar
+    float shadowHpWidth = w * (float) shadowHp / (float) maxHp;
 	nvgBeginPath(vg);
-	nvgRoundedRect(vg, x, y, hpWidth, h, cornerRadius);
-	nvgFillColor(vg, nvgRGBA(243, 30, 30, 192));
+	nvgRoundedRect(vg, x, y, shadowHpWidth, h, cornerRadius);
+	nvgFillColor(vg, shadowColor);
 	nvgFill(vg);
+
+	// actual hp bar (only fill if red)
+	if(barColor.r == redColor.r) {
+		float hpWidth = w * (float) hp / (float) maxHp;
+		nvgBeginPath(vg);
+		nvgRoundedRect(vg, x, y, hpWidth, h, cornerRadius);
+		nvgFillColor(vg, barColor);
+		nvgFill(vg);
+	}
+
 
 
     // hp text
@@ -85,4 +134,8 @@ void HealthBar::draw(float x, float y, float w, float h) {
 
 void HealthBar::setVisible(bool visible) {
     this->isVisible = visible;
+}
+
+void HealthBar::flashHealthBar() {
+	flashUntil = std::chrono::steady_clock::now() + std::chrono::milliseconds(HPBAR_DAMAGE_TAKEN_FLASHING_TIME_MS);
 }
