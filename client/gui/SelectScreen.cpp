@@ -139,5 +139,9 @@ void SelectScreen::handleSelecting(PlayerType roleSelecting) {
 
 
 void SelectScreen::startTimer(std::chrono::steady_clock::time_point startTime) {
-    timeSelectStarted = startTime;
+    // Commented out buggy code for now, the issue was that steady_clock does not work across machines
+    // timeSelectStarted = startTime;
+    
+    // There **should** be no delay between when the graphics client sees SelectScreen and server's update.
+    timeSelectStarted = std::chrono::steady_clock::now();
 }
