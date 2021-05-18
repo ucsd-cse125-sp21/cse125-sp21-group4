@@ -193,6 +193,11 @@ Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPo
 }
 
 void Character::draw(glm::mat4 c) {
+	// if not visible then don't draw
+	if(!isVisible) {
+		return;
+	}
+	
 	//model used in the shader would be this model mult with passed down transform model
 	glm::mat4 m = model * c;
 	glUseProgram(shader);
@@ -249,9 +254,7 @@ void Character::draw(glm::mat4 c) {
 		glBindTexture(GL_TEXTURE_2D, textId);
 	}
 
-	if (isVisible) {
-		glDrawElements(GL_TRIANGLES, 3 * triangles.size(), GL_UNSIGNED_INT, 0);
-	}
+	glDrawElements(GL_TRIANGLES, 3 * triangles.size(), GL_UNSIGNED_INT, 0);
 
 	glDisable(GL_BLEND);
 
