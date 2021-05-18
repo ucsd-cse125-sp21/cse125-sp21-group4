@@ -8,10 +8,10 @@
 - Windows machine
 
 ### How to run the Client (with Graphics) (New Instructions with Solution file)
-1. Open up Visual Studio -> Open a project or solution -> Goto repository/client and pick CSE125Proj.sln
+1. Open up Visual Studio -> Open a project or solution -> Goto repository/client and pick CSE125Client.sln
 2. Right click the Project in the Solution Explorer (not the Solution) -> Properties -> Make sure All Configurations is chosen
 3. Linker -> Input
-4. Prepend "opengl32.lib;" to the Additional Dependencies.
+4. Prepend "opengl32.lib;" to the Additional Dependencies (if not already prepended).
 5. Apply -> Ok -> Press Ctrl - F5 to run.
 
 ### How to run the Client (with Graphics) (Legacy Instructions)
