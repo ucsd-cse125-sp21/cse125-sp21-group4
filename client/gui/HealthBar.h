@@ -11,7 +11,7 @@
 // Flashing Damage Taken Constants for Graphics
 #define HPBAR_DAMAGE_TAKEN_FLASHING_TIME_MS 1200
 #define HPBAR_DAMAGE_TAKEN_FLASHING_INTERVAL_MS 200
-#define HPBAR_SHADOW_HP_INTERVAL_MS 250
+#define HPBAR_SHADOW_HP_INTERVAL_MS 150
 
 
 class HealthBar {
@@ -20,7 +20,7 @@ private:
     const NVGcolor shadowRedColor = nvgRGBA(235, 141, 141, 192);
     const NVGcolor shadowWhiteColor = nvgRGBA(255, 255, 255, 192);
     const NVGcolor redColor = nvgRGBA(211, 33, 33, 192);
-    const NVGcolor whiteColor = nvgRGBA(200, 200, 200, 192);
+    const NVGcolor whiteColor = nvgRGBA(255, 255, 255, 192);
 
 public:
     int hp;

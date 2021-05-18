@@ -39,6 +39,12 @@ Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPo
 	// if path is NOT given at construction time, hasTexture will be false.
 	hasTexture = loadAnimationAssets(textFile);
 
+	// For flashing the character on damage taken events
+	isVisible = true;
+	lastDamageFlash = currTime;
+	damageFlashUntil = currTime;
+
+
 	std::vector<glm::vec3> normalp;
 	std::vector<glm::vec3> pointsp;
 	std::vector<glm::vec2> texp;
@@ -243,7 +249,9 @@ void Character::draw(glm::mat4 c) {
 		glBindTexture(GL_TEXTURE_2D, textId);
 	}
 
-	glDrawElements(GL_TRIANGLES, 3 * triangles.size(), GL_UNSIGNED_INT, 0);
+	if (isVisible) {
+		glDrawElements(GL_TRIANGLES, 3 * triangles.size(), GL_UNSIGNED_INT, 0);
+	}
 
 	glDisable(GL_BLEND);
 
@@ -317,6 +325,17 @@ void Character::update() {
 			prevState = currState;
 			prevTime = currTime;
 		}
+	}
+
+	// Flash the character
+	float flashTimeDiff = (float) (currTime - lastDamageFlash) / CLOCKS_PER_SEC * 1000;
+	if(currTime < damageFlashUntil && flashTimeDiff > CHARACTER_DAMAGE_TAKEN_FLASHING_INTERVAL_MS) {
+		isVisible = !isVisible;
+		lastDamageFlash = currTime;
+
+	// past the flash time, set reversedColor to false so we return to normal colors
+	} else if (currTime > damageFlashUntil)  {
+		isVisible = true;
 	}
 }
 
@@ -414,4 +433,8 @@ bool Character::loadAnimationAssets(string assetFolder) {
 
 void Character::setState(CharState state) {
 	currState = state;
+}
+
+void Character::flashDamage() {
+	damageFlashUntil = clock() + CHARACTER_DAMAGE_TAKEN_FLASHING_TIME_MS * CLOCKS_PER_SEC / 1000;
 }

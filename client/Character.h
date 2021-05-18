@@ -8,6 +8,9 @@
 #define ATTACK_ANIMATION_INTERVAL 0.075
 #define MOVING_ANIMATION_INTERVAL 0.1
 
+#define CHARACTER_DAMAGE_TAKEN_FLASHING_TIME_MS 600
+#define CHARACTER_DAMAGE_TAKEN_FLASHING_INTERVAL_MS 100
+
 enum CharState {
 	idle,
 	moving,
@@ -50,6 +53,12 @@ private:
 	glm::vec3 * eyep;
 	glm::vec3 color;
 
+
+	// used for taking damage
+	bool isVisible;
+	time_t lastDamageFlash;
+	time_t damageFlashUntil;
+
 public:
 	//character specific status such as positions, stats etc
 	glm::vec3 pos;
@@ -77,6 +86,7 @@ public:
 	bool loadAnimation(CharState state, string animFile);
 	bool loadAnimationAssets(string assetFolder);
 	void setState(CharState state);
+	void flashDamage();
 };
 
 #endif

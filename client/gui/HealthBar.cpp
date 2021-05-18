@@ -12,6 +12,7 @@ HealthBar::HealthBar(NVGcontext* vg) {
 
 void HealthBar::setHp(int hp) {
     this->hp = hp;
+	this->shadowHp = hp;
 }
 
 void HealthBar::decrementHp(int damage) {
