@@ -199,6 +199,7 @@ bool Window::initializeObjects()
 		"shaders/character/MAGE");	
 	clientChar = chars[0];
 	Window::gameStarted = true;
+	guiManager->healthBar->flashHealthBar();
 	#endif
 	/* ===== end of #ifndef (no-server client) code ==== */
 
@@ -208,8 +209,6 @@ bool Window::initializeObjects()
 		"shaders/character/MAGE"));
 
 	//  ==========  End of Character Initialization ========== 
-
-	guiManager->healthBar->flashHealthBar();
 	return true;
 }
 
