@@ -65,7 +65,7 @@ void SelectScreen::draw(float windowWidth, float windowHeight) {
         nvgFillColor(vg, nvgRGBA(0, 0, 0, 255));
         std::string text = "Press 1-4 to select a role. Press Enter to claim your role (" +    
             std::to_string(numSecsLeft) + " seconds remaining).";
-        nvgText(vg, windowWidth/2, windowHeight - windowHeight/11, text.c_str() , NULL);
+        nvgText(vg, windowWidth/2, windowHeight - windowHeight/24, text.c_str() , NULL);
 
     }
 	nvgRestore(vg); 
@@ -139,5 +139,9 @@ void SelectScreen::handleSelecting(PlayerType roleSelecting) {
 
 
 void SelectScreen::startTimer(std::chrono::steady_clock::time_point startTime) {
-    timeSelectStarted = startTime;
+    // Commented out buggy code for now, the issue was that steady_clock does not work across machines
+    // timeSelectStarted = startTime;
+    
+    // There **should** be no delay between when the graphics client sees SelectScreen and server's update.
+    timeSelectStarted = std::chrono::steady_clock::now();
 }
