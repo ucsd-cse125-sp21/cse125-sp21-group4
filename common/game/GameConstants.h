@@ -9,13 +9,6 @@
 #define MAX_PLAYERS 4  // used to determine the game's absolute maximum player count
 #define SELECT_SCREEN_TIME 20 // 20 seconds to select jobs
 
-// Flashing Damage Taken Constants for Graphics
-#define HPBAR_DAMAGE_TAKEN_FLASHING_TIME_MS 1200
-#define HPBAR_DAMAGE_TAKEN_FLASHING_INTERVAL_MS 200
-#define HPBAR_SHADOW_HP_INTERVAL_MS 250
-#define CHARACTER_DAMAGE_TAKEN_FLASHING_TIME_MS 1200
-#define CHARACTER_DAMAGE_TAKEN_FLASHING_INTERVAL_MS 200
-
 // Interaction Ranges for Objectives
 #define BEACON_INTERACTION_RANGE 15
 #define ARMOR_INTERACTION_RANGE 3

@@ -84,32 +84,33 @@ bool Window::initializeObjects()
 
 	//  ==========  Select Screen  ========== 
 	glm::vec3 selectScreenLocation = eyePos + glm::vec3(0.f, -100.f, 0.f);
-	float rotateAmount = glm::radians(-45.f);
+	float rotateAmount = glm::radians(-53.13f);
+	float selectScreenScale = 8.f;
 	lookAtPoint = selectScreenLocation;
 	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
-		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
+		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, selectScreenScale, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/character_select_background.png"));
 	
 
 	// Each Job Buttons
 	// (1) Fighter
 	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
-		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
+		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, selectScreenScale, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/fighter_unselected.png"));
 		
 	// (2) Mage
 	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
-		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
+		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, selectScreenScale, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/mage_unselected.png"));
 		
 	// (3) Cleric
 	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
-		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
+		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, selectScreenScale, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/cleric_unselected.png"));
 		
 	// (4) Rogue
 	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
-		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
+		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, selectScreenScale, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/rogue_unselected.png"));
 
 	//  ==========  End of Select Screen  ========== 
@@ -121,48 +122,48 @@ bool Window::initializeObjects()
 		glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
 
 
-	// ifstream map_file("../assets/layout/map.csv");
-    // string line;
-    // string id;
+	ifstream map_file("../assets/layout/map.csv");
+    string line;
+    string id;
 
-    // int i = 0, j = 0;
+    int i = 0, j = 0;
 
-	// int x = 0, y = 0, z = 0;
-    // while(getline(map_file, line)) {
-    //     stringstream ss(line);
+	int x = 0, y = 0, z = 0;
+    while(getline(map_file, line)) {
+        stringstream ss(line);
         
-    //     while(getline(ss, id, ',')) {
-	// 		//std::cout << std::stoi(id) << '\n';
-	// 		// (horiz - pos right, vert - pos up, screen - pos towards you)
-	// 		//std::cout << "i: " << i << "j: " << j << '\n';
-    //         switch(std::stoi(id)) {
+        while(getline(ss, id, ',')) {
+			//std::cout << std::stoi(id) << '\n';
+			// (horiz - pos right, vert - pos up, screen - pos towards you)
+			//std::cout << "i: " << i << "j: " << j << '\n';
+            switch(std::stoi(id)) {
 				
-	// 		case OBST_ID: {
-	// 			EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
-	// 				glm::vec3(2. * j, 1.f, 2. * i), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f));
-	// 			table.insert(e);
-	// 			break;
-	// 		}
-	// 		case BEAC_ID: {
-	// 			EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
-	// 				glm::vec3(2. * j, 1.f, 2. * i), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, 1.f, 1.f));
-	// 			table.insert(e);
-	// 			break;
-	// 		}
-	// 			case SPACE_ID:
-    //                 break;
+			case OBST_ID: {
+				EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
+					glm::vec3(2. * j, 1.f, 2. * i), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f));
+				table.insert(e);
+				break;
+			}
+			case BEAC_ID: {
+				EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
+					glm::vec3(2. * j, 1.f, 2. * i), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, 1.f, 1.f));
+				table.insert(e);
+				break;
+			}
+				case SPACE_ID:
+                    break;
 
-    //             default:
-	// 				std::cout << "Invalid id " << id << '\n';
-	// 				std::cout << "i: " << i << "j: " << j << '\n';
-	// 				return false;
-	// 		}
+                default:
+					std::cout << "Invalid id " << id << '\n';
+					std::cout << "i: " << i << "j: " << j << '\n';
+					return false;
+			}
 			
-	// 		++j;
-	// 	}
-	// 	++i;
-	// 	j = 0;
-	// } 
+			++j;
+		}
+		++i;
+		j = 0;
+	} 
 
 
 	//  ==========  End of Environment Initialization  ========== 
