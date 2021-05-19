@@ -113,9 +113,6 @@
     <ClInclude Include="nanovg\stb_truetype.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HealthBar.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="gui\GUIManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>

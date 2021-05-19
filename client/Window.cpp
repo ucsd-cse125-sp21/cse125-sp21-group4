@@ -85,32 +85,33 @@ bool Window::initializeObjects()
 
 	//  ==========  Select Screen  ========== 
 	glm::vec3 selectScreenLocation = eyePos + glm::vec3(0.f, -100.f, 0.f);
-	float rotateAmount = glm::radians(-45.f);
+	float rotateAmount = glm::radians(-53.13f);
+	float selectScreenScale = 8.f;
 	lookAtPoint = selectScreenLocation;
 	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
-		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
+		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, selectScreenScale, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/character_select_background.png"));
 	
 
 	// Each Job Buttons
 	// (1) Fighter
 	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
-		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
+		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, selectScreenScale, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/fighter_unselected.png"));
 		
 	// (2) Mage
 	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
-		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
+		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, selectScreenScale, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/mage_unselected.png"));
 		
 	// (3) Cleric
 	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
-		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
+		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, selectScreenScale, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/cleric_unselected.png"));
 		
 	// (4) Rogue
 	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
-		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
+		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, selectScreenScale, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/rogue_unselected.png"));
 
 	//  ==========  End of Select Screen  ========== 
@@ -199,6 +200,7 @@ bool Window::initializeObjects()
 		"shaders/character/MAGE");	
 	clientChar = chars[0];
 	Window::gameStarted = true;
+	guiManager->healthBar->flashHealthBar();
 	#endif
 	/* ===== end of #ifndef (no-server client) code ==== */
 
@@ -208,7 +210,6 @@ bool Window::initializeObjects()
 		"shaders/character/MAGE"));
 
 	//  ==========  End of Character Initialization ========== 
-
 	return true;
 }
 
@@ -314,7 +315,7 @@ void Window::idleCallback()
 	if(Window::gameStarted && clientChar != nullptr) {
 		lookAtPoint = clientChar->pos;
 	}
-	eyePos = lookAtPoint + glm::vec3(0.f, 5.f, 5.f);
+	eyePos = lookAtPoint + glm::vec3(0.f, 8.f, 6.f);
 	view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window::upVector);
 
 	int i;
@@ -508,7 +509,9 @@ void Window::handleUpdate(GameUpdate update) {
         case PLAYER_DAMAGE_TAKEN:
 			if(update.id == client->getId()) {
 				guiManager->healthBar->decrementHp(update.damageTaken);
+				guiManager->healthBar->flashHealthBar();
 			}
+			chars[update.id]->flashDamage();
             break;
 		case PLAYER_HP_INCREMENT:
 			if(update.id == client->getId()) {
