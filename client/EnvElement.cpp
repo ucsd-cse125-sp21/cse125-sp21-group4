@@ -186,6 +186,10 @@ void EnvElement::draw(glm::mat4 c) {
 	// Bind the VAO
 	glBindVertexArray(VAO);
 
+	glEnable(GL_DEPTH_TEST);
+
+	glDepthMask(GL_TRUE);
+	
 	if (hasTexture) {
 		//cout << "has texture" << endl;
 		glActiveTexture(GL_TEXTURE0);

@@ -223,93 +223,58 @@ void Game::initGameGrids() {
     //         }
     //     }
     // }
-    // ifstream map_file("../assets/layout/map.csv");
-    // string line;
-    // string id;
+    ifstream map_file("../assets/layout/map_server.csv");
+    string line;
+    string id;
 
-    // int i = 0;
-    // int j = 0;
+    int i = 0;
+    int j = 0;
 
-    // while(getline(map_file, line)) {
-    //     stringstream ss(line);
+    while(getline(map_file, line)) {
+        stringstream ss(line);
         
-    //     while(getline(ss, id, ',')) {
-    //         GridPosition position;
-    //         position.x = j;
-    //         position.y = i;
-
-    //         switch(id) {
-    //             case OBST_ID:
-    //                 gameGrids[i][j] = new Obstacle(position); // should be a tree
-    //             case BEAC_ID:
-    //                 gameGrids[i][j] = new Beacon(position);
-    //             default:
-    //                 gameGrids[i][j] = new Space(position);
-//=======
-    int test_rock_width = 30;
-    int test_rock_height = 30;
-
-    int test_fheal_width = 35;
-    int test_fheal_height = 35;
-
-    int test_mheal_width = 40;
-    int test_mheal_height = 40;
-    
-    int test_mevo_width = 45;
-    int test_mevo_height = 45;
-
-    int test_farm_width = 50;
-    int test_farm_height = 50;
-
-    int test_beac_width = 55;
-    int test_beac_height = 55;
-
-    for (int i = 0; i < MAP_HEIGHT / GRID_HEIGHT; i++) {
-        for (int j = 0; j < MAP_WIDTH / GRID_WIDTH; j++) {
+        while(getline(ss, id, ',')) {
             GridPosition position;
             position.x = j;
             position.y = i;
-            // put obstacles on the boundary
-            if (isBoundary(j, i)) {
-                gameGrids[i][j] = new Obstacle(position);
-            }
-            else {
-                
-                // testing purposes
-                if(j == test_rock_width && i == test_rock_height) {
-                    gameGrids[i][j] = new Rock(position);
+
+            switch(std::stoi(id)) {
+                case SPACE_ID: {
+                    gameGrids[i][j] = new Space(position);
                 }
-                else if (j == test_fheal_width && i == test_fheal_height) {
+                case OBST_ID: {
+                    gameGrids[i][j] = new Obstacle(position); 
+                }
+                case HUNTER_HP_ID: {
                     gameGrids[i][j] = new Heal(position, R_HUNTER);
                     objectives.push_back((Objective *)gameGrids[i][j]);
                 }
-                else if (j == test_mheal_width && i == test_mheal_height) {
+                case HUNTER_ARMOR_ID: {
+                    gameGrids[i][j] = new Armor(position);
+                    objectives.push_back((Objective *)gameGrids[i][j]);
+                }
+                case MONSTER_HP_ID: {
                     gameGrids[i][j] = new Heal(position, R_MONSTER);
                     objectives.push_back((Objective *)gameGrids[i][j]);
                 }
-                else if (j == test_mevo_width && i == test_mevo_height) {
+                case MONSTER_EVOLVE_ID: {
                     gameGrids[i][j] = new Evolve(position);
                     objectives.push_back((Objective *)gameGrids[i][j]);
                 }
-                else if (j == test_farm_width && i == test_farm_height) {
-                    gameGrids[i][j] = new Armor(position, R_HUNTER);
-                    objectives.push_back((Objective *)gameGrids[i][j]);
-                }
-                else if (j == test_beac_width && i == test_beac_height) {
+                case BEAC_ID: {
                     gameGrids[i][j] = new Beacon(position);
                     beacon = (Beacon*) gameGrids[i][j];
                 }
-                else {
+                default: {
+                    printf("Invalid integer in map_server.csv, putting Space Object for now\n");
                     gameGrids[i][j] = new Space(position);
                 }
-
-//>>>>>>> origin/main
             }
 
-            // j++;
+            j++;
         }
 
-        // i++;
+        i++;
     }
 }
 

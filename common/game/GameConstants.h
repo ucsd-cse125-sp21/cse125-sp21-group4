@@ -9,6 +9,15 @@
 #define MAX_PLAYERS 4  // used to determine the game's absolute maximum player count
 #define SELECT_SCREEN_TIME 20 // 20 seconds to select jobs
 
+// Tile IDs
+#define SPACE_ID 0
+#define OBST_ID 1
+#define HUNTER_HP_ID  2
+#define HUNTER_ARMOR_ID 3
+#define MONSTER_HP_ID 4
+#define MONSTER_EVOLVE_ID 5
+#define BEAC_ID 6
+
 // Interaction Ranges for Objectives
 #define BEACON_INTERACTION_RANGE 15
 #define ARMOR_INTERACTION_RANGE 3
@@ -129,10 +138,10 @@
 // const float P4_SPAWN_POSITION[2] {15.0, 15.0};
 
 const float SPAWN_POSITIONS [4][2] = {
-    {5.0, 5.0},
-    {15.0, 5.0},
-    {5.0, 15.0},
-    {70.0, 70.0}
+    {25.0, 25.0},
+    {35.0, 25.0},
+    {25.0, 35.0},
+    {65.0, 65.0}
 };
 
 #define MOVE_DISTANCE 1
