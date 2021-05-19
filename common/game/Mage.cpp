@@ -45,7 +45,8 @@ void Mage::attack(Game* game) {
     p->speed = MAGE_SHOOT_SPEED;
     p->direction = getFaceDirection();
     p->damage = getAttackDamage();
-    game->projectiles.push_back(p);
+    game->projectiles[game->nextProjectileId] = p;
+    game->nextProjectileId = (game->nextProjectileId + 1) % MAX_PROJECTILE_ID;
 
     // Send an update to the clients: HEALING_OBJECTIVE_TAKEN
     GameUpdate attackUpdate;
@@ -79,7 +80,8 @@ void Mage::uniqueAttack(Game* game) {
     p->speed = FIREBALL_SPEED;
     p->direction = getFaceDirection();
     p->damage = 0;
-    game->projectiles.push_back(p);
+    game->projectiles[game->nextProjectileId] = p;
+    game->nextProjectileId = (game->nextProjectileId + 1) % MAX_PROJECTILE_ID;
 }
 
 void Mage::interact(Game* game) {

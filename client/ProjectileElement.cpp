@@ -12,15 +12,18 @@
 	color c is the initial model color; default is black
 */
 
-ProjectileElement::ProjectileElement(string fileName, glm::mat4* p, glm::mat4* v, GLuint s,
+ProjectileElement::ProjectileElement(string fileName, glm::mat4* p, glm::mat4* v, GLuint s, glm::vec3* vPos,
 	glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale, glm::vec3 c, char* textFile) {
 
 	// initial translation will bthe initial position
 	pos = trans;
-	model = glm::rotate(rotRad, rotAxis) * glm::translate(trans) * glm::scale(glm::vec3(scale));
+	model = glm::rotate(glm::translate(trans), rotRad, rotAxis);
+	// * glm::scale(glm::vec3(scale));
 	projection = p;
 	view = v;
+	eyep = vPos;
 	shader = s;
+	scaleMtx = glm::scale(glm::vec3(scale));
 	//default color is black
 	color = c;
 	// if path is NOT given at construction time, hasTexture will be false.
@@ -179,11 +182,35 @@ void ProjectileElement::draw(glm::mat4 c) {
 	glm::mat4 m = model * c;
 	glUseProgram(shader);
 
+	// glm::vec3 z = glm::vec3(0.f, 0.f, 0.f);
+	// for (int i = 0; i < 3; i++) {
+	// 	z[i] = pos[i] - (*eyep)[i];
+	// }
+
+	// float scaleX = sqrt(m[0][0]*m[0][0]+m[0][1]*m[0][1]+m[0][2]*m[0][2]);
+	// float scaleY = sqrt(m[1][0]*m[1][0]+m[1][1]*m[1][1]+m[0][2]*m[1][2]);
+	// float scaleZ = sqrt(m[2][0]*m[2][0]+m[2][1]*m[2][1]+m[0][2]*m[2][2]);
+
+	// glm::vec3 x = glm::cross(glm::vec3(0.f, 0.1f, 0.f), z);
+	// glm::vec3 y = glm::cross(x, z);
+	// glm::vec3 xn = glm::normalize(x);
+	// glm::vec3 yn = glm::normalize(y);
+	// glm::vec3 zn = glm::normalize(z);
+
+	// // rotate the character so it will parallel with the line from camera to character
+	// for (int i = 0; i < 3;  i++) m[i][0] = xn[i];
+	// for (int i = 0; i < 3;  i++) m[i][1] = yn[i];
+	// for (int i = 0; i < 3;  i++) m[i][2] = zn[i];
+	// // restore scaling
+	// m[0][0] = scaleX;
+	// m[1][1] = scaleY;
+	// m[2][2] = scaleZ;
+
 	// Get the shader variable locations and send the uniform data to the shader 
 	glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, false, glm::value_ptr(*view));
 	glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, false, glm::value_ptr(*projection));
 	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, glm::value_ptr(m));
-	glUniform3fv(glGetUniformLocation(shader, "viewPos"), 1, glm::value_ptr(eyep));
+	glUniform3fv(glGetUniformLocation(shader, "viewPos"), 1, glm::value_ptr(*eyep));
 	glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(color));
 
 	// Bind the VAO
@@ -209,11 +236,32 @@ void ProjectileElement::update() {
 
 }
 
+void ProjectileElement::moveTo(glm::vec3 newPos) {
+	// else
+	// 	currState = moving;
+	pos = newPos;
+	model = glm::translate(pos) * scaleMtx;
+}
+
+
+void ProjectileElement::moveToGivenPos(float x, float y) {
+	// deltaX is the x axis in the graphics client
+	glm::vec3 newPos = pos;
+	newPos.x += x;
+
+	// deltaY is the z axis in the graphics client
+	newPos.z += y;
+
+	// move to new position
+	moveTo(newPos);
+}
+
 void ProjectileElement::updateView(glm::mat4 proj, glm::vec3) {
 
 }
 
 bool ProjectileElement::loadTexture(char* texturePath) {
+	// const char* texturePath = path.c_str();
 	if (strcmp(texturePath, "") == 0)
 		return false;
 	FILE* f;
@@ -227,14 +275,24 @@ bool ProjectileElement::loadTexture(char* texturePath) {
 	}
 
 	int ftw, fth, channels;
-	unsigned char* data = stbi_load(texturePath, &ftw, &fth, &channels, 3);
+	stbi_set_flip_vertically_on_load(true);
+	unsigned char* data = stbi_load(texturePath, &ftw, &fth, &channels, STBI_rgb_alpha);
 	if (data == NULL) {
 		cout << "cannot load texture at " << texturePath << endl;
 		return false;
 	}
+	//cout << "num of channels: " << channels << endl;
+	
+	// GLuint tid;
 	glGenTextures(1, &textId);
 	glBindTexture(GL_TEXTURE_2D, textId);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, ftw, fth, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ftw, fth, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(data);
+	fclose(f);
 	return true;
 }

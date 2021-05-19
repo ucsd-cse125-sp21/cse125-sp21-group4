@@ -18,7 +18,7 @@ bool Window::doneInitialRender;
 //objects to render
 vector<Character*> Window::chars(4); //all the characters players get to control
 vector<EnvElement*> Window::envs; //all the environmental static objects
-vector<ProjectileElement*> Window::projectiles; //all the environmental static objects
+unordered_map<int, ProjectileElement*> Window::projectiles; //all the environmental static objects
 Character* Window::clientChar;
 
 // Interaction Variables
@@ -304,13 +304,6 @@ void Window::idleCallback()
 		// 3. Receive updated gamestate from server
 		std::vector<GameUpdate> updates = client->receiveGameUpdates();
 
-		// clear out previous projectiles
-		auto iter = projectiles.begin();
-		while (iter != projectiles.end()) {
-			delete (*iter);
-			iter = projectiles.erase(iter);
-		}
-
 		// cout << "updating game" << endl;
 		Window::handleUpdates(updates);
 	}
@@ -377,10 +370,8 @@ void Window::displayCallback(GLFWwindow* window)
 		}
 	}
 
-	// cout << "ready to draw projectiles\n";
-	for (i = 0; i < projectiles.size() && Window::gameStarted; i++) {
-		cout << "drawing projectile " << i << "\n";
-		projectiles[i]->draw();
+	for(auto iter = projectiles.begin(); iter != projectiles.end(); iter++) {
+		iter->second->draw();
 	}
 
 	Window::guiManager->draw();
@@ -534,22 +525,38 @@ void Window::handleUpdate(GameUpdate update) {
 		}
 		case PROJECTILE_MOVE:
 		{
-			cout << "================== projectile ==============\n";
+			
 			glm::vec3 trans = glm::vec3(update.playerPos.x, 1.f, update.playerPos.y);
 			glm::vec3 rotAxis = glm::vec3(0.f, 1.f, 0.f);
 			float rotRad = glm::radians(0.f);
 			float scale = 1.f;
 			glm::vec3 color = glm::vec3(1.f, .5f, .5f);
-			char* textFile = "shaders/projectile/arrow_up.png";
+			string textFile;
 
-			ProjectileElement* pEle = new ProjectileElement("shaders/character/billboard.obj", &projection, &view, shaderProgram,
-															trans, rotAxis, rotRad, scale, color, textFile);
-			
-			projectiles.push_back(pEle);
+			// select projectile texture
+			if (update.projectileType == MAGE_FIREBALL) textFile ="shaders/projectile/fireball";
+			if (update.projectileType == MAGE_SHOOT) textFile ="shaders/projectile/fireball";
+			if (update.projectileType == ROGUE_ARROW) textFile ="shaders/projectile/arrow";
+			if (update.projectileType == CLERIC_SHOOT) textFile ="shaders/projectile/lightball";
+			if (update.projectileType == MONSTER_RANGED) textFile ="shaders/projectile/earthchunk";
 
-			cout << "projectile from " << update.playerPos.x << ", " << update.playerPos.y << "\n";
+			// select projectile direction
+			if (update.direction == NORTH) textFile += "_up.png";
+			if (update.direction == SOUTH) textFile += "_down.png";
+			if (update.direction == WEST) textFile += "_left.png";
+			if (update.direction == EAST) textFile += "_right.png";
+
+
+			ProjectileElement* pEle = new ProjectileElement("shaders/character/billboard.obj", &projection, &view, texShader, &eyePos,
+															trans, rotAxis, rotRad, scale, color, (char*) textFile.c_str());
+			projectiles[update.id] = pEle;
+
             break;
 		}
+		case PROJECTILE_END:
+			delete projectiles[update.id];
+			projectiles.erase(update.id);
+			break;
 		case GAME_STARTED:
 			Window::gameStarted = true;
 			guiManager->setSelectScreenVisible(false); // disable the selects creen

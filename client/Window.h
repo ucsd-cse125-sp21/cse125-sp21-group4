@@ -3,6 +3,7 @@
 
 #define KEYBOARD_SIZE 350
 #define SERVER_ENABLED
+#define _USE_MATH_DEFINES
 
 #include "Main.h"
 #include "shader.h"
@@ -20,7 +21,9 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <unordered_map>
 #include <iostream>
+#include <cmath>
 
 
 
@@ -37,7 +40,7 @@ public:
 	//objects to render
 	static vector<Character*> chars;
 	static vector<EnvElement*> envs;
-	static vector<ProjectileElement*> projectiles;
+	static unordered_map<int, ProjectileElement*> projectiles;
 	static vector<ScreenElement*> selectScreenElements;
 	static Character* clientChar;
 

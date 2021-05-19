@@ -6,6 +6,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <unordered_map>
 #include <set>
 #include <algorithm>
 #include "GridComponent.h"
@@ -34,7 +35,8 @@ public:
     std::vector<GameEvent*> events;
     std::vector<GameUpdate> updates; // Buffers updates so it can be sent to clients
     std::vector<Objective *> objectives; // Keeps track of all the objectives in the game.
-    std::vector<Projectile*> projectiles; // Keeps track of all Projectile objects in the game.
+    std::unordered_map<int, Projectile*> projectiles; // Keeps track of all Projectile objects in the game.
+    int nextProjectileId;
     Beacon* beacon; // only 1 beacon objective in the whole map and used to determine players in capture area
 
     int renderCount;

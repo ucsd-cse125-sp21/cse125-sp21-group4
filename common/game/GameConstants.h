@@ -5,8 +5,8 @@
 #define MAP_HEIGHT 600
 #define GRID_WIDTH 1 // GRID_WIDTH should be able to fully divide MAP_WIDTH
 #define GRID_HEIGHT 1 // GRID_HEIGHT should be able to fully divide MAP_HEIGHT
-#define PLAYER_NUM 1 // used to change how many clients the server will accept
-#define MAX_PLAYERS 1  // used to determine the game's absolute maximum player count
+#define PLAYER_NUM 4 // used to change how many clients the server will accept
+#define MAX_PLAYERS 4  // used to determine the game's absolute maximum player count
 #define SELECT_SCREEN_TIME 20 // 20 seconds to select jobs
 
 // Interaction Ranges for Objectives
@@ -60,7 +60,7 @@
 #define FIGHTER_ATTACK_DISTANCE 2
 #define MONSTER_ATTACK_DISTANCE 2
 #define ROGUE_ATTACK_DISTANCE 20
-#define MAGE_ATTACK_DISTANCE 20
+#define MAGE_ATTACK_DISTANCE 40
 #define CLERIC_ATTACK_DISTANCE 15
 
 // Player movement constants
@@ -78,9 +78,9 @@
 
 
 // Player attack speed (projectile moving speed)
-#define ROGUE_ARROW_SPEED 2 // 2 units per tick
-#define MAGE_SHOOT_SPEED 1 // 1 units per tick
-#define CLERIC_SHOOT_SPEED 1 // 1 units per tick
+#define ROGUE_ARROW_SPEED 2.5 // 2 units per tick
+#define MAGE_SHOOT_SPEED 2 // 1 units per tick
+#define CLERIC_SHOOT_SPEED 2 // 1 units per tick
 
 
 // Player unique skill constants
@@ -117,6 +117,7 @@
 
 #define EVO_AMOUNT 1.5f
 
+#define MAX_PROJECTILE_ID 10000
 
 #define DELTA 0.001
 
