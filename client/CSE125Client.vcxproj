@@ -125,6 +125,7 @@
     <ClCompile Include="ObjElement.cpp" />
     <ClCompile Include="ScreenElement.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="ProjectileElement.cpp" />
     <ClCompile Include="SpatialHashTable.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
@@ -147,7 +148,11 @@
     <ClInclude Include="nanovg\nanovg_gl_utils.h" />
     <ClInclude Include="nanovg\stb_truetype.h" />
     <ClInclude Include="Object.h" />
+<<<<<<< HEAD
     <ClInclude Include="ObjElement.h" />
+=======
+    <ClInclude Include="ProjectileElement.h" />
+>>>>>>> main
     <ClInclude Include="ScreenElement.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="SpatialHashTable.h" />
