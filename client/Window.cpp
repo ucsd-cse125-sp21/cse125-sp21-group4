@@ -5,7 +5,7 @@ int Window::width;
 int Window::height;
 const char* Window::windowTitle = "CSE125_GAME";
 CommunicationClient* Window::client;
-SpatialHashTable Window::table(5000, 8.f);
+SpatialHashTable Window::table(5000, 35.f);
 bool Window::keyboard[KEYBOARD_SIZE];
 bool Window::gameStarted;
 bool Window::doneInitialRender;
