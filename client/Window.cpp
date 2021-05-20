@@ -5,7 +5,7 @@ int Window::width;
 int Window::height;
 const char* Window::windowTitle = "CSE125_GAME";
 CommunicationClient* Window::client;
-SpatialHashTable Window::table(5000, 35.f);
+SpatialHashTable Window::table(5000, 20.f);
 bool Window::keyboard[KEYBOARD_SIZE];
 bool Window::gameStarted;
 bool Window::doneInitialRender;
@@ -385,7 +385,7 @@ void Window::displayCallback(GLFWwindow* window)
 
 	//then selectively draw objects nearby this player
 	vector<EnvElement*> result;
-	float h = 8.0f;
+	float h = table.getDistance();
 	int j;
 	glm::vec3 base1(-1.f * h, 0.f, 0.f);
 	for (j = 0; j < 3 && Window::gameStarted; j++) {
@@ -404,7 +404,9 @@ void Window::displayCallback(GLFWwindow* window)
 		base1 += glm::vec3(1.f * h, 0.f, 0.f);
 	}
 	for (i = 0; i < result.size(); i++) {
-		result[i]->draw();
+		if(clientChar != nullptr) {
+			result[i]->drawIfNotObstructing(clientChar->pos);
+		}
 	}
 
 	for (i = 0; i < chars.size() && Window::gameStarted; i++) {

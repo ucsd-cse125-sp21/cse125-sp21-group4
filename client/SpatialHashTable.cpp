@@ -93,3 +93,7 @@ void SpatialHashTable::remove(EnvElement* p) {
 	}
 	return;
 }
+
+float SpatialHashTable::getDistance() {
+	return this->h;
+}

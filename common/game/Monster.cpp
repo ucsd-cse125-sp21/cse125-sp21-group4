@@ -181,6 +181,14 @@ void Monster::interact(Game* game) {
                     Evolve* evoObj = (Evolve*) obj;
                     updateEvo(game, evo + evoObj->getEvoAmount());
 
+                    // Send an update to the clients: HEALING_OBJECTIVE_TAKEN
+                    GameUpdate evoObjectiveTakenUpdate;
+                    evoObjectiveTakenUpdate.updateType = EVO_OBJECTIVE_TAKEN;
+                    evoObjectiveTakenUpdate.id = this->id;                        // id of player being healed
+                    evoObjectiveTakenUpdate.objectiveID = evoObj->getObjectiveID();
+                    evoObjectiveTakenUpdate.gridPos = evoObj->getPosition();     // obj location
+                    game->addUpdate(evoObjectiveTakenUpdate);
+
                     // Clean up the evo grid.
                     game->consumeObj(evoObj);
                     break;

@@ -42,6 +42,7 @@ public:
 		glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale,
 		glm::vec3 c = glm::vec3(0.f, 0.f, 0.f), char * textFile = "");
 	void draw(glm::mat4 c = glm::mat4(1));
+	void drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c = glm::mat4(1));
 	void update();
 	void updateView(glm::mat4, glm::vec3);
 	bool loadTexture(char* texturePath);
