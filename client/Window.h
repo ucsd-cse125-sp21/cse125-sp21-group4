@@ -3,6 +3,7 @@
 
 #define KEYBOARD_SIZE 350
 #define SERVER_ENABLED
+#define RENDER_MAP
 
 #include "Main.h"
 #include "shader.h"

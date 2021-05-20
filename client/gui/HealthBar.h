@@ -21,6 +21,7 @@ private:
     const NVGcolor shadowWhiteColor = nvgRGBA(255, 255, 255, 192);
     const NVGcolor redColor = nvgRGBA(211, 33, 33, 192);
     const NVGcolor whiteColor = nvgRGBA(255, 255, 255, 192);
+    const NVGcolor armorColor = nvgRGBA(35, 192, 225, 192);
 
 public:
     int hp;

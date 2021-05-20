@@ -118,6 +118,7 @@ bool Window::initializeObjects()
 		glm::vec3(0.f, -1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
 
 
+	#ifdef RENDER_MAP
 	ifstream map_file("../assets/layout/map_client.csv");
     string line;
     string id;
@@ -205,6 +206,7 @@ bool Window::initializeObjects()
 		}
 		
 	} 
+	#endif
 
 
 	//  ==========  End of Environment Initialization  ========== 
