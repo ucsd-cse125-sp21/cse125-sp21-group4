@@ -31,9 +31,9 @@ for object in objects:
     objectWidth = int(object["width"] / ratio)
     objectHeight = int(object["height"] / ratio)
     rotation = int(object["rotation"])
-    if rotation != 0 and rotation != 180:
+    if rotation != 0 and rotation != 180 and rotation != -180 and rotation != 360 and rotation != -360:
         print(rotation)
-    if rotation == 180:
+    if rotation == 180 or rotation == -180:
         objectX -= objectWidth
         objectY -= objectHeight
 

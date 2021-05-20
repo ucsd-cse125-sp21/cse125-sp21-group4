@@ -119,6 +119,7 @@ bool Window::initializeObjects()
 
 
 	#ifdef RENDER_MAP
+	printf("=======================================\nIt will take a while for the game to launch, please wait.\n");
 	ifstream map_file("../assets/layout/map_client.csv");
     string line;
     string id;
@@ -171,7 +172,7 @@ bool Window::initializeObjects()
 			objX += width / 2;
 			objY += height / 2;
 			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, shaderProgram,
-				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.f, 1.f, 0.f));
+				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.f, 1.f, 0.f));
 			table.insert(e);
 
 		// White cube ==  pillar
@@ -179,7 +180,7 @@ bool Window::initializeObjects()
 			objX += width / 2;
 			objY += height;
 			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, shaderProgram,
-				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.2f, 0.2f, 0.2f));
+				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.2f, 0.2f, 0.2f));
 			table.insert(e);
 
 		// White cube ==  Rock

@@ -71,10 +71,15 @@ int main(int argc, char* argv[])
 	// Setup OpenGL settings.
 	setup_opengl_settings();
 
+	auto start = std::chrono::steady_clock::now();
+
 	// Initialize the shader program; exit if initialization fails.
 	if (!Window::initializeProgram()) exit(EXIT_FAILURE);
 	if (!Window::initializeObjects()) exit(EXIT_FAILURE);
 
+	auto duration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - start).count();
+
+	printf("It took %d seconds to initialize.\n", duration);
 	// Loop while GLFW window should stay open.
 	while (!glfwWindowShouldClose(window))
 	{
