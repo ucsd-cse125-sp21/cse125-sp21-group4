@@ -4,6 +4,7 @@ GamePlayer::GamePlayer() {}
 
 GamePlayer::GamePlayer(PlayerPosition position) {
     type = UNKNOWN;
+    setFaceDirection(NORTH);
     setPosition(position);
     setSpeed(0); // init speed is 0
 }

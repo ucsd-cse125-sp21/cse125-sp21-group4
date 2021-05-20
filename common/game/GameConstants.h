@@ -101,8 +101,6 @@
 #define HEALING_AURA_HEALING_AMOUNT 20
 
 #define MONSTER_RANGED_ATTACK_DISTANCE 20
-// Player attack speed (projectile moving speed)
-#define ROGUE_ARROW_SPEED 2 // 2 units per tick
 #define MONSTER_RANGED_SPEED 2
 
 // Monster specific constants
