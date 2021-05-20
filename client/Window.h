@@ -99,6 +99,9 @@ public:
 
 	// Used to spawn objectives
 	static void Window::initializeObjective(int id, ObjectiveType type, Restriction restriction, float x, float y);
+
+	// Used to remove objectives
+	static void Window::removeObj(int objectiveID);
 };
 
 #endif

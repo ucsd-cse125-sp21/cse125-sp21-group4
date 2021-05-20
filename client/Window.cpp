@@ -600,10 +600,25 @@ void Window::handleUpdate(GameUpdate update) {
 
 		// Objective spawned
 		case SPAWN_OBJECTIVE: {
-			initializeObjective(update.id, update.objectiveSpawnType, update.objRestrictionType, update.gridPos.x, update.gridPos.y);
+			initializeObjective(update.objectiveID, update.objectiveSpawnType, update.objRestrictionType, update.gridPos.x, update.gridPos.y);
 
 			break;
 		}
+
+		// objective taken
+		
+        // Objectives:
+        case HEAL_OBJECTIVE_TAKEN:
+        case ARMOR_OBJECTIVE_TAKEN:
+			if(update.id == client->getId()) {
+				guiManager->healthBar->incrementHp(update.healAmount);
+			}
+            removeObj(update.objectiveID);
+            break;
+        case EVO_OBJECTIVE_TAKEN:
+            // The level up process done in another update.
+            removeObj(update.objectiveID);
+            break;
         default:
             printf("Not Handled Update Type: %d\n", update.updateType);
             break;
@@ -742,14 +757,14 @@ bool Window::connectCommClient(std::string serverIP) {
 	return true;
 }
 
-void Window::initializeObjective(int id, ObjectiveType type, Restriction restriction, float x, float y) {
+void Window::initializeObjective(int objectiveID, ObjectiveType type, Restriction restriction, float x, float y) {
 
 	switch(type) {
 		case EVO:{
 			
 			ObjElement* e = new ObjElement("shaders/character/billboard.obj", &projection, &view, texShader,
 				glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f), false, "shaders/objectives/evolution_pickup.png");
-			objectiveMap[id] = e;
+			objectiveMap[objectiveID] = e;
 			break;
 
 		}
@@ -758,13 +773,13 @@ void Window::initializeObjective(int id, ObjectiveType type, Restriction restric
 				case R_HUNTER: {
 					ObjElement* e = new ObjElement("shaders/character/billboard.obj", &projection, &view, texShader,
 						glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f), false, "shaders/objectives/health_pickup.png");
-					objectiveMap[id] = e;
+					objectiveMap[objectiveID] = e;
 					break;
 				}
 				case R_MONSTER: {
 					ObjElement* e = new ObjElement("shaders/character/billboard.obj", &projection, &view, texShader,
 						glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f), true, "shaders/objectives/health_pickup.png");
-					objectiveMap[id] = e;
+					objectiveMap[objectiveID] = e;
 					break;
 				}
 			}
@@ -775,14 +790,14 @@ void Window::initializeObjective(int id, ObjectiveType type, Restriction restric
 
 			ObjElement* e = new ObjElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
 				glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), .25f, glm::vec3(0.f, 0.f, 1.f));
-			objectiveMap[id] = e;
+			objectiveMap[objectiveID] = e;
 			break;
 		}
 		case ARMOR:{
 
 			ObjElement* e = new ObjElement("shaders/character/billboard.obj", &projection, &view, texShader,
 				glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f), false, "shaders/objectives/armour_pickup.png");
-			objectiveMap[id] = e;
+			objectiveMap[objectiveID] = e;
 			break;
 		}
 		case INVALID_OBJ:{
@@ -793,4 +808,11 @@ void Window::initializeObjective(int id, ObjectiveType type, Restriction restric
 	}
 	
 	return;
+}
+
+
+void Window::removeObj(int objectiveID) {
+	if (objectiveMap.find(objectiveID) != objectiveMap.end()) {
+		objectiveMap.erase(objectiveID);
+	}
 }

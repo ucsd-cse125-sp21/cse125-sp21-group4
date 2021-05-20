@@ -368,6 +368,7 @@ void GamePlayer::interactHeal(Game* game, Heal * healObj) {
         printf("Player (%d): Full HP, do not consume objective.\n", this->id);
         return;
     }
+    int oldHp = this->getHp();
     int healAmount = healObj->getHealAmount();
     hpIncrement(healAmount);
 
@@ -375,7 +376,8 @@ void GamePlayer::interactHeal(Game* game, Heal * healObj) {
     GameUpdate healingUpdate;
     healingUpdate.updateType = HEAL_OBJECTIVE_TAKEN;
     healingUpdate.id = this->id;                        // id of player being healed
-    healingUpdate.healAmount = healAmount;              // healed amount
+    healingUpdate.objectiveID = healObj->getObjectiveID();
+    healingUpdate.healAmount = this->getHp() - oldHp;              // healed amount
     healingUpdate.gridPos = healObj->getPosition();     // obj location
     game->addUpdate(healingUpdate);
 
@@ -386,11 +388,16 @@ void GamePlayer::interactHeal(Game* game, Heal * healObj) {
 // Interacts with an Armor Objective
 void GamePlayer::interactArmor(Game * game, Armor * armorObj) {
     
+    int oldHp = this->getHp();
+    int healAmount = armorObj->getArmorAmount();
+    this->setHp(oldHp + healAmount);
+
     // Send an update to the clients: ARMOR_OBJECTIVE_TAKEN
     GameUpdate armorUpdate;
     armorUpdate.updateType = ARMOR_OBJECTIVE_TAKEN;
     armorUpdate.id = this->id;                            // id of player being healed
-    armorUpdate.healAmount = armorObj->getArmorAmount();  // healed amount
+    armorUpdate.objectiveID = armorObj->getObjectiveID();
+    armorUpdate.healAmount = this->getHp() - oldHp;  // healed amount
     armorUpdate.gridPos = armorObj->getPosition();        // obj location
     game->addUpdate(armorUpdate);
 

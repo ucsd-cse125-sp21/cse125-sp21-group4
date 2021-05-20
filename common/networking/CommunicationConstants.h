@@ -71,6 +71,7 @@ enum UPDATE_TYPE {
 struct GameUpdate {
     UPDATE_TYPE updateType = INVALID_UPDATE;
     int id = -1; // -1 instead of 0 because 0 is a valid player id.
+    int objectiveID = -1; // -1 instead of 0 for valid objectiveID.
     int damageTaken = 0; // Used for a damage taken event
     int attackAmount = 0; // amount of damage per attack
     int healAmount = 0; // Used for a healing event

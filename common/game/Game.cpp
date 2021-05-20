@@ -261,7 +261,7 @@ void Game::initGameGrids() {
                     objSpawnUpdate.updateType = SPAWN_OBJECTIVE;
                     objSpawnUpdate.objectiveSpawnType = obj->getObjective();
                     objSpawnUpdate.objRestrictionType = obj->getRestriction();
-                    objSpawnUpdate.id = obj->getObjectiveID();
+                    objSpawnUpdate.objectiveID = obj->getObjectiveID();
                     objSpawnUpdate.gridPos = position;
                     this->addUpdate(objSpawnUpdate);
                     break;
@@ -276,7 +276,7 @@ void Game::initGameGrids() {
                     objSpawnUpdate.updateType = SPAWN_OBJECTIVE;
                     objSpawnUpdate.objectiveSpawnType = obj->getObjective();
                     objSpawnUpdate.objRestrictionType = obj->getRestriction();
-                    objSpawnUpdate.id = obj->getObjectiveID();
+                    objSpawnUpdate.objectiveID = obj->getObjectiveID();
                     objSpawnUpdate.gridPos = position;
                     this->addUpdate(objSpawnUpdate);
                     break;
@@ -291,7 +291,7 @@ void Game::initGameGrids() {
                     objSpawnUpdate.updateType = SPAWN_OBJECTIVE;
                     objSpawnUpdate.objectiveSpawnType = obj->getObjective();
                     objSpawnUpdate.objRestrictionType = obj->getRestriction();
-                    objSpawnUpdate.id = obj->getObjectiveID();
+                    objSpawnUpdate.objectiveID = obj->getObjectiveID();
                     objSpawnUpdate.gridPos = position;
                     this->addUpdate(objSpawnUpdate);
                     break;
@@ -306,7 +306,7 @@ void Game::initGameGrids() {
                     objSpawnUpdate.updateType = SPAWN_OBJECTIVE;
                     objSpawnUpdate.objectiveSpawnType = obj->getObjective();
                     objSpawnUpdate.objRestrictionType = obj->getRestriction();
-                    objSpawnUpdate.id = obj->getObjectiveID();
+                    objSpawnUpdate.objectiveID = obj->getObjectiveID();
                     objSpawnUpdate.gridPos = position;
                     this->addUpdate(objSpawnUpdate);
                     break;
@@ -321,7 +321,7 @@ void Game::initGameGrids() {
                     objSpawnUpdate.updateType = SPAWN_OBJECTIVE;
                     objSpawnUpdate.objectiveSpawnType = obj->getObjective();
                     objSpawnUpdate.objRestrictionType = obj->getRestriction();
-                    objSpawnUpdate.id = obj->getObjectiveID();
+                    objSpawnUpdate.objectiveID = obj->getObjectiveID();
                     objSpawnUpdate.gridPos = position;
                     this->addUpdate(objSpawnUpdate);
                     break;
