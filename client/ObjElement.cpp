@@ -1,4 +1,4 @@
-#include "EnvElement.h"
+#include "ObjElement.h"
 //#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
@@ -12,8 +12,8 @@
 	color c is the initial model color; default is black
 */
 
-EnvElement::EnvElement(string fileName, glm::mat4 * p, glm::mat4 * v, GLuint s, 
-	glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale, glm::vec3 c, char* textFile) {
+ObjElement::ObjElement(string fileName, glm::mat4 * p, glm::mat4 * v, GLuint s, 
+	glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale, glm::vec3 c, bool reverseColor, char* textFile) {
 	
 	// initial translation will bthe initial position
 	pos = trans;
@@ -24,7 +24,7 @@ EnvElement::EnvElement(string fileName, glm::mat4 * p, glm::mat4 * v, GLuint s,
 	//default color is black
 	color = c;
 	// if path is NOT given at construction time, hasTexture will be false.
-	hasTexture = loadTexture(textFile);
+	hasTexture = loadTexture(textFile, reverseColor);
 
 	std::vector<glm::vec3> normalp;
 	std::vector<glm::vec3> pointsp;
@@ -171,7 +171,7 @@ EnvElement::EnvElement(string fileName, glm::mat4 * p, glm::mat4 * v, GLuint s,
 	glBindVertexArray(0);
 }
 
-void EnvElement::draw(glm::mat4 c) {
+void ObjElement::draw(glm::mat4 c) {
 	//model used in the shader would be this model mult with passed down transform model
 	glm::mat4 m = model * c;
 	glUseProgram(shader);
@@ -206,56 +206,15 @@ void EnvElement::draw(glm::mat4 c) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void EnvElement::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
-	//model used in the shader would be this model mult with passed down transform model
-	glm::mat4 m = model * c;
-	glUseProgram(shader);
-
-	// Get the shader variable locations and send the uniform data to the shader 
-	glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, false, glm::value_ptr(*view));
-	glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, false, glm::value_ptr(*projection));
-	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, glm::value_ptr(m));
-	glUniform3fv(glGetUniformLocation(shader, "viewPos"), 1, glm::value_ptr(eyep));
-	glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(color));
-
-
-	// Bind the VAO
-	glBindVertexArray(VAO);
-
-	glEnable(GL_DEPTH_TEST);
-
-	glDepthMask(GL_TRUE);
-	
-	if (hasTexture) {
-		//cout << "has texture" << endl;
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, textId);
-	}
-
-	// simple calculation to check if the object is blocking the character
-	if(glm::distance(clientPos, pos) < 8.5f && pos.z > clientPos.z && pos.z - clientPos.z > abs(pos.x - clientPos.x)) {
-		// printf("EnvElement is blocking the character.\n");
-	} else {
-		glDrawElements(GL_TRIANGLES, 3 * triangles.size(), GL_UNSIGNED_INT, 0);
-	}
-	// Draw the points 
-	//glDrawArrays(GL_POINTS, 0, points.size());
-
-	// Unbind the VAO and shader program
-	glBindVertexArray(0);
-	glUseProgram(0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-void EnvElement::update() {
+void ObjElement::update() {
 
 }
 
-void EnvElement::updateView(glm::mat4 proj, glm::vec3) {
+void ObjElement::updateView(glm::mat4 proj, glm::vec3) {
 
 }
 
-bool EnvElement::loadTexture(char* texturePath) {
+bool ObjElement::loadTexture(char* texturePath, bool reverseColor) {
 	if (strcmp(texturePath, "") == 0)
 		return false;
 	FILE* f;
@@ -269,14 +228,26 @@ bool EnvElement::loadTexture(char* texturePath) {
 	}
 
 	int ftw, fth, channels;
-	unsigned char* data = stbi_load(texturePath, &ftw, &fth, &channels, 3);
+	stbi_set_flip_vertically_on_load(true);
+	unsigned char* data = stbi_load(texturePath, &ftw, &fth, &channels, STBI_rgb_alpha);
 	if (data == NULL) {
 		cout << "cannot load texture at " << texturePath << endl;
 		return false;
 	}
+
 	glGenTextures(1, &textId);
 	glBindTexture(GL_TEXTURE_2D, textId);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, ftw, fth, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	if(reverseColor) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ftw, fth, 0, GL_BGRA, GL_UNSIGNED_BYTE, data);
+	} else {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ftw, fth, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	}
+	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(data);
+	fclose(f);
 	return true;
 }

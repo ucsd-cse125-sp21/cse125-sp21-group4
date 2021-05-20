@@ -1,16 +1,11 @@
 #include "Window.h"
 
-// Tile IDs
-#define SPACE_ID   -1
-#define OBST_ID     2
-#define BEAC_ID   200
-
 // Window Properties
 int Window::width;
 int Window::height;
 const char* Window::windowTitle = "CSE125_GAME";
 CommunicationClient* Window::client;
-SpatialHashTable Window::table(5000, 8.f);
+SpatialHashTable Window::table(5000, 20.f);
 bool Window::keyboard[KEYBOARD_SIZE];
 bool Window::gameStarted;
 bool Window::doneInitialRender;
@@ -18,6 +13,7 @@ bool Window::doneInitialRender;
 //objects to render
 vector<Character*> Window::chars(4); //all the characters players get to control
 vector<EnvElement*> Window::envs; //all the environmental static objects
+map<int, ObjElement*> Window::objectiveMap;
 unordered_map<int, ProjectileElement*> Window::projectiles; //all the environmental static objects
 Character* Window::clientChar;
 
@@ -120,51 +116,99 @@ bool Window::initializeObjects()
 	//NOTE: envs now only contain environment objects that are globally viewable. All other objects that require
 	//proximity rendering should be inserted into "table"
 	envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram,
-		glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
+		glm::vec3(0.f, -1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
 
 
-	ifstream map_file("../assets/layout/map.csv");
+	#ifdef RENDER_MAP
+	printf("=======================================\nIt will take a while for the game to launch, please wait.\n");
+	ifstream map_file("../assets/layout/map_client.csv");
     string line;
     string id;
 
-    int i = 0, j = 0;
-
-	int x = 0, y = 0, z = 0;
     while(getline(map_file, line)) {
-        stringstream ss(line);
-        
-        while(getline(ss, id, ',')) {
-			//std::cout << std::stoi(id) << '\n';
-			// (horiz - pos right, vert - pos up, screen - pos towards you)
-			//std::cout << "i: " << i << "j: " << j << '\n';
-            switch(std::stoi(id)) {
-				
-			case OBST_ID: {
-				EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
-					glm::vec3(2. * j, 1.f, 2. * i), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f));
-				table.insert(e);
-				break;
-			}
-			case BEAC_ID: {
-				EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
-					glm::vec3(2. * j, 1.f, 2. * i), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, 1.f, 1.f));
-				table.insert(e);
-				break;
-			}
-				case SPACE_ID:
-                    break;
+        istringstream ss(line);
+        string field;
 
-                default:
-					std::cout << "Invalid id " << id << '\n';
-					std::cout << "i: " << i << "j: " << j << '\n';
-					return false;
+		// fields: objName, x, y, width, height (x and y are upper left corner of obj)
+		string objName;
+		int fields[4] = {0,0,0,0};
+		int i = 0;
+		while (getline(ss, field, ',')) {
+			if(i == 0) {
+				objName = field;
+			} else {
+				fields[i - 1] = stoi(field);
 			}
-			
-			++j;
+			i++;
 		}
-		++i;
-		j = 0;
+		float objX = fields[0];
+		float objY = fields[1];
+		float width = fields[2];
+		float height = fields[3];
+
+		// Spawn the obstacles based on their name
+		
+		// Green wall = hedge
+		if (strcmp(objName.c_str(), "hedge") == 0) {
+			// do a for loop to fill the hedge?
+			for(int x = objX; x < objX + width; x++) {
+				for(int y = objY; y < objY + height; y++) {
+
+					EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
+						glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f));
+					table.insert(e);
+				}
+			}
+
+		// White cube ==  pillar
+		} else if (strcmp(objName.c_str(), "pillar") == 0) {
+			objX += width / 2;
+			objY += height;
+			EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
+				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f),  width, glm::vec3(1.f, 1.f, 1.f)); 
+			table.insert(e);
+
+		// Green Tree ==   tree_live
+		} else if (strcmp(objName.c_str(), "tree_live") == 0) {
+			objX += width / 2;
+			objY += height / 2;
+			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, shaderProgram,
+				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.f, 1.f, 0.f));
+			table.insert(e);
+
+		// White cube ==  pillar
+		} else if (strcmp(objName.c_str(), "tree_dead") == 0) {
+			objX += width / 2;
+			objY += height;
+			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, shaderProgram,
+				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.2f, 0.2f, 0.2f));
+			table.insert(e);
+
+		// White cube ==  Rock
+		} else if (strcmp(objName.c_str(), "rock") == 0) {
+			objX += width / 2;
+			objY += height;
+
+			EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
+				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f),  width, glm::vec3(0.f, 0.f, 0.f));
+			table.insert(e);
+
+		// Red cube ==  wall
+		} else if (strcmp(objName.c_str(), "wall") == 0) {
+			// do a for loop to fill the Wall ?
+
+			for(int x = objX; x < objX + width; x++) {
+				for(int y = objY; y < objY + height; y++) {
+
+					EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
+						glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f));
+					table.insert(e);
+				}
+			}
+		}
+		
 	} 
+	#endif
 
 
 	//  ==========  End of Environment Initialization  ========== 
@@ -196,7 +240,7 @@ bool Window::initializeObjects()
 	/* ===== THIS #ifndef CODE IS ONLY FOR NON-CONNECTED CLIENTS TO IMPROVE GRAPHICS DEVELOPMENT ==== */
 	#ifndef SERVER_ENABLED
 	chars[0] = new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-		glm::vec3(5.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
+		glm::vec3(SPAWN_POSITIONS[0][0], 1.f, SPAWN_POSITIONS[0][1]), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/character/MAGE");	
 	clientChar = chars[0];
 	Window::gameStarted = true;
@@ -343,7 +387,7 @@ void Window::displayCallback(GLFWwindow* window)
 
 	//then selectively draw objects nearby this player
 	vector<EnvElement*> result;
-	float h = 8.0f;
+	float h = table.getDistance();
 	int j;
 	glm::vec3 base1(-1.f * h, 0.f, 0.f);
 	for (j = 0; j < 3 && Window::gameStarted; j++) {
@@ -362,7 +406,9 @@ void Window::displayCallback(GLFWwindow* window)
 		base1 += glm::vec3(1.f * h, 0.f, 0.f);
 	}
 	for (i = 0; i < result.size(); i++) {
-		result[i]->draw();
+		if(clientChar != nullptr) {
+			result[i]->drawIfNotObstructing(clientChar->pos);
+		}
 	}
 
 	for (i = 0; i < chars.size() && Window::gameStarted; i++) {
@@ -371,6 +417,12 @@ void Window::displayCallback(GLFWwindow* window)
 		}
 	}
 
+	// Draws all the objectives in the objective map
+	for (auto const& x: objectiveMap) {
+		x.second->draw();
+	}
+
+	// Draws all the projectiles
 	for(auto iter = projectiles.begin(); iter != projectiles.end(); iter++) {
 		iter->second->draw();
 	}
@@ -589,6 +641,28 @@ void Window::handleUpdate(GameUpdate update) {
 			guiManager->selectScreen->startTimer(update.selectTimerStartTime);
 			guiManager->setConnectingScreenVisible(false);
 			break;
+
+		// Objective spawned
+		case SPAWN_OBJECTIVE: {
+			initializeObjective(update.objectiveID, update.objectiveSpawnType, update.objRestrictionType, update.gridPos.x, update.gridPos.y);
+
+			break;
+		}
+
+		// objective taken
+		
+        // Objectives:
+        case HEAL_OBJECTIVE_TAKEN:
+        case ARMOR_OBJECTIVE_TAKEN:
+			if(update.id == client->getId()) {
+				guiManager->healthBar->incrementHp(update.healAmount);
+			}
+            removeObj(update.objectiveID);
+            break;
+        case EVO_OBJECTIVE_TAKEN:
+            // The level up process done in another update.
+            removeObj(update.objectiveID);
+            break;
         default:
             printf("Not Handled Update Type: %d\n", update.updateType);
             break;
@@ -725,4 +799,64 @@ bool Window::connectCommClient(std::string serverIP) {
 	#endif
 
 	return true;
+}
+
+void Window::initializeObjective(int objectiveID, ObjectiveType type, Restriction restriction, float x, float y) {
+
+	switch(type) {
+		case EVO:{
+			
+			ObjElement* e = new ObjElement("shaders/character/billboard.obj", &projection, &view, texShader,
+				glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f), false, "shaders/objectives/evolution_pickup.png");
+			objectiveMap[objectiveID] = e;
+			break;
+
+		}
+		case HEAL:{
+			switch(restriction) {
+				case R_HUNTER: {
+					ObjElement* e = new ObjElement("shaders/character/billboard.obj", &projection, &view, texShader,
+						glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f), false, "shaders/objectives/health_pickup.png");
+					objectiveMap[objectiveID] = e;
+					break;
+				}
+				case R_MONSTER: {
+					ObjElement* e = new ObjElement("shaders/character/billboard.obj", &projection, &view, texShader,
+						glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f), true, "shaders/objectives/health_pickup.png");
+					objectiveMap[objectiveID] = e;
+					break;
+				}
+			}
+			break;
+			
+		}
+		case BEACON:{
+
+			ObjElement* e = new ObjElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
+				glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), .25f, glm::vec3(0.f, 0.f, 1.f));
+			objectiveMap[objectiveID] = e;
+			break;
+		}
+		case ARMOR:{
+
+			ObjElement* e = new ObjElement("shaders/character/billboard.obj", &projection, &view, texShader,
+				glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f), false, "shaders/objectives/armour_pickup.png");
+			objectiveMap[objectiveID] = e;
+			break;
+		}
+		case INVALID_OBJ:{
+			printf("Invalid OBJECTIVE_SPAWN objType. \n");
+			break;
+		}
+			
+	}
+	
+	return;
+}
+
+
+void Window::removeObj(int objectiveID) {
+	if (objectiveMap.find(objectiveID) != objectiveMap.end()) {
+		objectiveMap.erase(objectiveID);
+	}
 }

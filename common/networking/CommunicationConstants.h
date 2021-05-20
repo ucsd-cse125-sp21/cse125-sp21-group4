@@ -3,6 +3,7 @@
 
 #include "../game/GridComponent.h"
 #include "../game/GameConstants.h"
+#include "../game/Objective.h"
 
 #include <chrono>
 
@@ -50,6 +51,7 @@ enum UPDATE_TYPE {
     BEACON_CAPTURED,
     BEACON_PING_PLAYER,
 
+    SPAWN_OBJECTIVE,
     HEAL_OBJECTIVE_TAKEN,
     ARMOR_OBJECTIVE_TAKEN,
     EVO_OBJECTIVE_TAKEN,
@@ -70,6 +72,7 @@ enum UPDATE_TYPE {
 struct GameUpdate {
     UPDATE_TYPE updateType = INVALID_UPDATE;
     int id = -1; // -1 instead of 0 because 0 is a valid player id.
+    int objectiveID = -1; // -1 instead of 0 for valid objectiveID.
     int damageTaken = 0; // Used for a damage taken event
     int attackAmount = 0; // amount of damage per attack
     int healAmount = 0; // Used for a healing event
@@ -84,6 +87,8 @@ struct GameUpdate {
     ProjectileType projectileType = UNKNOW_PROJECTILE; // projectile type
     Direction direction = NORTH; // used to indicate the projectile direction
     std::chrono::steady_clock::time_point selectTimerStartTime; // Used for an accurate countdown timer
+    ObjectiveType objectiveSpawnType = INVALID_OBJ;
+    Restriction objRestrictionType = R_NEUTRAL;
 };
 
 

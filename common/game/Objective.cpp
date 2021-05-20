@@ -30,3 +30,7 @@ void Objective::setInteractionRange(float range) {
 float Objective::getInteractionRange() {
     return interactionRange;
 }
+
+int Objective::getObjectiveID() {
+    return objectiveID;
+}

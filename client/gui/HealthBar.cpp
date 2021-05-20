@@ -3,7 +3,7 @@
 HealthBar::HealthBar(NVGcontext* vg) {
     this->vg = vg;
     maxHp = 144;
-    hp = 60;
+    hp = 190;
 	shadowHp = 123;
 	isVisible = false;
 	barColor = redColor; // default red
@@ -102,7 +102,7 @@ void HealthBar::draw(float x, float y, float w, float h) {
 	}
 
     // shadow hp bar
-    float shadowHpWidth = w * (float) shadowHp / (float) maxHp;
+    float shadowHpWidth = std::min(w * (float) shadowHp / (float) maxHp, w);
 	nvgBeginPath(vg);
 	nvgRoundedRect(vg, x, y, shadowHpWidth, h, cornerRadius);
 	nvgFillColor(vg, shadowColor);
@@ -110,12 +110,22 @@ void HealthBar::draw(float x, float y, float w, float h) {
 
 	// actual hp bar (only fill if red)
 	if(barColor.r == redColor.r) {
-		float hpWidth = w * (float) hp / (float) maxHp;
+		float hpWidth = std::min(w * (float) hp / (float) maxHp, w);
 		nvgBeginPath(vg);
 		nvgRoundedRect(vg, x, y, hpWidth, h, cornerRadius);
 		nvgFillColor(vg, barColor);
 		nvgFill(vg);
+
+		// if hp > maxHP, show armored bar
+		if(hp > maxHp) {
+			float armorWidth = (float) (hp - maxHp) / (float) maxHp * w;
+			nvgBeginPath(vg);
+			nvgRoundedRect(vg, x, y + h + h / 10, armorWidth, h / 10, cornerRadius);
+			nvgFillColor(vg, armorColor);
+			nvgFill(vg);
+		}
 	}
+
 
 
 

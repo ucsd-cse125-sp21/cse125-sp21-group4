@@ -32,7 +32,7 @@ Execute `build.bat` within the root directory of the project to generate `client
   - `cd server`
   - `g++ *.cpp ../common/game/*.cpp -o server.exe -lWs2_32`
 
-To run the client or server, execute their respective `exe` files.
+To run the client or server, execute their respective `exe` files while being in their respective folders (i.e. must `cd` into server or client folder).
 
 ### Notes on running the server and client
 - If you are running the client AND server, you must uncomment #define SERVER_ENABLED in client/Window.h , otherwise clients will not connect to the server.

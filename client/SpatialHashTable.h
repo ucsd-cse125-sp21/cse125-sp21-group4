@@ -18,6 +18,7 @@ public:
 	Cell* getCell(glm::vec3);
 	void insert(EnvElement*);
 	void remove(EnvElement*);
+	float getDistance();
 };
 
 #endif

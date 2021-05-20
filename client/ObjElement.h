@@ -1,9 +1,9 @@
-#ifndef _ENVELEMENT_H_
-#define _ENVELEMENT_H_
+#ifndef _ObjElement_H_
+#define _ObjElement_H_
 
-#include "Object.h"
+#include "EnvElement.h"
 
-class EnvElement : Object {
+class ObjElement : Object {
 private:
 	std::vector<glm::vec3> normal;
 	std::vector<glm::vec3> points;
@@ -38,14 +38,13 @@ public:
 	scale is a factor you want to scale the initial object;
 	color c is the initial model color; default is black
 */
-	EnvElement(string fileName, glm::mat4 * proj, glm::mat4 * view, GLuint shader,
+	ObjElement(string fileName, glm::mat4 * proj, glm::mat4 * view, GLuint shader,
 		glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale,
-		glm::vec3 c = glm::vec3(0.f, 0.f, 0.f), char * textFile = "");
+		glm::vec3 c = glm::vec3(0.f, 0.f, 0.f), bool reverseColor = false, char * textFile = "");
 	void draw(glm::mat4 c = glm::mat4(1));
-	void drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c = glm::mat4(1));
 	void update();
 	void updateView(glm::mat4, glm::vec3);
-	bool loadTexture(char* texturePath);
+	bool loadTexture(char* texturePath, bool reverseColor);
 };
 
 #endif

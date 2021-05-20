@@ -3,6 +3,7 @@
 
 #define KEYBOARD_SIZE 350
 #define SERVER_ENABLED
+#define RENDER_MAP
 #define _USE_MATH_DEFINES
 
 #include "Main.h"
@@ -11,6 +12,7 @@
 #include "EnvElement.h"
 #include "ProjectileElement.h"
 #include "ScreenElement.h"
+#include "ObjElement.h"
 #include "SpatialHashTable.h"
 //#include "../common/constants.h"
 #include "CommunicationClient.h"
@@ -42,6 +44,7 @@ public:
 	static vector<EnvElement*> envs;
 	static unordered_map<int, ProjectileElement*> projectiles;
 	static vector<ScreenElement*> selectScreenElements;
+	static map<int, ObjElement*> objectiveMap; 
 	static Character* clientChar;
 
 	// Shader Program 
@@ -100,6 +103,12 @@ public:
 
 	// Used to connect to server
 	static bool Window::connectCommClient(std::string);
+
+	// Used to spawn objectives
+	static void Window::initializeObjective(int id, ObjectiveType type, Restriction restriction, float x, float y);
+
+	// Used to remove objectives
+	static void Window::removeObj(int objectiveID);
 };
 
 #endif
