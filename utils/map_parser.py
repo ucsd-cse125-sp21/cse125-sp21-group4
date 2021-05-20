@@ -25,11 +25,17 @@ grid = np.zeros((MAP_WIDTH, MAP_HEIGHT))
 
 
 for object in objects:
-    print(object)
+    # print(object)
     objectX = int(object["x"] / ratio)
     objectY = int(object["y"] / ratio)
     objectWidth = int(object["width"] / ratio)
     objectHeight = int(object["height"] / ratio)
+    rotation = int(object["rotation"])
+    if rotation != 0 and rotation != 180:
+        print(rotation)
+    if rotation == 180:
+        objectX -= objectWidth
+        objectY -= objectHeight
 
     # only want to draw obstacles in the beginning, will draw objectives when server tells the client
     if object["type"] == "obstacle":
