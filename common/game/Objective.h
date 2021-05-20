@@ -15,6 +15,7 @@ enum ObjectiveType {
     HEAL,    // healing
     BEACON,    // vision beacon
     ARMOR,   // armor
+    INVALID_OBJ,
 };
 
 class Objective : public GridComponent {
@@ -22,8 +23,10 @@ class Objective : public GridComponent {
         Restriction restrict;
         ObjectiveType type;
         float interactionRange;
+        int objectiveID;
 
     public:
+        static int globalObjectiveIDCounter;
         Objective();
         Objective(GridPosition position);
 
@@ -35,6 +38,15 @@ class Objective : public GridComponent {
 
         void setInteractionRange(float range);
         float getInteractionRange();
+
+        int getObjectiveID();
+
+        static int getNextValidID() {
+            Objective::globalObjectiveIDCounter++;
+            return Objective::globalObjectiveIDCounter;
+        }
+
 };
+
 
 #endif

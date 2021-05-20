@@ -2,13 +2,14 @@
 #define _WINDOW_H_
 
 #define KEYBOARD_SIZE 350
-// #define SERVER_ENABLED
+#define SERVER_ENABLED
 
 #include "Main.h"
 #include "shader.h"
 #include "Character.h"
 #include "EnvElement.h"
 #include "ScreenElement.h"
+#include "ObjElement.h"
 #include "SpatialHashTable.h"
 //#include "../common/constants.h"
 #include "CommunicationClient.h"
@@ -36,6 +37,7 @@ public:
 	static vector<Character*> chars;
 	static vector<EnvElement*> envs;
 	static vector<ScreenElement*> selectScreenElements;
+	static map<int, ObjElement*> objectiveMap; 
 	static Character* clientChar;
 
 	// Shader Program 
@@ -94,6 +96,9 @@ public:
 
 	// Used to connect to server
 	static bool Window::connectCommClient(std::string);
+
+	// Used to spawn objectives
+	static void Window::initializeObjective(int id, ObjectiveType type, Restriction restriction, float x, float y);
 };
 
 #endif

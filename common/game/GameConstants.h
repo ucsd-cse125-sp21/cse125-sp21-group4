@@ -52,16 +52,16 @@
 #define MONSTER_ATTACK_TIME_INTERVAL 500 // 0.5s = 500 ms
 
 // Player Bouding Box Size Constants
-#define FIGHTER_WIDTH 4
-#define FIGHTER_HEIGHT 4
-#define MAGE_WIDTH 4
-#define MAGE_HEIGHT 4
-#define CLERIC_WIDTH 4
-#define CLERIC_HEIGHT 4
-#define ROGUE_WIDTH 4
-#define ROGUE_HEIGHT 4
+#define FIGHTER_WIDTH 2
+#define FIGHTER_HEIGHT 3
+#define MAGE_WIDTH 2
+#define MAGE_HEIGHT 3
+#define CLERIC_WIDTH 2
+#define CLERIC_HEIGHT 3
+#define ROGUE_WIDTH 2
+#define ROGUE_HEIGHT 3
 #define MONSTER_WIDTH 6
-#define MONSTER_HEIGHT 6
+#define MONSTER_HEIGHT 3
 
 #define INIT_SPEED 1
 

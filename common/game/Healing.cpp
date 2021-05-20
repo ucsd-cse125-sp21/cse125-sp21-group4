@@ -11,6 +11,7 @@ Heal::Heal(GridPosition position, Restriction r) {
         h_amount = FIGHTER_MAX_HP / 2;
     else
         h_amount = (MONSTER_MAX_HP / 10); // 5 evolutions (health chunks), heal half a chunk
+    objectiveID = Objective::getNextValidID(); 
 }
 
 int Heal::getHealAmount() {

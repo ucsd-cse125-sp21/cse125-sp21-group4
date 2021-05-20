@@ -27,6 +27,8 @@
 
 using namespace std;
 
+int Objective::globalObjectiveIDCounter = 0; // used to keep count on every objective
+
 Game::Game() {
     initGameGrids();
     // initPlayers(); Will init players when the game starts and we know the jobs
@@ -234,46 +236,108 @@ void Game::initGameGrids() {
         stringstream ss(line);
         
         while(getline(ss, id, ',')) {
+            // printf("%s\n", id);
             GridPosition position;
             position.x = j;
             position.y = i;
+            int objID = std::stoi(id);
 
-            switch(std::stoi(id)) {
+            switch(objID) {
                 case SPACE_ID: {
-                    gameGrids[i][j] = new Space(position);
+                    gameGrids[j][i] = new Space(position);
+                    break;
                 }
                 case OBST_ID: {
-                    gameGrids[i][j] = new Obstacle(position); 
+                    gameGrids[j][i] = new Obstacle(position); 
+                    break;
                 }
                 case HUNTER_HP_ID: {
-                    gameGrids[i][j] = new Heal(position, R_HUNTER);
-                    objectives.push_back((Objective *)gameGrids[i][j]);
+                    gameGrids[j][i] = new Heal(position, R_HUNTER);
+                    Objective* obj = (Objective *)gameGrids[j][i];
+                    objectives.push_back(obj);
+                    
+                    // Send update to client that objective have spawned
+                    GameUpdate objSpawnUpdate;
+                    objSpawnUpdate.updateType = SPAWN_OBJECTIVE;
+                    objSpawnUpdate.objectiveSpawnType = obj->getObjective();
+                    objSpawnUpdate.objRestrictionType = obj->getRestriction();
+                    objSpawnUpdate.id = obj->getObjectiveID();
+                    objSpawnUpdate.gridPos = position;
+                    this->addUpdate(objSpawnUpdate);
+                    break;
                 }
                 case HUNTER_ARMOR_ID: {
-                    gameGrids[i][j] = new Armor(position);
-                    objectives.push_back((Objective *)gameGrids[i][j]);
+                    gameGrids[j][i] = new Armor(position);
+                    Objective* obj = (Objective *)gameGrids[j][i];
+                    objectives.push_back(obj);
+                    
+                    // Send update to client that objective have spawned
+                    GameUpdate objSpawnUpdate;
+                    objSpawnUpdate.updateType = SPAWN_OBJECTIVE;
+                    objSpawnUpdate.objectiveSpawnType = obj->getObjective();
+                    objSpawnUpdate.objRestrictionType = obj->getRestriction();
+                    objSpawnUpdate.id = obj->getObjectiveID();
+                    objSpawnUpdate.gridPos = position;
+                    this->addUpdate(objSpawnUpdate);
+                    break;
                 }
                 case MONSTER_HP_ID: {
-                    gameGrids[i][j] = new Heal(position, R_MONSTER);
-                    objectives.push_back((Objective *)gameGrids[i][j]);
+                    gameGrids[j][i] = new Heal(position, R_MONSTER);
+                    Objective* obj = (Objective *)gameGrids[j][i];
+                    objectives.push_back(obj);
+                    
+                    // Send update to client that objective have spawned
+                    GameUpdate objSpawnUpdate;
+                    objSpawnUpdate.updateType = SPAWN_OBJECTIVE;
+                    objSpawnUpdate.objectiveSpawnType = obj->getObjective();
+                    objSpawnUpdate.objRestrictionType = obj->getRestriction();
+                    objSpawnUpdate.id = obj->getObjectiveID();
+                    objSpawnUpdate.gridPos = position;
+                    this->addUpdate(objSpawnUpdate);
+                    break;
                 }
                 case MONSTER_EVOLVE_ID: {
-                    gameGrids[i][j] = new Evolve(position);
-                    objectives.push_back((Objective *)gameGrids[i][j]);
+                    gameGrids[j][i] = new Evolve(position);
+                    Objective* obj = (Objective *)gameGrids[j][i];
+                    objectives.push_back(obj);
+                    
+                    // Send update to client that objective have spawned
+                    GameUpdate objSpawnUpdate;
+                    objSpawnUpdate.updateType = SPAWN_OBJECTIVE;
+                    objSpawnUpdate.objectiveSpawnType = obj->getObjective();
+                    objSpawnUpdate.objRestrictionType = obj->getRestriction();
+                    objSpawnUpdate.id = obj->getObjectiveID();
+                    objSpawnUpdate.gridPos = position;
+                    this->addUpdate(objSpawnUpdate);
+                    break;
                 }
                 case BEAC_ID: {
-                    gameGrids[i][j] = new Beacon(position);
-                    beacon = (Beacon*) gameGrids[i][j];
+                    gameGrids[j][i] = new Beacon(position);
+                    Objective* obj = (Objective *)gameGrids[j][i];
+                    beacon = (Beacon*) gameGrids[j][i];
+                    
+                    // Send update to client that objective have spawned
+                    GameUpdate objSpawnUpdate;
+                    objSpawnUpdate.updateType = SPAWN_OBJECTIVE;
+                    objSpawnUpdate.objectiveSpawnType = obj->getObjective();
+                    objSpawnUpdate.objRestrictionType = obj->getRestriction();
+                    objSpawnUpdate.id = obj->getObjectiveID();
+                    objSpawnUpdate.gridPos = position;
+                    this->addUpdate(objSpawnUpdate);
+                    break;
                 }
                 default: {
                     printf("Invalid integer in map_server.csv, putting Space Object for now\n");
-                    gameGrids[i][j] = new Space(position);
+                    gameGrids[j][i] = new Space(position);
+                    break;
                 }
             }
 
+            // printf("%d, %d, %d\n", objID, i, j);
+
             j++;
         }
-
+        j = 0;
         i++;
     }
 }

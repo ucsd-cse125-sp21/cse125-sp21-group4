@@ -13,6 +13,7 @@ bool Window::doneInitialRender;
 //objects to render
 vector<Character*> Window::chars(4); //all the characters players get to control
 vector<EnvElement*> Window::envs; //all the environmental static objects
+map<int, ObjElement*> Window::objectiveMap;
 Character* Window::clientChar;
 
 // Interaction Variables
@@ -137,10 +138,10 @@ bool Window::initializeObjects()
 			}
 			i++;
 		}
-		int objX = fields[0];
-		int objY = fields[1];
-		int width = fields[2];
-		int height = fields[3];
+		float objX = fields[0];
+		float objY = fields[1];
+		float width = fields[2];
+		float height = fields[3];
 
 		// Spawn the obstacles based on their name
 		
@@ -151,7 +152,7 @@ bool Window::initializeObjects()
 				for(int y = objY; y < objY + height; y++) {
 
 					EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
-						glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 0.5f, glm::vec3(0.f, 1.f, 0.f));
+						glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f));
 					table.insert(e);
 				}
 			}
@@ -161,15 +162,15 @@ bool Window::initializeObjects()
 			objX += width / 2;
 			objY += height;
 			EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
-				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f),  0.5f, glm::vec3(1.f, 1.f, 1.f)); 
+				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f),  width, glm::vec3(1.f, 1.f, 1.f)); 
 			table.insert(e);
 
 		// Green Tree ==   tree_live
 		} else if (strcmp(objName.c_str(), "tree_live") == 0) {
 			objX += width / 2;
-			objY += height;
+			objY += height / 2;
 			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, shaderProgram,
-				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f));
+				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.f, 1.f, 0.f));
 			table.insert(e);
 
 		// White cube ==  pillar
@@ -177,7 +178,7 @@ bool Window::initializeObjects()
 			objX += width / 2;
 			objY += height;
 			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, shaderProgram,
-				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.2f, 0.2f, 0.2f));
+				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.2f, 0.2f, 0.2f));
 			table.insert(e);
 
 		// White cube ==  Rock
@@ -186,7 +187,7 @@ bool Window::initializeObjects()
 			objY += height;
 
 			EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
-				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f),  0.5f, glm::vec3(0.f, 0.f, 0.f));
+				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f),  width, glm::vec3(0.f, 0.f, 0.f));
 			table.insert(e);
 
 		// Red cube ==  wall
@@ -197,7 +198,7 @@ bool Window::initializeObjects()
 				for(int y = objY; y < objY + height; y++) {
 
 					EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
-						glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 0.5f, glm::vec3(1.f, .5f, .5f));
+						glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f));
 					table.insert(e);
 				}
 			}
@@ -409,6 +410,11 @@ void Window::displayCallback(GLFWwindow* window)
 		}
 	}
 
+	// Draws all the objectives in the objective map
+	for (auto const& x: objectiveMap) {
+		x.second->draw();
+	}
+
 	Window::guiManager->draw();
 
 
@@ -591,6 +597,13 @@ void Window::handleUpdate(GameUpdate update) {
 			guiManager->selectScreen->startTimer(update.selectTimerStartTime);
 			guiManager->setConnectingScreenVisible(false);
 			break;
+
+		// Objective spawned
+		case SPAWN_OBJECTIVE: {
+			initializeObjective(update.id, update.objectiveSpawnType, update.objRestrictionType, update.gridPos.x, update.gridPos.y);
+
+			break;
+		}
         default:
             printf("Not Handled Update Type: %d\n", update.updateType);
             break;
@@ -727,4 +740,57 @@ bool Window::connectCommClient(std::string serverIP) {
 	#endif
 
 	return true;
+}
+
+void Window::initializeObjective(int id, ObjectiveType type, Restriction restriction, float x, float y) {
+
+	switch(type) {
+		case EVO:{
+			
+			ObjElement* e = new ObjElement("shaders/character/billboard.obj", &projection, &view, texShader,
+				glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f), false, "shaders/objectives/evolution_pickup.png");
+			objectiveMap[id] = e;
+			break;
+
+		}
+		case HEAL:{
+			switch(restriction) {
+				case R_HUNTER: {
+					ObjElement* e = new ObjElement("shaders/character/billboard.obj", &projection, &view, texShader,
+						glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f), false, "shaders/objectives/health_pickup.png");
+					objectiveMap[id] = e;
+					break;
+				}
+				case R_MONSTER: {
+					ObjElement* e = new ObjElement("shaders/character/billboard.obj", &projection, &view, texShader,
+						glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f), true, "shaders/objectives/health_pickup.png");
+					objectiveMap[id] = e;
+					break;
+				}
+			}
+			break;
+			
+		}
+		case BEACON:{
+
+			ObjElement* e = new ObjElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
+				glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), .25f, glm::vec3(0.f, 0.f, 1.f));
+			objectiveMap[id] = e;
+			break;
+		}
+		case ARMOR:{
+
+			ObjElement* e = new ObjElement("shaders/character/billboard.obj", &projection, &view, texShader,
+				glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f), false, "shaders/objectives/armour_pickup.png");
+			objectiveMap[id] = e;
+			break;
+		}
+		case INVALID_OBJ:{
+			printf("Invalid OBJECTIVE_SPAWN objType. \n");
+			break;
+		}
+			
+	}
+	
+	return;
 }

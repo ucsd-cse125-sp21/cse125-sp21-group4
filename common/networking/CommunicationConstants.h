@@ -3,6 +3,7 @@
 
 #include "../game/GridComponent.h"
 #include "../game/GameConstants.h"
+#include "../game/Objective.h"
 
 #include <chrono>
 
@@ -49,6 +50,7 @@ enum UPDATE_TYPE {
     BEACON_CAPTURED,
     BEACON_PING_PLAYER,
 
+    SPAWN_OBJECTIVE,
     HEAL_OBJECTIVE_TAKEN,
     ARMOR_OBJECTIVE_TAKEN,
     EVO_OBJECTIVE_TAKEN,
@@ -81,6 +83,8 @@ struct GameUpdate {
     float beaconCaptureAmount = -9999;
     PlayerType roleClaimed = UNKNOWN;
     std::chrono::steady_clock::time_point selectTimerStartTime; // Used for an accurate countdown timer
+    ObjectiveType objectiveSpawnType = INVALID_OBJ;
+    Restriction objRestrictionType = R_NEUTRAL;
 };
 
 
