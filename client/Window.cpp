@@ -176,7 +176,7 @@ bool Window::initializeObjects()
 				glm::vec3(objX, 8.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.f, 1.f, 0.f));
 			table.insert(e);
 
-		// White cube ==  pillar
+		// dead tree = grayish black
 		} else if (strcmp(objName.c_str(), "tree_dead") == 0) {
 			objX += width / 2;
 			objY += height / 2;
@@ -184,13 +184,13 @@ bool Window::initializeObjects()
 				glm::vec3(objX, 8.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.2f, 0.2f, 0.2f));
 			table.insert(e);
 
-		// White cube ==  Rock
+		// gray ==  Rock
 		} else if (strcmp(objName.c_str(), "rock") == 0) {
 			objX += width / 2;
 			objY += height / 2;
 
-			EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
-				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f),  width, glm::vec3(0.f, 0.f, 0.f));
+			EnvElement* e = new EnvElement("shaders/environment/lowpolyrock1.obj", &projection, &view, shaderProgram,
+				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f),  width * 3.f, glm::vec3(0.7f, 0.7f, 0.7f));
 			table.insert(e);
 
 		// Red cube ==  wall
@@ -582,7 +582,7 @@ void Window::handleUpdate(GameUpdate update) {
 		{
 			
 			glm::vec3 trans = glm::vec3(update.playerPos.x, 1.f, update.playerPos.y);
-			glm::vec3 rotAxis = glm::vec3(0.f, 1.f, 0.f);
+			glm::vec3 rotAxis = glm::vec3(1.f, 0.f, 0.f);
 			float rotRad = glm::radians(0.f);
 			float scale = 1.f;
 			glm::vec3 color = glm::vec3(1.f, .5f, .5f);
@@ -596,10 +596,27 @@ void Window::handleUpdate(GameUpdate update) {
 			if (update.projectileType == MONSTER_RANGED) textFile ="shaders/projectile/earthchunk";
 
 			// select projectile direction
-			if (update.direction == NORTH) textFile += "_up.png";
-			if (update.direction == SOUTH) textFile += "_down.png";
-			if (update.direction == WEST) textFile += "_left.png";
-			if (update.direction == EAST) textFile += "_right.png";
+			if (update.direction == NORTH) {
+				textFile += "_up.png";
+				rotRad = glm::radians(-90.f);
+			}
+			if (update.direction == SOUTH) {
+				textFile += "_down.png";
+				rotRad = glm::radians(-90.f);
+			}
+			if (update.direction == WEST) {
+				textFile += "_left.png";
+
+				glm::vec3 targetVec = eyePos - trans;
+				rotRad = - glm::atan(targetVec.y, targetVec.z);
+			}
+			if (update.direction == EAST) {
+				textFile += "_right.png";
+
+				glm::vec3 targetVec = eyePos - trans;
+				rotRad = - glm::atan(targetVec.y, targetVec.z);
+			} 
+			
 
 
 			ProjectileElement* pEle = new ProjectileElement("shaders/character/billboard.obj", &projection, &view, texShader, &eyePos,

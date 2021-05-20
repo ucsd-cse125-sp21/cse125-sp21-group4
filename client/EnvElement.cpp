@@ -238,8 +238,8 @@ void EnvElement::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
 	if(isCloseToObstructing) {
 		// printf("EnvElement is blocking the character.\n");
 		glDepthMask(GL_FALSE);
-		glBlendColor(0, 0, 0, abs(glm::distance(clientPos, pos) - 5.f) * 7.f / 255.f);
-		glBlendFunc(GL_SRC_ALPHA, GL_CONSTANT_ALPHA);
+		glBlendColor(0, 0, 0, abs(glm::distance(clientPos, pos) - 5.f) * 2.f / 255.f);
+		glBlendFunc(GL_SRC_ALPHA, GL_CONSTANT_COLOR);
 
 	}
 
