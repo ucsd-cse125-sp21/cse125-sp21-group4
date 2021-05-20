@@ -190,7 +190,7 @@ bool Window::initializeObjects()
 			objY += height / 2;
 
 			EnvElement* e = new EnvElement("shaders/environment/lowpolyrock1.obj", &projection, &view, shaderProgram,
-				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f),  width * 3.f, glm::vec3(0.7f, 0.7f, 0.7f));
+				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f),  width * 2.f, glm::vec3(0.7f, 0.7f, 0.7f));
 			table.insert(e);
 
 		// Red cube ==  wall
