@@ -60,7 +60,7 @@
 #define FIGHTER_ATTACK_DISTANCE 2
 #define MONSTER_ATTACK_DISTANCE 2
 #define ROGUE_ATTACK_DISTANCE 20
-#define MAGE_ATTACK_DISTANCE 20
+#define MAGE_ATTACK_DISTANCE 40
 #define CLERIC_ATTACK_DISTANCE 15
 
 // Player movement constants
@@ -78,9 +78,9 @@
 
 
 // Player attack speed (projectile moving speed)
-#define ROGUE_ARROW_SPEED 2 // 2 units per tick
-#define MAGE_SHOOT_SPEED 1 // 1 units per tick
-#define CLERIC_SHOOT_SPEED 1 // 1 units per tick
+#define ROGUE_ARROW_SPEED 2.5 // 2 units per tick
+#define MAGE_SHOOT_SPEED 2 // 1 units per tick
+#define CLERIC_SHOOT_SPEED 2 // 1 units per tick
 
 
 // Player unique skill constants
@@ -101,8 +101,6 @@
 #define HEALING_AURA_HEALING_AMOUNT 20
 
 #define MONSTER_RANGED_ATTACK_DISTANCE 20
-// Player attack speed (projectile moving speed)
-#define ROGUE_ARROW_SPEED 2 // 2 units per tick
 #define MONSTER_RANGED_SPEED 2
 
 // Monster specific constants
@@ -117,6 +115,7 @@
 
 #define EVO_AMOUNT 1.5f
 
+#define MAX_PROJECTILE_ID 10000
 
 #define DELTA 0.001
 
@@ -160,6 +159,7 @@ enum ProjectileType {
     CLERIC_SHOOT,
     MAGE_FIREBALL,
     MONSTER_RANGED,
+    UNKNOW_PROJECTILE,
     // MAGE_SHOOT,
     // CLERIC_SHOOT,
     // MONSTER_SHOOT,

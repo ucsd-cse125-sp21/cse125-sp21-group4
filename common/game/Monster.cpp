@@ -47,7 +47,8 @@ void Monster::attack(Game* game) {
     p->speed = MONSTER_RANGED_SPEED; //this?
     p->direction = getFaceDirection();
     p->damage = getAttackDamage();
-    game->projectiles.push_back(p);
+    game->projectiles[game->nextProjectileId] = p;
+    game->nextProjectileId = (game->nextProjectileId + 1) % MAX_PROJECTILE_ID;
 }
 
 void Monster::uniqueAttack(Game* game) {

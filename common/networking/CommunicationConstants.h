@@ -43,6 +43,7 @@ enum UPDATE_TYPE {
     PLAYER_ATTACK,
     PLAYER_MOVE,
     PROJECTILE_MOVE,
+    PROJECTILE_END,
 
     BEACON_BEING_TAKEN,
     BEACON_DECAYING,
@@ -80,6 +81,8 @@ struct GameUpdate {
     float floatDeltaY = 0; // used for player/projectile movement
     float beaconCaptureAmount = -9999;
     PlayerType roleClaimed = UNKNOWN;
+    ProjectileType projectileType = UNKNOW_PROJECTILE; // projectile type
+    Direction direction = NORTH; // used to indicate the projectile direction
     std::chrono::steady_clock::time_point selectTimerStartTime; // Used for an accurate countdown timer
 };
 

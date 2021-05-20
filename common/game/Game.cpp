@@ -609,26 +609,37 @@ bool projectileIsCollidingEnemy (Projectile* p, Game* game) {
     enemy correspondingly.
 */
 void Game::updateProjectiles () {
-    std::vector<Projectile*> newProjectiles;
-    for (auto iter = projectiles.begin(); iter != projectiles.end(); iter++) {
+    auto iter = projectiles.begin();
+    while (iter != projectiles.end()) {
         // move
-        projectileMove(*iter);
+        projectileMove(iter->second);
 
-        // remove if exceeds max distance or hit boundary
-        if (projectileIsEnd(*iter, this)) {
-            delete (*iter); // free the space
-            continue;
-        }
-
-        // check for collision with players
-        if ((projectileIsCollidingEnemy(*iter, this))) {
+        // remove if exceeds max distance or hit boundary or collide with other players
+        if (projectileIsEnd(iter->second, this) || (projectileIsCollidingEnemy(iter->second, this))) {
             // if this has hit an enemy, remove the projectile
-            delete (*iter); // free the space
-            continue;
+
+            // send projectile end state to each clients
+            GameUpdate projectileUpdate;
+            projectileUpdate.updateType = PROJECTILE_END;
+            projectileUpdate.id = iter->first;
+            addUpdate(projectileUpdate);
+
+            delete (iter->second); // free the space
+            iter = projectiles.erase(iter);
+
+        } else {
+            // send projectile state to each clients
+            GameUpdate projectileUpdate;
+            projectileUpdate.updateType = PROJECTILE_MOVE;
+            projectileUpdate.id = iter->first;
+            projectileUpdate.projectileType = iter->second->type;
+            projectileUpdate.direction = iter->second->direction;
+            projectileUpdate.playerPos = {iter->second->currentPosition.x, iter->second->currentPosition.y};
+            addUpdate(projectileUpdate);
+
+            iter++;
         }
-        newProjectiles.push_back(*iter);
     }
-    projectiles = newProjectiles;
 }
 
 /**
