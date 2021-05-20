@@ -225,7 +225,8 @@ void EnvElement::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
 	glEnable(GL_DEPTH_TEST);
 
 	glDepthMask(GL_TRUE);
-	
+
+	glEnable(GL_BLEND);
 	if (hasTexture) {
 		//cout << "has texture" << endl;
 		glActiveTexture(GL_TEXTURE0);
@@ -233,11 +234,21 @@ void EnvElement::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
 	}
 
 	// simple calculation to check if the object is blocking the character
-	if(glm::distance(clientPos, pos) < 8.5f && pos.z > clientPos.z && pos.z - clientPos.z > abs(pos.x - clientPos.x)) {
+	bool isCloseToObstructing = glm::distance(clientPos, pos) < 10.f && pos.z > clientPos.z && pos.z - clientPos.z > abs(pos.x - clientPos.x) && pos.y >= 3.f;
+	if(isCloseToObstructing) {
 		// printf("EnvElement is blocking the character.\n");
-	} else {
-		glDrawElements(GL_TRIANGLES, 3 * triangles.size(), GL_UNSIGNED_INT, 0);
+		glDepthMask(GL_FALSE);
+		glBlendColor(0, 0, 0, abs(glm::distance(clientPos, pos) - 5.f) * 7.f / 255.f);
+		glBlendFunc(GL_SRC_ALPHA, GL_CONSTANT_ALPHA);
+
 	}
+
+	glDrawElements(GL_TRIANGLES, 3 * triangles.size(), GL_UNSIGNED_INT, 0);
+	
+	if (isCloseToObstructing) {
+		glDepthMask(GL_TRUE);
+	}
+	glDisable(GL_BLEND);
 	// Draw the points 
 	//glDrawArrays(GL_POINTS, 0, points.size());
 

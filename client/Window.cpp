@@ -163,7 +163,7 @@ bool Window::initializeObjects()
 		// White cube ==  pillar
 		} else if (strcmp(objName.c_str(), "pillar") == 0) {
 			objX += width / 2;
-			objY += height;
+			objY += height / 2;
 			EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
 				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f),  width, glm::vec3(1.f, 1.f, 1.f)); 
 			table.insert(e);
@@ -173,21 +173,21 @@ bool Window::initializeObjects()
 			objX += width / 2;
 			objY += height / 2;
 			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, shaderProgram,
-				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.f, 1.f, 0.f));
+				glm::vec3(objX, 8.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.f, 1.f, 0.f));
 			table.insert(e);
 
 		// White cube ==  pillar
 		} else if (strcmp(objName.c_str(), "tree_dead") == 0) {
 			objX += width / 2;
-			objY += height;
+			objY += height / 2;
 			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, shaderProgram,
-				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.2f, 0.2f, 0.2f));
+				glm::vec3(objX, 8.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.2f, 0.2f, 0.2f));
 			table.insert(e);
 
 		// White cube ==  Rock
 		} else if (strcmp(objName.c_str(), "rock") == 0) {
 			objX += width / 2;
-			objY += height;
+			objY += height / 2;
 
 			EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
 				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f),  width, glm::vec3(0.f, 0.f, 0.f));
