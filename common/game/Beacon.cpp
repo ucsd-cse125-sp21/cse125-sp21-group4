@@ -38,6 +38,9 @@ void Beacon::updateCaptureAmount(Game* game, float captureDelta){
             beaconCapturedUpdate.updateType = BEACON_CAPTURED;
             beaconCapturedUpdate.beaconCaptureAmount = captureAmount;
             game->addUpdate(beaconCapturedUpdate);
+
+            // allows the map to update immediately instead of sending just the spawn positions
+            tickCounter = frequency; 
         }
     }
 }
