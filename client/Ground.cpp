@@ -129,10 +129,11 @@ Ground::Ground(string fileName, glm::mat4* proj, glm::mat4* v, GLuint s, char * 
 	}
 
 	int i, j;
-	int width = GROUND_WIDTH_IN_TILES / TILE_SIZE / tileScale;
-	int length = GROUND_WIDTH_IN_TILES / TILE_SIZE / tileScale;
+	int width = GROUND_WIDTH / TILE_SIZE;
+	int length = GROUND_WIDTH / TILE_SIZE;
 	cout << "map width: " << width << endl;
 	float tileSize = 2.f * tileScale;
+	cout << "creating a " << width << " by " << length << " ground"<< endl;
 	for (i = 0; i < width; i++) {
 		for (j = 0; j < length; j++) {
 			//all the texture, points, normals, textCoords are shared between all tiles

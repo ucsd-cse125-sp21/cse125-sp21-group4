@@ -106,7 +106,6 @@ EnvElement::EnvElement(string fileName, glm::mat4 * p, glm::mat4 * v, GLuint s,
 
 	objFile.close();
 
-	cout << "initing" << endl;
 	std::vector<glm::vec3>::iterator it = points.begin();
 	//centering
 	float xPos = 0, xNeg = 0, yPos = 0, yNeg = 0, zPos = 0, zNeg = 0;;

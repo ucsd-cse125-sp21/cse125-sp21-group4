@@ -8,7 +8,7 @@
 #include "GroundTile.h"
 
 // how many tiles would one side of the ground have as a square
-#define GROUND_WIDTH_IN_TILES 600
+#define GROUND_WIDTH 600
 #define TILE_SIZE 6.0
 
 class Ground {

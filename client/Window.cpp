@@ -5,6 +5,8 @@ int Window::width;
 int Window::height;
 const char* Window::windowTitle = "CSE125_GAME";
 CommunicationClient* Window::client;
+//spatial hash table for rendering near by objects; starting with 5000 cells; could use few I think
+//based on later performance.
 SpatialHashTable Window::table(5000, SPATIAL_HASH_SEARCH_DISTANCE);
 bool Window::keyboard[KEYBOARD_SIZE];
 bool Window::gameStarted;
@@ -13,6 +15,8 @@ bool Window::doneInitialRender;
 //objects to render
 vector<Character*> Window::chars(4); //all the characters players get to control
 vector<EnvElement*> Window::envs; //all the environmental static objects
+//factory object for ground tiles; this object is responsible for creating all the individual GroundTile objects,
+//all the texture, vertice and normal data are shared between the GroundTiles
 Ground* Window::ground;
 map<int, ObjElement*> Window::objectiveMap;
 unordered_map<int, ProjectileElement*> Window::projectiles; //all the environmental static objects
@@ -23,8 +27,8 @@ bool LeftDown, RightDown;
 int MouseX, MouseY;
 
 // The shader program id
-GLuint Window::shaderProgram;
-GLuint Window::texShader;
+GLuint Window::shaderProgram; //Phong lighting shader; only use this for models without texture
+GLuint Window::texShader;     //shader for model with textures. NOTE, it also calculates texture alphas
 
 // projection Matrices 
 glm::mat4 Window::projection;
@@ -119,8 +123,10 @@ bool Window::initializeObjects()
 	envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram,
 		glm::vec3(0.f, -1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
 
+
+	//for now tileScale should be tileSize / 2.0
 	ground = new Ground("shaders/environment/ground.obj", &projection, &view, texShader,
-		"shaders/environment/cracked_tile_texture.png", &table, 3.0f);
+		"shaders/environment/cracked_tile_texture_3x3.png", &table, 3.0f);
 
 
 	#ifdef RENDER_MAP
