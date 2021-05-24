@@ -9,6 +9,7 @@ Evolve::Evolve(GridPosition position, Restriction r) {
     setInteractionRange(EVO_INTERACTION_RANGE);
 
     evo_amount = EVO_AMOUNT;
+    objectiveID = Objective::getNextValidID(); 
 }
 
 float Evolve::getEvoAmount() {

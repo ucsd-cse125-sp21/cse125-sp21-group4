@@ -7,6 +7,7 @@ Armor::Armor(GridPosition position, Restriction r) {
     setPosition(position.x, position.y);
     setInteractionRange(ARMOR_INTERACTION_RANGE);
 
+    objectiveID = Objective::getNextValidID(); 
     armor_amount = FIGHTER_MAX_HP / 2;
 }
 

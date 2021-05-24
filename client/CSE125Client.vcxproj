@@ -122,8 +122,10 @@
     <ClCompile Include="gui\ConnectingScreen.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="nanovg\nanovg.c" />
+    <ClCompile Include="ObjElement.cpp" />
     <ClCompile Include="ScreenElement.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="ProjectileElement.cpp" />
     <ClCompile Include="SpatialHashTable.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
@@ -139,7 +141,6 @@
     <ClInclude Include="gui\MiniMap.h" />
     <ClInclude Include="gui\SelectScreen.h" />
     <ClInclude Include="gui\ConnectingScreen.h" />
-    <ClInclude Include="HealthBar.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="nanovg\fontstash.h" />
     <ClInclude Include="nanovg\nanovg.h" />
@@ -147,6 +148,8 @@
     <ClInclude Include="nanovg\nanovg_gl_utils.h" />
     <ClInclude Include="nanovg\stb_truetype.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="ObjElement.h" />
+    <ClInclude Include="ProjectileElement.h" />
     <ClInclude Include="ScreenElement.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="SpatialHashTable.h" />

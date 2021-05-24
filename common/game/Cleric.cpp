@@ -6,6 +6,8 @@ Cleric::Cleric() {
     setHp(CLERIC_MAX_HP); // init full health
     setAttackDamage(CLERIC_ATTACK_DAMAGE);
     maxHp = CLERIC_MAX_HP;
+    setAcceleration(CLERIC_ACCELERATION);
+    setMaxSpeed(CLERIC_MAX_SPEED);
 }
 
 Cleric::Cleric(PlayerPosition position) : GamePlayer(position) {
@@ -13,6 +15,8 @@ Cleric::Cleric(PlayerPosition position) : GamePlayer(position) {
     setHp(CLERIC_MAX_HP); // init full health
     setAttackDamage(CLERIC_ATTACK_DAMAGE);
     maxHp = CLERIC_MAX_HP;
+    setAcceleration(CLERIC_ACCELERATION);
+    setMaxSpeed(CLERIC_MAX_SPEED);
 }
 
 // overide GamePlayer's attack
@@ -41,7 +45,8 @@ void Cleric::attack(Game* game) {
     p->speed = CLERIC_SHOOT_SPEED;
     p->direction = getFaceDirection();
     p->damage = getAttackDamage();
-    game->projectiles.push_back(p);
+    game->projectiles[game->nextProjectileId] = p;
+    game->nextProjectileId = (game->nextProjectileId + 1) % MAX_PROJECTILE_ID;
 
     // Send an update to the clients: HEALING_OBJECTIVE_TAKEN
     GameUpdate attackUpdate;

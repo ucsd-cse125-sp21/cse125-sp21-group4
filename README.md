@@ -8,10 +8,10 @@
 - Windows machine
 
 ### How to run the Client (with Graphics) (New Instructions with Solution file)
-1. Open up Visual Studio -> Open a project or solution -> Goto repository/client and pick CSE125Proj.sln
+1. Open up Visual Studio -> Open a project or solution -> Goto repository/client and pick CSE125Client.sln
 2. Right click the Project in the Solution Explorer (not the Solution) -> Properties -> Make sure All Configurations is chosen
 3. Linker -> Input
-4. Prepend "opengl32.lib;" to the Additional Dependencies.
+4. Prepend "opengl32.lib;" to the Additional Dependencies (if not already prepended).
 5. Apply -> Ok -> Press Ctrl - F5 to run.
 
 ### How to run the Client (with Graphics) (Legacy Instructions)
@@ -32,7 +32,7 @@ Execute `build.bat` within the root directory of the project to generate `client
   - `cd server`
   - `g++ *.cpp ../common/game/*.cpp -o server.exe -lWs2_32`
 
-To run the client or server, execute their respective `exe` files.
+To run the client or server, execute their respective `exe` files while being in their respective folders (i.e. must `cd` into server or client folder).
 
 ### Notes on running the server and client
 - If you are running the client AND server, you must uncomment #define SERVER_ENABLED in client/Window.h , otherwise clients will not connect to the server.

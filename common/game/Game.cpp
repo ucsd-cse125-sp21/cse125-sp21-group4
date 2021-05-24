@@ -27,6 +27,8 @@
 
 using namespace std;
 
+int Objective::globalObjectiveIDCounter = 0; // used to keep count on every objective
+
 Game::Game() {
     initGameGrids();
     // initPlayers(); Will init players when the game starts and we know the jobs
@@ -223,93 +225,120 @@ void Game::initGameGrids() {
     //         }
     //     }
     // }
-    // ifstream map_file("../assets/layout/map.csv");
-    // string line;
-    // string id;
+    ifstream map_file("../assets/layout/map_server.csv");
+    string line;
+    string id;
 
-    // int i = 0;
-    // int j = 0;
+    int i = 0;
+    int j = 0;
 
-    // while(getline(map_file, line)) {
-    //     stringstream ss(line);
+    while(getline(map_file, line)) {
+        stringstream ss(line);
         
-    //     while(getline(ss, id, ',')) {
-    //         GridPosition position;
-    //         position.x = j;
-    //         position.y = i;
-
-    //         switch(id) {
-    //             case OBST_ID:
-    //                 gameGrids[i][j] = new Obstacle(position); // should be a tree
-    //             case BEAC_ID:
-    //                 gameGrids[i][j] = new Beacon(position);
-    //             default:
-    //                 gameGrids[i][j] = new Space(position);
-//=======
-    int test_rock_width = 30;
-    int test_rock_height = 30;
-
-    int test_fheal_width = 35;
-    int test_fheal_height = 35;
-
-    int test_mheal_width = 40;
-    int test_mheal_height = 40;
-    
-    int test_mevo_width = 45;
-    int test_mevo_height = 45;
-
-    int test_farm_width = 50;
-    int test_farm_height = 50;
-
-    int test_beac_width = 55;
-    int test_beac_height = 55;
-
-    for (int i = 0; i < MAP_HEIGHT / GRID_HEIGHT; i++) {
-        for (int j = 0; j < MAP_WIDTH / GRID_WIDTH; j++) {
+        while(getline(ss, id, ',')) {
+            // printf("%s\n", id);
             GridPosition position;
             position.x = j;
             position.y = i;
-            // put obstacles on the boundary
-            if (isBoundary(j, i)) {
-                gameGrids[i][j] = new Obstacle(position);
-            }
-            else {
-                
-                // testing purposes
-                if(j == test_rock_width && i == test_rock_height) {
-                    gameGrids[i][j] = new Rock(position);
-                }
-                else if (j == test_fheal_width && i == test_fheal_height) {
-                    gameGrids[i][j] = new Heal(position, R_HUNTER);
-                    objectives.push_back((Objective *)gameGrids[i][j]);
-                }
-                else if (j == test_mheal_width && i == test_mheal_height) {
-                    gameGrids[i][j] = new Heal(position, R_MONSTER);
-                    objectives.push_back((Objective *)gameGrids[i][j]);
-                }
-                else if (j == test_mevo_width && i == test_mevo_height) {
-                    gameGrids[i][j] = new Evolve(position);
-                    objectives.push_back((Objective *)gameGrids[i][j]);
-                }
-                else if (j == test_farm_width && i == test_farm_height) {
-                    gameGrids[i][j] = new Armor(position, R_HUNTER);
-                    objectives.push_back((Objective *)gameGrids[i][j]);
-                }
-                else if (j == test_beac_width && i == test_beac_height) {
-                    gameGrids[i][j] = new Beacon(position);
-                    beacon = (Beacon*) gameGrids[i][j];
-                }
-                else {
-                    gameGrids[i][j] = new Space(position);
-                }
+            int objID = std::stoi(id);
 
-//>>>>>>> origin/main
+            switch(objID) {
+                case SPACE_ID: {
+                    gameGrids[j][i] = new Space(position);
+                    break;
+                }
+                case OBST_ID: {
+                    gameGrids[j][i] = new Obstacle(position); 
+                    break;
+                }
+                case HUNTER_HP_ID: {
+                    gameGrids[j][i] = new Heal(position, R_HUNTER);
+                    Objective* obj = (Objective *)gameGrids[j][i];
+                    objectives.push_back(obj);
+                    
+                    // Send update to client that objective have spawned
+                    GameUpdate objSpawnUpdate;
+                    objSpawnUpdate.updateType = SPAWN_OBJECTIVE;
+                    objSpawnUpdate.objectiveSpawnType = obj->getObjective();
+                    objSpawnUpdate.objRestrictionType = obj->getRestriction();
+                    objSpawnUpdate.objectiveID = obj->getObjectiveID();
+                    objSpawnUpdate.gridPos = position;
+                    this->addUpdate(objSpawnUpdate);
+                    break;
+                }
+                case HUNTER_ARMOR_ID: {
+                    gameGrids[j][i] = new Armor(position);
+                    Objective* obj = (Objective *)gameGrids[j][i];
+                    objectives.push_back(obj);
+                    
+                    // Send update to client that objective have spawned
+                    GameUpdate objSpawnUpdate;
+                    objSpawnUpdate.updateType = SPAWN_OBJECTIVE;
+                    objSpawnUpdate.objectiveSpawnType = obj->getObjective();
+                    objSpawnUpdate.objRestrictionType = obj->getRestriction();
+                    objSpawnUpdate.objectiveID = obj->getObjectiveID();
+                    objSpawnUpdate.gridPos = position;
+                    this->addUpdate(objSpawnUpdate);
+                    break;
+                }
+                case MONSTER_HP_ID: {
+                    gameGrids[j][i] = new Heal(position, R_MONSTER);
+                    Objective* obj = (Objective *)gameGrids[j][i];
+                    objectives.push_back(obj);
+                    
+                    // Send update to client that objective have spawned
+                    GameUpdate objSpawnUpdate;
+                    objSpawnUpdate.updateType = SPAWN_OBJECTIVE;
+                    objSpawnUpdate.objectiveSpawnType = obj->getObjective();
+                    objSpawnUpdate.objRestrictionType = obj->getRestriction();
+                    objSpawnUpdate.objectiveID = obj->getObjectiveID();
+                    objSpawnUpdate.gridPos = position;
+                    this->addUpdate(objSpawnUpdate);
+                    break;
+                }
+                case MONSTER_EVOLVE_ID: {
+                    gameGrids[j][i] = new Evolve(position);
+                    Objective* obj = (Objective *)gameGrids[j][i];
+                    objectives.push_back(obj);
+                    
+                    // Send update to client that objective have spawned
+                    GameUpdate objSpawnUpdate;
+                    objSpawnUpdate.updateType = SPAWN_OBJECTIVE;
+                    objSpawnUpdate.objectiveSpawnType = obj->getObjective();
+                    objSpawnUpdate.objRestrictionType = obj->getRestriction();
+                    objSpawnUpdate.objectiveID = obj->getObjectiveID();
+                    objSpawnUpdate.gridPos = position;
+                    this->addUpdate(objSpawnUpdate);
+                    break;
+                }
+                case BEAC_ID: {
+                    gameGrids[j][i] = new Beacon(position);
+                    Objective* obj = (Objective *)gameGrids[j][i];
+                    beacon = (Beacon*) gameGrids[j][i];
+                    
+                    // Send update to client that objective have spawned
+                    GameUpdate objSpawnUpdate;
+                    objSpawnUpdate.updateType = SPAWN_OBJECTIVE;
+                    objSpawnUpdate.objectiveSpawnType = obj->getObjective();
+                    objSpawnUpdate.objRestrictionType = obj->getRestriction();
+                    objSpawnUpdate.objectiveID = obj->getObjectiveID();
+                    objSpawnUpdate.gridPos = position;
+                    this->addUpdate(objSpawnUpdate);
+                    break;
+                }
+                default: {
+                    printf("Invalid integer in map_server.csv, putting Space Object for now\n");
+                    gameGrids[j][i] = new Space(position);
+                    break;
+                }
             }
 
-            // j++;
+            // printf("%d, %d, %d\n", objID, i, j);
+
+            j++;
         }
-
-        // i++;
+        j = 0;
+        i++;
     }
 }
 
@@ -400,7 +429,7 @@ bool Game::handleInputs(CLIENT_INPUT playersInputs[PLAYER_NUM]) {
                 break;
             case DONE_RENDERING:
                 renderCount++;
-                // printf("Render Count: %d\n", renderCount);
+                printf("Players Rendered & Joined Count: %d\n", renderCount);
                 if(!started && renderCount >= PLAYER_NUM) {
                     // All players have joined
                     GameUpdate allJoined;
@@ -609,26 +638,37 @@ bool projectileIsCollidingEnemy (Projectile* p, Game* game) {
     enemy correspondingly.
 */
 void Game::updateProjectiles () {
-    std::vector<Projectile*> newProjectiles;
-    for (auto iter = projectiles.begin(); iter != projectiles.end(); iter++) {
+    auto iter = projectiles.begin();
+    while (iter != projectiles.end()) {
         // move
-        projectileMove(*iter);
+        projectileMove(iter->second);
 
-        // remove if exceeds max distance or hit boundary
-        if (projectileIsEnd(*iter, this)) {
-            delete (*iter); // free the space
-            continue;
-        }
-
-        // check for collision with players
-        if ((projectileIsCollidingEnemy(*iter, this))) {
+        // remove if exceeds max distance or hit boundary or collide with other players
+        if (projectileIsEnd(iter->second, this) || (projectileIsCollidingEnemy(iter->second, this))) {
             // if this has hit an enemy, remove the projectile
-            delete (*iter); // free the space
-            continue;
+
+            // send projectile end state to each clients
+            GameUpdate projectileUpdate;
+            projectileUpdate.updateType = PROJECTILE_END;
+            projectileUpdate.id = iter->first;
+            addUpdate(projectileUpdate);
+
+            delete (iter->second); // free the space
+            iter = projectiles.erase(iter);
+
+        } else {
+            // send projectile state to each clients
+            GameUpdate projectileUpdate;
+            projectileUpdate.updateType = PROJECTILE_MOVE;
+            projectileUpdate.id = iter->first;
+            projectileUpdate.projectileType = iter->second->type;
+            projectileUpdate.direction = iter->second->direction;
+            projectileUpdate.playerPos = {iter->second->currentPosition.x, iter->second->currentPosition.y};
+            addUpdate(projectileUpdate);
+
+            iter++;
         }
-        newProjectiles.push_back(*iter);
     }
-    projectiles = newProjectiles;
 }
 
 /**

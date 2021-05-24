@@ -11,6 +11,7 @@ Beacon::Beacon(GridPosition position, Restriction r, int freq) {
     captured = false;
     tickCounter = 0;
     captureAmount = 0;
+    objectiveID = Objective::getNextValidID(); 
 }
 
 int Beacon::getFrequency() {

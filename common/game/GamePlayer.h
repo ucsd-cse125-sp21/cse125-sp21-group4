@@ -30,7 +30,9 @@ protected:
     int maxHp;
     int attackDamage; // harmness made per attack
     Direction faceDirection; // the direction the player is facing
-    float speed; // move speed
+    float speed; // current move speed
+    float acceleration; // acceleration relative to server tick
+    float maxSpeed; // the maximum speed player can do
 
     int id; // Used for determining playerID
 
@@ -51,6 +53,10 @@ public:
     void setFaceDirection (Direction newDirection); // faceDirection setter
     float getSpeed ();
     void setSpeed (float newSpeed);
+    float getAcceleration ();
+    void setAcceleration (float newAcceleration);
+    float getMaxSpeed ();
+    void setMaxSpeed (float newMaxSpeed);
     void slowDown (float amount);
     void speedUp (float amount);
     void speedChange(float amount);

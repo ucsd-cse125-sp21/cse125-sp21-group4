@@ -8,6 +8,8 @@ Monster::Monster() {
     maxHp = MONSTER_MAX_HP;
     setAttackDamage(MONSTER_ATTACK_DAMAGE);
     setEvo(MONSTER_FIRST_STAGE_THRESHOLD);
+    setAcceleration(MONSTER_ACCELERATION);
+    setMaxSpeed(MONSTER_MAX_SPEED);
 }
 
 Monster::Monster(PlayerPosition position) : GamePlayer(position){
@@ -16,6 +18,8 @@ Monster::Monster(PlayerPosition position) : GamePlayer(position){
     maxHp = MONSTER_MAX_HP;
     setAttackDamage(MONSTER_ATTACK_DAMAGE);
     setEvo(MONSTER_FIRST_STAGE_THRESHOLD);
+    setAcceleration(MONSTER_ACCELERATION);
+    setMaxSpeed(MONSTER_MAX_SPEED);
 }
 
 // monster ranged attack
@@ -43,7 +47,8 @@ void Monster::attack(Game* game) {
     p->speed = MONSTER_RANGED_SPEED; //this?
     p->direction = getFaceDirection();
     p->damage = getAttackDamage();
-    game->projectiles.push_back(p);
+    game->projectiles[game->nextProjectileId] = p;
+    game->nextProjectileId = (game->nextProjectileId + 1) % MAX_PROJECTILE_ID;
 }
 
 void Monster::uniqueAttack(Game* game) {
@@ -176,6 +181,14 @@ void Monster::interact(Game* game) {
                     // Monster: Update Evo
                     Evolve* evoObj = (Evolve*) obj;
                     updateEvo(game, evo + evoObj->getEvoAmount());
+
+                    // Send an update to the clients: HEALING_OBJECTIVE_TAKEN
+                    GameUpdate evoObjectiveTakenUpdate;
+                    evoObjectiveTakenUpdate.updateType = EVO_OBJECTIVE_TAKEN;
+                    evoObjectiveTakenUpdate.id = this->id;                        // id of player being healed
+                    evoObjectiveTakenUpdate.objectiveID = evoObj->getObjectiveID();
+                    evoObjectiveTakenUpdate.gridPos = evoObj->getPosition();     // obj location
+                    game->addUpdate(evoObjectiveTakenUpdate);
 
                     // Clean up the evo grid.
                     game->consumeObj(evoObj);

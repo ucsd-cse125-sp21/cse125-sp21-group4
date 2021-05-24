@@ -39,6 +39,12 @@ Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPo
 	// if path is NOT given at construction time, hasTexture will be false.
 	hasTexture = loadAnimationAssets(textFile);
 
+	// For flashing the character on damage taken events
+	isVisible = true;
+	lastDamageFlash = currTime;
+	damageFlashUntil = currTime;
+
+
 	std::vector<glm::vec3> normalp;
 	std::vector<glm::vec3> pointsp;
 	std::vector<glm::vec2> texp;
@@ -187,6 +193,11 @@ Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPo
 }
 
 void Character::draw(glm::mat4 c) {
+	// if not visible then don't draw
+	if(!isVisible) {
+		return;
+	}
+	
 	//model used in the shader would be this model mult with passed down transform model
 	glm::mat4 m = model * c;
 	glUseProgram(shader);
@@ -289,7 +300,23 @@ void Character::update() {
 	}
 	else {
 		float timeDiff = (float)(currTime - prevTime) / CLOCKS_PER_SEC;
-		if (timeDiff >= ANIMATION_INTERVAL) {
+		
+		// interval depends on the currState of the animation
+		float interval = IDLE_ANIMATION_INTERVAL;
+		switch(currState) {
+			case idle:
+				interval = IDLE_ANIMATION_INTERVAL;
+				break;
+			case attacking:
+				interval = ATTACK_ANIMATION_INTERVAL;
+				break;
+			case moving:
+				interval = MOVING_ANIMATION_INTERVAL;
+				break;
+			default:
+				printf("Invalid animation state. Update the switch statement.\n");
+		}
+		if (timeDiff >= interval) {
 			// check if on the last frame of a sequence
 			if (frameIdx + 1 == (*animSequence[currState]).size()) {
 				frameIdx = 0;
@@ -301,6 +328,17 @@ void Character::update() {
 			prevState = currState;
 			prevTime = currTime;
 		}
+	}
+
+	// Flash the character
+	float flashTimeDiff = (float) (currTime - lastDamageFlash) / CLOCKS_PER_SEC * 1000;
+	if(currTime < damageFlashUntil && flashTimeDiff > CHARACTER_DAMAGE_TAKEN_FLASHING_INTERVAL_MS) {
+		isVisible = !isVisible;
+		lastDamageFlash = currTime;
+
+	// past the flash time, set reversedColor to false so we return to normal colors
+	} else if (currTime > damageFlashUntil)  {
+		isVisible = true;
 	}
 }
 
@@ -398,4 +436,8 @@ bool Character::loadAnimationAssets(string assetFolder) {
 
 void Character::setState(CharState state) {
 	currState = state;
+}
+
+void Character::flashDamage() {
+	damageFlashUntil = clock() + CHARACTER_DAMAGE_TAKEN_FLASHING_TIME_MS * CLOCKS_PER_SEC / 1000;
 }

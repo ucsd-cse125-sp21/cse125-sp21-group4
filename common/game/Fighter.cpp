@@ -6,6 +6,8 @@ Fighter::Fighter() {
     setHp(FIGHTER_MAX_HP); // init full health
     maxHp = FIGHTER_MAX_HP;
     setAttackDamage(FIGHTER_ATTACK_DAMAGE);
+    setAcceleration(FIGHTER_ACCELERATION);
+    setMaxSpeed(FIGHTER_MAX_SPEED);
 }
 
 Fighter::Fighter(PlayerPosition position) : GamePlayer(position) {
@@ -13,6 +15,8 @@ Fighter::Fighter(PlayerPosition position) : GamePlayer(position) {
     setHp(FIGHTER_MAX_HP); // init full health
     maxHp = FIGHTER_MAX_HP;
     setAttackDamage(FIGHTER_ATTACK_DAMAGE);
+    setAcceleration(FIGHTER_ACCELERATION);
+    setMaxSpeed(FIGHTER_MAX_SPEED);
 }
 
 /*

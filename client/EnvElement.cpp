@@ -186,6 +186,10 @@ void EnvElement::draw(glm::mat4 c) {
 	// Bind the VAO
 	glBindVertexArray(VAO);
 
+	glEnable(GL_DEPTH_TEST);
+
+	glDepthMask(GL_TRUE);
+	
 	if (hasTexture) {
 		//cout << "has texture" << endl;
 		glActiveTexture(GL_TEXTURE0);
@@ -195,6 +199,58 @@ void EnvElement::draw(glm::mat4 c) {
 	// Draw the points 
 	//glDrawArrays(GL_POINTS, 0, points.size());
 	glDrawElements(GL_TRIANGLES, 3 * triangles.size(), GL_UNSIGNED_INT, 0);
+
+	// Unbind the VAO and shader program
+	glBindVertexArray(0);
+	glUseProgram(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void EnvElement::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
+	//model used in the shader would be this model mult with passed down transform model
+	glm::mat4 m = model * c;
+	glUseProgram(shader);
+
+	// Get the shader variable locations and send the uniform data to the shader 
+	glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, false, glm::value_ptr(*view));
+	glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, false, glm::value_ptr(*projection));
+	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, glm::value_ptr(m));
+	glUniform3fv(glGetUniformLocation(shader, "viewPos"), 1, glm::value_ptr(eyep));
+	glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(color));
+
+
+	// Bind the VAO
+	glBindVertexArray(VAO);
+
+	glEnable(GL_DEPTH_TEST);
+
+	glDepthMask(GL_TRUE);
+
+	glEnable(GL_BLEND);
+	if (hasTexture) {
+		//cout << "has texture" << endl;
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, textId);
+	}
+
+	// simple calculation to check if the object is blocking the character
+	bool isCloseToObstructing = glm::distance(clientPos, pos) < 10.f && pos.z > clientPos.z && pos.z - clientPos.z > abs(pos.x - clientPos.x) && pos.y >= 3.f;
+	if(isCloseToObstructing) {
+		// printf("EnvElement is blocking the character.\n");
+		glDepthMask(GL_FALSE);
+		glBlendColor(0, 0, 0, abs(glm::distance(clientPos, pos) - 5.f) * 2.f / 255.f);
+		glBlendFunc(GL_SRC_ALPHA, GL_CONSTANT_COLOR);
+
+	}
+
+	glDrawElements(GL_TRIANGLES, 3 * triangles.size(), GL_UNSIGNED_INT, 0);
+	
+	if (isCloseToObstructing) {
+		glDepthMask(GL_TRUE);
+	}
+	glDisable(GL_BLEND);
+	// Draw the points 
+	//glDrawArrays(GL_POINTS, 0, points.size());
 
 	// Unbind the VAO and shader program
 	glBindVertexArray(0);

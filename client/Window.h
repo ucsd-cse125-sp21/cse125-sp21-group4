@@ -3,22 +3,29 @@
 
 #define KEYBOARD_SIZE 350
 #define SERVER_ENABLED
+#define RENDER_MAP
+#define _USE_MATH_DEFINES
 
 #include "Main.h"
 #include "shader.h"
 #include "Character.h"
 #include "EnvElement.h"
+#include "ProjectileElement.h"
 #include "ScreenElement.h"
+#include "ObjElement.h"
 #include "SpatialHashTable.h"
 //#include "../common/constants.h"
 #include "CommunicationClient.h"
 #include "../common/networking/CommunicationConstants.h"
+#include "../common/game/Projectile.h"
 #include "gui/GUIManager.h"
 
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <unordered_map>
 #include <iostream>
+#include <cmath>
 
 
 
@@ -35,7 +42,9 @@ public:
 	//objects to render
 	static vector<Character*> chars;
 	static vector<EnvElement*> envs;
+	static unordered_map<int, ProjectileElement*> projectiles;
 	static vector<ScreenElement*> selectScreenElements;
+	static map<int, ObjElement*> objectiveMap; 
 	static Character* clientChar;
 
 	// Shader Program 
@@ -87,11 +96,19 @@ public:
 	static void handleUpdates(std::vector<GameUpdate> updates);
 	static void handleRoleClaim(GameUpdate update);
 	static void handleUpdate(GameUpdate update);
+	static void Window::handleAttack(GameUpdate update);
 
 	// Used to set lastInput based on keyboard inputs
 	static void Window::updateLastInput(); 
 
-	static void Window::handleAttack(GameUpdate update);
+	// Used to connect to server
+	static bool Window::connectCommClient(std::string);
+
+	// Used to spawn objectives
+	static void Window::initializeObjective(int id, ObjectiveType type, Restriction restriction, float x, float y);
+
+	// Used to remove objectives
+	static void Window::removeObj(int objectiveID);
 };
 
 #endif

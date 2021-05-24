@@ -44,10 +44,10 @@ int main(void)
         game->handleInputs(actions.playersInputs);
         game->updateGameEvents();
         if (game->started) {
-            game->updateProjectiles(); // should this be a good place to update projectile?
+            game->updateProjectiles(); // used to update the exsiting projectiles in the game
             game->updateBeacon(); // used to determine players inside the beacon capture area
             game->checkEvoLevel(); // used to determine monster evolution level
-            game->checkEnd();
+            game->checkEnd(); // used to determine whether the game has ended
         }
 
 

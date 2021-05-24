@@ -6,6 +6,8 @@ Rogue::Rogue() {
     setHp(ROGUE_MAX_HP); // init full health
     maxHp = ROGUE_MAX_HP;
     setAttackDamage(ROGUE_ATTACK_DAMAGE);
+    setAcceleration(ROGUE_ACCELERATION);
+    setMaxSpeed(ROGUE_MAX_SPEED);
 }
 
 Rogue::Rogue(PlayerPosition position) : GamePlayer(position) {
@@ -13,6 +15,8 @@ Rogue::Rogue(PlayerPosition position) : GamePlayer(position) {
     setHp(ROGUE_MAX_HP); // init full health
     maxHp = ROGUE_MAX_HP;
     setAttackDamage(ROGUE_ATTACK_DAMAGE);
+    setAcceleration(ROGUE_ACCELERATION);
+    setMaxSpeed(ROGUE_MAX_SPEED);
 }
 
 // overide GamePlayer's attack
@@ -41,7 +45,8 @@ void Rogue::attack(Game* game) {
     p->speed = ROGUE_ARROW_SPEED;
     p->direction = getFaceDirection();
     p->damage = getAttackDamage();
-    game->projectiles.push_back(p);
+    game->projectiles[game->nextProjectileId] = p;
+    game->nextProjectileId = (game->nextProjectileId + 1) % MAX_PROJECTILE_ID;
 
     // Send an update to the clients: HEALING_OBJECTIVE_TAKEN
     GameUpdate attackUpdate;

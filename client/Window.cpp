@@ -1,16 +1,11 @@
 #include "Window.h"
 
-// Tile IDs
-#define SPACE_ID   -1
-#define OBST_ID     2
-#define BEAC_ID   200
-
-// Window Properties
+//// Window Properties
 int Window::width;
 int Window::height;
 const char* Window::windowTitle = "CSE125_GAME";
 CommunicationClient* Window::client;
-SpatialHashTable Window::table(5000, 8.f);
+SpatialHashTable Window::table(5000, 20.f);
 bool Window::keyboard[KEYBOARD_SIZE];
 bool Window::gameStarted;
 bool Window::doneInitialRender;
@@ -18,6 +13,8 @@ bool Window::doneInitialRender;
 //objects to render
 vector<Character*> Window::chars(4); //all the characters players get to control
 vector<EnvElement*> Window::envs; //all the environmental static objects
+map<int, ObjElement*> Window::objectiveMap;
+unordered_map<int, ProjectileElement*> Window::projectiles; //all the environmental static objects
 Character* Window::clientChar;
 
 // Interaction Variables
@@ -59,17 +56,8 @@ bool Window::initializeProgram() {
 		return false;
 	}
 
-#ifdef SERVER_ENABLED
+	// CommunicationClient no longer blocks on constructor. It will block on connectTo().
 	client = new CommunicationClient();
-	cout << "Communication Established" << endl;
-	
-	// if the id is 3, then set the hpBar to be max monster
-	if(client->getId() == 3) {
-		guiManager->healthBar->initGivenPlayerType(MONSTER);
-		guiManager->selectScreen->setMonster(true);
-	}
-	guiManager->miniMap->setCurrentPlayer(3, MONSTER); // Monster is currently id = 3
-#endif // SERVER_ENABLED
 
 	// Setup the keyboard.
 	for(int i = 0; i < KEYBOARD_SIZE; i++) {
@@ -93,32 +81,33 @@ bool Window::initializeObjects()
 
 	//  ==========  Select Screen  ========== 
 	glm::vec3 selectScreenLocation = eyePos + glm::vec3(0.f, -100.f, 0.f);
-	float rotateAmount = glm::radians(-45.f);
+	float rotateAmount = glm::radians(-53.13f);
+	float selectScreenScale = 8.f;
 	lookAtPoint = selectScreenLocation;
 	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
-		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
+		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, selectScreenScale, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/character_select_background.png"));
 	
 
 	// Each Job Buttons
 	// (1) Fighter
 	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
-		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
+		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, selectScreenScale, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/fighter_unselected.png"));
 		
 	// (2) Mage
 	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
-		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
+		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, selectScreenScale, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/mage_unselected.png"));
 		
 	// (3) Cleric
 	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
-		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
+		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, selectScreenScale, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/cleric_unselected.png"));
 		
 	// (4) Rogue
 	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
-		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, 5.f, glm::vec3(1.f, .5f, .5f),
+		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, selectScreenScale, glm::vec3(1.f, .5f, .5f),
 		"shaders/select_screen/rogue_unselected.png"));
 
 	//  ==========  End of Select Screen  ========== 
@@ -127,51 +116,99 @@ bool Window::initializeObjects()
 	//NOTE: envs now only contain environment objects that are globally viewable. All other objects that require
 	//proximity rendering should be inserted into "table"
 	envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram,
-		glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
+		glm::vec3(0.f, -1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
 
 
-	ifstream map_file("../assets/layout/map.csv");
+	#ifdef RENDER_MAP
+	printf("=======================================\nIt will take a while for the game to launch, please wait.\n");
+	ifstream map_file("../assets/layout/map_client.csv");
     string line;
     string id;
 
-    int i = 0, j = 0;
-
-	int x = 0, y = 0, z = 0;
     while(getline(map_file, line)) {
-        stringstream ss(line);
-        
-        while(getline(ss, id, ',')) {
-			//std::cout << std::stoi(id) << '\n';
-			// (horiz - pos right, vert - pos up, screen - pos towards you)
-			//std::cout << "i: " << i << "j: " << j << '\n';
-            switch(std::stoi(id)) {
-				
-			case OBST_ID: {
-				EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
-					glm::vec3(2. * j, 1.f, 2. * i), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f));
-				table.insert(e);
-				break;
-			}
-			case BEAC_ID: {
-				EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
-					glm::vec3(2. * j, 1.f, 2. * i), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, 1.f, 1.f));
-				table.insert(e);
-				break;
-			}
-				case SPACE_ID:
-                    break;
+        istringstream ss(line);
+        string field;
 
-                default:
-					std::cout << "Invalid id " << id << '\n';
-					std::cout << "i: " << i << "j: " << j << '\n';
-					return false;
+		// fields: objName, x, y, width, height (x and y are upper left corner of obj)
+		string objName;
+		int fields[4] = {0,0,0,0};
+		int i = 0;
+		while (getline(ss, field, ',')) {
+			if(i == 0) {
+				objName = field;
+			} else {
+				fields[i - 1] = stoi(field);
 			}
-			
-			++j;
+			i++;
 		}
-		++i;
-		j = 0;
+		float objX = fields[0];
+		float objY = fields[1];
+		float width = fields[2];
+		float height = fields[3];
+
+		// Spawn the obstacles based on their name
+		
+		// Green wall = hedge
+		if (strcmp(objName.c_str(), "hedge") == 0) {
+			// do a for loop to fill the hedge?
+			for(int x = objX; x < objX + width; x++) {
+				for(int y = objY; y < objY + height; y++) {
+
+					EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
+						glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f));
+					table.insert(e);
+				}
+			}
+
+		// White cube ==  pillar
+		} else if (strcmp(objName.c_str(), "pillar") == 0) {
+			objX += width / 2;
+			objY += height / 2;
+			EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
+				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f),  width, glm::vec3(1.f, 1.f, 1.f)); 
+			table.insert(e);
+
+		// Green Tree ==   tree_live
+		} else if (strcmp(objName.c_str(), "tree_live") == 0) {
+			objX += width / 2;
+			objY += height / 2;
+			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, shaderProgram,
+				glm::vec3(objX, 8.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.f, 1.f, 0.f));
+			table.insert(e);
+
+		// dead tree = grayish black
+		} else if (strcmp(objName.c_str(), "tree_dead") == 0) {
+			objX += width / 2;
+			objY += height / 2;
+			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, shaderProgram,
+				glm::vec3(objX, 8.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.2f, 0.2f, 0.2f));
+			table.insert(e);
+
+		// gray ==  Rock
+		} else if (strcmp(objName.c_str(), "rock") == 0) {
+			objX += width / 2;
+			objY += height / 2;
+
+			EnvElement* e = new EnvElement("shaders/environment/lowpolyrock1.obj", &projection, &view, shaderProgram,
+				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f),  width * 2.f, glm::vec3(0.7f, 0.7f, 0.7f));
+			table.insert(e);
+
+		// Red cube ==  wall
+		} else if (strcmp(objName.c_str(), "wall") == 0) {
+			// do a for loop to fill the Wall ?
+
+			for(int x = objX; x < objX + width; x++) {
+				for(int y = objY; y < objY + height; y++) {
+
+					EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
+						glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f));
+					table.insert(e);
+				}
+			}
+		}
+		
 	} 
+	#endif
 
 
 	//  ==========  End of Environment Initialization  ========== 
@@ -200,22 +237,23 @@ bool Window::initializeObjects()
 	// gameStarted = true;
 	// #endif
 
+	/* ===== THIS #ifndef CODE IS ONLY FOR NON-CONNECTED CLIENTS TO IMPROVE GRAPHICS DEVELOPMENT ==== */
 	#ifndef SERVER_ENABLED
-	chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-		glm::vec3(5.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
-		"shaders/character/MAGE"));	
+	chars[0] = new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+		glm::vec3(SPAWN_POSITIONS[0][0], 1.f, SPAWN_POSITIONS[0][1]), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
+		"shaders/character/MAGE");	
 	clientChar = chars[0];
 	Window::gameStarted = true;
+	guiManager->healthBar->flashHealthBar();
 	#endif
+	/* ===== end of #ifndef (no-server client) code ==== */
+
 
 	chars[3] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 		glm::vec3(SPAWN_POSITIONS[3][0], 1.f, SPAWN_POSITIONS[3][1]), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/character/MAGE"));
-	
-	if(client->getId() == 3) clientChar = chars[3];
 
 	//  ==========  End of Character Initialization ========== 
-
 	return true;
 }
 
@@ -258,11 +296,14 @@ GLFWwindow* Window::createWindow(int width, int height)
 	glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
 	Window::guiManager = new GUIManager(width, height, fbWidth, fbHeight);
 	guiManager->setConnectingScreenVisible(true);
+
+	/* ===== THIS #ifndef CODE IS ONLY FOR NON-CONNECTED CLIENTS TO IMPROVE GRAPHICS DEVELOPMENT ==== */
 #ifndef SERVER_ENABLED // Client-only (no server)	
 	guiManager->setConnectingScreenVisible(false);
 	guiManager->setHUDVisible(true);
 	guiManager->beaconBar->setAmount(18.f);
 #endif
+	/* ===== end of #ifndef (no-server client) code ==== */
 
 	// Set swap interval to 1 if you want buffer 
 	glfwSwapInterval(0);
@@ -301,26 +342,33 @@ void Window::idleCallback()
 
 	Window::updateLastInput();
 #ifdef SERVER_ENABLED
-	// 1 + 2. Get the latest input and send it to the server
-	client->sendInput(Window::lastInput);
-	// 3. Receive updated gamestate from server
-	std::vector<GameUpdate> updates = client->receiveGameUpdates();
+	if(client->isConnected()) {
+		// 1 + 2. Get the latest input and send it to the server
+		client->sendInput(Window::lastInput);
+
+		// 3. Receive updated gamestate from server
+		std::vector<GameUpdate> updates = client->receiveGameUpdates();
+
+		// cout << "updating game" << endl;
+		Window::handleUpdates(updates);
+	}
 	lastInput = NO_MOVE;
 
-	// cout << "updating game" << endl;
-	Window::handleUpdates(updates);
 #endif
 	//update camera location
-	if(Window::gameStarted) {
+	if(Window::gameStarted && clientChar != nullptr) {
 		lookAtPoint = clientChar->pos;
 	}
-	eyePos = lookAtPoint + glm::vec3(0.f, 5.f, 5.f);
+	eyePos = lookAtPoint + glm::vec3(0.f, 8.f, 6.f);
 	view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window::upVector);
 
 	int i;
 	for (i = 0; i < chars.size() && Window::gameStarted; i++) {
-		chars[i]->update();
+		if (chars[i] != nullptr) {
+			chars[i]->update();
+		}
 	}
+
 }
 
 void Window::displayCallback(GLFWwindow* window)
@@ -331,9 +379,6 @@ void Window::displayCallback(GLFWwindow* window)
 
 	//draw all the characters and environmental elements
 	int i;
-	// for (i = 0; i < guiManager->selectScreen->selectScreenElements.size(); i++) {
-	// 	guiManager->selectScreen->selectScreenElements[i]->draw();
-	// }
 
 	//first draw all globally viewable objects
 	for (i = 0; i < envs.size(); i++) {
@@ -342,14 +387,17 @@ void Window::displayCallback(GLFWwindow* window)
 
 	//then selectively draw objects nearby this player
 	vector<EnvElement*> result;
-	float h = 8.0f;
+	float h = table.getDistance();
 	int j;
 	glm::vec3 base1(-1.f * h, 0.f, 0.f);
 	for (j = 0; j < 3 && Window::gameStarted; j++) {
 		int k;
 		glm::vec3 base2(0.f, 0.f, -1.f * h);
 		for (k = 0; k < 3; k++) {
-			glm::vec3 loc = base1 + base2 + clientChar->pos;
+			glm::vec3 loc = base1 + base2;
+			if(clientChar != nullptr) {
+				loc += clientChar->pos;
+			}
 			Cell* cell = table.getCell(loc);
 			if (cell != NULL && cell->items.size() != 0)
 				result.insert(result.end(), cell->items.begin(), cell->items.end());
@@ -358,11 +406,25 @@ void Window::displayCallback(GLFWwindow* window)
 		base1 += glm::vec3(1.f * h, 0.f, 0.f);
 	}
 	for (i = 0; i < result.size(); i++) {
-		result[i]->draw();
+		if(clientChar != nullptr) {
+			result[i]->drawIfNotObstructing(clientChar->pos);
+		}
 	}
 
-	for (i = 0; i < chars.size() && Window::gameStarted; i++) {
-		chars[i]->draw();
+	for (i = 0; i < chars.size() && Window::gameStarted; i++) {		if (chars[i] != nullptr) {
+			chars[i]->draw();
+		}
+	}
+
+	// Draws all the objectives in the objective map
+	for (auto const& x: objectiveMap) {
+		x.second->draw();
+	}
+
+	// Draws all the projectiles
+	for(auto iter = projectiles.begin(); iter != projectiles.end(); iter++) {
+		iter->second->draw();
+
 	}
 
 	Window::guiManager->draw();
@@ -370,7 +432,7 @@ void Window::displayCallback(GLFWwindow* window)
 
 	glfwPollEvents();
 	glfwSwapBuffers(window);
-	if(!doneInitialRender) {
+	if(!doneInitialRender && client->isConnected()) {
 	#ifdef SERVER_ENABLED
 		// send update that we've finished rendering to the server
 		client->sendInput(DONE_RENDERING);
@@ -387,6 +449,9 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	if (action == GLFW_PRESS)
 	{
 		keyboard[key] = true;
+		if (!guiManager->connectingScreen->hasConnectedToServer) {
+			guiManager->connectingScreen->handleKeyInput(key, window);
+		}
 
 	 // Check for a key release.
 	} else if (action == GLFW_RELEASE) {
@@ -448,27 +513,32 @@ void Window::handleRoleClaim(GameUpdate update) {
 			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
 				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/FIGHTER"));	
-			chars[update.id]->loadAnimationAssets("shaders/character/FIGHTER");
+			chars[update.id]->loadAnimationAssets("shaders/character/FIGHTER");			chars[update.id]->loadAnimationAssets("shaders/character/FIGHTER/ATTACK");
+
 			break;
 		case MAGE:
 			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
 				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MAGE"));	
-			chars[update.id]->loadAnimationAssets("shaders/character/MAGE");
+			chars[update.id]->loadAnimationAssets("shaders/character/MAGE");			chars[update.id]->loadAnimationAssets("shaders/character/MAGE/ATTACK");
+
 			break;
 		case CLERIC:
 			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
 				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/CLERIC"));	
-			chars[update.id]->loadAnimationAssets("shaders/character/CLERIC");
+			chars[update.id]->loadAnimationAssets("shaders/character/CLERIC");			chars[update.id]->loadAnimationAssets("shaders/character/CLERIC/ATTACK");
+
 			break;
 		case ROGUE:
 			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
 				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/ROGUE"));
-			chars[update.id]->loadAnimationAssets("shaders/character/ROGUE");
+			chars[update.id]->loadAnimationAssets("shaders/character/ROGUE");			chars[update.id]->loadAnimationAssets("shaders/character/ROGUE/ATTACK");
 			break;
 	}
+
+	// Do not need to check if client is connected because this method should only run when the client is connected to the server.
 
 	#ifdef SERVER_ENABLED
 	if(update.id == client->getId()) clientChar = chars[client->getId()];
@@ -491,7 +561,9 @@ void Window::handleUpdate(GameUpdate update) {
         case PLAYER_DAMAGE_TAKEN:
 			if(update.id == client->getId()) {
 				guiManager->healthBar->decrementHp(update.damageTaken);
+				guiManager->healthBar->flashHealthBar();
 			}
+			chars[update.id]->flashDamage();
             break;
 		case PLAYER_HP_INCREMENT:
 			if(update.id == client->getId()) {
@@ -507,7 +579,56 @@ void Window::handleUpdate(GameUpdate update) {
         
 		}
 		case PROJECTILE_MOVE:
+		{
+			
+			glm::vec3 trans = glm::vec3(update.playerPos.x, 1.f, update.playerPos.y);
+			glm::vec3 rotAxis = glm::vec3(1.f, 0.f, 0.f);
+			float rotRad = glm::radians(0.f);
+			float scale = 1.f;
+			glm::vec3 color = glm::vec3(1.f, .5f, .5f);
+			string textFile;
+
+			// select projectile texture
+			if (update.projectileType == MAGE_FIREBALL) textFile ="shaders/projectile/fireball";
+			if (update.projectileType == MAGE_SHOOT) textFile ="shaders/projectile/fireball";
+			if (update.projectileType == ROGUE_ARROW) textFile ="shaders/projectile/arrow";
+			if (update.projectileType == CLERIC_SHOOT) textFile ="shaders/projectile/lightball";
+			if (update.projectileType == MONSTER_RANGED) textFile ="shaders/projectile/earthchunk";
+
+			// select projectile direction
+			if (update.direction == NORTH) {
+				textFile += "_up.png";
+				rotRad = glm::radians(-90.f);
+			}
+			if (update.direction == SOUTH) {
+				textFile += "_down.png";
+				rotRad = glm::radians(-90.f);
+			}
+			if (update.direction == WEST) {
+				textFile += "_left.png";
+
+				glm::vec3 targetVec = eyePos - trans;
+				rotRad = - glm::atan(targetVec.y, targetVec.z);
+			}
+			if (update.direction == EAST) {
+				textFile += "_right.png";
+
+				glm::vec3 targetVec = eyePos - trans;
+				rotRad = - glm::atan(targetVec.y, targetVec.z);
+			} 
+			
+
+
+			ProjectileElement* pEle = new ProjectileElement("shaders/character/billboard.obj", &projection, &view, texShader, &eyePos,
+															trans, rotAxis, rotRad, scale, color, (char*) textFile.c_str());
+			projectiles[update.id] = pEle;
+
             break;
+		}
+		case PROJECTILE_END:
+			delete projectiles[update.id];
+			projectiles.erase(update.id);
+			break;
 		case GAME_STARTED:
 			Window::gameStarted = true;
 			guiManager->setSelectScreenVisible(false); // disable the selects creen
@@ -537,6 +658,28 @@ void Window::handleUpdate(GameUpdate update) {
 			guiManager->selectScreen->startTimer(update.selectTimerStartTime);
 			guiManager->setConnectingScreenVisible(false);
 			break;
+
+		// Objective spawned
+		case SPAWN_OBJECTIVE: {
+			initializeObjective(update.objectiveID, update.objectiveSpawnType, update.objRestrictionType, update.gridPos.x, update.gridPos.y);
+
+			break;
+		}
+
+		// objective taken
+		
+        // Objectives:
+        case HEAL_OBJECTIVE_TAKEN:
+        case ARMOR_OBJECTIVE_TAKEN:
+			if(update.id == client->getId()) {
+				guiManager->healthBar->incrementHp(update.healAmount);
+			}
+            removeObj(update.objectiveID);
+            break;
+        case EVO_OBJECTIVE_TAKEN:
+            // The level up process done in another update.
+            removeObj(update.objectiveID);
+            break;
         default:
             printf("Not Handled Update Type: %d\n", update.updateType);
             break;
@@ -546,27 +689,6 @@ void Window::handleUpdate(GameUpdate update) {
 void Window::handleAttack(GameUpdate update) {
 	printf("Player %id is attacking\n", update.id);
 	chars[update.id]->setState(attacking);
-	switch(update.roleClaimed) {
-		case FIGHTER:
-			chars[update.id]->loadAnimationAssets("shaders/character/FIGHTER/ATTACK");
-			//chars[update.id]->loadAnimationAssets("shaders/character/FIGHTER");
-			break;
-		case MAGE:
-			chars[update.id]->loadAnimationAssets("shaders/character/MAGE/ATTACK");
-			//chars[update.id]->loadAnimationAssets("shaders/character/MAGE");
-			break;
-		case CLERIC:
-			chars[update.id]->loadAnimationAssets("shaders/character/CLERIC/ATTACK");
-			//chars[update.id]->loadAnimationAssets("shaders/character/CLERIC");
-			break;
-		case ROGUE:
-			chars[update.id]->loadAnimationAssets("shaders/character/ROGUE/ATTACK");
-			//chars[update.id]->loadAnimationAssets("shaders/character/ROGUE");
-			break;
-		default:
-			printf("ATTACK: Role not recognized\n");
-			break;
-	}
 }
 
 
@@ -603,20 +725,30 @@ void Window::updateLastInput() {
 
 	// 1 key (select fighter)
 	} else if(keyboard[GLFW_KEY_1]) {
-		guiManager->selectScreen->handleSelecting(FIGHTER);
-
+		if (guiManager->connectingScreen->hasConnectedToServer) {
+			guiManager->selectScreen->handleSelecting(FIGHTER);
+		}
 	// 2 key (select mage)
 	} else if(keyboard[GLFW_KEY_2]) {
-		guiManager->selectScreen->handleSelecting(MAGE);
+		
+		if (guiManager->connectingScreen->hasConnectedToServer) {
+			guiManager->selectScreen->handleSelecting(MAGE);
+		}
 
 	// 3 key (select cleric)
 	} else if(keyboard[GLFW_KEY_3]) {
-		guiManager->selectScreen->handleSelecting(CLERIC);
+		
+		if (guiManager->connectingScreen->hasConnectedToServer) {
+			guiManager->selectScreen->handleSelecting(CLERIC);
+		}
 
 	// 4 key (select rogue)
 	} else if(keyboard[GLFW_KEY_4]) {
-		guiManager->selectScreen->handleSelecting(ROGUE);
-	
+		
+		if (guiManager->connectingScreen->hasConnectedToServer) {
+			guiManager->selectScreen->handleSelecting(ROGUE);
+		}
+		
 	// enter key (claim selected role)
 	} else if (keyboard[GLFW_KEY_ENTER]) {
 		switch(guiManager->selectScreen->selecting) {
@@ -633,5 +765,115 @@ void Window::updateLastInput() {
 				lastInput = CLAIM_ROGUE;
 				break;
 		}
+	}
+
+	/* ===== THIS #ifndef CODE IS ONLY FOR NON-CONNECTED CLIENTS TO IMPROVE GRAPHICS DEVELOPMENT ==== */
+	#ifndef SERVER_ENABLED
+	if (keyboard[GLFW_KEY_W]) {
+		chars[0]->moveToGivenDelta(0, -INIT_SPEED);
+        
+	// A key
+	} else if(keyboard[GLFW_KEY_A]) {
+		chars[0]->moveToGivenDelta(-INIT_SPEED, 0);
+
+	// S key
+	} else if(keyboard[GLFW_KEY_S]) {
+		chars[0]->moveToGivenDelta(0, INIT_SPEED);
+		
+	// D key
+	} else if(keyboard[GLFW_KEY_D]) {
+		chars[0]->moveToGivenDelta(INIT_SPEED, 0);
+	}
+	#endif
+	/* ===== end of #ifndef (no-server client) code ==== */
+}
+
+bool Window::connectCommClient(std::string serverIP) {
+	
+	#ifdef SERVER_ENABLED
+	
+	if(!client->connectTo(serverIP)) {
+		return false;
+	}
+
+	cout << "Communication Established" << endl;
+	
+	// if the id is 3, then set the hpBar to be max monster
+	if(client->getId() == 3) {
+		guiManager->healthBar->initGivenPlayerType(MONSTER);
+		guiManager->selectScreen->setMonster(true);
+	}
+	guiManager->miniMap->setCurrentPlayer(3, MONSTER); // Monster is currently id = 3
+	#endif // SERVER_ENABLED
+	
+	#ifdef SERVER_ENABLED
+
+	if(client->getId() == 3) clientChar = chars[3];
+	
+	#else 
+	clientChar = chars[0];
+	gameStarted = true;
+	#endif
+
+	return true;
+}
+
+void Window::initializeObjective(int objectiveID, ObjectiveType type, Restriction restriction, float x, float y) {
+
+	switch(type) {
+		case EVO:{
+			
+			ObjElement* e = new ObjElement("shaders/character/billboard.obj", &projection, &view, texShader,
+				glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f), false, "shaders/objectives/evolution_pickup.png");
+			objectiveMap[objectiveID] = e;
+			break;
+
+		}
+		case HEAL:{
+			switch(restriction) {
+				case R_HUNTER: {
+					ObjElement* e = new ObjElement("shaders/character/billboard.obj", &projection, &view, texShader,
+						glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f), false, "shaders/objectives/health_pickup.png");
+					objectiveMap[objectiveID] = e;
+					break;
+				}
+				case R_MONSTER: {
+					ObjElement* e = new ObjElement("shaders/character/billboard.obj", &projection, &view, texShader,
+						glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f), true, "shaders/objectives/health_pickup.png");
+					objectiveMap[objectiveID] = e;
+					break;
+				}
+			}
+			break;
+			
+		}
+		case BEACON:{
+
+			ObjElement* e = new ObjElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
+				glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), .25f, glm::vec3(0.f, 0.f, 1.f));
+			objectiveMap[objectiveID] = e;
+			break;
+		}
+		case ARMOR:{
+
+			ObjElement* e = new ObjElement("shaders/character/billboard.obj", &projection, &view, texShader,
+				glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f), false, "shaders/objectives/armour_pickup.png");
+			objectiveMap[objectiveID] = e;
+			break;
+		}
+		case INVALID_OBJ:{
+			printf("Invalid OBJECTIVE_SPAWN objType. \n");
+			break;
+		}
+			
+	}
+	
+	return;
+}
+
+
+void Window::removeObj(int objectiveID) {
+	if (objectiveMap.find(objectiveID) != objectiveMap.end()) {
+		objectiveMap.erase(objectiveID);
 	}
 }
