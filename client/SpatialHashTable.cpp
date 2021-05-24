@@ -37,7 +37,7 @@ Cell* SpatialHashTable::getCell(glm::vec3 p) {
 	return NULL;
 }
 
-void SpatialHashTable::insert(EnvElement* p) {
+void SpatialHashTable::insert(Object* p) {
 	int iD = (int)(p->pos.x / h) + (int)(p->pos.y / h) + (int)(p->pos.z / h);
 	int index = ((((int)(p->pos.x / h) * 73856093) ^
 		((int)(p->pos.y / h) * 19349663) ^
@@ -68,7 +68,7 @@ void SpatialHashTable::insert(EnvElement* p) {
 	}
 }
 
-void SpatialHashTable::remove(EnvElement* p) {
+void SpatialHashTable::remove(Object* p) {
 	int iD = (int)(p->pos.x / h) + (int)(p->pos.y / h) + (int)(p->pos.z / h);
 	int index = ((((int)(p->pos.x / h) * 73856093) ^
 		((int)(p->pos.y / h) * 19349663) ^

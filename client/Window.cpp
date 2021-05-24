@@ -5,7 +5,7 @@ int Window::width;
 int Window::height;
 const char* Window::windowTitle = "CSE125_GAME";
 CommunicationClient* Window::client;
-SpatialHashTable Window::table(5000, 20.f);
+SpatialHashTable Window::table(5000, SPATIAL_HASH_SEARCH_DISTANCE);
 bool Window::keyboard[KEYBOARD_SIZE];
 bool Window::gameStarted;
 bool Window::doneInitialRender;
@@ -13,6 +13,7 @@ bool Window::doneInitialRender;
 //objects to render
 vector<Character*> Window::chars(4); //all the characters players get to control
 vector<EnvElement*> Window::envs; //all the environmental static objects
+Ground* Window::ground;
 map<int, ObjElement*> Window::objectiveMap;
 unordered_map<int, ProjectileElement*> Window::projectiles; //all the environmental static objects
 Character* Window::clientChar;
@@ -117,6 +118,9 @@ bool Window::initializeObjects()
 	//proximity rendering should be inserted into "table"
 	envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram,
 		glm::vec3(0.f, -1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
+
+	ground = new Ground("shaders/environment/ground.obj", &projection, &view, texShader,
+		"shaders/environment/cracked_tile_texture.png", &table, 3.0f);
 
 
 	#ifdef RENDER_MAP
@@ -320,8 +324,6 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 	// Set the viewport size.
 	glViewport(0, 0, width, height);
 
-
-
 	// Update the GUIManager's window height/width
 	int fbWidth, fbHeight;
 	glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
@@ -331,10 +333,10 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 	Window::projection = glm::perspective(glm::radians(80.0), double(width) / (double)height, 0.5, 1000.0);
 
 	// update projection matrix for all the objects
-	int i;
-	for (i = 0; i < chars.size(); i++) {
+	//int i;
+	//for (i = 0; i < chars.size(); i++) {
 		
-	}
+	//}
 }
 
 void Window::idleCallback()
@@ -386,13 +388,13 @@ void Window::displayCallback(GLFWwindow* window)
 	}
 
 	//then selectively draw objects nearby this player
-	vector<EnvElement*> result;
-	float h = table.getDistance();
+	vector<Object*> result;
+	float h = SPATIAL_HASH_SEARCH_DISTANCE;
 	int j;
 	glm::vec3 base1(-1.f * h, 0.f, 0.f);
 	for (j = 0; j < 3 && Window::gameStarted; j++) {
 		int k;
-		glm::vec3 base2(0.f, 0.f, -1.f * h);
+		glm::vec3 base2(0.f, 0.f, -2.f * h);   //negative 2 multiplier, so the search area is ahead into the screan
 		for (k = 0; k < 3; k++) {
 			glm::vec3 loc = base1 + base2;
 			if(clientChar != nullptr) {

@@ -264,6 +264,10 @@ void Character::draw(glm::mat4 c) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void Character::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
+
+}
+
 //no longer used
 void Character::move(int dir) {
 }

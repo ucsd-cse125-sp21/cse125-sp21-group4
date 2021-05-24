@@ -216,6 +216,10 @@ void ScreenElement::draw(glm::mat4 c) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void ScreenElement::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
+
+}
+
 //no longer used
 void ScreenElement::move(int dir) {
 }
