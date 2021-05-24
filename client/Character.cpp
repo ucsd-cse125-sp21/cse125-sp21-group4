@@ -265,7 +265,7 @@ void Character::draw(glm::mat4 c) {
 }
 
 void Character::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
-
+	draw();
 }
 
 //no longer used

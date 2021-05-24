@@ -233,7 +233,7 @@ void ProjectileElement::draw(glm::mat4 c) {
 }
 
 void ProjectileElement::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
-
+	draw();
 }
 
 void ProjectileElement::update() {

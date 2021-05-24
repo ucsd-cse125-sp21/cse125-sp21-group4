@@ -81,7 +81,7 @@ void GroundTile::draw(glm::mat4 c) {
 }
 
 void GroundTile::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
-
+	draw();
 }
 
 void GroundTile::update() {

@@ -207,7 +207,7 @@ void ObjElement::draw(glm::mat4 c) {
 }
 
 void ObjElement::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
-
+	draw();
 }
 
 void ObjElement::update() {

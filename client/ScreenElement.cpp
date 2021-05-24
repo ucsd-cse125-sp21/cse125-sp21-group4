@@ -217,7 +217,7 @@ void ScreenElement::draw(glm::mat4 c) {
 }
 
 void ScreenElement::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
-
+	draw();
 }
 
 //no longer used
