@@ -9,6 +9,7 @@ CommunicationClient* Window::client;
 //based on later performance.
 SpatialHashTable Window::table(5000, SPATIAL_HASH_SEARCH_DISTANCE);
 bool Window::keyboard[KEYBOARD_SIZE];
+bool Window::mouse[MOUSE_SIZE];
 bool Window::gameStarted;
 bool Window::doneInitialRender;
 
@@ -45,6 +46,7 @@ glm::mat4 Window::view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window
 
 // last input from the window
 CLIENT_INPUT Window::lastInput = NO_MOVE;
+float Window::lastAngle = 0;
 
 // GUI manager
 GUIManager* Window::guiManager;
@@ -446,9 +448,11 @@ void Window::displayCallback(GLFWwindow* window)
 	if(!doneInitialRender && client->isConnected()) {
 	#ifdef SERVER_ENABLED
 		// send update that we've finished rendering to the server
-		GAME_INPUT input;
-		input.input = DONE_RENDERING;
-		client->sendInput(input);
+		GAME_INPUT gameInput;
+		gameInput.input = DONE_RENDERING;
+		printf("sending done_rendering signal to server\n");
+		client->sendInput(gameInput);
+		printf("done_rendering signal sent\n");
 		Sleep(TICK_TIME);
 	#endif
 		doneInitialRender = true;
@@ -472,14 +476,11 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	}
 }
 
+
 void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods)
 {
-	if (button == GLFW_MOUSE_BUTTON_LEFT) {
-
-	}
-	if (button == GLFW_MOUSE_BUTTON_RIGHT) {
-
-	}
+	if (button == GLFW_MOUSE_BUTTON_LEFT) mouse[MOUSE_LEFT_INDEX] = (action == GLFW_PRESS);
+	if (button == GLFW_MOUSE_BUTTON_RIGHT)  mouse[MOUSE_RIGHT_INDEX] = (action == GLFW_PRESS);
 }
 
 void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
@@ -490,6 +491,14 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 
 	MouseX = (int)currX;
 	MouseY = (int)currY;
+
+	float dx2 = width / 2 - MouseX;
+	float dy2 = MouseY - height / 2;
+	float dx1 = 0;
+	float dy1 = 1;
+	float dot = dx1*dx2 + dy1*dy2;      // dot product
+	float det = dx1*dy2 - dy1*dx2;      // determinant
+	lastAngle = atan2(det, dot) - M_PI / 2;  // atan2(y, x) or atan2(sin, cos)
 
 	if (LeftDown) {
 		return;
@@ -778,6 +787,11 @@ void Window::updateLastInput() {
 				lastInput = CLAIM_ROGUE;
 				break;
 		}
+	} else if (mouse[MOUSE_LEFT_INDEX]) {
+		lastInput = LEFT_MOUSE_ATTACK;
+
+	} else if (mouse[MOUSE_RIGHT_INDEX]) {
+		lastInput = RIGHT_MOUSE_ATTACK;
 	}
 
 	/* ===== THIS #ifndef CODE IS ONLY FOR NON-CONNECTED CLIENTS TO IMPROVE GRAPHICS DEVELOPMENT ==== */

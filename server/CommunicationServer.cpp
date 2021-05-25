@@ -218,7 +218,7 @@ int CommunicationServer::handlePlayerThread(SOCKET* clientSocketPtr, PlayerInfo*
     int iRecvResult, iSendResult;
 
     // buffer for the CLIENT_INPUT
-    const int BUFLEN = sizeof(CLIENT_INPUT);
+    const int BUFLEN = sizeof(GAME_INPUT);
     char buf[BUFLEN];
 
     // set the sockets to be nonblocking
