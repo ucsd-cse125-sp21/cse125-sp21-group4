@@ -44,7 +44,7 @@ void Cleric::attack(Game* game) {
     p->ownerID = getID();
     p->type = CLERIC_SHOOT;
     p->deltaX = CLERIC_SHOOT_SPEED * cos(angle);
-    p->deltaY = CLERIC_SHOOT_SPEED * sin(angle);
+    p->deltaY = -1 * CLERIC_SHOOT_SPEED * sin(angle);
     p->damage = getAttackDamage();
     game->projectiles[game->nextProjectileId] = p;
     game->nextProjectileId = (game->nextProjectileId + 1) % MAX_PROJECTILE_ID;

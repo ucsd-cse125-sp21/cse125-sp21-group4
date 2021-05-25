@@ -44,7 +44,7 @@ void Rogue::attack(Game* game) {
     p->ownerID = getID();
     p->type = ROGUE_ARROW;
     p->deltaX = ROGUE_ARROW_SPEED * cos(angle);
-    p->deltaY = ROGUE_ARROW_SPEED * sin(angle);
+    p->deltaY = -1 * ROGUE_ARROW_SPEED * sin(angle);
     p->damage = getAttackDamage();
     game->projectiles[game->nextProjectileId] = p;
     game->nextProjectileId = (game->nextProjectileId + 1) % MAX_PROJECTILE_ID;

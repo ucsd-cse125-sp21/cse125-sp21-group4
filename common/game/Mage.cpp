@@ -42,7 +42,7 @@ void Mage::attack(Game* game) {
     p->currentPosition = position; 
     p->maxDistance = MAGE_ATTACK_DISTANCE;
     p->deltaX = MAGE_SHOOT_SPEED * cos(angle);
-    p->deltaY = MAGE_SHOOT_SPEED * sin(angle);
+    p->deltaY = -1 * MAGE_SHOOT_SPEED * sin(angle);
     p->ownerID = getID();
     p->type = MAGE_SHOOT;
     p->damage = getAttackDamage();
@@ -77,7 +77,7 @@ void Mage::uniqueAttack(Game* game) {
     p->origin = position;
     p->currentPosition = position; 
     p->deltaX = FIREBALL_SPEED * cos(angle);
-    p->deltaY = FIREBALL_SPEED * sin(angle);
+    p->deltaY = -1 * FIREBALL_SPEED * sin(angle);
     p->maxDistance = FIREBALL_DISTANCE;
     p->ownerID = getID();
     p->type = MAGE_FIREBALL;
