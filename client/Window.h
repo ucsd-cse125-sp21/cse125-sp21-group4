@@ -32,7 +32,6 @@
 #include <cmath>
 
 
-
 class Window
 {
 public:
@@ -45,6 +44,8 @@ public:
 
 	//objects to render
 	static vector<Character*> chars;
+	static unordered_map<PlayerType, Character*> Window::playerTypeToCharacterMap;
+
 	static vector<EnvElement*> envs;
 	static Ground* ground;
 	static unordered_map<int, ProjectileElement*> projectiles;
@@ -119,6 +120,9 @@ public:
 
 	// Used to remove objectives
 	static void Window::removeObj(int objectiveID);
+
+	static void Window::initCharacters();
+	static void Window::initMap();
 
 };
 

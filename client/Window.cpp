@@ -14,6 +14,7 @@ bool Window::doneInitialRender;
 
 //objects to render
 vector<Character*> Window::chars(4); //all the characters players get to control
+unordered_map<PlayerType, Character*> Window::playerTypeToCharacterMap;
 vector<EnvElement*> Window::envs; //all the environmental static objects
 //factory object for ground tiles; this object is responsible for creating all the individual GroundTile objects,
 //all the texture, vertice and normal data are shared between the GroundTiles
@@ -136,7 +137,34 @@ bool Window::initializeObjects()
 
 	#ifdef RENDER_MAP
 	printf("=======================================\nIt will take a while for the game to launch, please wait.\n");
-	ifstream map_file("../assets/layout/map_client.csv");
+	initMap();
+	#endif
+
+
+	//  ==========  End of Environment Initialization  ========== 
+
+	//  ==========  Character Initialization   ========== 
+
+	
+	/* ===== THIS #ifndef CODE IS ONLY FOR NON-CONNECTED CLIENTS TO IMPROVE GRAPHICS DEVELOPMENT ==== */
+	#ifndef SERVER_ENABLED
+	chars[0] = new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+		glm::vec3(SPAWN_POSITIONS[0][0], 1.5f, SPAWN_POSITIONS[0][1]), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
+		"shaders/character/MAGE");	
+	clientChar = chars[0];
+	Window::gameStarted = true;
+	guiManager->healthBar->flashHealthBar();
+	#endif
+	/* ===== end of #ifndef (no-server client) code ==== */
+
+	initCharacters();
+
+	//  ==========  End of Character Initialization ========== 
+	return true;
+}
+
+void Window::initMap() {
+		ifstream map_file("../assets/layout/map_client.csv");
     string line;
     string id;
 
@@ -188,7 +216,7 @@ bool Window::initializeObjects()
 			objX += width / 2;
 			objY += height / 2;
 			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, shaderProgram,
-				glm::vec3(objX, 8.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.f, 1.f, 0.f));
+				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.f, 1.f, 0.f));
 			table.insert(e);
 
 		// dead tree = grayish black
@@ -196,7 +224,7 @@ bool Window::initializeObjects()
 			objX += width / 2;
 			objY += height / 2;
 			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, shaderProgram,
-				glm::vec3(objX, 8.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.2f, 0.2f, 0.2f));
+				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.2f, 0.2f, 0.2f));
 			table.insert(e);
 
 		// gray ==  Rock
@@ -223,56 +251,38 @@ bool Window::initializeObjects()
 		}
 		
 	} 
-	#endif
+}
+
+void Window::initCharacters() {
+
+	// Initialize character objects before the screen loads.
+	playerTypeToCharacterMap[FIGHTER] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+		glm::vec3(0.f, 2.f, 0.f), 
+		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/FIGHTER"));	
+	playerTypeToCharacterMap[MAGE] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+		glm::vec3(0.f, 2.f, 0.f), 
+		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MAGE"));	
+	playerTypeToCharacterMap[CLERIC] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+		glm::vec3(0.f, 2.f, 0.f), 
+		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/CLERIC"));	
+	playerTypeToCharacterMap[ROGUE] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+		glm::vec3(0.f, 2.f, 0.f), 
+		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/ROGUE"));
+	playerTypeToCharacterMap[MONSTER] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+		glm::vec3(0.f, 2.f, 0.f), 
+		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MAGE"));
+	
+	// Load animations
+	playerTypeToCharacterMap[FIGHTER]->loadAnimationAssets("shaders/character/FIGHTER");
+	playerTypeToCharacterMap[MAGE]->loadAnimationAssets("shaders/character/MAGE");
+	playerTypeToCharacterMap[CLERIC]->loadAnimationAssets("shaders/character/CLERIC");
+	playerTypeToCharacterMap[ROGUE]->loadAnimationAssets("shaders/character/ROGUE");
+	playerTypeToCharacterMap[MONSTER]->loadAnimationAssets("shaders/character/MAGE");
 
 
-	//  ==========  End of Environment Initialization  ========== 
-
-	//  ==========  Character Initialization   ========== 
-
-	// Characters on the map now (scaled 3x)
-	// chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-	// 	glm::vec3(5.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
-	// 	"shaders/character/MAGE"));	
-	// chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-	// 	glm::vec3(15.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
-	// 	"shaders/character/MAGE"));	
-	// chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-	// 	glm::vec3(5.f, 1.f, 15.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
-	// 	"shaders/character/MAGE"));	
-	// chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-	// 	glm::vec3(70.f, 1.f, 70.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
-	// 	"shaders/character/MAGE"));
-
-	// #ifdef SERVER_ENABLED
-	// clientChar = chars[client->getId()];
-
-	// #else 
-	// clientChar = chars[0];
-	// gameStarted = true;
-	// #endif
-
-	/* ===== THIS #ifndef CODE IS ONLY FOR NON-CONNECTED CLIENTS TO IMPROVE GRAPHICS DEVELOPMENT ==== */
-	#ifndef SERVER_ENABLED
-	chars[0] = new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-		glm::vec3(SPAWN_POSITIONS[0][0], 1.5f, SPAWN_POSITIONS[0][1]), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
-		"shaders/character/MAGE");	
-	clientChar = chars[0];
-	Window::gameStarted = true;
-	guiManager->healthBar->flashHealthBar();
-	#endif
-	/* ===== end of #ifndef (no-server client) code ==== */
-
-
-	// Monster initialization
-	chars[3] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-		glm::vec3(SPAWN_POSITIONS[3][0], 1.5f, SPAWN_POSITIONS[3][1]), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
-		"shaders/character/MAGE"));
-	chars[3]->loadAnimationAssets("shaders/character/MAGE");
-	chars[3]->loadAnimationAssets("shaders/character/MAGE/ATTACK");
-
-	//  ==========  End of Character Initialization ========== 
-	return true;
+	// Set the last character's vector to the monster character object
+	chars[3] = playerTypeToCharacterMap[MONSTER];
+	chars[3]->moveTo(glm::vec3(SPAWN_POSITIONS[3][0], 1.5f, SPAWN_POSITIONS[3][1]));
 }
 
 // End of Nano GUI Methods
@@ -542,31 +552,23 @@ void Window::handleRoleClaim(GameUpdate update) {
 
 	switch(update.roleClaimed) {
 		case FIGHTER:
-			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-				glm::vec3(SPAWN_POSITIONS[update.id][0], 2.f, SPAWN_POSITIONS[update.id][1]), 
-				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/FIGHTER"));	
-			chars[update.id]->loadAnimationAssets("shaders/character/FIGHTER");
+			chars[update.id] = playerTypeToCharacterMap[FIGHTER];
+			chars[update.id]->moveTo(glm::vec3(SPAWN_POSITIONS[update.id][0], 2.f, SPAWN_POSITIONS[update.id][1]));
 			break;
 
 		case MAGE:
-			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.5f, SPAWN_POSITIONS[update.id][1]), 
-				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MAGE"));	
-			chars[update.id]->loadAnimationAssets("shaders/character/MAGE");
+			chars[update.id] = playerTypeToCharacterMap[MAGE];
+			chars[update.id]->moveTo(glm::vec3(SPAWN_POSITIONS[update.id][0], 1.5f, SPAWN_POSITIONS[update.id][1]));
 			break;
 
 		case CLERIC:
-			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-				glm::vec3(SPAWN_POSITIONS[update.id][0], 2.f, SPAWN_POSITIONS[update.id][1]), 
-				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/CLERIC"));	
-			chars[update.id]->loadAnimationAssets("shaders/character/CLERIC");
+			chars[update.id] = playerTypeToCharacterMap[CLERIC];
+			chars[update.id]->moveTo(glm::vec3(SPAWN_POSITIONS[update.id][0], 2.f, SPAWN_POSITIONS[update.id][1]));
 			break;
 
 		case ROGUE:
-			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-				glm::vec3(SPAWN_POSITIONS[update.id][0], 2.f, SPAWN_POSITIONS[update.id][1]), 
-				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/ROGUE"));
-			chars[update.id]->loadAnimationAssets("shaders/character/ROGUE");
+			chars[update.id] = playerTypeToCharacterMap[ROGUE];
+			chars[update.id]->moveTo(glm::vec3(SPAWN_POSITIONS[update.id][0], 2.f, SPAWN_POSITIONS[update.id][1]));
 			break;
 	}
 

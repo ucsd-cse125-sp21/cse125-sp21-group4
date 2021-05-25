@@ -159,7 +159,7 @@ void AudioProgram::playDirectionalEffect(Sound sound, AudioPosition center, Audi
 }
 
 void AudioProgram::toggleMute() {
-    printf("%d\n", isMuted);
+    printf("Muted: %d\n", isMuted);
     if(isMuted) {
         setMusicVolume(DEFAULT_MUSIC_VOLUME);
         setEffectsVolume(DEFAULT_EFFECTS_VOLUME);
