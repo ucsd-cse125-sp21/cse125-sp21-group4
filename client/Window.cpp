@@ -1,6 +1,6 @@
 #include "Window.h"
 
-// Window Properties
+//// Window Properties
 int Window::width;
 int Window::height;
 const char* Window::windowTitle = "CSE125_GAME";
@@ -433,6 +433,7 @@ void Window::displayCallback(GLFWwindow* window)
 	// Draws all the projectiles
 	for(auto iter = projectiles.begin(); iter != projectiles.end(); iter++) {
 		iter->second->draw();
+
 	}
 
 	Window::guiManager->draw();
@@ -518,36 +519,36 @@ void Window::handleRoleClaim(GameUpdate update) {
 
 	switch(update.roleClaimed) {
 		case FIGHTER:
-			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+			chars[update.id] = new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
-				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/FIGHTER"));	
+				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/FIGHTER");	
 			chars[update.id]->loadAnimationAssets("shaders/character/FIGHTER");
-			chars[update.id]->loadAnimationAssets("shaders/character/FIGHTER/ATTACK");
 			break;
+
 		case MAGE:
-			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+			chars[update.id] = new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
-				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MAGE"));	
+				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MAGE");	
 			chars[update.id]->loadAnimationAssets("shaders/character/MAGE");
-			chars[update.id]->loadAnimationAssets("shaders/character/MAGE/ATTACK");
 			break;
+
 		case CLERIC:
-			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+			chars[update.id] = new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
-				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/CLERIC"));	
+				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/CLERIC");	
 			chars[update.id]->loadAnimationAssets("shaders/character/CLERIC");
-			chars[update.id]->loadAnimationAssets("shaders/character/CLERIC/ATTACK");
 			break;
+
 		case ROGUE:
-			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+			chars[update.id] = new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
-				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/ROGUE"));
+				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/ROGUE");
 			chars[update.id]->loadAnimationAssets("shaders/character/ROGUE");
-			chars[update.id]->loadAnimationAssets("shaders/character/ROGUE/ATTACK");
 			break;
 	}
 
 	// Do not need to check if client is connected because this method should only run when the client is connected to the server.
+
 	#ifdef SERVER_ENABLED
 	if(update.id == client->getId()) clientChar = chars[client->getId()];
 	#endif
@@ -580,6 +581,21 @@ void Window::handleUpdate(GameUpdate update) {
 			break;
         case PLAYER_MOVE:
 		{
+			chars[update.id]->setState(moving);
+			switch(update.player_direc) {
+				case NORTH:
+					chars[update.id]->setDirection(NORTH);
+					break;
+				case EAST:
+					chars[update.id]->setDirection(EAST);
+					break;
+				case SOUTH:
+					chars[update.id]->setDirection(SOUTH);
+					break;
+				case WEST:
+					chars[update.id]->setDirection(WEST);
+					break;
+			}
 			chars[update.id]->moveToGivenDelta(update.floatDeltaX, update.floatDeltaY);
 			guiManager->miniMap->updatePlayerPositionDelta(update.id, update.floatDeltaX, update.floatDeltaY);
 			printf("Character %d moved with deltaX: %f, deltaY: %f\n", update.id, update.floatDeltaX, update.floatDeltaY);
