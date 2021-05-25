@@ -264,9 +264,12 @@ bool Window::initializeObjects()
 	/* ===== end of #ifndef (no-server client) code ==== */
 
 
+	// Monster initialization
 	chars[3] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 		glm::vec3(SPAWN_POSITIONS[3][0], 1.5f, SPAWN_POSITIONS[3][1]), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/character/MAGE"));
+	chars[3]->loadAnimationAssets("shaders/character/MAGE");
+	chars[3]->loadAnimationAssets("shaders/character/MAGE/ATTACK");
 
 	//  ==========  End of Character Initialization ========== 
 	return true;
@@ -741,16 +744,19 @@ void Window::handleAttack(GameUpdate update) {
 				break;
 
 			case MAGE:
-				audioProgram->playDirectionalEffect(MAGE_FIREBALL_SOUND, clientPos, otherPos);
+				audioProgram->playDirectionalEffect(MAGE_ATTACK_SOUND, clientPos, otherPos);
 				break;
 
 			case CLERIC:
+				audioProgram->playDirectionalEffect(CLERIC_ATTACK_SOUND, clientPos, otherPos);
 				break;
 
 			case ROGUE:
+				audioProgram->playDirectionalEffect(ROGUE_ATTACK_SOUND, clientPos, otherPos);
 				break;
 
 			case MONSTER:
+				audioProgram->playDirectionalEffect(MONSTER_THROW_SOUND, clientPos, otherPos);
 				break;
 		}
 	}
@@ -791,45 +797,59 @@ void Window::updateLastInput() {
 
 	// 1 key (select fighter)
 	} else if(keyboard[GLFW_KEY_1]) {
-		if (guiManager->connectingScreen->hasConnectedToServer) {
+		
+		// Select screen logic
+		if (guiManager->connectingScreen->hasConnectedToServer && !gameStarted) {
 			guiManager->selectScreen->handleSelecting(FIGHTER);
+			audioProgram->playAudioWithoutLooping(SELECT_SOUND);
 		}
 	// 2 key (select mage)
 	} else if(keyboard[GLFW_KEY_2]) {
 		
-		if (guiManager->connectingScreen->hasConnectedToServer) {
+		// Select screen logic
+		if (guiManager->connectingScreen->hasConnectedToServer && !gameStarted) {
 			guiManager->selectScreen->handleSelecting(MAGE);
+			audioProgram->playAudioWithoutLooping(SELECT_SOUND);
 		}
 
 	// 3 key (select cleric)
 	} else if(keyboard[GLFW_KEY_3]) {
 		
-		if (guiManager->connectingScreen->hasConnectedToServer) {
+		// Select screen logic
+		if (guiManager->connectingScreen->hasConnectedToServer && !gameStarted) {
 			guiManager->selectScreen->handleSelecting(CLERIC);
+			audioProgram->playAudioWithoutLooping(SELECT_SOUND);
 		}
 
 	// 4 key (select rogue)
 	} else if(keyboard[GLFW_KEY_4]) {
 		
-		if (guiManager->connectingScreen->hasConnectedToServer) {
+		// Select screen logic
+		if (guiManager->connectingScreen->hasConnectedToServer && !gameStarted) {
 			guiManager->selectScreen->handleSelecting(ROGUE);
+			audioProgram->playAudioWithoutLooping(SELECT_SOUND);
 		}
 		
 	// enter key (claim selected role)
 	} else if (keyboard[GLFW_KEY_ENTER]) {
-		switch(guiManager->selectScreen->selecting) {
-			case FIGHTER:
-				lastInput = CLAIM_FIGHTER;
-				break;
-			case MAGE:
-				lastInput = CLAIM_MAGE;
-				break;
-			case CLERIC:
-				lastInput = CLAIM_CLERIC;
-				break;
-			case ROGUE:
-				lastInput = CLAIM_ROGUE;
-				break;
+
+		// Select screen logic
+		if (guiManager->connectingScreen->hasConnectedToServer && !gameStarted) {
+			switch(guiManager->selectScreen->selecting) {
+				case FIGHTER:
+					lastInput = CLAIM_FIGHTER;
+					break;
+				case MAGE:
+					lastInput = CLAIM_MAGE;
+					break;
+				case CLERIC:
+					lastInput = CLAIM_CLERIC;
+					break;
+				case ROGUE:
+					lastInput = CLAIM_ROGUE;
+					break;
+			}
+			audioProgram->playAudioWithoutLooping(SELECT_SOUND);
 		}
 	}
 

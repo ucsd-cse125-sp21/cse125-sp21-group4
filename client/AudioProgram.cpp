@@ -15,6 +15,7 @@ AudioProgram::AudioProgram() {
 // that were not created by us.
 void AudioProgram::initializeAllAudioFiles() {
 
+    // ====================== Music ====================== //
     // SoLoud::WavStream is for long-playing music... (streams from disk)
     SoLoud::WavStream* titleMusic = new SoLoud::WavStream();
     titleMusic->load("audio/game_mp3/Grieve_Title_Screen.mp3");
@@ -24,14 +25,41 @@ void AudioProgram::initializeAllAudioFiles() {
     combatMusic->load("audio/game_mp3/Grieve_Combat.mp3");
     musicMap[COMBAT_MUSIC] = combatMusic;
 
+    // ====================== Sound Effects ====================== //
     // SoLoud::Wav is for quick sound effects...
+
+    // Fighter Sounds
     SoLoud::Wav* fighterAttackEffect =  new SoLoud::Wav();
     fighterAttackEffect->load("audio/game_mp3/fighter_attack.mp3");
     effectMap[FIGHTER_ATTACK_SOUND] = fighterAttackEffect;
 
+    // Mage Sounds
     SoLoud::Wav* mageFireballEffect =  new SoLoud::Wav();
     mageFireballEffect->load("audio/game_mp3/mage_fireball.wav");
     effectMap[MAGE_FIREBALL_SOUND] = mageFireballEffect;
+    SoLoud::Wav* mageAttackEffect =  new SoLoud::Wav();
+    mageAttackEffect->load("audio/game_mp3/mage_attack.wav");
+    effectMap[MAGE_ATTACK_SOUND] = mageAttackEffect;
+
+    // Cleric Sounds
+    SoLoud::Wav* clericAttackEffect =  new SoLoud::Wav();
+    clericAttackEffect->load("audio/game_mp3/cleric_attack.wav");
+    effectMap[CLERIC_ATTACK_SOUND] = clericAttackEffect;
+
+    // Rogue Sounds
+    SoLoud::Wav* rogueAttackEffect =  new SoLoud::Wav();
+    rogueAttackEffect->load("audio/game_mp3/rogue_attack.wav");
+    effectMap[ROGUE_ATTACK_SOUND] = rogueAttackEffect;
+
+    // Monster Sounds
+    SoLoud::Wav* monsterThrowEffect =  new SoLoud::Wav();
+    monsterThrowEffect->load("audio/game_mp3/monster_throw.wav");
+    effectMap[MONSTER_THROW_SOUND] = monsterThrowEffect;
+
+    // Other Sounds
+    SoLoud::Wav* selectEffect =  new SoLoud::Wav();
+    selectEffect->load("audio/game_mp3/pop.wav");
+    effectMap[SELECT_SOUND] = selectEffect;
 }
 
 
