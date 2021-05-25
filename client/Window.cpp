@@ -131,7 +131,7 @@ bool Window::initializeObjects()
 
 	//for now tileScale should be tileSize / 2.0
 	ground = new Ground("shaders/environment/ground.obj", &projection, &view, texShader,
-		"shaders/environment/dry_grass_texture_3x3.png", &table, 3.0f);
+		"shaders/environment/dry_grass_texture_3x3.png", "shaders/environment/cracked_tile_texture_3x3.png", &table, 3.0f);
 
 
 	#ifdef RENDER_MAP
@@ -797,7 +797,7 @@ void Window::updateLastInput() {
 
 	// 1 key (select fighter)
 	} else if(keyboard[GLFW_KEY_1]) {
-		
+
 		// Select screen logic
 		if (guiManager->connectingScreen->hasConnectedToServer && !gameStarted) {
 			guiManager->selectScreen->handleSelecting(FIGHTER);

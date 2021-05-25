@@ -3,7 +3,7 @@
 
 #define KEYBOARD_SIZE 350
 #define SERVER_ENABLED
-// #define RENDER_MAP
+#define RENDER_MAP
 #define _USE_MATH_DEFINES
 #define SPATIAL_HASH_SEARCH_DISTANCE 20.0
 
