@@ -20,7 +20,7 @@ Mage::Mage(PlayerPosition position) : GamePlayer(position) {
 }
 
 // overide GamePlayer's attack
-void Mage::attack(Game* game) {
+void Mage::attack(Game* game, float angle) {
     // two consecutive attacks must have a tiem interval of at least FIGHTER_ATTACK_TIME_INTERVAL
     // otherwise, the second attack will not be initiated
     auto currentTime = std::chrono::steady_clock::now();
@@ -30,7 +30,6 @@ void Mage::attack(Game* game) {
         return;
     }
 
-    float angle = 0;
     lastAttackTime = currentTime; // update the lastAttackTime as this attack
 
     ProjectilePosition position = {
@@ -58,7 +57,7 @@ void Mage::attack(Game* game) {
     game->addUpdate(attackUpdate);
 }
 
-void Mage::uniqueAttack(Game* game) {
+void Mage::uniqueAttack(Game* game, float angle) {
     auto currentTime = std::chrono::steady_clock::now();
     std::chrono::duration<float> duration = currentTime - lastUniqueAttackTime;
     if (std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() 
@@ -67,7 +66,6 @@ void Mage::uniqueAttack(Game* game) {
     }
 
     lastUniqueAttackTime = currentTime; // update the lastUniqueAttackTime as this attack
-    float angle = 0;
 
     ProjectilePosition position = {
         getPosition().x,

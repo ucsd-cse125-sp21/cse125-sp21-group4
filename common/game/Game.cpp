@@ -410,21 +410,21 @@ Game::~Game() {
 }
 
 
-bool Game::handleInputs(CLIENT_INPUT playersInputs[PLAYER_NUM]) {
+bool Game::handleInputs(GAME_INPUT playersInputs[PLAYER_NUM]) {
     bool flag = false; // flag is true if there is effective movement in this round
                        // this is used to test on console, this can be removed later
     for (int i = 0; i < PLAYER_NUM; i++) {
-        if (playersInputs[i] != NO_MOVE) flag = true;
+        if (playersInputs[i].input != NO_MOVE) flag = true;
 
         // The selecting screen should not rely on players because those objects have not been created
-        switch(playersInputs[i]) {
+        switch(playersInputs[i].input) {
             case CLAIM_CLERIC:
             case CLAIM_FIGHTER:
             case CLAIM_MAGE:
             case CLAIM_ROGUE:
                 // If game started, we shouldn't be handling this.
                 if(!started) {
-                    handleUserClaim(playersInputs[i], i);
+                    handleUserClaim(playersInputs[i].input, i);
                 }
                 break;
             case DONE_RENDERING:

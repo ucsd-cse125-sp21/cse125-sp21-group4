@@ -22,6 +22,8 @@ enum CLIENT_INPUT{
     NO_MOVE,
     ATTACK, // general attack for now
     UNIQUE_ATTACK, // mage fireball and cleric healing aura
+    LEFT_MOUSE_ATTACK,
+    RIGHT_MOUSE_ATTACK,
     // MONSTER_SPIT_RANGED_ATTACK,
     // MONSTER_MELEE_ATTACK,
     // HUNTER_SWORD_ATTACK,
@@ -35,6 +37,11 @@ enum CLIENT_INPUT{
 
     // Used to tell the server to start the select screen timer
     DONE_RENDERING,
+};
+
+struct GAME_INPUT {
+    CLIENT_INPUT input = NO_MOVE; 
+    float angle = 0; // the angle of projectile
 };
 
 // Type of update sent to the server

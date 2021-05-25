@@ -68,7 +68,7 @@ CommunicationServer::CommunicationServer() {
     ZeroMemory(playerInfos, sizeof(playerInfos));
     for(int i = 0; i < PLAYER_NUM; i++) {
         playerInfos[i].id = 0;
-        playerInfos[i].input = NO_MOVE;
+        playerInfos[i].input.input = NO_MOVE;
         playerInfos[i].outputChanged = false;
     }
     printf("Server started, awaiting %d client connections.\n", PLAYER_NUM);
@@ -128,20 +128,20 @@ void CommunicationServer::cleanup() {
     WSACleanup();
 }
 
-void CommunicationServer::getClientInputs(std::vector<std::pair<int,CLIENT_INPUT>> &clientInputs) {
+void CommunicationServer::getClientInputs(std::vector<std::pair<int,GAME_INPUT>> &gameInputs) {
 
     // Go through each player's input and push their input to be processes if they're moves.
     for(int i = 0; i < PLAYER_NUM; i++) {
-        if(playerInfos[i].input != NO_MOVE) {
+        if(playerInfos[i].input.input != NO_MOVE) {
 
             // After getting their inputs, set it to NO_MOVE so that players can input more moves
-            std::pair<int, CLIENT_INPUT> inputPair;
+            std::pair<int, GAME_INPUT> inputPair;
             inputPair.first = playerInfos[i].id;
             inputPair.second = playerInfos[i].input;
             // printf("Server received client: %d action: %d", inputPair.first, inputPair.second );
-            clientInputs.push_back(inputPair);
+            gameInputs.push_back(inputPair);
 
-            playerInfos[i].input = NO_MOVE;
+            playerInfos[i].input.input = NO_MOVE;
         }
     }
 }
@@ -231,7 +231,7 @@ int CommunicationServer::handlePlayerThread(SOCKET* clientSocketPtr, PlayerInfo*
         if (iRecvResult > 0) {
 
             // Save the input for the GameServer to process
-            playerInfo->input = *(CLIENT_INPUT *) buf;
+            playerInfo->input = *(GAME_INPUT *) buf;
         }
 
         // If the connection is closing

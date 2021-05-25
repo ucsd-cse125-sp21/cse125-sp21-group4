@@ -58,7 +58,7 @@ public:
     void printGameState (GameState gameState);
     ~Game(); // destructor
 
-    bool handleInputs(CLIENT_INPUT playersInputs[PLAYER_NUM]);
+    bool handleInputs(GAME_INPUT playersInputs[PLAYER_NUM]);
     void handleUserClaim(CLIENT_INPUT claimType, int playerID);
     void updateProjectiles();
     void processEvent (GameEvent* event);

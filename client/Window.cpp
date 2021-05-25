@@ -352,7 +352,10 @@ void Window::idleCallback()
 #ifdef SERVER_ENABLED
 	if(client->isConnected()) {
 		// 1 + 2. Get the latest input and send it to the server
-		client->sendInput(Window::lastInput);
+		GAME_INPUT input;
+		input.input = Window::lastInput;
+		input.angle = Window::lastAngle;
+		client->sendInput(input);
 
 		// 3. Receive updated gamestate from server
 		std::vector<GameUpdate> updates = client->receiveGameUpdates();
@@ -443,7 +446,9 @@ void Window::displayCallback(GLFWwindow* window)
 	if(!doneInitialRender && client->isConnected()) {
 	#ifdef SERVER_ENABLED
 		// send update that we've finished rendering to the server
-		client->sendInput(DONE_RENDERING);
+		GAME_INPUT input;
+		input.input = DONE_RENDERING;
+		client->sendInput(input);
 		Sleep(TICK_TIME);
 	#endif
 		doneInitialRender = true;

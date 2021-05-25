@@ -2,7 +2,7 @@
 #define _WINDOW_H_
 
 #define KEYBOARD_SIZE 350
-// #define SERVER_ENABLED
+#define SERVER_ENABLED
 #define RENDER_MAP
 #define _USE_MATH_DEFINES
 #define SPATIAL_HASH_SEARCH_DISTANCE 20.0
@@ -64,6 +64,7 @@ public:
 
 	// Last CLIENT_INPUT recorded
 	static CLIENT_INPUT lastInput;
+	static float lastAngle; // used for projectile angle
 
 	// Keyboard keys that are being held down or pressed
 	static bool keyboard[KEYBOARD_SIZE];

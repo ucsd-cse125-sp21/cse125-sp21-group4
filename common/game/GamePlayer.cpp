@@ -349,11 +349,11 @@ bool GamePlayer::isDead () {
 
 
 
-void GamePlayer::attack(Game* game) {
+void GamePlayer::attack(Game* game, float angle) {
     printf("Overwriten failed\n");
 }
 
-void GamePlayer::uniqueAttack(Game* game) {
+void GamePlayer::uniqueAttack(Game* game, float angle) {
     // printf("Default second attack\n");
 }
 
@@ -441,12 +441,20 @@ bool GamePlayer::canInteractWithObjective(Objective * objective) {
     
 }
 
+bool allowLeftMouseShooting(PlayerType type) {
+    return type == MAGE || type == CLERIC || type == ROGUE;
+}
 
-void GamePlayer::handleUserInput (Game* game, CLIENT_INPUT userInput) {
+bool allowRightMouseShooting(PlayerType type) {
+    return type == MAGE || type == ROGUE;
+}
+
+
+void GamePlayer::handleUserInput (Game* game, GAME_INPUT userInput) {
     // if player is dead, stop handling input
     if (isDead()) return;
 
-    switch (userInput) {
+    switch (userInput.input) {
         // Eric TODO: add gameupdates
         case MOVE_FORWARD:
             move(game, NORTH);
@@ -461,13 +469,19 @@ void GamePlayer::handleUserInput (Game* game, CLIENT_INPUT userInput) {
             move(game, EAST);
             break;
         case ATTACK:
-            attack(game);
+            if (!allowLeftMouseShooting(type)) attack(game, 0);
             break;
         case UNIQUE_ATTACK:
-            uniqueAttack(game);
+            if (!allowRightMouseShooting(type)) uniqueAttack(game, 0);
             break;
         case INTERACT:
             interact(game);
+            break;
+        case LEFT_MOUSE_ATTACK:
+            if (allowLeftMouseShooting(type)) attack(game, userInput.angle);
+            break;
+        case RIGHT_MOUSE_ATTACK:
+            if (allowLeftMouseShooting(type)) uniqueAttack(game, userInput.angle);
             break;
         default:
             // NO_MOVE and other input does not trigger any action

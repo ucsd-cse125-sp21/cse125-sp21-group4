@@ -23,7 +23,7 @@ Monster::Monster(PlayerPosition position) : GamePlayer(position){
 }
 
 // monster ranged attack
-void Monster::attack(Game* game) {
+void Monster::attack(Game* game, float angle) {
     auto currentTime = std::chrono::steady_clock::now();
     std::chrono::duration<float> duration = currentTime - lastAttackTime;
     if (std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() 
@@ -42,16 +42,16 @@ void Monster::attack(Game* game) {
     p->origin = position;
     p->currentPosition = position; 
     p->maxDistance = MONSTER_RANGED_ATTACK_DISTANCE; 
+    p->deltaX = FIREBALL_SPEED * cos(angle);
+    p->deltaY = -1 * FIREBALL_SPEED * sin(angle);
     p->ownerID = getID();
     p->type = MONSTER_RANGED; 
-    p->speed = MONSTER_RANGED_SPEED; //this?
-    p->direction = getFaceDirection();
     p->damage = getAttackDamage();
     game->projectiles[game->nextProjectileId] = p;
     game->nextProjectileId = (game->nextProjectileId + 1) % MAX_PROJECTILE_ID;
 }
 
-void Monster::uniqueAttack(Game* game) {
+void Monster::uniqueAttack(Game* game, float angle) {
     // two consecutive attacks must have a time interval of at least MONSTER_ATTACK_TIME_INTERVAL
     // otherwise, the second attack will not be initiated
     auto currentTime = std::chrono::steady_clock::now();

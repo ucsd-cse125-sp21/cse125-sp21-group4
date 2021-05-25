@@ -35,7 +35,7 @@ public:
     CommunicationClient(); // Constructor for CommunicationClient for communication with server
 
     bool connectTo(std::string);
-    void sendInput(CLIENT_INPUT); // sendInput will send the keypress/action by client to the server
+    void sendInput(GAME_INPUT); // sendInput will send the keypress/action by client to the server
     GameState receiveGameState(); // client receives a new gameState from server and returns it to client main
     void cleanup(); // cleans up the client connection
     std::vector<GameUpdate> receiveGameUpdates();
