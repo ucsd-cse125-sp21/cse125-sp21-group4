@@ -23,18 +23,21 @@ Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPo
 	currTime = clock();
 	prevTime = currTime;
 
+	// prepare vectors for idle animations
 	idleTex[Direction::WEST] = &idle_west;
 	idleTex[Direction::EAST] = &idle_east;
 	idleTex[Direction::NORTH] = &idle_north;
 	idleTex[Direction::SOUTH] = &idle_south;
 	animSequence.push_back(&idleTex); //order must match the enum in header file
 
+	// prepare vectors for move animations
 	moveTex[Direction::WEST] = &move_west;
 	moveTex[Direction::EAST] = &move_east;
 	moveTex[Direction::NORTH] = &move_north;
 	moveTex[Direction::SOUTH] = &move_south;
 	animSequence.push_back(&moveTex);
 
+	// prepare vectors for attack animations
 	attackTex[Direction::WEST] = &attack_west;
 	attackTex[Direction::EAST] = &attack_east;
 	attackTex[Direction::NORTH] = &attack_north;
@@ -52,7 +55,7 @@ Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPo
 	// default color is black
 	color = c;
 	// if path is NOT given at construction time, hasTexture will be false.
-	hasTexture = loadAnimationAssets(textFile, Direction::WEST);
+	hasTexture = loadAnimationAssets(textFile);
 
 	// For flashing the character on damage taken events
 	isVisible = true;
@@ -425,7 +428,7 @@ bool Character::loadAnimation(CharState state, Direction d, string animFolder) {
 	return true;
 }
 
-bool Character::loadAnimationAssets(string assetFolder, Direction d) {
+bool Character::loadAnimationAssets(string assetFolder) {
 	std::ifstream objFile(assetFolder + "/index.txt");
 	if (!objFile.is_open()) {
 		cout << "cannot open asset size file in " << assetFolder << endl;
@@ -450,6 +453,7 @@ bool Character::loadAnimationAssets(string assetFolder, Direction d) {
 	return true;
 }
 
+// set the state of the character
 void Character::setState(CharState state) {
 	currState = state;
 }
@@ -458,6 +462,7 @@ void Character::flashDamage() {
 	damageFlashUntil = clock() + CHARACTER_DAMAGE_TAKEN_FLASHING_TIME_MS * CLOCKS_PER_SEC / 1000;
 }
 
+// set the current direction the player is facing
 void Character::setDirection(Direction d) {
 	currDirec = d;
 }

@@ -38,7 +38,7 @@ private:
 
 	CharState currState;
 	CharState prevState;
-	Direction currDirec;
+	Direction currDirec; // current direction t
 
 	time_t currTime;
 	time_t prevTime;
@@ -46,28 +46,28 @@ private:
 	bool hasTexture;
 	GLuint textId;
 
-	std::vector<std::vector<std::vector<GLuint>*>*> animSequence;
-	std::vector<std::vector<GLuint>*> idleTex;
-	std::vector<std::vector<GLuint>*> moveTex;
-	std::vector<std::vector<GLuint>*> attackTex;
+	std::vector<std::vector<std::vector<GLuint>*>*> animSequence; // hold animation sequences
+	std::vector<std::vector<GLuint>*> idleTex;					  // idle animation sequences
+	std::vector<std::vector<GLuint>*> moveTex;					  // movement animation sequences
+	std::vector<std::vector<GLuint>*> attackTex;				  // attack animation sequences
 
-	std::vector<GLuint> idle_west;
-	std::vector<GLuint> idle_east;
-	std::vector<GLuint> idle_north;
-	std::vector<GLuint> idle_south;
+	std::vector<GLuint> idle_west;		// idle west animation
+	std::vector<GLuint> idle_east;		// idle east animation
+	std::vector<GLuint> idle_north;		// idle north animation
+	std::vector<GLuint> idle_south;		// idle south animation
 
-	std::vector<GLuint> move_west;
-	std::vector<GLuint> move_east;
-	std::vector<GLuint> move_north;
-	std::vector<GLuint> move_south;
+	std::vector<GLuint> move_west;		// move west animation
+	std::vector<GLuint> move_east;		// move east animation
+	std::vector<GLuint> move_north;		// move north animation
+	std::vector<GLuint> move_south;		// move south animation
 	
-	std::vector<GLuint> attack_west;
-	std::vector<GLuint> attack_east;
-	std::vector<GLuint> attack_north;
-	std::vector<GLuint> attack_south;
+	std::vector<GLuint> attack_west;	// attack west animation
+	std::vector<GLuint> attack_east;	// attack east animation
+	std::vector<GLuint> attack_north;	// attack north animation
+	std::vector<GLuint> attack_south;	// attack south animation
 
 	
-	int frameIdx;
+	int frameIdx;	// current frame in animation sequence
 	//add more for attack and other actions
 
 	glm::vec3 * eyep;
@@ -104,7 +104,7 @@ public:
 	void moveToGivenDelta(float deltaX, float deltaY);
 	GLuint loadTexture(string texturePath);
 	bool loadAnimation(CharState state, Direction d, string animFile);
-	bool loadAnimationAssets(string assetFolder, Direction d);
+	bool loadAnimationAssets(string assetFolder);
 	void setState(CharState state);
 	void flashDamage();
 	void setDirection(Direction d);

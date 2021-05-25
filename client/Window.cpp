@@ -411,7 +411,8 @@ void Window::displayCallback(GLFWwindow* window)
 		}
 	}
 
-	for (i = 0; i < chars.size() && Window::gameStarted; i++) {		if (chars[i] != nullptr) {
+	for (i = 0; i < chars.size() && Window::gameStarted; i++) {
+		if (chars[i] != nullptr) {
 			chars[i]->draw();
 		}
 	}
@@ -510,35 +511,31 @@ void Window::handleRoleClaim(GameUpdate update) {
 
 	switch(update.roleClaimed) {
 		case FIGHTER:
-			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+			chars[update.id] = new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
-				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/FIGHTER"));	
-			chars[update.id]->loadAnimationAssets("shaders/character/FIGHTER", Direction::WEST);
-			//chars[update.id]->loadAnimationAssets("shaders/character/FIGHTER/ATTACK", Direction::WEST);
+				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/FIGHTER");	
+			chars[update.id]->loadAnimationAssets("shaders/character/FIGHTER");
 			break;
 
 		case MAGE:
-			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+			chars[update.id] = new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
-				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MAGE"));	
-			chars[update.id]->loadAnimationAssets("shaders/character/MAGE", Direction::WEST);
-			//chars[update.id]->loadAnimationAssets("shaders/character/MAGE/ATTACK", Direction::WEST);
+				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MAGE");	
+			chars[update.id]->loadAnimationAssets("shaders/character/MAGE");
 			break;
 
 		case CLERIC:
-			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+			chars[update.id] = new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
-				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/CLERIC"));	
-			chars[update.id]->loadAnimationAssets("shaders/character/CLERIC", Direction::WEST);
-			//chars[update.id]->loadAnimationAssets("shaders/character/CLERIC/ATTACK", Direction::WEST);
+				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/CLERIC");	
+			chars[update.id]->loadAnimationAssets("shaders/character/CLERIC");
 			break;
 
 		case ROGUE:
-			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+			chars[update.id] = new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
-				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/ROGUE"));
-			chars[update.id]->loadAnimationAssets("shaders/character/ROGUE", Direction::WEST);
-			//chars[update.id]->loadAnimationAssets("shaders/character/ROGUE/ATTACK", Direction::WEST);
+				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/ROGUE");
+			chars[update.id]->loadAnimationAssets("shaders/character/ROGUE");
 			break;
 	}
 
