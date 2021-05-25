@@ -30,6 +30,7 @@ void Mage::attack(Game* game) {
         return;
     }
 
+    float angle = 0;
     lastAttackTime = currentTime; // update the lastAttackTime as this attack
 
     ProjectilePosition position = {
@@ -40,10 +41,10 @@ void Mage::attack(Game* game) {
     p->origin = position;
     p->currentPosition = position; 
     p->maxDistance = MAGE_ATTACK_DISTANCE;
+    p->deltaX = MAGE_SHOOT_SPEED * cos(angle);
+    p->deltaY = MAGE_SHOOT_SPEED * sin(angle);
     p->ownerID = getID();
     p->type = MAGE_SHOOT;
-    p->speed = MAGE_SHOOT_SPEED;
-    p->direction = getFaceDirection();
     p->damage = getAttackDamage();
     game->projectiles[game->nextProjectileId] = p;
     game->nextProjectileId = (game->nextProjectileId + 1) % MAX_PROJECTILE_ID;
@@ -66,6 +67,7 @@ void Mage::uniqueAttack(Game* game) {
     }
 
     lastUniqueAttackTime = currentTime; // update the lastUniqueAttackTime as this attack
+    float angle = 0;
 
     ProjectilePosition position = {
         getPosition().x,
@@ -74,11 +76,11 @@ void Mage::uniqueAttack(Game* game) {
     Projectile* p = new Projectile();
     p->origin = position;
     p->currentPosition = position; 
+    p->deltaX = FIREBALL_SPEED * cos(angle);
+    p->deltaY = FIREBALL_SPEED * sin(angle);
     p->maxDistance = FIREBALL_DISTANCE;
     p->ownerID = getID();
     p->type = MAGE_FIREBALL;
-    p->speed = FIREBALL_SPEED;
-    p->direction = getFaceDirection();
     p->damage = 0;
     game->projectiles[game->nextProjectileId] = p;
     game->nextProjectileId = (game->nextProjectileId + 1) % MAX_PROJECTILE_ID;

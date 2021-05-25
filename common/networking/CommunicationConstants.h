@@ -78,10 +78,10 @@ struct GameUpdate {
     int healAmount = 0; // Used for a healing event
     int endStatus = 0;
     GridPosition gridPos = {0,0}; // Used for objectives and obstacles
-    PlayerPosition playerPos = {0.f, 0.f}; // Used for player positions
+    PlayerPosition playerPos = {0.f, 0.f}; // Used for player positions or projectile position
     float newEvoLevel = -1.f; // Used for monster stage tracking
-    float floatDeltaX = 0; // used for player/projectile movement
-    float floatDeltaY = 0; // used for player/projectile movement
+    float floatDeltaX = 0; // used for player movement or projectile movement
+    float floatDeltaY = 0; // used for player movement or projectile movement
     float beaconCaptureAmount = -9999;
     PlayerType roleClaimed = UNKNOWN;
     ProjectileType projectileType = UNKNOW_PROJECTILE; // projectile type

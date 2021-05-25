@@ -31,6 +31,7 @@ void Rogue::attack(Game* game) {
     }
 
     lastAttackTime = currentTime; // update the lastAttackTime as this attack
+    float angle = 0;
 
     ProjectilePosition position = {
         getPosition().x,
@@ -42,8 +43,8 @@ void Rogue::attack(Game* game) {
     p->maxDistance = ROGUE_ATTACK_DISTANCE;
     p->ownerID = getID();
     p->type = ROGUE_ARROW;
-    p->speed = ROGUE_ARROW_SPEED;
-    p->direction = getFaceDirection();
+    p->deltaX = ROGUE_ARROW_SPEED * cos(angle);
+    p->deltaY = ROGUE_ARROW_SPEED * sin(angle);
     p->damage = getAttackDamage();
     game->projectiles[game->nextProjectileId] = p;
     game->nextProjectileId = (game->nextProjectileId + 1) % MAX_PROJECTILE_ID;

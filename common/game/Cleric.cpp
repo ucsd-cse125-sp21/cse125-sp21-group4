@@ -31,6 +31,7 @@ void Cleric::attack(Game* game) {
     }
 
     lastAttackTime = currentTime; // update the lastAttackTime as this attack
+    float angle = 0;
 
     ProjectilePosition position = {
         getPosition().x,
@@ -42,8 +43,8 @@ void Cleric::attack(Game* game) {
     p->maxDistance = CLERIC_ATTACK_DISTANCE;
     p->ownerID = getID();
     p->type = CLERIC_SHOOT;
-    p->speed = CLERIC_SHOOT_SPEED;
-    p->direction = getFaceDirection();
+    p->deltaX = CLERIC_SHOOT_SPEED * cos(angle);
+    p->deltaY = CLERIC_SHOOT_SPEED * sin(angle);
     p->damage = getAttackDamage();
     game->projectiles[game->nextProjectileId] = p;
     game->nextProjectileId = (game->nextProjectileId + 1) % MAX_PROJECTILE_ID;
