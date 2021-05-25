@@ -3,6 +3,7 @@
 
 #include "core.h"
 #include "EnvElement.h"
+#include "Object.h"
 #include <vector>
 
 class Cell {
@@ -10,7 +11,7 @@ public:
 	int id;
 	Cell(int);
 	Cell* next;
-	vector<EnvElement*> items;
+	vector<Object*> items;
 };
 
 #endif

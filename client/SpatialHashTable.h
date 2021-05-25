@@ -3,6 +3,7 @@
 
 #include "core.h"
 #include "EnvElement.h"
+#include "Object.h"
 #include "Cell.h"
 #include <vector>
 
@@ -16,8 +17,8 @@ public:
 	SpatialHashTable();
 	SpatialHashTable(int size, float dis);
 	Cell* getCell(glm::vec3);
-	void insert(EnvElement*);
-	void remove(EnvElement*);
+	void insert(Object*);
+	void remove(Object*);
 	float getDistance();
 };
 

@@ -7,7 +7,7 @@
 
 #include <chrono>
 
-#define DEFAULT_PORT "27168"
+#define DEFAULT_PORT "27167"
 
 //#define ERICS_LOCAL_SERVER "192.168.0.110"
 #define ERICS_LOCAL_SERVER "127.0.0.1"

@@ -4,7 +4,7 @@
 
 #include "Object.h"
 
-class ProjectileElement : Object {
+class ProjectileElement : public Object {
 private:
 	std::vector<glm::vec3> normal;
 	std::vector<glm::vec3> points;
@@ -29,7 +29,6 @@ private:
 
 
 public:
-	glm::vec3 pos;
 
 	/*
 	constructor usage:
@@ -44,6 +43,7 @@ public:
 		glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale,
 		glm::vec3 c = glm::vec3(0.f, 0.f, 0.f), char* textFile = "");
 	void draw(glm::mat4 c = glm::mat4(1));
+	void drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c = glm::mat4(1));
 	void update();
 	void moveTo (glm::vec3 newPos);
 	void moveToGivenPos(float x, float y);

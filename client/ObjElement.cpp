@@ -206,6 +206,10 @@ void ObjElement::draw(glm::mat4 c) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void ObjElement::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
+	draw();
+}
+
 void ObjElement::update() {
 
 }

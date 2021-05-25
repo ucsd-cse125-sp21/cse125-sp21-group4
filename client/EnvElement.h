@@ -3,7 +3,7 @@
 
 #include "Object.h"
 
-class EnvElement : Object {
+class EnvElement : public Object {
 private:
 	std::vector<glm::vec3> normal;
 	std::vector<glm::vec3> points;
@@ -27,7 +27,6 @@ private:
 
 
 public:
-	glm::vec3 pos;
 
 	/*
 	constructor usage:

@@ -2,13 +2,15 @@
 #define _WINDOW_H_
 
 #define KEYBOARD_SIZE 350
-#define SERVER_ENABLED
+//#define SERVER_ENABLED
 #define RENDER_MAP
 #define _USE_MATH_DEFINES
+#define SPATIAL_HASH_SEARCH_DISTANCE 20.0
 
 #include "Main.h"
 #include "shader.h"
 #include "Character.h"
+#include "Ground.h"
 #include "EnvElement.h"
 #include "ProjectileElement.h"
 #include "ScreenElement.h"
@@ -42,6 +44,7 @@ public:
 	//objects to render
 	static vector<Character*> chars;
 	static vector<EnvElement*> envs;
+	static Ground* ground;
 	static unordered_map<int, ProjectileElement*> projectiles;
 	static vector<ScreenElement*> selectScreenElements;
 	static map<int, ObjElement*> objectiveMap; 
