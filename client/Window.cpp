@@ -513,28 +513,32 @@ void Window::handleRoleClaim(GameUpdate update) {
 			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
 				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/FIGHTER"));	
-			chars[update.id]->loadAnimationAssets("shaders/character/FIGHTER");			chars[update.id]->loadAnimationAssets("shaders/character/FIGHTER/ATTACK");
-
+			chars[update.id]->loadAnimationAssets("shaders/character/FIGHTER", Direction::WEST);
+			//chars[update.id]->loadAnimationAssets("shaders/character/FIGHTER/ATTACK", Direction::WEST);
 			break;
+
 		case MAGE:
 			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
 				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MAGE"));	
-			chars[update.id]->loadAnimationAssets("shaders/character/MAGE");			chars[update.id]->loadAnimationAssets("shaders/character/MAGE/ATTACK");
-
+			chars[update.id]->loadAnimationAssets("shaders/character/MAGE", Direction::WEST);
+			//chars[update.id]->loadAnimationAssets("shaders/character/MAGE/ATTACK", Direction::WEST);
 			break;
+
 		case CLERIC:
 			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
 				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/CLERIC"));	
-			chars[update.id]->loadAnimationAssets("shaders/character/CLERIC");			chars[update.id]->loadAnimationAssets("shaders/character/CLERIC/ATTACK");
-
+			chars[update.id]->loadAnimationAssets("shaders/character/CLERIC", Direction::WEST);
+			//chars[update.id]->loadAnimationAssets("shaders/character/CLERIC/ATTACK", Direction::WEST);
 			break;
+
 		case ROGUE:
 			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
 				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/ROGUE"));
-			chars[update.id]->loadAnimationAssets("shaders/character/ROGUE");			chars[update.id]->loadAnimationAssets("shaders/character/ROGUE/ATTACK");
+			chars[update.id]->loadAnimationAssets("shaders/character/ROGUE", Direction::WEST);
+			//chars[update.id]->loadAnimationAssets("shaders/character/ROGUE/ATTACK", Direction::WEST);
 			break;
 	}
 
@@ -572,6 +576,21 @@ void Window::handleUpdate(GameUpdate update) {
 			break;
         case PLAYER_MOVE:
 		{
+			chars[update.id]->setState(moving);
+			switch(update.player_direc) {
+				case NORTH:
+					chars[update.id]->setDirection(NORTH);
+					break;
+				case EAST:
+					chars[update.id]->setDirection(EAST);
+					break;
+				case SOUTH:
+					chars[update.id]->setDirection(SOUTH);
+					break;
+				case WEST:
+					chars[update.id]->setDirection(WEST);
+					break;
+			}
 			chars[update.id]->moveToGivenDelta(update.floatDeltaX, update.floatDeltaY);
 			guiManager->miniMap->updatePlayerPositionDelta(update.id, update.floatDeltaX, update.floatDeltaY);
 			printf("Character %d moved with deltaX: %f, deltaY: %f\n", update.id, update.floatDeltaX, update.floatDeltaY);

@@ -2,6 +2,7 @@
 #define _CHARACTER_H_
 
 #include "Object.h"
+#include "../common/game/GameConstants.h"
 #include <time.h>
 
 #define IDLE_ANIMATION_INTERVAL 0.2
@@ -37,16 +38,35 @@ private:
 
 	CharState currState;
 	CharState prevState;
+	Direction currDirec;
 
 	time_t currTime;
 	time_t prevTime;
 
 	bool hasTexture;
 	GLuint textId;
-	std::vector<GLuint> idleTex;
-	std::vector<GLuint> moveTex;
-	std::vector<GLuint> attackTex;
-	std::vector<std::vector<GLuint>*> animSequence;
+
+	std::vector<std::vector<std::vector<GLuint>*>*> animSequence;
+	std::vector<std::vector<GLuint>*> idleTex;
+	std::vector<std::vector<GLuint>*> moveTex;
+	std::vector<std::vector<GLuint>*> attackTex;
+
+	std::vector<GLuint> idle_west;
+	std::vector<GLuint> idle_east;
+	std::vector<GLuint> idle_north;
+	std::vector<GLuint> idle_south;
+
+	std::vector<GLuint> move_west;
+	std::vector<GLuint> move_east;
+	std::vector<GLuint> move_north;
+	std::vector<GLuint> move_south;
+	
+	std::vector<GLuint> attack_west;
+	std::vector<GLuint> attack_east;
+	std::vector<GLuint> attack_north;
+	std::vector<GLuint> attack_south;
+
+	
 	int frameIdx;
 	//add more for attack and other actions
 
@@ -83,10 +103,11 @@ public:
 	void updateView(glm::mat4, glm::vec3);
 	void moveToGivenDelta(float deltaX, float deltaY);
 	GLuint loadTexture(string texturePath);
-	bool loadAnimation(CharState state, string animFile);
-	bool loadAnimationAssets(string assetFolder);
+	bool loadAnimation(CharState state, Direction d, string animFile);
+	bool loadAnimationAssets(string assetFolder, Direction d);
 	void setState(CharState state);
 	void flashDamage();
+	void setDirection(Direction d);
 };
 
 #endif
