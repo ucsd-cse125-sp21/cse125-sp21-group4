@@ -82,6 +82,7 @@ struct GameUpdate {
     float newEvoLevel = -1.f; // Used for monster stage tracking
     float floatDeltaX = 0; // used for player/projectile movement
     float floatDeltaY = 0; // used for player/projectile movement
+    Direction player_direc;
     float beaconCaptureAmount = -9999;
     PlayerType roleClaimed = UNKNOWN;
     ProjectileType projectileType = UNKNOW_PROJECTILE; // projectile type
