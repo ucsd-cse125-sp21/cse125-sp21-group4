@@ -49,6 +49,11 @@ CLIENT_INPUT Window::lastInput = NO_MOVE;
 // GUI manager
 GUIManager* Window::guiManager;
 
+// Audio Program
+AudioProgram* Window::audioProgram;
+vector<PlayerType> Window::playerJobs {UNKNOWN, UNKNOWN, UNKNOWN, MONSTER};
+
+std::chrono::steady_clock::time_point lastCombatMusicPlayTime;
 
 bool Window::initializeProgram() {
 	// Create a shader program with a vertex shader and a fragment shader.
@@ -126,7 +131,7 @@ bool Window::initializeObjects()
 
 	//for now tileScale should be tileSize / 2.0
 	ground = new Ground("shaders/environment/ground.obj", &projection, &view, texShader,
-		"shaders/environment/cracked_tile_texture_3x3.png", &table, 3.0f);
+		"shaders/environment/dry_grass_texture_3x3.png", &table, 3.0f);
 
 
 	#ifdef RENDER_MAP
@@ -250,7 +255,7 @@ bool Window::initializeObjects()
 	/* ===== THIS #ifndef CODE IS ONLY FOR NON-CONNECTED CLIENTS TO IMPROVE GRAPHICS DEVELOPMENT ==== */
 	#ifndef SERVER_ENABLED
 	chars[0] = new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-		glm::vec3(SPAWN_POSITIONS[0][0], 1.f, SPAWN_POSITIONS[0][1]), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
+		glm::vec3(SPAWN_POSITIONS[0][0], 1.5f, SPAWN_POSITIONS[0][1]), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/character/MAGE");	
 	clientChar = chars[0];
 	Window::gameStarted = true;
@@ -260,7 +265,7 @@ bool Window::initializeObjects()
 
 
 	chars[3] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-		glm::vec3(SPAWN_POSITIONS[3][0], 1.f, SPAWN_POSITIONS[3][1]), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
+		glm::vec3(SPAWN_POSITIONS[3][0], 1.5f, SPAWN_POSITIONS[3][1]), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
 		"shaders/character/MAGE"));
 
 	//  ==========  End of Character Initialization ========== 
@@ -307,12 +312,18 @@ GLFWwindow* Window::createWindow(int width, int height)
 	Window::guiManager = new GUIManager(width, height, fbWidth, fbHeight);
 	guiManager->setConnectingScreenVisible(true);
 
+	// setup audio program
+	audioProgram = new AudioProgram();
+	audioProgram->setMusicVolume(0.55);
+
 	/* ===== THIS #ifndef CODE IS ONLY FOR NON-CONNECTED CLIENTS TO IMPROVE GRAPHICS DEVELOPMENT ==== */
 #ifndef SERVER_ENABLED // Client-only (no server)	
 	guiManager->setConnectingScreenVisible(false);
 	guiManager->setHUDVisible(true);
 	guiManager->beaconBar->setAmount(18.f);
 #endif
+
+	audioProgram->playAudioWithLooping(TITLE_MUSIC);
 	/* ===== end of #ifndef (no-server client) code ==== */
 
 	// Set swap interval to 1 if you want buffer 
@@ -330,13 +341,18 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 	// Set the viewport size.
 	glViewport(0, 0, width, height);
 
-	// Update the GUIManager's window height/width
-	int fbWidth, fbHeight;
-	glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-	guiManager->resizeWindow(width, height, fbWidth, fbHeight);
+	// Fixes window crashing when resizing or minimizing
+	if (height > 0 && width > 0) {
 
-	// Set the projection matrix.
-	Window::projection = glm::perspective(glm::radians(80.0), double(width) / (double)height, 0.5, 1000.0);
+		// Update the GUIManager's window height/width
+		int fbWidth, fbHeight;
+		glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+		guiManager->resizeWindow(width, height, fbWidth, fbHeight);
+
+		// Set the projection matrix.
+		Window::projection = glm::perspective(glm::radians(80.0), double(width) / (double)height, 0.5, 1000.0);
+
+	}
 
 	// update projection matrix for all the objects
 	//int i;
@@ -440,11 +456,10 @@ void Window::displayCallback(GLFWwindow* window)
 
 	glfwPollEvents();
 	glfwSwapBuffers(window);
-	if(!doneInitialRender && client->isConnected()) {
+	if(client->isConnected() && !guiManager->selectScreen->isVisible && !gameStarted) {
 	#ifdef SERVER_ENABLED
 		// send update that we've finished rendering to the server
-		client->sendInput(DONE_RENDERING);
-		Sleep(TICK_TIME);
+		lastInput = DONE_RENDERING;
 	#endif
 		doneInitialRender = true;
 	}
@@ -459,6 +474,10 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		keyboard[key] = true;
 		if (!guiManager->connectingScreen->hasConnectedToServer) {
 			guiManager->connectingScreen->handleKeyInput(key, window);
+		}
+
+		if(key == GLFW_KEY_M) {
+			audioProgram->toggleMute();
 		}
 
 	 // Check for a key release.
@@ -515,32 +534,33 @@ void Window::handleUpdates(std::vector<GameUpdate> updates) {
 void Window::handleRoleClaim(GameUpdate update) {
 	
 	guiManager->selectScreen->handleRoleClaimed(update.roleClaimed);
+	playerJobs[update.id] = update.roleClaimed;
 
 	switch(update.roleClaimed) {
 		case FIGHTER:
 			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
+				glm::vec3(SPAWN_POSITIONS[update.id][0], 2.f, SPAWN_POSITIONS[update.id][1]), 
 				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/FIGHTER"));	
 			chars[update.id]->loadAnimationAssets("shaders/character/FIGHTER");
 			chars[update.id]->loadAnimationAssets("shaders/character/FIGHTER/ATTACK");
 			break;
 		case MAGE:
 			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
+				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.5f, SPAWN_POSITIONS[update.id][1]), 
 				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MAGE"));	
 			chars[update.id]->loadAnimationAssets("shaders/character/MAGE");
 			chars[update.id]->loadAnimationAssets("shaders/character/MAGE/ATTACK");
 			break;
 		case CLERIC:
 			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
+				glm::vec3(SPAWN_POSITIONS[update.id][0], 2.f, SPAWN_POSITIONS[update.id][1]), 
 				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/CLERIC"));	
 			chars[update.id]->loadAnimationAssets("shaders/character/CLERIC");
 			chars[update.id]->loadAnimationAssets("shaders/character/CLERIC/ATTACK");
 			break;
 		case ROGUE:
 			chars[update.id] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
+				glm::vec3(SPAWN_POSITIONS[update.id][0], 2.f, SPAWN_POSITIONS[update.id][1]), 
 				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/ROGUE"));
 			chars[update.id]->loadAnimationAssets("shaders/character/ROGUE");
 			chars[update.id]->loadAnimationAssets("shaders/character/ROGUE/ATTACK");
@@ -566,13 +586,24 @@ void Window::handleRoleClaim(GameUpdate update) {
 // Handles specific update on the graphics side.
 void Window::handleUpdate(GameUpdate update) {
     switch(update.updateType) {
-        case PLAYER_DAMAGE_TAKEN:
+        case PLAYER_DAMAGE_TAKEN: {
+
 			if(update.id == client->getId()) {
 				guiManager->healthBar->decrementHp(update.damageTaken);
 				guiManager->healthBar->flashHealthBar();
 			}
 			chars[update.id]->flashDamage();
+
+			auto now = std::chrono::steady_clock::now();
+    		std::chrono::duration<float> duration = now - lastCombatMusicPlayTime;
+
+			
+			if (std::chrono::duration_cast<std::chrono::seconds>(duration).count() > audioProgram->getSoundLength(COMBAT_MUSIC)) {
+				audioProgram->playAudioWithoutLooping(COMBAT_MUSIC);
+				lastCombatMusicPlayTime = now;
+			}
             break;
+		}
 		case PLAYER_HP_INCREMENT:
 			if(update.id == client->getId()) {
 				guiManager->healthBar->incrementHp(update.healAmount);
@@ -641,6 +672,7 @@ void Window::handleUpdate(GameUpdate update) {
 			Window::gameStarted = true;
 			guiManager->setSelectScreenVisible(false); // disable the selects creen
 			guiManager->setHUDVisible(true); // sets the hud visible
+			audioProgram->stopAudio(TITLE_MUSIC);
 			break;
 		case ROLE_CLAIMED:
 			Window::handleRoleClaim(update);
@@ -695,8 +727,34 @@ void Window::handleUpdate(GameUpdate update) {
 }
 
 void Window::handleAttack(GameUpdate update) {
-	printf("Player %id is attacking\n", update.id);
+	printf("Player %d is attacking\n", update.id);
 	chars[update.id]->setState(attacking);
+
+	// Play the audio
+	if(glm::distance(chars[update.id]->pos, clientChar->pos) < MAX_HEARING_DISTANCE) {
+		
+		AudioPosition clientPos = {clientChar->pos.x, clientChar->pos.z};
+		AudioPosition otherPos = {chars[update.id]->pos.x, chars[update.id]->pos.z};
+		switch(playerJobs[update.id]) {
+			case FIGHTER:
+				audioProgram->playDirectionalEffect(FIGHTER_ATTACK_SOUND, clientPos, otherPos);
+				break;
+
+			case MAGE:
+				audioProgram->playDirectionalEffect(MAGE_FIREBALL_SOUND, clientPos, otherPos);
+				break;
+
+			case CLERIC:
+				break;
+
+			case ROGUE:
+				break;
+
+			case MONSTER:
+				break;
+		}
+	}
+	
 }
 
 
@@ -791,6 +849,8 @@ void Window::updateLastInput() {
 	// D key
 	} else if(keyboard[GLFW_KEY_D]) {
 		chars[0]->moveToGivenDelta(INIT_SPEED, 0);
+	} else if(keyboard[GLFW_KEY_J]) {
+		audioProgram->playDirectionalEffect(MAGE_FIREBALL_SOUND, {0,0}, {0,0});
 	}
 	#endif
 	/* ===== end of #ifndef (no-server client) code ==== */
