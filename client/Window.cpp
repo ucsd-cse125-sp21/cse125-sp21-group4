@@ -396,7 +396,7 @@ void Window::idleCallback()
 	if(Window::gameStarted && clientChar != nullptr) {
 		lookAtPoint = clientChar->pos;
 	}
-	eyePos = lookAtPoint + glm::vec3(0.f, 8.f, 6.f);
+	eyePos = lookAtPoint + glm::vec3(0.f, 10.f, 6.f);
 	view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window::upVector);
 
 	int i;
