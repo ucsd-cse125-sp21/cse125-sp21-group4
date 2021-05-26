@@ -49,6 +49,14 @@ void Monster::attack(Game* game) {
     p->damage = getAttackDamage();
     game->projectiles[game->nextProjectileId] = p;
     game->nextProjectileId = (game->nextProjectileId + 1) % MAX_PROJECTILE_ID;
+
+    // Send an update to the clients: MONSTER HAS ATTACKED
+    GameUpdate attackUpdate;
+    attackUpdate.updateType = PLAYER_ATTACK;
+    attackUpdate.id = this->id;                        // id of player attacking
+    attackUpdate.attackAmount = getAttackDamage();     // attack damage amount
+    attackUpdate.roleClaimed = MONSTER;
+    game->addUpdate(attackUpdate);
 }
 
 void Monster::uniqueAttack(Game* game) {

@@ -2,10 +2,11 @@
 #define _WINDOW_H_
 
 #define KEYBOARD_SIZE 350
-//#define SERVER_ENABLED
+#define SERVER_ENABLED
 #define RENDER_MAP
 #define _USE_MATH_DEFINES
 #define SPATIAL_HASH_SEARCH_DISTANCE 20.0
+
 
 #include "Main.h"
 #include "shader.h"
@@ -21,6 +22,7 @@
 #include "../common/networking/CommunicationConstants.h"
 #include "../common/game/Projectile.h"
 #include "gui/GUIManager.h"
+#include "AudioProgram.h"
 
 #include <fstream>
 #include <string>
@@ -28,7 +30,6 @@
 #include <unordered_map>
 #include <iostream>
 #include <cmath>
-
 
 
 class Window
@@ -43,6 +44,8 @@ public:
 
 	//objects to render
 	static vector<Character*> chars;
+	static unordered_map<PlayerType, Character*> Window::playerTypeToCharacterMap;
+
 	static vector<EnvElement*> envs;
 	static Ground* ground;
 	static unordered_map<int, ProjectileElement*> projectiles;
@@ -53,6 +56,11 @@ public:
 	// Shader Program 
 	static GLuint shaderProgram;
 	static GLuint texShader;
+
+	// Audio Program
+	static AudioProgram* audioProgram;
+	static std::vector<PlayerType> playerJobs;
+
 
 	// Camera Matrices 
 	// Projection matrix:
@@ -112,6 +120,10 @@ public:
 
 	// Used to remove objectives
 	static void Window::removeObj(int objectiveID);
+
+	static void Window::initCharacters();
+	static void Window::initMap();
+
 };
 
 #endif

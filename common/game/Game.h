@@ -41,6 +41,7 @@ public:
 
     int renderCount;
     bool started; // used to determine if we've passed the initial screen.
+    bool doneRenderedClients[PLAYER_NUM];
 
     // public member functions
     Game(); // default constructor
