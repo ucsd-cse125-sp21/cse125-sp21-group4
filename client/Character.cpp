@@ -14,7 +14,7 @@
 
 Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPos,
 	GLuint s, glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale,
-	glm::vec3 c, char* textFile) {
+	glm::vec3 c, char* textFile) : idleTex(4), moveTex(4), attackTex(4), currDirec(Direction::WEST) {
 
 	//animation related
 	frameIdx = 0;
@@ -22,8 +22,26 @@ Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPo
 	prevState = idle;
 	currTime = clock();
 	prevTime = currTime;
+
+	// prepare vectors for idle animations
+	idleTex[Direction::WEST] = &idle_west;
+	idleTex[Direction::EAST] = &idle_east;
+	idleTex[Direction::NORTH] = &idle_north;
+	idleTex[Direction::SOUTH] = &idle_south;
 	animSequence.push_back(&idleTex); //order must match the enum in header file
+
+	// prepare vectors for move animations
+	moveTex[Direction::WEST] = &move_west;
+	moveTex[Direction::EAST] = &move_east;
+	moveTex[Direction::NORTH] = &move_north;
+	moveTex[Direction::SOUTH] = &move_south;
 	animSequence.push_back(&moveTex);
+
+	// prepare vectors for attack animations
+	attackTex[Direction::WEST] = &attack_west;
+	attackTex[Direction::EAST] = &attack_east;
+	attackTex[Direction::NORTH] = &attack_north;
+	attackTex[Direction::SOUTH] = &attack_south;
 	animSequence.push_back(&attackTex);
 
 	// initial translation will bthe initial position
@@ -299,7 +317,7 @@ void Character::update() {
 	currTime = clock();
 	if (currState != prevState) {
 		frameIdx = 0; // start a new sequence of animation
-		textId = (*animSequence[currState])[frameIdx];
+		textId = ( *(*animSequence[currState]) [currDirec] )[frameIdx];
 		prevState = currState;
 	}
 	else {
@@ -322,13 +340,13 @@ void Character::update() {
 		}
 		if (timeDiff >= interval) {
 			// check if on the last frame of a sequence
-			if (frameIdx + 1 == (*animSequence[currState]).size()) {
+			if (frameIdx + 1 == ( *(*animSequence[currState]) [currDirec] ).size()) {
 				frameIdx = 0;
-				if(currState == attacking) currState = idle; // get out of attack state. May need more complicated reset later.
+				if(currState != idle) currState = idle; // get out of attack state. May need more complicated reset later.
 			}
 			else
 				frameIdx++;
-			textId = (*animSequence[currState])[frameIdx];
+			textId = ( *(*animSequence[currState]) [currDirec] )[frameIdx];
 			prevState = currState;
 			prevTime = currTime;
 		}
@@ -396,14 +414,14 @@ GLuint Character::loadTexture(string path) {
 	leading "/" like "/attack1.png"
 */
 
-bool Character::loadAnimation(CharState state, string animFolder) {
+bool Character::loadAnimation(CharState state, Direction d, string animFolder) {
 	//cout << animFolder << endl;
 	std::ifstream objFile(animFolder + "/index.txt");
 	if (!objFile.is_open()) {
 		cout << "cannot open anim size file in " << animFolder << endl;
 		return false;
 	}
-	vector<GLuint> * animation = animSequence[state];
+	vector<GLuint> * animation = (*animSequence[state])[d];
 	std::string line;
 	while (std::getline(objFile, line)) {
 		string texFile =animFolder + line;
@@ -426,10 +444,11 @@ bool Character::loadAnimationAssets(string assetFolder) {
 		std::stringstream ss;
 		ss << line;
 		int state;
+		int direction;
 		string animFolder;
-		ss >> state >> animFolder;
+		ss >> state >> direction >> animFolder;
 		//cout << state << " " << animFolder;
-		if (!loadAnimation((CharState)state, assetFolder + animFolder)) {
+		if (!loadAnimation((CharState)state, (Direction) direction, assetFolder + animFolder) ) {
 			cout << "cannot load asset in " << animFolder << endl;
 			return false;
 		}
@@ -438,10 +457,16 @@ bool Character::loadAnimationAssets(string assetFolder) {
 	return true;
 }
 
+// set the state of the character
 void Character::setState(CharState state) {
 	currState = state;
 }
 
 void Character::flashDamage() {
 	damageFlashUntil = clock() + CHARACTER_DAMAGE_TAKEN_FLASHING_TIME_MS * CLOCKS_PER_SEC / 1000;
+}
+
+// set the current direction the player is facing
+void Character::setDirection(Direction d) {
+	currDirec = d;
 }

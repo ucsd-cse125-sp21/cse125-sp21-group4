@@ -328,6 +328,7 @@ void GamePlayer::move (Game* game, Direction direction) {
     gameUpdate.updateType = PLAYER_MOVE;
     gameUpdate.floatDeltaX = destPosition.x - position.x;
     gameUpdate.floatDeltaY = destPosition.y - position.y;
+    gameUpdate.direction = getFaceDirection();
     game->addUpdate(gameUpdate);
 
     // Move there!

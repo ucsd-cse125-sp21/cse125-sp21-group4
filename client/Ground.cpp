@@ -5,15 +5,16 @@
 /*
 	since ground.obj has width TILE_SIZE, actual size displayed is tileScale times TILE_SIZE
 */
-Ground::Ground(string fileName, glm::mat4* proj, glm::mat4* v, GLuint s, char * textFile, 
-	SpatialHashTable * table, float tileScale) {
+Ground::Ground(string fileName, glm::mat4* proj, glm::mat4* v, GLuint s, char * grassTextFile, char * crackedTileTextFile, SpatialHashTable * table, float tileScale) {
 	// initial translation will bthe initial position
 	projection = proj;
 	view = v;
 	shader = s;
 
-	cout << "loading ground texture --" << textFile << endl;
-	hasTexture = loadTexture(textFile);
+	cout << "loading grass ground texture --" << grassTextFile << endl;
+	cout << "loading tile ground texture --" << crackedTileTextFile << endl;
+	hasTexture = loadTexture(grassTextFile, &textId[0]);
+	hasTexture = hasTexture && loadTexture(crackedTileTextFile, &textId[1]);
 	if (!hasTexture) {
 		cout << "CANNOT load Ground Texture, please check texture file" << endl;
 		return;
@@ -129,19 +130,65 @@ Ground::Ground(string fileName, glm::mat4* proj, glm::mat4* v, GLuint s, char * 
 	}
 
 	int i, j;
-	int width = GROUND_WIDTH / TILE_SIZE;
-	int length = GROUND_WIDTH / TILE_SIZE;
+	const int width = GROUND_WIDTH / TILE_SIZE;
+	const int length = GROUND_WIDTH / TILE_SIZE;
+
+
 	cout << "map width: " << width << endl;
 	float tileSize = 2.f * tileScale;
 	cout << "creating a " << width << " by " << length << " ground"<< endl;
-	for (i = 0; i < width; i++) {
-		for (j = 0; j < length; j++) {
+
+	// Get data from csv to tell what tiles to draw for specific position.
+	int initTiles [width][length];
+
+    ifstream map_file("../assets/layout/map_ground.csv");
+    string line;
+    string id;
+
+    i = 0;
+    j = 0;
+    while(getline(map_file, line)) {
+        stringstream ss(line);
+        
+        while(getline(ss, id, ',')) {
+			// j = x, i = y.
+            int objID = std::stoi(id);
+
 			//all the texture, points, normals, textCoords are shared between all tiles
-			GroundTile* g = new GroundTile(proj, v, s, glm::vec3(i * tileSize, 0, j * tileSize), tileScale,
-				textId, &normal, &points, &triangles, &texp);
-			table->insert(g);
-		}
-	}
+			switch(objID) {
+				case DRY_GRASS_ID: {
+					GroundTile* g = new GroundTile(proj, v, s, glm::vec3(j * tileSize, 0, i * tileSize), tileScale,
+						textId[0], &normal, &points, &triangles, &texp);
+					table->insert(g);
+					break;
+				}
+				case CRACKED_TILE_ID: {
+					GroundTile* g = new GroundTile(proj, v, s, glm::vec3(j * tileSize, 0, i * tileSize), tileScale,
+						textId[1], &normal, &points, &triangles, &texp);
+					table->insert(g);
+					break;
+				}
+			}
+
+
+            // printf("%d, %d, %d\n", objID, i, j);
+
+            j++;
+        }
+        j = 0;
+        i++;
+    }
+
+
+
+	// for (i = 0; i < width; i++) {
+	// 	for (j = 0; j < length; j++) {
+	// 		//all the texture, points, normals, textCoords are shared between all tiles
+	// 		GroundTile* g = new GroundTile(proj, v, s, glm::vec3(i * tileSize, 0, j * tileSize), tileScale,
+	// 			textId, &normal, &points, &triangles, &texp);
+	// 		table->insert(g);
+	// 	}
+	// }
 	cout << "ground tiles initialized" << endl;
 }
 
@@ -149,7 +196,7 @@ void Ground::update() {
 
 }
 
-bool Ground::loadTexture(char* texturePath) {
+bool Ground::loadTexture(char* texturePath, GLuint* textId) {
 	if (strcmp(texturePath, "") == 0)
 		return false;
 	FILE* f;
@@ -169,8 +216,8 @@ bool Ground::loadTexture(char* texturePath) {
 		cout << "cannot load texture at " << texturePath << endl;
 		return false;
 	}
-	glGenTextures(1, &textId);
-	glBindTexture(GL_TEXTURE_2D, textId);
+	glGenTextures(1, textId);
+	glBindTexture(GL_TEXTURE_2D, *textId);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);

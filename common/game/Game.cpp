@@ -427,10 +427,16 @@ bool Game::handleInputs(GAME_INPUT playersInputs[PLAYER_NUM]) {
                     handleUserClaim(playersInputs[i].input, i);
                 }
                 break;
-            case DONE_RENDERING:
-                renderCount++;
-                printf("Players Rendered & Joined Count: %d\n", renderCount);
-                if(!started && renderCount >= PLAYER_NUM) {
+            case DONE_RENDERING: {
+                bool ready = true;
+                doneRenderedClients[i] = true;
+                printf("Player %d has finished rendering.\n", i);
+                for(int i = 0; i < PLAYER_NUM; i++) {
+                    if(!doneRenderedClients[i]) {
+                        ready = false;
+                    }
+                }
+                if(ready) {
                     // All players have joined
                     GameUpdate allJoined;
                     allJoined.updateType = ALL_PLAYERS_JOINED;
@@ -440,6 +446,8 @@ bool Game::handleInputs(GAME_INPUT playersInputs[PLAYER_NUM]) {
                     // All players have connected by now, so start the select timer
                     startSelectTimer();
                 }
+                break;
+            }
             default:
                 if(started) {
                     players[i]->handleUserInput(this, playersInputs[i]);

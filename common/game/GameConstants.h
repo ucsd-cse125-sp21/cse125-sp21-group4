@@ -163,7 +163,6 @@ enum PlayerType {
     ROGUE,
 };
 
-
 enum ProjectileType {
     ROGUE_ARROW,
     MAGE_SHOOT,
@@ -175,7 +174,6 @@ enum ProjectileType {
     // CLERIC_SHOOT,
     // MONSTER_SHOOT,
 };
-
 
 struct PlayerPosition {
     float x; // x coordinate of center

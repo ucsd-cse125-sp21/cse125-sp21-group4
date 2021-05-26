@@ -2,6 +2,7 @@
 #define _CHARACTER_H_
 
 #include "Object.h"
+#include "../common/game/GameConstants.h"
 #include <time.h>
 
 #define IDLE_ANIMATION_INTERVAL 0.2
@@ -37,17 +38,36 @@ private:
 
 	CharState currState;
 	CharState prevState;
+	Direction currDirec; // current direction t
 
 	time_t currTime;
 	time_t prevTime;
 
 	bool hasTexture;
 	GLuint textId;
-	std::vector<GLuint> idleTex;
-	std::vector<GLuint> moveTex;
-	std::vector<GLuint> attackTex;
-	std::vector<std::vector<GLuint>*> animSequence;
-	int frameIdx;
+
+	std::vector<std::vector<std::vector<GLuint>*>*> animSequence; // hold animation sequences
+	std::vector<std::vector<GLuint>*> idleTex;					  // idle animation sequences
+	std::vector<std::vector<GLuint>*> moveTex;					  // movement animation sequences
+	std::vector<std::vector<GLuint>*> attackTex;				  // attack animation sequences
+
+	std::vector<GLuint> idle_west;		// idle west animation
+	std::vector<GLuint> idle_east;		// idle east animation
+	std::vector<GLuint> idle_north;		// idle north animation
+	std::vector<GLuint> idle_south;		// idle south animation
+
+	std::vector<GLuint> move_west;		// move west animation
+	std::vector<GLuint> move_east;		// move east animation
+	std::vector<GLuint> move_north;		// move north animation
+	std::vector<GLuint> move_south;		// move south animation
+	
+	std::vector<GLuint> attack_west;	// attack west animation
+	std::vector<GLuint> attack_east;	// attack east animation
+	std::vector<GLuint> attack_north;	// attack north animation
+	std::vector<GLuint> attack_south;	// attack south animation
+
+	
+	int frameIdx;	// current frame in animation sequence
 	//add more for attack and other actions
 
 	glm::vec3 * eyep;
@@ -84,10 +104,11 @@ public:
 	void updateView(glm::mat4, glm::vec3);
 	void moveToGivenDelta(float deltaX, float deltaY);
 	GLuint loadTexture(string texturePath);
-	bool loadAnimation(CharState state, string animFile);
+	bool loadAnimation(CharState state, Direction d, string animFile);
 	bool loadAnimationAssets(string assetFolder);
 	void setState(CharState state);
 	void flashDamage();
+	void setDirection(Direction d);
 };
 
 #endif
