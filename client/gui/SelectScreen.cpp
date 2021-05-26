@@ -145,3 +145,11 @@ void SelectScreen::startTimer(std::chrono::steady_clock::time_point startTime) {
     // There **should** be no delay between when the graphics client sees SelectScreen and server's update.
     timeSelectStarted = std::chrono::steady_clock::now();
 }
+
+void SelectScreen::updatePositions() {
+	for (int i = 0; i < selectScreenElements.size(); i++) {
+		if (selectScreenElements[i] != nullptr) {
+			selectScreenElements[i]->update();
+		}
+	}
+}

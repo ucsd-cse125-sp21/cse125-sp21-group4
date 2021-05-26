@@ -2,10 +2,16 @@
 #define _WINDOW_H_
 
 #define KEYBOARD_SIZE 350
-#define SERVER_ENABLED
-#define RENDER_MAP
+// #define SERVER_ENABLED
+// #define RENDER_MAP
 #define _USE_MATH_DEFINES
 #define SPATIAL_HASH_SEARCH_DISTANCE 20.0
+
+
+// camera offsets for player
+#define CAMERA_X_OFFSET 0.f
+#define CAMERA_Y_OFFSET 10.f
+#define CAMERA_Z_OFFSET 6.f
 
 
 #include "Main.h"
@@ -123,6 +129,7 @@ public:
 
 	static void Window::initCharacters();
 	static void Window::initMap();
+	static void Window::initSelectScreenElements();
 
 };
 

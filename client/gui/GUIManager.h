@@ -34,6 +34,7 @@ public:
     void setSelectScreenVisible(bool visibility);
     void setConnectingScreenVisible(bool visibility);
     void handleMouseSelect(int x, int y);
+    void updateHUDPositions();
 };
 
 #endif

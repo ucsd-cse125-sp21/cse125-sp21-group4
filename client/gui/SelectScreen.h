@@ -30,6 +30,7 @@ public:
     void handleRoleClaimed(PlayerType);
     void handleSelecting(PlayerType roleSelected);
     void startTimer(std::chrono::steady_clock::time_point);
+    void updatePositions();
 };
 
 #endif

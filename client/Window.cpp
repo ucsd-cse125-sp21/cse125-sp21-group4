@@ -91,35 +91,7 @@ bool Window::initializeObjects()
 {
 
 	//  ==========  Select Screen  ========== 
-	glm::vec3 selectScreenLocation = eyePos + glm::vec3(0.f, -100.f, 0.f);
-	float rotateAmount = glm::radians(-53.13f);
-	float selectScreenScale = 8.f;
-	lookAtPoint = selectScreenLocation;
-	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
-		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, selectScreenScale, glm::vec3(1.f, .5f, .5f),
-		"shaders/select_screen/character_select_background.png"));
-	
-
-	// Each Job Buttons
-	// (1) Fighter
-	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
-		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, selectScreenScale, glm::vec3(1.f, .5f, .5f),
-		"shaders/select_screen/fighter_unselected.png"));
-		
-	// (2) Mage
-	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
-		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, selectScreenScale, glm::vec3(1.f, .5f, .5f),
-		"shaders/select_screen/mage_unselected.png"));
-		
-	// (3) Cleric
-	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
-		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, selectScreenScale, glm::vec3(1.f, .5f, .5f),
-		"shaders/select_screen/cleric_unselected.png"));
-		
-	// (4) Rogue
-	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
-		selectScreenLocation, glm::vec3(1.f, 0.f, 0.f), rotateAmount, selectScreenScale, glm::vec3(1.f, .5f, .5f),
-		"shaders/select_screen/rogue_unselected.png"));
+	initSelectScreenElements();
 
 	//  ==========  End of Select Screen  ========== 
 
@@ -285,7 +257,39 @@ void Window::initCharacters() {
 	chars[3]->moveTo(glm::vec3(SPAWN_POSITIONS[3][0], 1.5f, SPAWN_POSITIONS[3][1]));
 }
 
-// End of Nano GUI Methods
+void Window::initSelectScreenElements() {
+	//  ==========  Select Screen  ========== 
+	float selectScreenScale = 9.f;
+
+	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
+		glm::vec2(0.0f, 0.0f), selectScreenScale, glm::vec3(1.f, .5f, .5f),
+		"shaders/select_screen/character_select_background.png"));
+	
+
+	// Each Job Buttons
+	// (1) Fighter
+	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
+		glm::vec2(0.f, 0.f), selectScreenScale, glm::vec3(1.f, .5f, .5f),
+		"shaders/select_screen/fighter_unselected.png"));
+		
+	// (2) Mage
+	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
+		glm::vec2(0.f, 0.f), selectScreenScale, glm::vec3(1.f, .5f, .5f),
+		"shaders/select_screen/mage_unselected.png"));
+		
+	// (3) Cleric
+	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
+		glm::vec2(0.f, 0.f), selectScreenScale, glm::vec3(1.f, .5f, .5f),
+		"shaders/select_screen/cleric_unselected.png"));
+		
+	// (4) Rogue
+	guiManager->selectScreen->selectScreenElements.push_back(new ScreenElement("shaders/character/billboard.obj", &projection, &view, &lookAtPoint, texShader,
+		glm::vec2(0.f, 0.f), selectScreenScale, glm::vec3(1.f, .5f, .5f),
+		"shaders/select_screen/rogue_unselected.png"));
+
+}
+
+// End of init methods
 
 void Window::cleanUp()
 {
@@ -334,6 +338,7 @@ GLFWwindow* Window::createWindow(int width, int height)
 	guiManager->setConnectingScreenVisible(false);
 	guiManager->setHUDVisible(true);
 	guiManager->beaconBar->setAmount(18.f);
+	guiManager->setSelectScreenVisible(true);
 #endif
 
 	audioProgram->playAudioWithLooping(TITLE_MUSIC);
@@ -396,7 +401,7 @@ void Window::idleCallback()
 	if(Window::gameStarted && clientChar != nullptr) {
 		lookAtPoint = clientChar->pos;
 	}
-	eyePos = lookAtPoint + glm::vec3(0.f, 10.f, 6.f);
+	eyePos = lookAtPoint + glm::vec3(CAMERA_X_OFFSET, CAMERA_Y_OFFSET, CAMERA_Z_OFFSET);
 	view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window::upVector);
 
 	int i;
@@ -406,6 +411,7 @@ void Window::idleCallback()
 		}
 	}
 
+	guiManager->updateHUDPositions();
 }
 
 void Window::displayCallback(GLFWwindow* window)

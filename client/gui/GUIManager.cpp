@@ -124,3 +124,11 @@ void GUIManager::drawWindow(const char* title, float x, float y, float w, float 
 
 	nvgRestore(vg);
 }
+
+void GUIManager::updateHUDPositions() {
+
+	// Select Screen is part of "HUD"
+	selectScreen->updatePositions();
+
+	// Other HUD elemeents...
+}
