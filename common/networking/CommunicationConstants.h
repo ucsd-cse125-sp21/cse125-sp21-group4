@@ -20,8 +20,6 @@ enum CLIENT_INPUT{
     MOVE_LEFT,
     MOVE_RIGHT,
     NO_MOVE,
-    ATTACK, // general attack for now
-    UNIQUE_ATTACK, // mage fireball and cleric healing aura
     LEFT_MOUSE_ATTACK,
     RIGHT_MOUSE_ATTACK,
     // MONSTER_SPIT_RANGED_ATTACK,

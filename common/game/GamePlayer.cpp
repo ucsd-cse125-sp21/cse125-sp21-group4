@@ -468,20 +468,15 @@ void GamePlayer::handleUserInput (Game* game, GAME_INPUT userInput) {
         case MOVE_RIGHT:
             move(game, EAST);
             break;
-        case ATTACK:
-            if (!allowLeftMouseShooting(type)) attack(game, 0);
-            break;
-        case UNIQUE_ATTACK:
-            if (!allowRightMouseShooting(type)) uniqueAttack(game, 0);
-            break;
         case INTERACT:
             interact(game);
             break;
         case LEFT_MOUSE_ATTACK:
-            if (allowLeftMouseShooting(type)) attack(game, userInput.angle);
+            printf("initiating left mouse attack\n");
+            attack(game, userInput.angle);
             break;
         case RIGHT_MOUSE_ATTACK:
-            if (allowLeftMouseShooting(type)) uniqueAttack(game, userInput.angle);
+            uniqueAttack(game, userInput.angle);
             break;
         default:
             // NO_MOVE and other input does not trigger any action

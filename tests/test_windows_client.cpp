@@ -78,12 +78,12 @@ int __cdecl main(int argc, char **argv)
                 case 'd':
                     sendInput.input = MOVE_RIGHT;
                     break;
-                case 'j':
-                    sendInput.input = ATTACK;
-                    break;
-                case 'k':
-                    sendInput.input = UNIQUE_ATTACK;
-                    break;
+                // case 'j':
+                //     sendInput.input = ATTACK;
+                //     break;
+                // case 'k':
+                //     sendInput.input = UNIQUE_ATTACK;
+                //     break;
                 case '1':
                     sendInput.input = CLAIM_FIGHTER;
                     break;

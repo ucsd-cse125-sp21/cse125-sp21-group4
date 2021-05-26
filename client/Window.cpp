@@ -611,33 +611,17 @@ void Window::handleUpdate(GameUpdate update) {
 			string textFile;
 
 			// select projectile texture
-			if (update.projectileType == MAGE_FIREBALL) textFile ="shaders/projectile/fireball";
-			if (update.projectileType == MAGE_SHOOT) textFile ="shaders/projectile/fireball";
-			if (update.projectileType == ROGUE_ARROW) textFile ="shaders/projectile/arrow";
-			if (update.projectileType == CLERIC_SHOOT) textFile ="shaders/projectile/lightball";
-			if (update.projectileType == MONSTER_RANGED) textFile ="shaders/projectile/earthchunk";
+			if (update.projectileType == MAGE_FIREBALL) textFile ="shaders/projectile/fireball_up.png";
+			if (update.projectileType == MAGE_SHOOT) textFile ="shaders/projectile/firearrow_up.png";
+			if (update.projectileType == ROGUE_ARROW) textFile ="shaders/projectile/arrow_up.png";
+			if (update.projectileType == CLERIC_SHOOT) textFile ="shaders/projectile/lightball_up.png";
+			if (update.projectileType == MONSTER_RANGED) textFile ="shaders/projectile/earthchunk_up.png";
 
-			// select projectile direction
-			if (update.direction == NORTH) {
-				textFile += "_up.png";
-				rotRad = glm::radians(-90.f);
-			}
-			if (update.direction == SOUTH) {
-				textFile += "_down.png";
-				rotRad = glm::radians(-90.f);
-			}
-			if (update.direction == WEST) {
-				textFile += "_left.png";
 
-				glm::vec3 targetVec = eyePos - trans;
-				rotRad = - glm::atan(targetVec.y, targetVec.z);
-			}
-			if (update.direction == EAST) {
-				textFile += "_right.png";
-
-				glm::vec3 targetVec = eyePos - trans;
-				rotRad = - glm::atan(targetVec.y, targetVec.z);
-			} 
+			// don't  know how to rotate
+			// rotRad = glm::radians(-90.f);
+			// glm::vec3 targetVec = eyePos - trans;
+			// rotRad = - glm::atan(targetVec.y, targetVec.z);
 			
 
 
@@ -722,14 +706,6 @@ void Window::updateLastInput() {
 		lastInput = INTERACT;
 
 	// J key
-	} else if (keyboard[GLFW_KEY_J]) {
-		lastInput = ATTACK;
-
-	// K key
-	} else if (keyboard[GLFW_KEY_K]) {
-		lastInput = UNIQUE_ATTACK;
-
-	// W key
 	} else if (keyboard[GLFW_KEY_W]) {
 		lastInput = MOVE_FORWARD;
 
