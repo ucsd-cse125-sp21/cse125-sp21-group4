@@ -65,22 +65,26 @@ void Monster::uniqueAttack(Game* game, float angle) {
 
     // draw the attack region
     PlayerPosition attackRegion = PlayerPosition();
-    if (faceDirection == NORTH || faceDirection == SOUTH) {
-        attackRegion.x = position.x;
-        attackRegion.width = position.width;
+    if ((angle >= M_PI/4 && angle <= M_PI /2) || (angle <= -5*M_PI/4 && angle >= -3*M_PI/2)) {
+        attackRegion.width = position.width + MONSTER_ATTACK_EXTRA_WIDTH;
         attackRegion.height = MONSTER_ATTACK_DISTANCE;
-        if (faceDirection == NORTH)
-            attackRegion.y = position.y - position.height/2 - MONSTER_ATTACK_DISTANCE / 2;
-        else
-            attackRegion.y = position.y + position.height/2 + MONSTER_ATTACK_DISTANCE / 2;
-    } else {
-        attackRegion.y = position.y;
+        attackRegion.x = position.x;
+        attackRegion.y = position.y - position.height/2 - MONSTER_ATTACK_DISTANCE / 2;
+    } else if ((angle >= 0 && angle <= M_PI /4) || (angle <= 0 && angle >= -1*M_PI/4)) {
+        attackRegion.height = position.height + MONSTER_ATTACK_EXTRA_WIDTH;
         attackRegion.width = MONSTER_ATTACK_DISTANCE;
-        attackRegion.height = position.width;
-        if (faceDirection = EAST)
-            attackRegion.x = position.x + position.height / 2 + MONSTER_ATTACK_DISTANCE / 2;
-        else
-            attackRegion.x = position.x - position.height / 2 - MONSTER_ATTACK_DISTANCE / 2;
+        attackRegion.y = position.y;
+        attackRegion.x = position.x + position.width/2 + MONSTER_ATTACK_DISTANCE / 2;
+    } else if (angle >= -3*M_PI/4 && angle <= -1*M_PI /4) {
+        attackRegion.width = position.width + MONSTER_ATTACK_EXTRA_WIDTH;
+        attackRegion.height = MONSTER_ATTACK_DISTANCE;
+        attackRegion.x = position.x;
+        attackRegion.y = position.y + position.height/2 + MONSTER_ATTACK_DISTANCE / 2;
+    } else if (angle >= -5*M_PI/4 && angle <= -3*M_PI /4) {
+        attackRegion.height = position.height + MONSTER_ATTACK_EXTRA_WIDTH;
+        attackRegion.width = MONSTER_ATTACK_DISTANCE;
+        attackRegion.y = position.y;
+        attackRegion.x = position.x - position.width/2 - MONSTER_ATTACK_DISTANCE / 2;
     }
 
     // for every player, if their bounding box overlaps the attackRegion, and

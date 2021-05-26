@@ -1,8 +1,10 @@
 #ifndef _MONSTER_H
 #define _MONSTER_H
+#define _USE_MATH_DEFINES
 
 #include "GamePlayer.h"
 #include <chrono>
+#include <cmath>
 
 class Monster : public GamePlayer {
 private:
