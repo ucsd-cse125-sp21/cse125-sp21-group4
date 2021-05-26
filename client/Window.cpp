@@ -478,16 +478,12 @@ void Window::displayCallback(GLFWwindow* window)
 	if(client->isConnected() && !guiManager->selectScreen->isVisible && !gameStarted) {
 	#ifdef SERVER_ENABLED
 		// send update that we've finished rendering to the server
-<<<<<<< HEAD
 		GAME_INPUT gameInput;
 		gameInput.input = DONE_RENDERING;
 		printf("sending done_rendering signal to server\n");
 		client->sendInput(gameInput);
 		printf("done_rendering signal sent\n");
 		Sleep(TICK_TIME);
-=======
-		lastInput = DONE_RENDERING;
->>>>>>> main
 	#endif
 		doneInitialRender = true;
 	}
@@ -637,7 +633,7 @@ void Window::handleUpdate(GameUpdate update) {
         case PLAYER_MOVE:
 		{
 			chars[update.id]->setState(moving);
-			switch(update.player_direc) {
+			switch(update.direction) {
 				case NORTH:
 					chars[update.id]->setDirection(NORTH);
 					break;

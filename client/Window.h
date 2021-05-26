@@ -2,12 +2,9 @@
 #define _WINDOW_H_
 
 #define KEYBOARD_SIZE 350
-<<<<<<< HEAD
 #define MOUSE_SIZE 2
 #define MOUSE_LEFT_INDEX 0
 #define MOUSE_RIGHT_INDEX 1
-=======
->>>>>>> main
 #define SERVER_ENABLED
 #define RENDER_MAP
 #define _USE_MATH_DEFINES
