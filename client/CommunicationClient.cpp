@@ -79,11 +79,11 @@ bool CommunicationClient::connectTo(std::string serverIP) {
     return true;
 }
 
-void CommunicationClient::sendInput(CLIENT_INPUT sendInput) {
+void CommunicationClient::sendInput(GAME_INPUT input) {
     int iResult;
     // 2. Send input to server (if any)
-    if(sendInput != NO_MOVE) {
-        iResult = send( serverSocket, (char *)&sendInput, sizeof(CLIENT_INPUT), 0 );
+    if(input.input != NO_MOVE) {
+        iResult = send( serverSocket, (char *)&input, sizeof(GAME_INPUT), 0 );
         if (iResult == SOCKET_ERROR) {
             printf("send failed with error: %d\n", WSAGetLastError());
             closesocket(serverSocket);

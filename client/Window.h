@@ -2,6 +2,9 @@
 #define _WINDOW_H_
 
 #define KEYBOARD_SIZE 350
+#define MOUSE_SIZE 2
+#define MOUSE_LEFT_INDEX 0
+#define MOUSE_RIGHT_INDEX 1
 #define SERVER_ENABLED
 #define RENDER_MAP
 #define _USE_MATH_DEFINES
@@ -78,9 +81,11 @@ public:
 
 	// Last CLIENT_INPUT recorded
 	static CLIENT_INPUT lastInput;
+	static float lastAngle; // used for projectile angle
 
 	// Keyboard keys that are being held down or pressed
 	static bool keyboard[KEYBOARD_SIZE];
+	static bool mouse[MOUSE_SIZE];
 
 	// Used to determine whether or not camera should be looking at player or select screen
 	static bool gameStarted;

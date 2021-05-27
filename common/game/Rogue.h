@@ -11,7 +11,7 @@ public:
     Rogue(); // Constructor for GameComponent
     Rogue(PlayerPosition position); // Constructor for GameComponent
 
-    void attack (Game* game);
+    void attack (Game* game, float angle);
     void interact (Game* game);
 };
 
