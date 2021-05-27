@@ -19,6 +19,7 @@ MiniMap::MiniMap(NVGcontext* vg) {
     nvgImageSize(vg, image, &imgWidth, &imgHeight);
 }
 
+
 void drawPlayerPixel(NVGcontext* vg, float x, float y, float w, float h, NVGcolor color) {
 	nvgBeginPath(vg);
 	nvgRect(vg, x, y, w, h);
@@ -130,4 +131,18 @@ void MiniMap::handleCaptureEvent(float captureAmount) {
 }
 void MiniMap::updatePingPosition(int id, PlayerPosition pos) {
 	pingPositions[id] = pos;
+}
+
+void MiniMap::reset() {
+	isVisible = false;
+
+	currPlayerType = UNKNOWN;
+	for(int i = 0; i < PLAYER_NUM; i++) {
+		playerTypes[i] = UNKNOWN;
+		playerPositions[i].x = SPAWN_POSITIONS[i][0];
+		playerPositions[i].y = SPAWN_POSITIONS[i][1];
+		pingPositions[i].x = SPAWN_POSITIONS[i][0];
+		pingPositions[i].y = SPAWN_POSITIONS[i][1];
+	}
+	hasTeamCapturedBeacon = false;
 }

@@ -29,5 +29,6 @@ public:
     void updatePlayerPositionDelta(int, float deltaX, float deltaY);
     void updatePingPosition(int, PlayerPosition);
     void handleCaptureEvent(float);
+    void reset();
 };
 #endif

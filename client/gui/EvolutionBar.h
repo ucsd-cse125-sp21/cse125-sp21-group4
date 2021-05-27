@@ -23,6 +23,7 @@ public:
     float evoLevel;
     NVGcontext* vg;
     bool isVisible;
+    bool isMonster;
 
     EvolutionBar(NVGcontext* vg);
     void setEvo(float evo);

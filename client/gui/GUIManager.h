@@ -8,6 +8,7 @@
 #include "MiniMap.h"
 #include "SelectScreen.h"
 #include "ConnectingScreen.h"
+#include "EndScreen.h"
 #include "../nanovg/nanovg.h"
 
 class GUIManager    
@@ -27,6 +28,7 @@ public:
     MiniMap* miniMap;
     SelectScreen* selectScreen;
     ConnectingScreen* connectingScreen;
+    EndScreen* endScreen;
 
     GUIManager(int width, int height, int fbWidth, int fbHeight);
     void resizeWindow(int width, int height, int fbWidth, int fbHeight);
@@ -35,8 +37,12 @@ public:
     void setHUDVisible(bool visibility);
     void setSelectScreenVisible(bool visibility);
     void setConnectingScreenVisible(bool visibility);
+    void setGameEndVisible(bool visibility);
+
     void handleMouseSelect(int x, int y);
     void updateHUDPositions();
+
+    void reset();
 };
 
 #endif

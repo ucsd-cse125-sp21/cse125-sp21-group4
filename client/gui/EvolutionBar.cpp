@@ -4,6 +4,7 @@ EvolutionBar::EvolutionBar(NVGcontext* vg) {
     this->vg = vg;
 	this->evoLevel = 0.0f;
 	this->isVisible = false;
+	this->isMonster = false;
 
     image = nvgCreateImage(vg, "shaders/hud_elements/evolution_bar.png", 0);
 	// printf("image: %d\n", image);
@@ -24,8 +25,8 @@ void EvolutionBar::drawSingleBar(float x, float y, float w, float h) {
 }
 void EvolutionBar::draw(float x, float y, float w, float h) {
 
-    // If not visible, don't draw it.
-    if(!isVisible) {
+    // If not visible nor monster, don't draw it.
+    if(!isVisible || !isMonster) {
         return;
     }
 

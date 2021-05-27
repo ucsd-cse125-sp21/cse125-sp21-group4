@@ -29,6 +29,7 @@ GUIManager::GUIManager(int width, int height, int fbWidth, int fbHeight) {
 	miniMap = new MiniMap(vg);
 	selectScreen = new SelectScreen(vg);
 	connectingScreen = new ConnectingScreen(vg);
+	endScreen = new EndScreen(vg);
 }
 
 void GUIManager::draw() {
@@ -40,6 +41,7 @@ void GUIManager::draw() {
 	miniMap->draw(this->windowWidth - (MAP_WIDTH / 2), this->windowHeight - (MAP_HEIGHT / 2), (MAP_WIDTH / 2), (MAP_HEIGHT / 2));
 	selectScreen->draw(this->windowWidth, this->windowHeight);
 	connectingScreen->draw(this->windowWidth, this->windowHeight);
+	endScreen->draw(this->windowWidth, this->windowHeight);
 
 	nvgEndFrame(vg);
 }
@@ -58,6 +60,7 @@ void GUIManager::setHUDVisible(bool visibility) {
 	healthBar->setVisible(visibility);
 	beaconBar->setVisible(visibility);
 	miniMap->setVisible(visibility);
+	evoBar->setVisible(visibility);
 }
 
 void GUIManager::setSelectScreenVisible(bool visibility) {
@@ -67,6 +70,11 @@ void GUIManager::setSelectScreenVisible(bool visibility) {
 void GUIManager::setConnectingScreenVisible(bool visibility) {
 	connectingScreen->setVisible(visibility);
 }
+
+void GUIManager::setGameEndVisible(bool visibility) {
+	endScreen->setVisible(visibility);
+}
+
 
 void GUIManager::handleMouseSelect(int x, int y) {
 	// might need this if we decide to add mouse support.
@@ -133,4 +141,18 @@ void GUIManager::updateHUDPositions() {
 	selectScreen->updatePositions();
 
 	// Other HUD elemeents...
+}
+void GUIManager::reset() {
+	// Elements to reset:
+	// healthBar --> not needed because values update during character selection
+	// beaconBar
+	beaconBar->setAmount(0.f);
+	// evoBar
+	evoBar->setEvo(0.f);
+	// miniMap
+	miniMap->reset();
+	// selectScreen
+	selectScreen->reset();
+	// connectingScreen
+	connectingScreen->init();
 }

@@ -159,6 +159,9 @@
     <ClCompile Include="gui\EvolutionBar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="gui\EndScreen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Character.h">
@@ -366,6 +369,9 @@
       <Filter>Header Files\soloud</Filter>
     </ClInclude>
     <ClInclude Include="gui\EvolutionBar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\EndScreen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

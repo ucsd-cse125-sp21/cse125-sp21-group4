@@ -11,6 +11,7 @@ SpatialHashTable Window::table(5000, SPATIAL_HASH_SEARCH_DISTANCE);
 bool Window::keyboard[KEYBOARD_SIZE];
 bool Window::gameStarted;
 bool Window::doneInitialRender;
+bool Window::gameEnded;
 
 //objects to render
 vector<Character*> Window::chars(4); //all the characters players get to control
@@ -78,6 +79,7 @@ bool Window::initializeProgram() {
 
 	Window::gameStarted = false;
 	Window::doneInitialRender = false;
+	Window::gameEnded = false;
 
 	return true;
 }
@@ -342,6 +344,7 @@ GLFWwindow* Window::createWindow(int width, int height)
 	guiManager->setSelectScreenVisible(false);
 	guiManager->evoBar->setVisible(true);
 	guiManager->evoBar->setEvo(2.65f);
+	guiManager->setGameEndVisible(true);
 #endif
 
 	audioProgram->playAudioWithLooping(TITLE_MUSIC);
@@ -466,6 +469,10 @@ void Window::displayCallback(GLFWwindow* window)
 	// Draws all the objectives in the objective map
 	for (auto const& x: objectiveMap) {
 		x.second->draw();
+		if(glm::distance(x.second->pos, clientChar->pos)) {
+			// nvg draw text to interact with
+			// guiManager->drawText("Press E to interact.");
+		}
 	}
 
 	// Draws all the projectiles
@@ -495,12 +502,18 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	if (action == GLFW_PRESS)
 	{
 		keyboard[key] = true;
-		if (!guiManager->connectingScreen->hasConnectedToServer) {
+		if (!guiManager->connectingScreen->hasConnectedToServer && !gameEnded) {
 			guiManager->connectingScreen->handleKeyInput(key, window);
 		}
 
 		if(key == GLFW_KEY_M) {
 			audioProgram->toggleMute();
+		}
+		
+		if (gameEnded) {
+		gameEnded = false;
+		guiManager->setConnectingScreenVisible(true);
+		guiManager->setGameEndVisible(false);
 		}
 
 	 // Check for a key release.
@@ -705,9 +718,9 @@ void Window::handleUpdate(GameUpdate update) {
 		
 			// If client is monster, set the evo visible.
 			if(playerJobs[client->getId()] == MONSTER) {
-				guiManager->evoBar->setVisible(true);
+				guiManager->evoBar->isMonster = true;
 			} else {
-				guiManager->evoBar->setVisible(false);
+				guiManager->evoBar->isMonster = false;
 			}
 
 			audioProgram->stopAudio(TITLE_MUSIC);
@@ -764,7 +777,11 @@ void Window::handleUpdate(GameUpdate update) {
 			break;
 
 		case GAME_END:
-	
+			resetGame();
+			guiManager->setHUDVisible(false);
+			guiManager->setConnectingScreenVisible(false);
+			guiManager->setSelectScreenVisible(false);
+			guiManager->setGameEndVisible(true);
 			break;
         default:
             printf("Not Handled Update Type: %d\n", update.updateType);
@@ -894,7 +911,7 @@ void Window::updateLastInput() {
 			}
 			audioProgram->playAudioWithoutLooping(SELECT_SOUND);
 		}
-	}
+	} 
 
 	/* ===== THIS #ifndef CODE IS ONLY FOR NON-CONNECTED CLIENTS TO IMPROVE GRAPHICS DEVELOPMENT ==== */
 	#ifndef SERVER_ENABLED
@@ -1005,6 +1022,39 @@ void Window::initializeObjective(int objectiveID, ObjectiveType type, Restrictio
 
 void Window::removeObj(int objectiveID) {
 	if (objectiveMap.find(objectiveID) != objectiveMap.end()) {
+		delete objectiveMap[objectiveID];
 		objectiveMap.erase(objectiveID);
 	}
+}
+
+void Window::resetGame() {
+	// reset comm Client
+	client->cleanup();
+	delete client;
+	client = new CommunicationClient();
+
+	// reset gui/hud
+	guiManager->reset();
+
+	// Reset clientChar pointer
+	clientChar = nullptr;
+
+	// Reset window boolean variables
+	gameStarted = false;
+	doneInitialRender = false;
+
+	// reset objectives map
+	for(std::map<int, ObjElement*>::iterator i = objectiveMap.begin(); i != objectiveMap.end(); i++) {
+		delete objectiveMap[i->first];
+	}
+	objectiveMap.clear();
+
+	// reset the player jobs
+	playerJobs = {UNKNOWN, UNKNOWN, UNKNOWN, MONSTER};
+
+	// reset monster position
+	chars[3] = playerTypeToCharacterMap[MONSTER];
+	chars[3]->moveTo(glm::vec3(SPAWN_POSITIONS[3][0], 1.5f, SPAWN_POSITIONS[3][1]));
+
+	gameEnded = true;
 }

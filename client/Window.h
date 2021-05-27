@@ -2,7 +2,7 @@
 #define _WINDOW_H_
 
 #define KEYBOARD_SIZE 350
-//#define SERVER_ENABLED
+#define SERVER_ENABLED
 #define RENDER_MAP
 #define _USE_MATH_DEFINES
 #define SPATIAL_HASH_SEARCH_DISTANCE 20.0
@@ -85,6 +85,7 @@ public:
 	// Used to determine whether or not camera should be looking at player or select screen
 	static bool gameStarted;
 	static bool doneInitialRender;
+	static bool gameEnded;
 
 	// GUI Manager (HUD)
 	static GUIManager* guiManager;
@@ -130,6 +131,8 @@ public:
 	static void Window::initCharacters();
 	static void Window::initMap();
 	static void Window::initSelectScreenElements();
+
+	static void Window::resetGame();
 
 };
 
