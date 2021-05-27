@@ -35,6 +35,8 @@ enum CLIENT_INPUT{
 
     // Used to tell the server to start the select screen timer
     DONE_RENDERING,
+
+    REVIVE,
 };
 
 // Type of update sent to the server

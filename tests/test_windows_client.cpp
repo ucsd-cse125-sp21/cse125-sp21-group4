@@ -83,6 +83,9 @@ int __cdecl main(int argc, char **argv)
                 case 'k':
                     sendInput = UNIQUE_ATTACK;
                     break;
+                case 'e':
+                    sendInput = REVIVE;
+                    break;
                 case '1':
                     sendInput = CLAIM_FIGHTER;
                     break;

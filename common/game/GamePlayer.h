@@ -75,14 +75,17 @@ public:
     void move (Game* game, Direction direction); 
     virtual void attack (Game* game);
     virtual void uniqueAttack (Game* game);
+    
     void hpDecrement (int damage);
     void hpIncrement (int heal);
     void interactHeal (Game* game, Heal* heal);
     void interactArmor (Game* game, Armor* armor);
     virtual void interact (Game* game);
+    void revive(Game* game);
     bool isWithinObjective(Objective * objective);
     bool canInteractWithObjective(Objective * objective);
     bool isDead ();
+    
     
     bool isEnemy (GamePlayer* otherPlayer);
 

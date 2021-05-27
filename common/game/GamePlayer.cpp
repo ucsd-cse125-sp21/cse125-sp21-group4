@@ -364,6 +364,10 @@ void GamePlayer::interact(Game* game) {
     printf("Overridden Method failed.\n");
 }
 
+void GamePlayer::revive(Game* game) {
+    // will revive a dead player
+}
+
 // Interacts with a Healing Objective
 void GamePlayer::interactHeal(Game* game, Heal * healObj) {
     if(this->hp >= maxHp) {
@@ -469,6 +473,9 @@ void GamePlayer::handleUserInput (Game* game, CLIENT_INPUT userInput) {
             break;
         case INTERACT:
             interact(game);
+            break;
+        case REVIVE:
+            revive(game);
             break;
         default:
             // NO_MOVE and other input does not trigger any action
