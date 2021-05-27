@@ -4,6 +4,7 @@
 #include "../Core.h" // GL required for the NanoGUI.
 #include "HealthBar.h"
 #include "BeaconBar.h"
+#include "EvolutionBar.h"
 #include "MiniMap.h"
 #include "SelectScreen.h"
 #include "ConnectingScreen.h"
@@ -22,6 +23,7 @@ public:
     // HUD Elements
     HealthBar* healthBar;
     BeaconBar* beaconBar;
+    EvolutionBar* evoBar;
     MiniMap* miniMap;
     SelectScreen* selectScreen;
     ConnectingScreen* connectingScreen;

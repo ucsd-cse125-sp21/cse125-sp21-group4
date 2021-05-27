@@ -43,11 +43,13 @@ int main(void)
 
         game->handleInputs(actions.playersInputs);
         game->updateGameEvents();
+
+        bool hasGameEnded = false;
         if (game->started) {
             game->updateProjectiles(); // used to update the exsiting projectiles in the game
             game->updateBeacon(); // used to determine players inside the beacon capture area
             game->checkEvoLevel(); // used to determine monster evolution level
-            game->checkEnd(); // used to determine whether the game has ended
+            hasGameEnded = game->checkEnd(); // used to determine whether the game has ended
         }
 
 
@@ -63,8 +65,14 @@ int main(void)
             end = std::chrono::steady_clock::now();
             duration = end - start;
         }
+
+        // if game has ended, just close the server so graphics client can't do anything.
+        if(hasGameEnded) {
+            break;
+        }
     }
-    
+    commServer->cleanup();
+    delete commServer;
     delete game;
     return 0;
 }

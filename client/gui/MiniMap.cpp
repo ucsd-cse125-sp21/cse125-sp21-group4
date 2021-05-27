@@ -13,6 +13,10 @@ MiniMap::MiniMap(NVGcontext* vg) {
 		pingPositions[i].y = SPAWN_POSITIONS[i][1];
 	}
 	hasTeamCapturedBeacon = false;
+
+	// Background image for the minimap
+    image = nvgCreateImage(vg, "shaders/hud_elements/minimap.png", 0);
+    nvgImageSize(vg, image, &imgWidth, &imgHeight);
 }
 
 void drawPlayerPixel(NVGcontext* vg, float x, float y, float w, float h, NVGcolor color) {
@@ -42,12 +46,18 @@ void MiniMap::draw(float x, float y, float w, float h) {
 	float cornerRadius = 3.0f;
 	nvgSave(vg);
 
-	// Background color for the minimap
-	nvgBeginPath(vg);
-	nvgRoundedRect(vg, x, y, w, h, cornerRadius);
-	nvgFillColor(vg, nvgRGBA(28, 30, 34, 192));
-	nvgFill(vg);
-	nvgClosePath(vg);
+	// // Background color for the minimap
+	// nvgBeginPath(vg);
+	// nvgRoundedRect(vg, x, y, w, h, cornerRadius);
+	// nvgFillColor(vg, nvgRGBA(28, 30, 34, 192));
+	// nvgFill(vg);
+	// nvgClosePath(vg);
+
+    NVGpaint imgPaint =  nvgImagePattern(vg, x, y, w, h, 0.0f/180.0f*NVG_PI, image, 1.f);
+    nvgBeginPath(vg);
+    nvgRoundedRect(vg, x, y, w, h, 5);
+    nvgFillPaint(vg, imgPaint);
+    nvgFill(vg);
 
 	// Draw current player and teammates' positions
 	if (currPlayerType == MONSTER)  {

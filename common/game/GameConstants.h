@@ -1,7 +1,7 @@
 #ifndef _GAMECONSTANT_H_
 #define _GAMECONSTANT_H_
 
-#define MAP_WIDTH 600
+#define MAP_WIDTH 500
 #define MAP_HEIGHT 600
 #define GRID_WIDTH 1 // GRID_WIDTH should be able to fully divide MAP_WIDTH
 #define GRID_HEIGHT 1 // GRID_HEIGHT should be able to fully divide MAP_HEIGHT
@@ -120,7 +120,7 @@
 #define MONSTER_FIFTH_STAGE_THRESHOLD 5.f
 
 // Increase Monster Evo every tick by this amount
-#define MONSTER_EVO_TICK_INCREMENT 0.0001f
+#define MONSTER_EVO_TICK_INCREMENT 0.0005f
 
 #define EVO_AMOUNT 1.5f
 

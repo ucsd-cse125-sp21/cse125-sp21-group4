@@ -25,6 +25,7 @@ GUIManager::GUIManager(int width, int height, int fbWidth, int fbHeight) {
 
 	healthBar = new HealthBar(vg);
 	beaconBar = new BeaconBar(vg);
+	evoBar = new EvolutionBar(vg);
 	miniMap = new MiniMap(vg);
 	selectScreen = new SelectScreen(vg);
 	connectingScreen = new ConnectingScreen(vg);
@@ -33,9 +34,10 @@ GUIManager::GUIManager(int width, int height, int fbWidth, int fbHeight) {
 void GUIManager::draw() {
 	nvgBeginFrame(vg, this->windowWidth, this->windowHeight, this->pixelRatio);
 	// starter code window: this->drawWindow("Test", 50, 50, this->windowWidth / 4, this->windowHeight / 4);
-	healthBar->draw(30, 14 * this->windowHeight / 16, this->windowWidth / 2.5, this->windowHeight / 16);
-	beaconBar->draw(30, this->windowHeight / 16, this->windowWidth - 60, this->windowHeight / 64);
-	miniMap->draw(this->windowWidth - (MAP_WIDTH / 3), this->windowHeight - (MAP_HEIGHT / 3), (MAP_WIDTH / 3), (MAP_HEIGHT / 3));
+	healthBar->draw(30, 14.5 * this->windowHeight / 16, this->windowWidth / 2.5, this->windowHeight / 16);
+	beaconBar->draw(this->windowWidth / 2 - (this->windowWidth / 2.5) / 2, this->windowHeight / 16, this->windowWidth / 2.5, this->windowHeight / 16);
+	evoBar->draw(30, 13.5 * this->windowHeight / 16, this->windowWidth / 2.5, this->windowHeight / 16);
+	miniMap->draw(this->windowWidth - (MAP_WIDTH / 2), this->windowHeight - (MAP_HEIGHT / 2), (MAP_WIDTH / 2), (MAP_HEIGHT / 2));
 	selectScreen->draw(this->windowWidth, this->windowHeight);
 	connectingScreen->draw(this->windowWidth, this->windowHeight);
 

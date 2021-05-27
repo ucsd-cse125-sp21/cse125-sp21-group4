@@ -156,6 +156,9 @@
     <ClCompile Include="audio\include\soloud_null.cpp">
       <Filter>Header Files\soloud</Filter>
     </ClCompile>
+    <ClCompile Include="gui\EvolutionBar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Character.h">
@@ -361,6 +364,9 @@
     </ClInclude>
     <ClInclude Include="audio\include\stb_vorbis.h">
       <Filter>Header Files\soloud</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\EvolutionBar.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -6,9 +6,18 @@
 #include "../../common/game/GameConstants.h"
 #include <string>
 
+#define BEACON_BAR_ALPHA 222.f
+
 class BeaconBar {
 
+private:
+    const NVGcolor monsterBeaconColor = nvgRGBA(243, 30, 243, BEACON_BAR_ALPHA);
+    const NVGcolor hunterBeaconColor = nvgRGBA(30, 243, 30, BEACON_BAR_ALPHA);
+    const NVGcolor monsterTeamColor = nvgRGBA(243, 30, 243, 255 - BEACON_BAR_ALPHA);
+    const NVGcolor hunterTeamColor = nvgRGBA(30, 243, 30, 255 - BEACON_BAR_ALPHA);
+
 public:
+    int image,  imgWidth, imgHeight;
     float captureAmount;
     NVGcontext* vg;
     bool isVisible;

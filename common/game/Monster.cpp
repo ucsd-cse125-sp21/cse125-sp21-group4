@@ -138,14 +138,18 @@ void Monster::updateEvo(Game* game, float evoLevel) {
     
     // For now update the attack damage of the monster, maybe speed another time?
     if (evoLevel >= MONSTER_FIFTH_STAGE_THRESHOLD) {
-        setAttackDamage(MONSTER_ATTACK_DAMAGE + 4);
+        setAttackDamage(MONSTER_ATTACK_DAMAGE + 5);
     } else if (evoLevel >= MONSTER_FOURTH_STAGE_THRESHOLD) {
-        setAttackDamage(MONSTER_ATTACK_DAMAGE + 3);
+        setAttackDamage(MONSTER_ATTACK_DAMAGE + 4);
     } else if (evoLevel >= MONSTER_THIRD_STAGE_THRESHOLD) {
-        setAttackDamage(MONSTER_ATTACK_DAMAGE + 2);
+        setAttackDamage(MONSTER_ATTACK_DAMAGE + 3);
     } else if (evoLevel >= MONSTER_SECOND_STAGE_THRESHOLD) {
-        setAttackDamage(MONSTER_ATTACK_DAMAGE + 1);
+        setAttackDamage(MONSTER_ATTACK_DAMAGE + 2);
     } else if (evoLevel >= MONSTER_FIRST_STAGE_THRESHOLD) {
+        setAttackDamage(MONSTER_ATTACK_DAMAGE + 1);
+    
+    // Invalid levels should not update the evo variable and return
+    } else if (evoLevel >= 0.f) {
         setAttackDamage(MONSTER_ATTACK_DAMAGE);
     
     // Invalid levels should not update the evo variable and return

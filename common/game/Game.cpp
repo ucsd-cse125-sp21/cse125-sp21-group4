@@ -790,7 +790,7 @@ void Game::updateBeacon() {
     Return 2 if monster wins.
     Return 3 if there is a tie.
 */
-void Game::checkEnd() {
+bool Game::checkEnd() {
     int deadHunterNum = 0;
     int deadMonsterNum = 0;
 
@@ -809,12 +809,13 @@ void Game::checkEnd() {
     else if (deadHunterNum == PLAYER_NUM - 1)
         endStatus = 2;
     // otherwise, game continues
-    if (endStatus == 0) return;
+    if (endStatus == 0) return false;
 
     GameUpdate gameEndUpdate;
     gameEndUpdate.updateType = GAME_END;
     gameEndUpdate.endStatus = endStatus;
     addUpdate(gameEndUpdate);
+    return true;
 }
 
 /* Process a single event */

@@ -98,8 +98,8 @@ bool Window::initializeObjects()
 	//  ==========  Environment Initialization  ========== 
 	//NOTE: envs now only contain environment objects that are globally viewable. All other objects that require
 	//proximity rendering should be inserted into "table"
-	envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram,
-		glm::vec3(0.f, -1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
+	// envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram,
+	// 	glm::vec3(0.f, -1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
 
 
 	//for now tileScale should be tileSize / 2.0
@@ -136,11 +136,12 @@ bool Window::initializeObjects()
 }
 
 void Window::initMap() {
-		ifstream map_file("../assets/layout/map_client.csv");
+	ifstream map_file("../assets/layout/map_client.csv");
     string line;
     string id;
 
     while(getline(map_file, line)) {
+		printf("Working\n");
         istringstream ss(line);
         string field;
 
@@ -187,7 +188,7 @@ void Window::initMap() {
 		} else if (strcmp(objName.c_str(), "tree_live") == 0) {
 			objX += width / 2;
 			objY += height / 2;
-			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, shaderProgram,
+			EnvElement* e = new EnvElement("shaders/environment/NEWlowpolypine.obj", &projection, &view, shaderProgram,
 				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.f, 1.f, 0.f));
 			table.insert(e);
 
@@ -338,7 +339,9 @@ GLFWwindow* Window::createWindow(int width, int height)
 	guiManager->setConnectingScreenVisible(false);
 	guiManager->setHUDVisible(true);
 	guiManager->beaconBar->setAmount(18.f);
-	guiManager->setSelectScreenVisible(true);
+	guiManager->setSelectScreenVisible(false);
+	guiManager->evoBar->setVisible(true);
+	guiManager->evoBar->setEvo(2.65f);
 #endif
 
 	audioProgram->playAudioWithLooping(TITLE_MUSIC);
@@ -699,6 +702,14 @@ void Window::handleUpdate(GameUpdate update) {
 			Window::gameStarted = true;
 			guiManager->setSelectScreenVisible(false); // disable the selects creen
 			guiManager->setHUDVisible(true); // sets the hud visible
+		
+			// If client is monster, set the evo visible.
+			if(playerJobs[client->getId()] == MONSTER) {
+				guiManager->evoBar->setVisible(true);
+			} else {
+				guiManager->evoBar->setVisible(false);
+			}
+
 			audioProgram->stopAudio(TITLE_MUSIC);
 			break;
 		case ROLE_CLAIMED:
@@ -747,6 +758,14 @@ void Window::handleUpdate(GameUpdate update) {
             // The level up process done in another update.
             removeObj(update.objectiveID);
             break;
+
+		case MONSTER_EVO_UP:
+			guiManager->evoBar->setEvo(update.newEvoLevel);
+			break;
+
+		case GAME_END:
+	
+			break;
         default:
             printf("Not Handled Update Type: %d\n", update.updateType);
             break;

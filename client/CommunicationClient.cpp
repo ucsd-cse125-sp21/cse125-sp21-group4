@@ -150,7 +150,7 @@ void CommunicationClient::validateRecv(int iResult) {
         printf("Connection closed\n");
         closesocket(serverSocket);
         WSACleanup();
-        exit(1);
+        // exit(1);
     }
 
     // Errors with recv
@@ -163,7 +163,7 @@ void CommunicationClient::validateRecv(int iResult) {
             printf("error with recv(): %d\n", WSAGetLastError());
             closesocket(serverSocket);
             WSACleanup();
-            exit(1);
+            // exit(1);
         }
     }
 

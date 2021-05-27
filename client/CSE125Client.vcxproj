@@ -146,6 +146,7 @@
     <ClCompile Include="Ground.cpp" />
     <ClCompile Include="GroundTile.cpp" />
     <ClCompile Include="gui\BeaconBar.cpp" />
+    <ClCompile Include="gui\EvolutionBar.cpp" />
     <ClCompile Include="gui\GUIManager.cpp" />
     <ClCompile Include="gui\HealthBar.cpp" />
     <ClCompile Include="gui\MiniMap.cpp" />
@@ -210,6 +211,7 @@
     <ClInclude Include="Ground.h" />
     <ClInclude Include="GroundTile.h" />
     <ClInclude Include="gui\BeaconBar.h" />
+    <ClInclude Include="gui\EvolutionBar.h" />
     <ClInclude Include="gui\GUIManager.h" />
     <ClInclude Include="gui\HealthBar.h" />
     <ClInclude Include="gui\MiniMap.h" />
