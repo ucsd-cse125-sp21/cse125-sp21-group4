@@ -13,11 +13,22 @@
 */
 
 ProjectileElement::ProjectileElement(string fileName, glm::mat4* p, glm::mat4* v, GLuint s, glm::vec3* vPos,
-	glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale, glm::vec3 c, char* textFile) {
+	glm::vec3 trans, float scale, glm::vec3 c, char* textFile, float deltaX, float deltaY) {
 
 	// initial translation will bthe initial position
 	pos = trans;
+	// model = glm::rotate(glm::translate(trans), rotRad, rotAxis);
+	glm::vec3 rotAxis = glm::vec3(0.f, 0.f, 1.f);
+	float rotRad = glm::radians(-90.f) - glm::atan(deltaY, deltaX);
 	model = glm::rotate(glm::translate(trans), rotRad, rotAxis);
+    if (abs(glm::atan(deltaY / deltaX)) > glm::radians(5.f)) {
+        float rotRad2 = -glm::atan(deltaY /  deltaX);
+        if(deltaX > 0) {
+            rotRad2 = -rotRad2;
+        }
+        glm::vec3 rotAxis2 = glm::vec3(1.f, 0.f, 0.f);
+        model = glm::rotate(model, rotRad2, rotAxis2);
+    }
 	// * glm::scale(glm::vec3(scale));
 	projection = p;
 	view = v;
@@ -236,9 +247,7 @@ void ProjectileElement::moveToGivenPos(float x, float y) {
 	moveTo(newPos);
 }
 
-void ProjectileElement::updateView(glm::mat4 proj, glm::vec3) {
-
-}
+void ProjectileElement::updateView(glm::mat4 proj, glm::vec3) {}
 
 bool ProjectileElement::loadTexture(char* texturePath) {
 	// const char* texturePath = path.c_str();

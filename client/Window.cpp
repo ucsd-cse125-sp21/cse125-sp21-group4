@@ -657,8 +657,6 @@ void Window::handleUpdate(GameUpdate update) {
 		{
 			
 			glm::vec3 trans = glm::vec3(update.playerPos.x, 1.f, update.playerPos.y);
-			glm::vec3 rotAxis = glm::vec3(1.f, 0.f, 0.f);
-			float rotRad = glm::radians(0.f);
 			float scale = 1.f;
 			glm::vec3 color = glm::vec3(1.f, .5f, .5f);
 			string textFile;
@@ -671,15 +669,8 @@ void Window::handleUpdate(GameUpdate update) {
 			if (update.projectileType == MONSTER_RANGED) textFile ="shaders/projectile/earthchunk_up.png";
 
 
-			// don't  know how to rotate
-			// rotRad = glm::radians(-90.f);
-			// glm::vec3 targetVec = eyePos - trans;
-			// rotRad = - glm::atan(targetVec.y, targetVec.z);
-			
-
-
 			ProjectileElement* pEle = new ProjectileElement("shaders/character/billboard.obj", &projection, &view, texShader, &eyePos,
-															trans, rotAxis, rotRad, scale, color, (char*) textFile.c_str());
+															trans, scale, color, (char*) textFile.c_str(), update.floatDeltaX, update.floatDeltaY);
 			projectiles[update.id] = pEle;
 
             break;
