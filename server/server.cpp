@@ -27,17 +27,17 @@ int main(void)
         auto start = std::chrono::steady_clock::now();
 
         // 1. Receive client input
-        std::vector<std::pair<int,CLIENT_INPUT>> inputs;
+        std::vector<std::pair<int,GAME_INPUT>> inputs;
         commServer->getClientInputs(inputs);
         
 
         // 2. Update the game state
         GameActions actions;
         // populate the player inputs with NO_MOVE
-        for (auto i = 0; i < PLAYER_NUM; i++) actions.playersInputs[i] = NO_MOVE;
+        for (auto i = 0; i < PLAYER_NUM; i++) actions.playersInputs[i].input = NO_MOVE;
         // fill in the movement for corresponding player
         for (auto iter = inputs.begin(); iter < inputs.end(); iter++) {
-            std::pair<int, CLIENT_INPUT> input = *iter;
+            std::pair<int, GAME_INPUT> input = *iter;
             actions.playersInputs[input.first] = input.second; 
         }
 

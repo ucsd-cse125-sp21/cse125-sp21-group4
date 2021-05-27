@@ -8,11 +8,11 @@ class Projectile {
 public:
     ProjectilePosition origin;
     ProjectilePosition currentPosition;
+    float deltaX; // the distance this proj will move each server tick
+    float deltaY; // the distance this proj will move each server tick
     float maxDistance;
     int ownerID;
     ProjectileType type;
-    float speed; // traveling distance per server tick
-    Direction direction; // the direction it flies to
     float damage;
 };
 

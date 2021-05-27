@@ -20,8 +20,8 @@ enum CLIENT_INPUT{
     MOVE_LEFT,
     MOVE_RIGHT,
     NO_MOVE,
-    ATTACK, // general attack for now
-    UNIQUE_ATTACK, // mage fireball and cleric healing aura
+    LEFT_MOUSE_ATTACK,
+    RIGHT_MOUSE_ATTACK,
     // MONSTER_SPIT_RANGED_ATTACK,
     // MONSTER_MELEE_ATTACK,
     // HUNTER_SWORD_ATTACK,
@@ -35,6 +35,11 @@ enum CLIENT_INPUT{
 
     // Used to tell the server to start the select screen timer
     DONE_RENDERING,
+};
+
+struct GAME_INPUT {
+    CLIENT_INPUT input = NO_MOVE; 
+    float angle = 0; // the angle of projectile
 };
 
 // Type of update sent to the server
@@ -78,11 +83,10 @@ struct GameUpdate {
     int healAmount = 0; // Used for a healing event
     int endStatus = 0;
     GridPosition gridPos = {0,0}; // Used for objectives and obstacles
-    PlayerPosition playerPos = {0.f, 0.f}; // Used for player positions
+    PlayerPosition playerPos = {0.f, 0.f}; // Used for player positions or projectile position
     float newEvoLevel = -1.f; // Used for monster stage tracking
-    float floatDeltaX = 0; // used for player/projectile movement
-    float floatDeltaY = 0; // used for player/projectile movement
-    Direction player_direc;
+    float floatDeltaX = 0; // used for player movement or projectile movement
+    float floatDeltaY = 0; // used for player movement or projectile movement
     float beaconCaptureAmount = -9999;
     PlayerType roleClaimed = UNKNOWN;
     ProjectileType projectileType = UNKNOW_PROJECTILE; // projectile type

@@ -328,7 +328,7 @@ void GamePlayer::move (Game* game, Direction direction) {
     gameUpdate.updateType = PLAYER_MOVE;
     gameUpdate.floatDeltaX = destPosition.x - position.x;
     gameUpdate.floatDeltaY = destPosition.y - position.y;
-    gameUpdate.player_direc = getFaceDirection();
+    gameUpdate.direction = getFaceDirection();
     game->addUpdate(gameUpdate);
 
     // Move there!
@@ -350,11 +350,11 @@ bool GamePlayer::isDead () {
 
 
 
-void GamePlayer::attack(Game* game) {
+void GamePlayer::attack(Game* game, float angle) {
     printf("Overwriten failed\n");
 }
 
-void GamePlayer::uniqueAttack(Game* game) {
+void GamePlayer::uniqueAttack(Game* game, float angle) {
     // printf("Default second attack\n");
 }
 
@@ -442,12 +442,20 @@ bool GamePlayer::canInteractWithObjective(Objective * objective) {
     
 }
 
+bool allowLeftMouseShooting(PlayerType type) {
+    return type == MAGE || type == CLERIC || type == ROGUE;
+}
 
-void GamePlayer::handleUserInput (Game* game, CLIENT_INPUT userInput) {
+bool allowRightMouseShooting(PlayerType type) {
+    return type == MAGE || type == ROGUE;
+}
+
+
+void GamePlayer::handleUserInput (Game* game, GAME_INPUT userInput) {
     // if player is dead, stop handling input
     if (isDead()) return;
 
-    switch (userInput) {
+    switch (userInput.input) {
         // Eric TODO: add gameupdates
         case MOVE_FORWARD:
             move(game, NORTH);
@@ -461,14 +469,15 @@ void GamePlayer::handleUserInput (Game* game, CLIENT_INPUT userInput) {
         case MOVE_RIGHT:
             move(game, EAST);
             break;
-        case ATTACK:
-            attack(game);
-            break;
-        case UNIQUE_ATTACK:
-            uniqueAttack(game);
-            break;
         case INTERACT:
             interact(game);
+            break;
+        case LEFT_MOUSE_ATTACK:
+            printf("initiating left mouse attack\n");
+            attack(game, userInput.angle);
+            break;
+        case RIGHT_MOUSE_ATTACK:
+            uniqueAttack(game, userInput.angle);
             break;
         default:
             // NO_MOVE and other input does not trigger any action

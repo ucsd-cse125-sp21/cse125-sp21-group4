@@ -9,6 +9,7 @@ CommunicationClient* Window::client;
 //based on later performance.
 SpatialHashTable Window::table(5000, SPATIAL_HASH_SEARCH_DISTANCE);
 bool Window::keyboard[KEYBOARD_SIZE];
+bool Window::mouse[MOUSE_SIZE];
 bool Window::gameStarted;
 bool Window::doneInitialRender;
 
@@ -46,6 +47,7 @@ glm::mat4 Window::view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window
 
 // last input from the window
 CLIENT_INPUT Window::lastInput = NO_MOVE;
+float Window::lastAngle = 0;
 
 // GUI manager
 GUIManager* Window::guiManager;
@@ -381,7 +383,10 @@ void Window::idleCallback()
 #ifdef SERVER_ENABLED
 	if(client->isConnected()) {
 		// 1 + 2. Get the latest input and send it to the server
-		client->sendInput(Window::lastInput);
+		GAME_INPUT input;
+		input.input = Window::lastInput;
+		input.angle = Window::lastAngle;
+		client->sendInput(input);
 
 		// 3. Receive updated gamestate from server
 		std::vector<GameUpdate> updates = client->receiveGameUpdates();
@@ -473,7 +478,12 @@ void Window::displayCallback(GLFWwindow* window)
 	if(client->isConnected() && !guiManager->selectScreen->isVisible && !gameStarted) {
 	#ifdef SERVER_ENABLED
 		// send update that we've finished rendering to the server
-		lastInput = DONE_RENDERING;
+		GAME_INPUT gameInput;
+		gameInput.input = DONE_RENDERING;
+		printf("sending done_rendering signal to server\n");
+		client->sendInput(gameInput);
+		printf("done_rendering signal sent\n");
+		Sleep(TICK_TIME);
 	#endif
 		doneInitialRender = true;
 	}
@@ -500,14 +510,11 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	}
 }
 
+
 void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods)
 {
-	if (button == GLFW_MOUSE_BUTTON_LEFT) {
-
-	}
-	if (button == GLFW_MOUSE_BUTTON_RIGHT) {
-
-	}
+	if (button == GLFW_MOUSE_BUTTON_LEFT) mouse[MOUSE_LEFT_INDEX] = (action == GLFW_PRESS);
+	if (button == GLFW_MOUSE_BUTTON_RIGHT)  mouse[MOUSE_RIGHT_INDEX] = (action == GLFW_PRESS);
 }
 
 void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
@@ -518,6 +525,14 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 
 	MouseX = (int)currX;
 	MouseY = (int)currY;
+
+	float dx2 = width / 2 - MouseX;
+	float dy2 = MouseY - height / 2;
+	float dx1 = 0;
+	float dy1 = 1;
+	float dot = dx1*dx2 + dy1*dy2;      // dot product
+	float det = dx1*dy2 - dy1*dx2;      // determinant
+	lastAngle = atan2(det, dot) - M_PI / 2;  // atan2(y, x) or atan2(sin, cos)
 
 	if (LeftDown) {
 		return;
@@ -618,7 +633,7 @@ void Window::handleUpdate(GameUpdate update) {
         case PLAYER_MOVE:
 		{
 			chars[update.id]->setState(moving);
-			switch(update.player_direc) {
+			switch(update.direction) {
 				case NORTH:
 					chars[update.id]->setDirection(NORTH);
 					break;
@@ -642,45 +657,20 @@ void Window::handleUpdate(GameUpdate update) {
 		{
 			
 			glm::vec3 trans = glm::vec3(update.playerPos.x, 1.f, update.playerPos.y);
-			glm::vec3 rotAxis = glm::vec3(1.f, 0.f, 0.f);
-			float rotRad = glm::radians(0.f);
 			float scale = 1.f;
 			glm::vec3 color = glm::vec3(1.f, .5f, .5f);
 			string textFile;
 
 			// select projectile texture
-			if (update.projectileType == MAGE_FIREBALL) textFile ="shaders/projectile/fireball";
-			if (update.projectileType == MAGE_SHOOT) textFile ="shaders/projectile/fireball";
-			if (update.projectileType == ROGUE_ARROW) textFile ="shaders/projectile/arrow";
-			if (update.projectileType == CLERIC_SHOOT) textFile ="shaders/projectile/lightball";
-			if (update.projectileType == MONSTER_RANGED) textFile ="shaders/projectile/earthchunk";
-
-			// select projectile direction
-			if (update.direction == NORTH) {
-				textFile += "_up.png";
-				rotRad = glm::radians(-90.f);
-			}
-			if (update.direction == SOUTH) {
-				textFile += "_down.png";
-				rotRad = glm::radians(-90.f);
-			}
-			if (update.direction == WEST) {
-				textFile += "_left.png";
-
-				glm::vec3 targetVec = eyePos - trans;
-				rotRad = - glm::atan(targetVec.y, targetVec.z);
-			}
-			if (update.direction == EAST) {
-				textFile += "_right.png";
-
-				glm::vec3 targetVec = eyePos - trans;
-				rotRad = - glm::atan(targetVec.y, targetVec.z);
-			} 
-			
+			if (update.projectileType == MAGE_FIREBALL) textFile ="shaders/projectile/fireball_up.png";
+			if (update.projectileType == MAGE_SHOOT) textFile ="shaders/projectile/firearrow_up.png";
+			if (update.projectileType == ROGUE_ARROW) textFile ="shaders/projectile/arrow_up.png";
+			if (update.projectileType == CLERIC_SHOOT) textFile ="shaders/projectile/lightball_up.png";
+			if (update.projectileType == MONSTER_RANGED) textFile ="shaders/projectile/earthchunk_up.png";
 
 
 			ProjectileElement* pEle = new ProjectileElement("shaders/character/billboard.obj", &projection, &view, texShader, &eyePos,
-															trans, rotAxis, rotRad, scale, color, (char*) textFile.c_str());
+															trans, scale, color, (char*) textFile.c_str(), update.floatDeltaX, update.floatDeltaY);
 			projectiles[update.id] = pEle;
 
             break;
@@ -790,14 +780,6 @@ void Window::updateLastInput() {
 		lastInput = INTERACT;
 
 	// J key
-	} else if (keyboard[GLFW_KEY_J]) {
-		lastInput = ATTACK;
-
-	// K key
-	} else if (keyboard[GLFW_KEY_K]) {
-		lastInput = UNIQUE_ATTACK;
-
-	// W key
 	} else if (keyboard[GLFW_KEY_W]) {
 		lastInput = MOVE_FORWARD;
 
@@ -869,6 +851,11 @@ void Window::updateLastInput() {
 			}
 			audioProgram->playAudioWithoutLooping(SELECT_SOUND);
 		}
+	} else if (mouse[MOUSE_LEFT_INDEX]) {
+		lastInput = LEFT_MOUSE_ATTACK;
+
+	} else if (mouse[MOUSE_RIGHT_INDEX]) {
+		lastInput = RIGHT_MOUSE_ATTACK;
 	}
 
 	/* ===== THIS #ifndef CODE IS ONLY FOR NON-CONNECTED CLIENTS TO IMPROVE GRAPHICS DEVELOPMENT ==== */
