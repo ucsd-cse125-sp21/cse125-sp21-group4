@@ -70,9 +70,6 @@ bool Window::initializeProgram() {
 		return false;
 	}
 
-	// CommunicationClient no longer blocks on constructor. It will block on connectTo().
-	client = new CommunicationClient();
-
 	// Setup the keyboard.
 	for(int i = 0; i < KEYBOARD_SIZE; i++) {
 		keyboard[i] = false;
@@ -93,7 +90,6 @@ rotation axis, rotation in radian, scale factor in float, model color)
 */
 bool Window::initializeObjects()
 {
-
 	//  ==========  Select Screen  ========== 
 	initSelectScreenElements();
 
@@ -136,6 +132,8 @@ bool Window::initializeObjects()
 	initCharacters();
 
 	//  ==========  End of Character Initialization ========== 
+
+	guiManager->setSplashLoaded(true);
 	return true;
 }
 
@@ -145,7 +143,6 @@ void Window::initMap() {
     string id;
 
     while(getline(map_file, line)) {
-		printf("Working\n");
         istringstream ss(line);
         string field;
 
@@ -332,11 +329,23 @@ GLFWwindow* Window::createWindow(int width, int height)
 	int fbWidth, fbHeight;
 	glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
 	Window::guiManager = new GUIManager(width, height, fbWidth, fbHeight);
-	guiManager->setConnectingScreenVisible(true);
+
+	// CommunicationClient no longer blocks on constructor. It will block on connectTo().
+	client = new CommunicationClient();
 
 	// setup audio program
 	audioProgram = new AudioProgram();
 	audioProgram->setMusicVolume(0.55);
+
+
+	// Display once to show splash screen, then we can deal with connecting window.
+	audioProgram->playAudioWithLooping(TITLE_MUSIC);
+	guiManager->setSplashScreenVisible(true);
+	Window::displayCallback(window);
+	guiManager->setConnectingScreenVisible(true);
+
+	// Set swap interval to 1 if you want buffer 
+	glfwSwapInterval(0);
 
 	/* ===== THIS #ifndef CODE IS ONLY FOR NON-CONNECTED CLIENTS TO IMPROVE GRAPHICS DEVELOPMENT ==== */
 #ifndef SERVER_ENABLED // Client-only (no server)	
@@ -346,15 +355,11 @@ GLFWwindow* Window::createWindow(int width, int height)
 	guiManager->setSelectScreenVisible(false);
 	guiManager->evoBar->setVisible(true);
 	guiManager->evoBar->setEvo(2.65f);
-	guiManager->setGameEndVisible(true);
+	guiManager->setGameEndVisible(false);
+	guiManager->setSplashScreenVisible(false);
 #endif
 
-	audioProgram->playAudioWithLooping(TITLE_MUSIC);
 	/* ===== end of #ifndef (no-server client) code ==== */
-
-	// Set swap interval to 1 if you want buffer 
-	glfwSwapInterval(0);
-
 	Window::resizeCallback(window, width, height);
 
 	return window;
@@ -520,9 +525,13 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		}
 		
 		if (gameEnded) {
-		gameEnded = false;
-		guiManager->setConnectingScreenVisible(true);
-		guiManager->setGameEndVisible(false);
+			gameEnded = false;
+			guiManager->setConnectingScreenVisible(true);
+			guiManager->setSplashScreenVisible(true);
+			guiManager->setGameEndVisible(false);
+
+			audioProgram->stopAllAudio();
+			audioProgram->playAudioWithLooping(TITLE_MUSIC);
 		}
 
 	 // Check for a key release.
@@ -737,6 +746,7 @@ void Window::handleUpdate(GameUpdate update) {
 			guiManager->setSelectScreenVisible(true);
 			guiManager->selectScreen->startTimer(update.selectTimerStartTime);
 			guiManager->setConnectingScreenVisible(false);
+			guiManager->setSplashScreenVisible(false);
 			break;
 
 		// Objective spawned
@@ -766,7 +776,7 @@ void Window::handleUpdate(GameUpdate update) {
 			break;
 
 		case GAME_END:
-			resetGame();
+			endGame();
 			guiManager->setHUDVisible(false);
 			guiManager->setConnectingScreenVisible(false);
 			guiManager->setSelectScreenVisible(false);
@@ -1013,7 +1023,7 @@ void Window::removeObj(int objectiveID) {
 	}
 }
 
-void Window::resetGame() {
+void Window::endGame() {
 	// reset comm Client
 	client->cleanup();
 	delete client;
@@ -1051,9 +1061,6 @@ void Window::resetGame() {
 	// reset monster position
 	chars[3] = playerTypeToCharacterMap[MONSTER];
 	chars[3]->moveTo(glm::vec3(SPAWN_POSITIONS[3][0], 1.5f, SPAWN_POSITIONS[3][1]));
-
-	audioProgram->stopAllAudio();
-	audioProgram->playAudioWithLooping(TITLE_MUSIC);
 
 	gameEnded = true;
 }

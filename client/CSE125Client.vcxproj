@@ -153,6 +153,7 @@
     <ClCompile Include="gui\MiniMap.cpp" />
     <ClCompile Include="gui\SelectScreen.cpp" />
     <ClCompile Include="gui\ConnectingScreen.cpp" />
+    <ClCompile Include="gui\SplashScreen.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="nanovg\nanovg.c" />
     <ClCompile Include="ObjElement.cpp" />
@@ -219,6 +220,7 @@
     <ClInclude Include="gui\MiniMap.h" />
     <ClInclude Include="gui\SelectScreen.h" />
     <ClInclude Include="gui\ConnectingScreen.h" />
+    <ClInclude Include="gui\SplashScreen.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="nanovg\fontstash.h" />
     <ClInclude Include="nanovg\nanovg.h" />

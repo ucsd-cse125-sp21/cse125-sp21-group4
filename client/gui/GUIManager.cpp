@@ -30,6 +30,7 @@ GUIManager::GUIManager(int width, int height, int fbWidth, int fbHeight) {
 	selectScreen = new SelectScreen(vg);
 	connectingScreen = new ConnectingScreen(vg);
 	endScreen = new EndScreen(vg);
+	splashScreen = new SplashScreen(vg);
 }
 
 void GUIManager::draw() {
@@ -40,6 +41,7 @@ void GUIManager::draw() {
 	evoBar->draw(30, 13.5 * this->windowHeight / 16, this->windowWidth / 2.5, this->windowHeight / 16);
 	miniMap->draw(this->windowWidth - (MAP_WIDTH / 2), this->windowHeight - (MAP_HEIGHT / 2), (MAP_WIDTH / 2), (MAP_HEIGHT / 2));
 	selectScreen->draw(this->windowWidth, this->windowHeight);
+	splashScreen->draw(this->windowWidth, this->windowHeight);
 	connectingScreen->draw(this->windowWidth, this->windowHeight);
 	endScreen->draw(this->windowWidth, this->windowHeight);
 
@@ -73,6 +75,10 @@ void GUIManager::setConnectingScreenVisible(bool visibility) {
 
 void GUIManager::setGameEndVisible(bool visibility) {
 	endScreen->setVisible(visibility);
+}
+
+void GUIManager::setSplashScreenVisible(bool visibility) {
+	splashScreen->setVisible(visibility);
 }
 
 
@@ -171,4 +177,8 @@ void GUIManager::reset() {
 	selectScreen->reset();
 	// connectingScreen
 	connectingScreen->init();
+}
+
+void GUIManager::setSplashLoaded(bool loaded) {
+	splashScreen->setSplashLoaded(loaded);
 }
