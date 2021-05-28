@@ -98,6 +98,10 @@ void AudioProgram::stopAudio(Sound sound) {
     }
 }
 
+void AudioProgram::stopAllAudio() {
+    soLoudEngine.stopAll();
+}
+
 // sets volume on the specific effect/music
 void AudioProgram::setSpecificVolume(Sound sound, float volume) {
     if(musicMap.find(sound) != musicMap.end()) {

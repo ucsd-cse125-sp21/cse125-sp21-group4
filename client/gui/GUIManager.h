@@ -33,6 +33,7 @@ public:
     GUIManager(int width, int height, int fbWidth, int fbHeight);
     void resizeWindow(int width, int height, int fbWidth, int fbHeight);
     void drawWindow(const char* title, float x, float y, float w, float h);
+    void drawCenterText(std::string, int, int);
     void draw();
     void setHUDVisible(bool visibility);
     void setSelectScreenVisible(bool visibility);

@@ -250,11 +250,11 @@ void Window::initCharacters() {
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MAGE"));
 	
 	// Load animations
-	playerTypeToCharacterMap[FIGHTER]->loadAnimationAssets("shaders/character/FIGHTER");
-	playerTypeToCharacterMap[MAGE]->loadAnimationAssets("shaders/character/MAGE");
-	playerTypeToCharacterMap[CLERIC]->loadAnimationAssets("shaders/character/CLERIC");
-	playerTypeToCharacterMap[ROGUE]->loadAnimationAssets("shaders/character/ROGUE");
-	playerTypeToCharacterMap[MONSTER]->loadAnimationAssets("shaders/character/MAGE");
+	// playerTypeToCharacterMap[FIGHTER]->loadAnimationAssets("shaders/character/FIGHTER");
+	// playerTypeToCharacterMap[MAGE]->loadAnimationAssets("shaders/character/MAGE");
+	// playerTypeToCharacterMap[CLERIC]->loadAnimationAssets("shaders/character/CLERIC");
+	// playerTypeToCharacterMap[ROGUE]->loadAnimationAssets("shaders/character/ROGUE");
+	// playerTypeToCharacterMap[MONSTER]->loadAnimationAssets("shaders/character/MAGE");
 
 
 	// Set the last character's vector to the monster character object
@@ -474,9 +474,8 @@ void Window::displayCallback(GLFWwindow* window)
 	// Draws all the objectives in the objective map
 	for (auto const& x: objectiveMap) {
 		x.second->draw();
-		if(glm::distance(x.second->pos, clientChar->pos)) {
-			// nvg draw text to interact with
-			// guiManager->drawText("Press E to interact.");
+		if(clientChar != nullptr) {
+			checkNearObjectiveText(x.second);
 		}
 	}
 
@@ -959,7 +958,7 @@ void Window::initializeObjective(int objectiveID, ObjectiveType type, Restrictio
 		case EVO:{
 			
 			ObjElement* e = new ObjElement("shaders/character/billboard.obj", &projection, &view, texShader,
-				glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f), false, "shaders/objectives/evolution_pickup.png");
+				glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f), false, "shaders/objectives/evolution_pickup.png", EVO, R_MONSTER);
 			objectiveMap[objectiveID] = e;
 			break;
 
@@ -968,13 +967,13 @@ void Window::initializeObjective(int objectiveID, ObjectiveType type, Restrictio
 			switch(restriction) {
 				case R_HUNTER: {
 					ObjElement* e = new ObjElement("shaders/character/billboard.obj", &projection, &view, texShader,
-						glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f), false, "shaders/objectives/health_pickup.png");
+						glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f), false, "shaders/objectives/health_pickup.png", HEAL, R_HUNTER);
 					objectiveMap[objectiveID] = e;
 					break;
 				}
 				case R_MONSTER: {
 					ObjElement* e = new ObjElement("shaders/character/billboard.obj", &projection, &view, texShader,
-						glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f), true, "shaders/objectives/health_pickup.png");
+						glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f), true, "shaders/objectives/health_pickup.png", HEAL, R_MONSTER);
 					objectiveMap[objectiveID] = e;
 					break;
 				}
@@ -985,14 +984,14 @@ void Window::initializeObjective(int objectiveID, ObjectiveType type, Restrictio
 		case BEACON:{
 
 			ObjElement* e = new ObjElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
-				glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), .25f, glm::vec3(0.f, 0.f, 1.f));
+				glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), .25f, glm::vec3(0.f, 0.f, 1.f), false, "", BEACON, R_NEUTRAL);
 			objectiveMap[objectiveID] = e;
 			break;
 		}
 		case ARMOR:{
 
 			ObjElement* e = new ObjElement("shaders/character/billboard.obj", &projection, &view, texShader,
-				glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f), false, "shaders/objectives/armour_pickup.png");
+				glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f), false, "shaders/objectives/armour_pickup.png", ARMOR, R_HUNTER);
 			objectiveMap[objectiveID] = e;
 			break;
 		}
@@ -1032,9 +1031,19 @@ void Window::resetGame() {
 
 	// reset objectives map
 	for(std::map<int, ObjElement*>::iterator i = objectiveMap.begin(); i != objectiveMap.end(); i++) {
-		delete objectiveMap[i->first];
+		if(objectiveMap[i->first] != nullptr) {
+			delete objectiveMap[i->first];
+		}
 	}
 	objectiveMap.clear();
+
+	// reset projectiles map
+	for(std::unordered_map<int, ProjectileElement*>::iterator i = projectiles.begin(); i != projectiles.end(); i++) {
+		if(projectiles[i->first] != nullptr) {
+			delete projectiles[i->first];
+		}
+	}
+	projectiles.clear();
 
 	// reset the player jobs
 	playerJobs = {UNKNOWN, UNKNOWN, UNKNOWN, MONSTER};
@@ -1043,5 +1052,48 @@ void Window::resetGame() {
 	chars[3] = playerTypeToCharacterMap[MONSTER];
 	chars[3]->moveTo(glm::vec3(SPAWN_POSITIONS[3][0], 1.5f, SPAWN_POSITIONS[3][1]));
 
+	audioProgram->stopAllAudio();
+	audioProgram->playAudioWithLooping(TITLE_MUSIC);
+
 	gameEnded = true;
+}
+
+void Window::checkNearObjectiveText(ObjElement* obj) {
+	PlayerType playerJob = playerJobs[client->getId()];
+	ObjectiveType objType = obj->getObjType();
+	Restriction restriction = obj->getRestrictionType();
+
+	// For restricted objectives
+	if((playerJob == MONSTER && restriction == R_MONSTER) || (playerJob != MONSTER && restriction == R_HUNTER) || (restriction == R_NEUTRAL)) {
+		switch(objType) {
+			case HEAL:
+
+				if(glm::distance(obj->pos, clientChar->pos) < HEALING_INTERACTION_RANGE) {
+					// nvg draw text to interact with
+					guiManager->drawCenterText(std::string("Press E to pickup the health."), width, height);
+				}
+				break;
+			case EVO:
+				if(glm::distance(obj->pos, clientChar->pos) < EVO_INTERACTION_RANGE) {
+					// nvg draw text to interact with
+					guiManager->drawCenterText(std::string("Press E to pickup the shard."), width, height);
+				}
+				break;
+			case ARMOR:
+				if(glm::distance(obj->pos, clientChar->pos) < ARMOR_INTERACTION_RANGE) {
+					// nvg draw text to interact with
+					guiManager->drawCenterText(std::string("Press E to pickup the armor."), width, height);
+				}
+				break;
+			case BEACON:
+				if (guiManager->beaconBar->captureAmount > MONSTER_BEACON_CAPTURE_THRESHOLD &&
+					guiManager->beaconBar->captureAmount < HUNTER_BEACON_CAPTURE_THRESHOLD && 
+					glm::distance(obj->pos, clientChar->pos) < BEACON_INTERACTION_RANGE) {
+					guiManager->drawCenterText(std::string("Capturing beacon..."), width, height);
+				}
+				break;
+			default:
+				break;
+		}
+	}
 }

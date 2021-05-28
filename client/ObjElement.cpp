@@ -13,16 +13,22 @@
 */
 
 ObjElement::ObjElement(string fileName, glm::mat4 * p, glm::mat4 * v, GLuint s, 
-	glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale, glm::vec3 c, bool reverseColor, char* textFile) {
-	
+	glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale, glm::vec3 c, bool reverseColor, char* textFile, ObjectiveType type, Restriction restriction) {
+
 	// initial translation will bthe initial position
 	pos = trans;
 	model = glm::rotate(rotRad, rotAxis) * glm::translate(trans) * glm::scale(glm::vec3(scale));
 	projection = p;
 	view = v;
 	shader = s;
+
 	//default color is black
 	color = c;
+
+	// Objective Restrictions and Types
+	this->type = type;
+	this->restriction = restriction;
+	
 	// if path is NOT given at construction time, hasTexture will be false.
 	hasTexture = loadTexture(textFile, reverseColor);
 
@@ -254,4 +260,12 @@ bool ObjElement::loadTexture(char* texturePath, bool reverseColor) {
 	stbi_image_free(data);
 	fclose(f);
 	return true;
+}
+
+
+ObjectiveType ObjElement::getObjType() {
+	return type;
+}
+Restriction ObjElement::getRestrictionType() {
+	return restriction;
 }

@@ -133,6 +133,9 @@ public:
 	// Used to remove objectives
 	static void Window::removeObj(int objectiveID);
 
+	// Used to determine which objective should tell the user to do something
+	static void Window::checkNearObjectiveText(ObjElement*);
+
 	static void Window::initCharacters();
 	static void Window::initMap();
 	static void Window::initSelectScreenElements();

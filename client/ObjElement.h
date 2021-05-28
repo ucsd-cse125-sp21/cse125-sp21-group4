@@ -1,10 +1,14 @@
 #ifndef _ObjElement_H_
 #define _ObjElement_H_
 
-#include "EnvElement.h"
+#include "Object.h"
+#include "../common/game/Objective.h"
 
 class ObjElement : public Object {
 private:
+	ObjectiveType type;
+	Restriction restriction;
+
 	std::vector<glm::vec3> normal;
 	std::vector<glm::vec3> points;
 	std::vector<glm::ivec3> triangles;
@@ -39,12 +43,15 @@ public:
 */
 	ObjElement(string fileName, glm::mat4 * proj, glm::mat4 * view, GLuint shader,
 		glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale,
-		glm::vec3 c = glm::vec3(0.f, 0.f, 0.f), bool reverseColor = false, char * textFile = "");
+		glm::vec3 c = glm::vec3(0.f, 0.f, 0.f), bool reverseColor = false, char * textFile = "", ObjectiveType type = INVALID_OBJ, Restriction restriction = R_NEUTRAL);
 	void draw(glm::mat4 c = glm::mat4(1));
 	void drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c = glm::mat4(1));
 	void update();
 	void updateView(glm::mat4, glm::vec3);
 	bool loadTexture(char* texturePath, bool reverseColor);
+
+	ObjectiveType getObjType();
+	Restriction getRestrictionType();
 };
 
 #endif

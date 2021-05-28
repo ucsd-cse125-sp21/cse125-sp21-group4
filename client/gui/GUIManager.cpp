@@ -79,6 +79,22 @@ void GUIManager::setGameEndVisible(bool visibility) {
 void GUIManager::handleMouseSelect(int x, int y) {
 	// might need this if we decide to add mouse support.
 }
+void GUIManager::drawCenterText(std::string text, int windowWidth, int windowHeight) {
+	nvgSave(vg);
+
+
+	// Instruction to player.
+	nvgFontSize(vg, windowHeight/32);
+	nvgFontFace(vg, "sans-bold");
+	nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
+
+	nvgFontBlur(vg, 0);
+	nvgFillColor(vg, nvgRGBA(200, 200, 200, 255));
+	nvgText(vg, windowWidth/2, windowHeight/4, text.c_str(), NULL);
+
+
+	nvgRestore(vg);
+}
 
 
 // Example NanoVG method from https://github.com/memononen/nanovg. We can delete this later.
