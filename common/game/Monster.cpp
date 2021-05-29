@@ -7,7 +7,8 @@ Monster::Monster() {
     setHp(MONSTER_MAX_HP); // init full health
     maxHp = MONSTER_MAX_HP;
     setAttackDamage(MONSTER_ATTACK_DAMAGE);
-    setEvo(MONSTER_FIRST_STAGE_THRESHOLD);
+    setEvo(0);
+    clientSideEvo = evo;
     setAcceleration(MONSTER_ACCELERATION);
     setMaxSpeed(MONSTER_MAX_SPEED);
 }
@@ -17,7 +18,8 @@ Monster::Monster(PlayerPosition position) : GamePlayer(position){
     setHp(MONSTER_MAX_HP); // init full health
     maxHp = MONSTER_MAX_HP;
     setAttackDamage(MONSTER_ATTACK_DAMAGE);
-    setEvo(MONSTER_FIRST_STAGE_THRESHOLD);
+    setEvo(0);
+    clientSideEvo = evo;
     setAcceleration(MONSTER_ACCELERATION);
     setMaxSpeed(MONSTER_MAX_SPEED);
 }
@@ -142,14 +144,18 @@ void Monster::updateEvo(Game* game, float evoLevel) {
     
     // For now update the attack damage of the monster, maybe speed another time?
     if (evoLevel >= MONSTER_FIFTH_STAGE_THRESHOLD) {
-        setAttackDamage(MONSTER_ATTACK_DAMAGE + 4);
+        setAttackDamage(MONSTER_ATTACK_DAMAGE + 5);
     } else if (evoLevel >= MONSTER_FOURTH_STAGE_THRESHOLD) {
-        setAttackDamage(MONSTER_ATTACK_DAMAGE + 3);
+        setAttackDamage(MONSTER_ATTACK_DAMAGE + 4);
     } else if (evoLevel >= MONSTER_THIRD_STAGE_THRESHOLD) {
-        setAttackDamage(MONSTER_ATTACK_DAMAGE + 2);
+        setAttackDamage(MONSTER_ATTACK_DAMAGE + 3);
     } else if (evoLevel >= MONSTER_SECOND_STAGE_THRESHOLD) {
-        setAttackDamage(MONSTER_ATTACK_DAMAGE + 1);
+        setAttackDamage(MONSTER_ATTACK_DAMAGE + 2);
     } else if (evoLevel >= MONSTER_FIRST_STAGE_THRESHOLD) {
+        setAttackDamage(MONSTER_ATTACK_DAMAGE + 1);
+    
+    // Start counting from zero.
+    } else if (evoLevel >= 0.f) {
         setAttackDamage(MONSTER_ATTACK_DAMAGE);
     
     // Invalid levels should not update the evo variable and return
@@ -159,12 +165,14 @@ void Monster::updateEvo(Game* game, float evoLevel) {
     }
 
     // Checks if the evo has changed from one level to the next (int's truncate the decimal values)
-    if(abs((int) evoLevel - (int) this->evo) >= 1) {
+    if(abs((int) evoLevel - (int) this->evo) >= 1 || fabs(evoLevel - clientSideEvo) > 0.1f) {
         GameUpdate evoUpdate;
         evoUpdate.updateType = MONSTER_EVO_UP;
         evoUpdate.newEvoLevel = evoLevel;
         evoUpdate.id = this->id;
         game->addUpdate(evoUpdate);
+
+        clientSideEvo = evoLevel;
     }
     
     // Update evolution of the monster.

@@ -1,5 +1,5 @@
-#ifndef _GUI_TITLESCREEN_H_
-#define _GUI_TITLESCREEN_H_
+#ifndef _GUI_CONNECTSCREEN_H_
+#define _GUI_CONNECTSCREEN_H_
 
 #include "../Core.h" // GL required for the NanoGUI.
 #include "../nanovg/nanovg.h"
@@ -19,6 +19,8 @@ public:
     void draw(float windowWidth, float windowHeight);
     void setVisible(bool visible);
     void handleKeyInput(int glfwKey, GLFWwindow * window);
+
+    void init();
 };
 
 #endif
