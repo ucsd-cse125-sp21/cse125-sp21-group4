@@ -350,13 +350,14 @@ GLFWwindow* Window::createWindow(int width, int height)
 	/* ===== THIS #ifndef CODE IS ONLY FOR NON-CONNECTED CLIENTS TO IMPROVE GRAPHICS DEVELOPMENT ==== */
 #ifndef SERVER_ENABLED // Client-only (no server)	
 	guiManager->setConnectingScreenVisible(false);
-	guiManager->setHUDVisible(true);
 	guiManager->beaconBar->setAmount(18.f);
-	guiManager->setSelectScreenVisible(false);
-	guiManager->evoBar->setVisible(true);
 	guiManager->evoBar->setEvo(2.65f);
+	guiManager->setSelectScreenVisible(false);
 	guiManager->setGameEndVisible(false);
 	guiManager->setSplashScreenVisible(false);
+	guiManager->initCooldownIcons(MONSTER);
+	guiManager->setHUDVisible(true);
+	guiManager->evoBar->setVisible(true);
 #endif
 
 	/* ===== end of #ifndef (no-server client) code ==== */
@@ -629,6 +630,7 @@ void Window::handleRoleClaim(GameUpdate update) {
 		guiManager->healthBar->initGivenPlayerType(update.roleClaimed);
 		guiManager->miniMap->setCurrentPlayer(client->getId(), update.roleClaimed);
 		guiManager->selectScreen->hasClaimed = true;
+		guiManager->initCooldownIcons(update.roleClaimed);
 	} else {
 		guiManager->miniMap->setPlayerType(update.id, update.roleClaimed);
 	}
@@ -730,6 +732,9 @@ void Window::handleUpdate(GameUpdate update) {
 			printf("Calling handleAttack()\n");
 			Window::handleAttack(update);
 			break;
+		case PLAYER_UNIQUE_ATTACK:
+			Window::handleUniqueAttack(update);
+			break;
 		// Beacon bar updates
 		case BEACON_BEING_TAKEN:
 		case BEACON_DECAYING:
@@ -792,6 +797,11 @@ void Window::handleAttack(GameUpdate update) {
 	printf("Player %d is attacking\n", update.id);
 	chars[update.id]->setState(attacking);
 
+	// Update the cooldown timer
+	if(update.id == client->getId()) {
+		guiManager->handleCooldownUpdate(NORMAL_ATTACK);
+	}
+
 	// Play the audio
 	if(glm::distance(chars[update.id]->pos, clientChar->pos) < MAX_HEARING_DISTANCE) {
 		
@@ -819,9 +829,49 @@ void Window::handleAttack(GameUpdate update) {
 				break;
 		}
 	}
-	
 }
 
+void Window::handleUniqueAttack(GameUpdate update) {
+
+	// animation depends on who is attacking but for now it's default.
+	// e.g. fighter should not slash when they use their armor ability
+	chars[update.id]->setState(attacking);
+
+	// Update the cooldown timer
+	if(update.id == client->getId()) {
+		guiManager->handleCooldownUpdate(UNIQUE_ATTACK);
+	}
+
+	// TO BE ADDED: Audio for unique attacks
+	// if(glm::distance(chars[update.id]->pos, clientChar->pos) < MAX_HEARING_DISTANCE) {
+		
+	// 	AudioPosition clientPos = {clientChar->pos.x, clientChar->pos.z};
+	// 	AudioPosition otherPos = {chars[update.id]->pos.x, chars[update.id]->pos.z};
+	// 	switch(playerJobs[update.id]) {
+	// 		case FIGHTER:
+	// 			audioProgram->playDirectionalEffect(FIGHTER_ATTACK_SOUND, clientPos, otherPos);
+	// 			break;
+
+	// 		case MAGE:
+	// 			audioProgram->playDirectionalEffect(MAGE_ATTACK_SOUND, clientPos, otherPos);
+	// 			break;
+
+	// 		case CLERIC:
+	// 			audioProgram->playDirectionalEffect(CLERIC_ATTACK_SOUND, clientPos, otherPos);
+	// 			break;
+
+	// 		case ROGUE:
+	// 			audioProgram->playDirectionalEffect(ROGUE_ATTACK_SOUND, clientPos, otherPos);
+	// 			break;
+
+	// 		case MONSTER:
+	// 			audioProgram->playDirectionalEffect(MONSTER_THROW_SOUND, clientPos, otherPos);
+	// 			break;
+	// 	}
+	// }
+
+	
+}
 
 // This function checks if a certain key is being pressed or held down.
 void Window::updateLastInput() {
@@ -946,6 +996,7 @@ bool Window::connectCommClient(std::string serverIP) {
 	if(client->getId() == 3) {
 		guiManager->healthBar->initGivenPlayerType(MONSTER);
 		guiManager->selectScreen->setMonster(true);
+		guiManager->initCooldownIcons(MONSTER);
 	}
 	guiManager->miniMap->setCurrentPlayer(3, MONSTER); // Monster is currently id = 3
 	#endif // SERVER_ENABLED

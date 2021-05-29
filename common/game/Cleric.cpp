@@ -48,7 +48,7 @@ void Cleric::attack(Game* game, float angle) {
     game->projectiles[game->nextProjectileId] = p;
     game->nextProjectileId = (game->nextProjectileId + 1) % MAX_PROJECTILE_ID;
 
-    // Send an update to the clients: HEALING_OBJECTIVE_TAKEN
+    // Send an update to the clients: PLAYER_ATTACK
     GameUpdate attackUpdate;
     attackUpdate.updateType = PLAYER_ATTACK;
     attackUpdate.id = this->id;                        // id of player attacking
@@ -112,6 +112,14 @@ void Cleric::uniqueAttack(Game* game, float angle) {
             game->addUpdate(gameUpdate);
         }
     }
+
+    // Send an update to the clients: PLAYER_UNIQUE_ATTACK
+    GameUpdate attackUpdate;
+    attackUpdate.updateType = PLAYER_UNIQUE_ATTACK;
+    attackUpdate.id = this->id;                        // id of player attacking
+    attackUpdate.healAmount = HEALING_AURA_HEALING_AMOUNT;
+    attackUpdate.roleClaimed = CLERIC;
+    game->addUpdate(attackUpdate);
 }
 
 void Cleric::interact(Game* game) {
