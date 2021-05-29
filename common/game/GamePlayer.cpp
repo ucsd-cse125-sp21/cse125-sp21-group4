@@ -338,6 +338,7 @@ void GamePlayer::move (Game* game, Direction direction) {
 
 void GamePlayer::hpDecrement (int damage) {
     hp -= damage;
+    hp = std::max(0, hp - damage);
 }
 
 void GamePlayer::hpIncrement (int amount) {
