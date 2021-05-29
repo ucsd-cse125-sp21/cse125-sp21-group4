@@ -120,6 +120,7 @@ public:
 	static void handleRoleClaim(GameUpdate update);
 	static void handleUpdate(GameUpdate update);
 	static void Window::handleAttack(GameUpdate update);
+	static void Window::handleUniqueAttack(GameUpdate update);
 
 	// Used to set lastInput based on keyboard inputs
 	static void Window::updateLastInput(); 
