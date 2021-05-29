@@ -25,19 +25,25 @@ GUIManager::GUIManager(int width, int height, int fbWidth, int fbHeight) {
 
 	healthBar = new HealthBar(vg);
 	beaconBar = new BeaconBar(vg);
+	evoBar = new EvolutionBar(vg);
 	miniMap = new MiniMap(vg);
 	selectScreen = new SelectScreen(vg);
 	connectingScreen = new ConnectingScreen(vg);
+	endScreen = new EndScreen(vg);
+	splashScreen = new SplashScreen(vg);
 }
 
 void GUIManager::draw() {
 	nvgBeginFrame(vg, this->windowWidth, this->windowHeight, this->pixelRatio);
 	// starter code window: this->drawWindow("Test", 50, 50, this->windowWidth / 4, this->windowHeight / 4);
-	healthBar->draw(30, 14 * this->windowHeight / 16, this->windowWidth / 2.5, this->windowHeight / 16);
-	beaconBar->draw(30, this->windowHeight / 16, this->windowWidth - 60, this->windowHeight / 64);
-	miniMap->draw(this->windowWidth - (MAP_WIDTH / 3), this->windowHeight - (MAP_HEIGHT / 3), (MAP_WIDTH / 3), (MAP_HEIGHT / 3));
+	healthBar->draw(30, 14.5 * this->windowHeight / 16, this->windowWidth / 2.5, this->windowHeight / 16);
+	beaconBar->draw(this->windowWidth / 2 - (this->windowWidth / 2.5) / 2, this->windowHeight / 16, this->windowWidth / 2.5, this->windowHeight / 16);
+	evoBar->draw(30, 13.5 * this->windowHeight / 16, this->windowWidth / 2.5, this->windowHeight / 16);
+	miniMap->draw(this->windowWidth - (MAP_WIDTH / 2), this->windowHeight - (MAP_HEIGHT / 2), (MAP_WIDTH / 2), (MAP_HEIGHT / 2));
 	selectScreen->draw(this->windowWidth, this->windowHeight);
+	splashScreen->draw(this->windowWidth, this->windowHeight);
 	connectingScreen->draw(this->windowWidth, this->windowHeight);
+	endScreen->draw(this->windowWidth, this->windowHeight);
 
 	nvgEndFrame(vg);
 }
@@ -56,6 +62,7 @@ void GUIManager::setHUDVisible(bool visibility) {
 	healthBar->setVisible(visibility);
 	beaconBar->setVisible(visibility);
 	miniMap->setVisible(visibility);
+	evoBar->setVisible(visibility);
 }
 
 void GUIManager::setSelectScreenVisible(bool visibility) {
@@ -66,8 +73,33 @@ void GUIManager::setConnectingScreenVisible(bool visibility) {
 	connectingScreen->setVisible(visibility);
 }
 
+void GUIManager::setGameEndVisible(bool visibility) {
+	endScreen->setVisible(visibility);
+}
+
+void GUIManager::setSplashScreenVisible(bool visibility) {
+	splashScreen->setVisible(visibility);
+}
+
+
 void GUIManager::handleMouseSelect(int x, int y) {
 	// might need this if we decide to add mouse support.
+}
+void GUIManager::drawCenterText(std::string text, int windowWidth, int windowHeight) {
+	nvgSave(vg);
+
+
+	// Instruction to player.
+	nvgFontSize(vg, windowHeight/32);
+	nvgFontFace(vg, "sans-bold");
+	nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
+
+	nvgFontBlur(vg, 0);
+	nvgFillColor(vg, nvgRGBA(200, 200, 200, 255));
+	nvgText(vg, windowWidth/2, windowHeight/4, text.c_str(), NULL);
+
+
+	nvgRestore(vg);
 }
 
 
@@ -123,4 +155,30 @@ void GUIManager::drawWindow(const char* title, float x, float y, float w, float 
 	nvgText(vg, x + w / 2, y + 16, title, NULL);
 
 	nvgRestore(vg);
+}
+
+void GUIManager::updateHUDPositions() {
+
+	// Select Screen is part of "HUD"
+	selectScreen->updatePositions();
+
+	// Other HUD elemeents...
+}
+void GUIManager::reset() {
+	// Elements to reset:
+	// healthBar --> not needed because values update during character selection
+	// beaconBar
+	beaconBar->setAmount(0.f);
+	// evoBar
+	evoBar->setEvo(0.f);
+	// miniMap
+	miniMap->reset();
+	// selectScreen
+	selectScreen->reset();
+	// connectingScreen
+	connectingScreen->init();
+}
+
+void GUIManager::setSplashLoaded(bool loaded) {
+	splashScreen->setSplashLoaded(loaded);
 }

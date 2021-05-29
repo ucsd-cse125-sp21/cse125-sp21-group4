@@ -15,16 +15,21 @@
 */
 
 ScreenElement::ScreenElement(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPos,
-	GLuint s, glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale,
+	GLuint s, glm::vec2 screenPos, float scale,
 	glm::vec3 c, char* textFile) {
 
 	// initial translation will bthe initial position
-	pos = trans;
-	scaleMtx = glm::scale(glm::vec3(scale));
-	model = glm::translate(trans) * glm::rotate(rotRad, rotAxis) * scaleMtx;
 	projection = p;
 	view = v;
 	eyep = vPos;
+
+	this->screenPos = screenPos;
+	pos = *eyep;
+	scaleMtx = glm::scale(glm::vec3(scale));
+	rotRad =  -glm::atan(CAMERA_Y_OFFSET, CAMERA_Z_OFFSET);
+	rotAxis = glm::vec3(1.0f, 0.f, 0.f);
+	model = glm::translate(pos) * glm::rotate(rotRad, rotAxis) * scaleMtx;
+
 	shader = s;
 	// default color is black
 	color = c;
@@ -145,7 +150,7 @@ ScreenElement::ScreenElement(string fileName, glm::mat4* p, glm::mat4* v, glm::v
 
 	// Generate a Vertex Array (VAO) and Vertex Buffer Object (VBO)
 	glGenVertexArrays(1, &VAO);
-	glGenBuffers(2, VBO);
+	glGenBuffers(3, VBO);
 
 	// Bind VAO
 	glBindVertexArray(VAO);
@@ -155,18 +160,18 @@ ScreenElement::ScreenElement(string fileName, glm::mat4* p, glm::mat4* v, glm::v
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * points.size(), points.data(), GL_STATIC_DRAW);
 	// Enable Vertex Attribute 0 to pass point data through to the shader
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * normal.size(), normal.data(), GL_STATIC_DRAW);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 	if (hasTexture) {
 		glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * textCoord.size(), textCoord.data(), GL_STATIC_DRAW);
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), 0);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	}
 
 	glGenBuffers(1, &EBO);
@@ -179,6 +184,7 @@ ScreenElement::ScreenElement(string fileName, glm::mat4* p, glm::mat4* v, glm::v
 }
 
 void ScreenElement::draw(glm::mat4 c) {
+
 	//model used in the shader would be this model mult with passed down transform model
 	glm::mat4 m = model * c;
 	glUseProgram(shader);
@@ -243,6 +249,17 @@ void ScreenElement::moveToGivenDelta(float deltaX, float deltaY) {
 }
 
 void ScreenElement::update() {
+	
+	pos = *eyep + glm::vec3(0.f, CAMERA_Y_OFFSET / 32, CAMERA_Z_OFFSET / 32);
+
+	glm::vec3 unitVectorY = glm::cross(glm::vec3(0, CAMERA_Y_OFFSET, CAMERA_Z_OFFSET), glm::vec3(1,0,0));
+	glm::vec3 unitVectorX = glm::vec3(1.f, 0, 0);
+
+	pos += unitVectorX * screenPos.x;
+	pos += unitVectorY * screenPos.y;
+	
+
+	model = glm::translate(pos) * glm::rotate(rotRad, rotAxis) * scaleMtx;
 }
 
 void ScreenElement::updateView(glm::mat4, glm::vec3) {

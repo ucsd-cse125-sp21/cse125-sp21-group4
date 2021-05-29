@@ -2,6 +2,12 @@
 
 SelectScreen::SelectScreen(NVGcontext* vg) {
     this->vg = vg;
+	init();
+
+    // ScreenElements are initialized by Window.cpp.
+}
+
+void SelectScreen::init() {
 	isVisible = false;
     isMonster = false;
     hasClaimed = false;
@@ -11,8 +17,6 @@ SelectScreen::SelectScreen(NVGcontext* vg) {
     claimed[CLERIC] = false;
     claimed[ROGUE] = false;
     selecting = UNKNOWN;
-
-    // ScreenElements are initialized by Window.cpp.
 }
 
 
@@ -144,4 +148,21 @@ void SelectScreen::startTimer(std::chrono::steady_clock::time_point startTime) {
     
     // There **should** be no delay between when the graphics client sees SelectScreen and server's update.
     timeSelectStarted = std::chrono::steady_clock::now();
+}
+
+void SelectScreen::updatePositions() {
+	for (int i = 0; i < selectScreenElements.size(); i++) {
+		if (selectScreenElements[i] != nullptr) {
+			selectScreenElements[i]->update();
+		}
+	}
+}
+
+
+void SelectScreen::reset() {
+    init();
+    selectScreenElements[1]->loadTexture("shaders/select_screen/fighter_unselected.png");
+    selectScreenElements[2]->loadTexture("shaders/select_screen/mage_unselected.png");
+    selectScreenElements[3]->loadTexture("shaders/select_screen/cleric_unselected.png");
+    selectScreenElements[4]->loadTexture("shaders/select_screen/rogue_unselected.png");
 }
