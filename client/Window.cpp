@@ -213,15 +213,15 @@ void Window::initMap() {
 		} else if (strcmp(objName.c_str(), "wall") == 0) {
 			// do a for loop to fill the Wall ?
 
-			// for(int x = objX; x < objX + width; x++) {
-			// 	for(int y = objY; y < objY + height; y++) {
+			for(int x = objX + 3.75f; x < objX + width - 4.0f; x+= 4) {
+				for(int y = objY; y < objY + height; y++) {
 
-			EnvElement* e = new EnvElement("shaders/environment/brickwall.obj", &projection, &view, texShader,
-				glm::vec3(objX, 5.f, objY), glm::vec3(.5f, 0.f, .5f), glm::radians(180.f), 1.f, glm::vec3(1.f, .5f, .5f), "shaders/environment/brick_wall_texture_3x3.png");
-			table.insert(e);
+					EnvElement* e = new EnvElement("shaders/environment/brickwall.obj", &projection, &view, texShader,
+						glm::vec3(x, 5.f, y + height / 2), glm::vec3(.5f, 0.f, .5f), glm::radians(180.f), 1.f, glm::vec3(1.f, .5f, .5f), "shaders/environment/brick_wall_texture_3x3.png");
+					table.insert(e);
 
-			// 	}
-			// }
+				}
+			}
 		}
 		
 	} 
