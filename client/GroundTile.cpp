@@ -18,7 +18,7 @@ GroundTile::GroundTile(glm::mat4* proj, glm::mat4* v, GLuint s, glm::vec3 trans,
 
 	// Generate a Vertex Array (VAO) and Vertex Buffer Object (VBO)
 	glGenVertexArrays(1, &VAO);
-	glGenBuffers(2, VBO);
+	glGenBuffers(3, VBO);
 
 	// Bind VAO
 	glBindVertexArray(VAO);

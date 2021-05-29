@@ -177,7 +177,7 @@ Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPo
 
 	// Generate a Vertex Array (VAO) and Vertex Buffer Object (VBO)
 	glGenVertexArrays(1, &VAO);
-	glGenBuffers(2, VBO);
+	glGenBuffers(3, VBO);
 
 	// Bind VAO
 	glBindVertexArray(VAO);

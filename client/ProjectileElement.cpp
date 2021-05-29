@@ -152,7 +152,7 @@ ProjectileElement::ProjectileElement(string fileName, glm::mat4* p, glm::mat4* v
 
 	// Generate a Vertex Array (VAO) and Vertex Buffer Object (VBO)
 	glGenVertexArrays(1, &VAO);
-	glGenBuffers(2, VBO);
+	glGenBuffers(3, VBO);
 
 	// Bind VAO
 	glBindVertexArray(VAO);

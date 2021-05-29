@@ -106,7 +106,6 @@ bool Window::initializeObjects()
 	ground = new Ground("shaders/environment/ground.obj", &projection, &view, texShader,
 		"shaders/environment/dry_grass_texture_3x3.png", "shaders/environment/cracked_tile_texture_3x3.png", &table, 3.0f);
 
-
 	#ifdef RENDER_MAP
 	printf("=======================================\nIt will take a while for the game to launch, please wait.\n");
 	initMap();
@@ -189,7 +188,7 @@ void Window::initMap() {
 		} else if (strcmp(objName.c_str(), "tree_live") == 0) {
 			objX += width / 2;
 			objY += height / 2;
-			EnvElement* e = new EnvElement("shaders/environment/NEWlowpolypine.obj", &projection, &view, shaderProgram,
+			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, shaderProgram,
 				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.f, 1.f, 0.f));
 			table.insert(e);
 
@@ -214,14 +213,15 @@ void Window::initMap() {
 		} else if (strcmp(objName.c_str(), "wall") == 0) {
 			// do a for loop to fill the Wall ?
 
-			for(int x = objX; x < objX + width; x++) {
-				for(int y = objY; y < objY + height; y++) {
+			// for(int x = objX; x < objX + width; x++) {
+			// 	for(int y = objY; y < objY + height; y++) {
 
-					EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
-						glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(1.f, .5f, .5f));
-					table.insert(e);
-				}
-			}
+			EnvElement* e = new EnvElement("shaders/environment/brickwall.obj", &projection, &view, texShader,
+				glm::vec3(objX, 5.f, objY), glm::vec3(.5f, 0.f, .5f), glm::radians(180.f), 1.f, glm::vec3(1.f, .5f, .5f), "shaders/environment/brick_wall_texture_3x3.png");
+			table.insert(e);
+
+			// 	}
+			// }
 		}
 		
 	} 

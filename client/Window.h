@@ -5,10 +5,10 @@
 #define MOUSE_SIZE 2
 #define MOUSE_LEFT_INDEX 0
 #define MOUSE_RIGHT_INDEX 1
-// #define SERVER_ENABLED
+#define SERVER_ENABLED
 #define RENDER_MAP
 #define _USE_MATH_DEFINES
-#define SPATIAL_HASH_SEARCH_DISTANCE 25.0
+#define SPATIAL_HASH_SEARCH_DISTANCE 20.0
 
 
 // camera offsets for player

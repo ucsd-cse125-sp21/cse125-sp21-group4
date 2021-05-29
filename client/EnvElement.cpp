@@ -17,7 +17,7 @@ EnvElement::EnvElement(string fileName, glm::mat4 * p, glm::mat4 * v, GLuint s,
 	
 	// initial translation will bthe initial position
 	pos = trans;
-	model = glm::rotate(rotRad, rotAxis) * glm::translate(trans) * glm::scale(glm::vec3(scale));
+	model = glm::translate(trans) * glm::rotate(rotRad, rotAxis)  * glm::scale(glm::vec3(scale));
 	projection = p;
 	view = v;
 	shader = s;
@@ -137,7 +137,7 @@ EnvElement::EnvElement(string fileName, glm::mat4 * p, glm::mat4 * v, GLuint s,
 
 	// Generate a Vertex Array (VAO) and Vertex Buffer Object (VBO)
 	glGenVertexArrays(1, &VAO);
-	glGenBuffers(2, VBO);
+	glGenBuffers(3, VBO);
 
 	// Bind VAO
 	glBindVertexArray(VAO);
@@ -227,7 +227,7 @@ void EnvElement::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
 
 	glEnable(GL_BLEND);
 	if (hasTexture) {
-		//cout << "has texture" << endl;
+		// cout << "has texture" << endl;
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textId);
 	}
@@ -241,7 +241,7 @@ void EnvElement::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
 		glBlendFunc(GL_SRC_ALPHA, GL_CONSTANT_COLOR);
 
 	}
-
+	
 	glDrawElements(GL_TRIANGLES, 3 * triangles.size(), GL_UNSIGNED_INT, 0);
 	
 	if (isCloseToObstructing) {
@@ -279,14 +279,21 @@ bool EnvElement::loadTexture(char* texturePath) {
 	}
 
 	int ftw, fth, channels;
-	unsigned char* data = stbi_load(texturePath, &ftw, &fth, &channels, 3);
+	stbi_set_flip_vertically_on_load(true);
+	unsigned char* data = stbi_load(texturePath, &ftw, &fth, &channels, STBI_rgb_alpha);
 	if (data == NULL) {
 		cout << "cannot load texture at " << texturePath << endl;
 		return false;
 	}
 	glGenTextures(1, &textId);
 	glBindTexture(GL_TEXTURE_2D, textId);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, ftw, fth, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ftw, fth, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(data);
+	fclose(f);
 	return true;
 }
