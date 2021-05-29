@@ -7,7 +7,7 @@
 
 #include <chrono>
 
-#define DEFAULT_PORT "27168"
+#define DEFAULT_PORT "21167"
 
 //#define ERICS_LOCAL_SERVER "192.168.0.110"
 #define ERICS_LOCAL_SERVER "127.0.0.1"
@@ -20,8 +20,8 @@ enum CLIENT_INPUT{
     MOVE_LEFT,
     MOVE_RIGHT,
     NO_MOVE,
-    ATTACK, // general attack for now
-    UNIQUE_ATTACK, // mage fireball and cleric healing aura
+    LEFT_MOUSE_ATTACK,
+    RIGHT_MOUSE_ATTACK,
     // MONSTER_SPIT_RANGED_ATTACK,
     // MONSTER_MELEE_ATTACK,
     // HUNTER_SWORD_ATTACK,
@@ -37,6 +37,11 @@ enum CLIENT_INPUT{
     DONE_RENDERING,
 };
 
+struct GAME_INPUT {
+    CLIENT_INPUT input = NO_MOVE; 
+    float angle = 0; // the angle of projectile
+};
+
 // Type of update sent to the server
 enum UPDATE_TYPE {
     PLAYER_DAMAGE_TAKEN,
@@ -45,6 +50,8 @@ enum UPDATE_TYPE {
     PLAYER_MOVE,
     PROJECTILE_MOVE,
     PROJECTILE_END,
+    PLAYER_NEXT_SPECT,
+    PLAYER_PREV_SPECT,
 
     BEACON_BEING_TAKEN,
     BEACON_DECAYING,
@@ -65,24 +72,23 @@ enum UPDATE_TYPE {
     GAME_END, // endStatus can be 1(hunters win), 2(monster win), 3(tie)
     INVALID_UPDATE, // this will be sent if people forget to update the updateType
 
-
 };
 
 // GameUpdate packet payload
 struct GameUpdate {
     UPDATE_TYPE updateType = INVALID_UPDATE;
     int id = -1; // -1 instead of 0 because 0 is a valid player id.
+    int specID; // id of the player the current player  is going to spectate
     int objectiveID = -1; // -1 instead of 0 for valid objectiveID.
     int damageTaken = 0; // Used for a damage taken event
     int attackAmount = 0; // amount of damage per attack
     int healAmount = 0; // Used for a healing event
     int endStatus = 0;
     GridPosition gridPos = {0,0}; // Used for objectives and obstacles
-    PlayerPosition playerPos = {0.f, 0.f}; // Used for player positions
+    PlayerPosition playerPos = {0.f, 0.f}; // Used for player positions or projectile position
     float newEvoLevel = -1.f; // Used for monster stage tracking
-    float floatDeltaX = 0; // used for player/projectile movement
-    float floatDeltaY = 0; // used for player/projectile movement
-    Direction player_direc;
+    float floatDeltaX = 0; // used for player movement or projectile movement
+    float floatDeltaY = 0; // used for player movement or projectile movement
     float beaconCaptureAmount = -9999;
     PlayerType roleClaimed = UNKNOWN;
     ProjectileType projectileType = UNKNOW_PROJECTILE; // projectile type

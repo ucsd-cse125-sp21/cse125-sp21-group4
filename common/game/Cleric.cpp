@@ -20,7 +20,7 @@ Cleric::Cleric(PlayerPosition position) : GamePlayer(position) {
 }
 
 // overide GamePlayer's attack
-void Cleric::attack(Game* game) {
+void Cleric::attack(Game* game, float angle) {
     // two consecutive attacks must have a tiem interval of at least FIGHTER_ATTACK_TIME_INTERVAL
     // otherwise, the second attack will not be initiated
     auto currentTime = std::chrono::steady_clock::now();
@@ -42,8 +42,8 @@ void Cleric::attack(Game* game) {
     p->maxDistance = CLERIC_ATTACK_DISTANCE;
     p->ownerID = getID();
     p->type = CLERIC_SHOOT;
-    p->speed = CLERIC_SHOOT_SPEED;
-    p->direction = getFaceDirection();
+    p->deltaX = CLERIC_SHOOT_SPEED * cos(angle);
+    p->deltaY = -1 * CLERIC_SHOOT_SPEED * sin(angle);
     p->damage = getAttackDamage();
     game->projectiles[game->nextProjectileId] = p;
     game->nextProjectileId = (game->nextProjectileId + 1) % MAX_PROJECTILE_ID;
@@ -57,7 +57,7 @@ void Cleric::attack(Game* game) {
     game->addUpdate(attackUpdate);
 }
 
-void Cleric::uniqueAttack(Game* game) {
+void Cleric::uniqueAttack(Game* game, float angle) {
     auto currentTime = std::chrono::steady_clock::now();
     std::chrono::duration<float> duration = currentTime - lastUniqueAttackTime;
     if (std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() 

@@ -42,7 +42,8 @@ int __cdecl main(int argc, char **argv)
      *  5. Render world (client side)
      * 
      */
-    CLIENT_INPUT sendInput = NO_MOVE; // ' '
+    GAME_INPUT sendInput;
+    sendInput.input = NO_MOVE; // ' '
     // PlayerPosition playerPositions[PLAYER_NUM];
 
     // initialize the game instance
@@ -52,7 +53,7 @@ int __cdecl main(int argc, char **argv)
     game->printSelectingScreen();
     GameState gameState = GameState();
 
-    sendInput = DONE_RENDERING;
+    sendInput.input = DONE_RENDERING;
     commClient->sendInput(sendInput);
     usleep(TICK_TIME * 1000);
 
@@ -66,34 +67,34 @@ int __cdecl main(int argc, char **argv)
             char input = _getch();
             switch (input) {
                 case 'w':
-                    sendInput = MOVE_FORWARD;
+                    sendInput.input = MOVE_FORWARD;
                     break;
                 case 'a':
-                    sendInput = MOVE_LEFT;
+                    sendInput.input = MOVE_LEFT;
                     break;
                 case 's':
-                    sendInput = MOVE_BACKWARD;
+                    sendInput.input = MOVE_BACKWARD;
                     break;
                 case 'd':
-                    sendInput = MOVE_RIGHT;
+                    sendInput.input = MOVE_RIGHT;
                     break;
-                case 'j':
-                    sendInput = ATTACK;
-                    break;
-                case 'k':
-                    sendInput = UNIQUE_ATTACK;
-                    break;
+                // case 'j':
+                //     sendInput.input = ATTACK;
+                //     break;
+                // case 'k':
+                //     sendInput.input = UNIQUE_ATTACK;
+                //     break;
                 case '1':
-                    sendInput = CLAIM_FIGHTER;
+                    sendInput.input = CLAIM_FIGHTER;
                     break;
                 case '2':
-                    sendInput = CLAIM_MAGE;
+                    sendInput.input = CLAIM_MAGE;
                     break;
                 case '3':
-                    sendInput = CLAIM_CLERIC;
+                    sendInput.input = CLAIM_CLERIC;
                     break;
                 case '4':
-                    sendInput = CLAIM_ROGUE;
+                    sendInput.input = CLAIM_ROGUE;
                     break;
                 case 3:
                     exit(1);
@@ -125,7 +126,7 @@ int __cdecl main(int argc, char **argv)
 
 
         // reset send input for next input
-        sendInput = NO_MOVE;
+        sendInput.input = NO_MOVE;
 
         usleep(5000);
         

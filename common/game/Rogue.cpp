@@ -20,7 +20,7 @@ Rogue::Rogue(PlayerPosition position) : GamePlayer(position) {
 }
 
 // overide GamePlayer's attack
-void Rogue::attack(Game* game) {
+void Rogue::attack(Game* game, float angle) {
     // two consecutive attacks must have a time interval of at least FIGHTER_ATTACK_TIME_INTERVAL
     // otherwise, the second attack will not be initiated
     auto currentTime = std::chrono::steady_clock::now();
@@ -42,8 +42,8 @@ void Rogue::attack(Game* game) {
     p->maxDistance = ROGUE_ATTACK_DISTANCE;
     p->ownerID = getID();
     p->type = ROGUE_ARROW;
-    p->speed = ROGUE_ARROW_SPEED;
-    p->direction = getFaceDirection();
+    p->deltaX = ROGUE_ARROW_SPEED * cos(angle);
+    p->deltaY = -1 * ROGUE_ARROW_SPEED * sin(angle);
     p->damage = getAttackDamage();
     game->projectiles[game->nextProjectileId] = p;
     game->nextProjectileId = (game->nextProjectileId + 1) % MAX_PROJECTILE_ID;

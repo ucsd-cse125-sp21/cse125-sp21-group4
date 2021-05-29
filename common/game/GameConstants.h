@@ -30,6 +30,9 @@
 #define DECAY_UPPER_THRESHOLD 1.f
 #define DECAY_LOWER_THRESHOLD -1.f
 
+// Delay between inputs in miliseconds
+#define SPECTATE_INPUT_DELAY 100
+
 // MAX HP Constants
 #define FIGHTER_MAX_HP 100
 #define MAGE_MAX_HP 100
@@ -66,8 +69,10 @@
 #define INIT_SPEED 1
 
 // Player attack distance constants
-#define FIGHTER_ATTACK_DISTANCE 2
-#define MONSTER_ATTACK_DISTANCE 2
+#define FIGHTER_ATTACK_DISTANCE 4
+#define FIGHTER_ATTACK_EXTRA_WIDTH 4
+#define MONSTER_ATTACK_DISTANCE 6
+#define MONSTER_ATTACK_EXTRA_WIDTH 4
 #define ROGUE_ATTACK_DISTANCE 20
 #define MAGE_ATTACK_DISTANCE 40
 #define CLERIC_ATTACK_DISTANCE 15

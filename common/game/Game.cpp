@@ -410,27 +410,33 @@ Game::~Game() {
 }
 
 
-bool Game::handleInputs(CLIENT_INPUT playersInputs[PLAYER_NUM]) {
+bool Game::handleInputs(GAME_INPUT playersInputs[PLAYER_NUM]) {
     bool flag = false; // flag is true if there is effective movement in this round
                        // this is used to test on console, this can be removed later
     for (int i = 0; i < PLAYER_NUM; i++) {
-        if (playersInputs[i] != NO_MOVE) flag = true;
+        if (playersInputs[i].input != NO_MOVE) flag = true;
 
         // The selecting screen should not rely on players because those objects have not been created
-        switch(playersInputs[i]) {
+        switch(playersInputs[i].input) {
             case CLAIM_CLERIC:
             case CLAIM_FIGHTER:
             case CLAIM_MAGE:
             case CLAIM_ROGUE:
                 // If game started, we shouldn't be handling this.
                 if(!started) {
-                    handleUserClaim(playersInputs[i], i);
+                    handleUserClaim(playersInputs[i].input, i);
                 }
                 break;
-            case DONE_RENDERING:
-                renderCount++;
-                printf("Players Rendered & Joined Count: %d\n", renderCount);
-                if(!started && renderCount >= PLAYER_NUM) {
+            case DONE_RENDERING: {
+                bool ready = true;
+                doneRenderedClients[i] = true;
+                printf("Player %d has finished rendering.\n", i);
+                for(int i = 0; i < PLAYER_NUM; i++) {
+                    if(!doneRenderedClients[i]) {
+                        ready = false;
+                    }
+                }
+                if(ready) {
                     // All players have joined
                     GameUpdate allJoined;
                     allJoined.updateType = ALL_PLAYERS_JOINED;
@@ -440,6 +446,8 @@ bool Game::handleInputs(CLIENT_INPUT playersInputs[PLAYER_NUM]) {
                     // All players have connected by now, so start the select timer
                     startSelectTimer();
                 }
+                break;
+            }
             default:
                 if(started) {
                     players[i]->handleUserInput(this, playersInputs[i]);
@@ -516,22 +524,8 @@ void Game::handleUserClaim (CLIENT_INPUT claimType, int playerID) {
 }
 
 void projectileMove(Projectile* p) {
-    switch (p->direction) {
-        case SOUTH:
-            p->currentPosition.y += p->speed;
-            break;
-        case NORTH:
-            p->currentPosition.y -= p->speed;
-            break;
-        case WEST:
-            p->currentPosition.x -= p->speed;
-            break;
-        case EAST:
-            p->currentPosition.x += p->speed;
-            break;
-        default:
-            break;
-    }
+    p->currentPosition.x += p->deltaX;
+    p->currentPosition.y += p->deltaY;
 }
 
 
@@ -546,11 +540,8 @@ void projectileMove(Projectile* p) {
 */
 bool projectileIsEnd(Projectile* p, Game* game) {
     // 1. flying distance exceeds maxDistance
-    if (p->direction == SOUTH || p->direction == NORTH) {
-        if (abs(p->currentPosition.y - p->origin.y) > p->maxDistance) return true;
-    } else {
-        if (abs(p->currentPosition.x - p->origin.x) > p->maxDistance) return true; 
-    }
+    if (pow(p->currentPosition.x - p->origin.x, 2) >= pow(p->maxDistance, 2))
+        return true;
 
     float x = p->currentPosition.x;
     float y = p->currentPosition.y;
@@ -662,8 +653,9 @@ void Game::updateProjectiles () {
             projectileUpdate.updateType = PROJECTILE_MOVE;
             projectileUpdate.id = iter->first;
             projectileUpdate.projectileType = iter->second->type;
-            projectileUpdate.direction = iter->second->direction;
             projectileUpdate.playerPos = {iter->second->currentPosition.x, iter->second->currentPosition.y};
+            projectileUpdate.floatDeltaX = iter->second->deltaX;
+            projectileUpdate.floatDeltaY = iter->second->deltaY;
             addUpdate(projectileUpdate);
 
             iter++;

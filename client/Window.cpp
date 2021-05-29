@@ -1,18 +1,27 @@
 #include "Window.h"
 
+#define SERVER_ENABLED
+
 //// Window Properties
 int Window::width;
 int Window::height;
 const char* Window::windowTitle = "CSE125_GAME";
 CommunicationClient* Window::client;
-SpatialHashTable Window::table(5000, 20.f);
+//spatial hash table for rendering near by objects; starting with 5000 cells; could use few I think
+//based on later performance.
+SpatialHashTable Window::table(5000, SPATIAL_HASH_SEARCH_DISTANCE);
 bool Window::keyboard[KEYBOARD_SIZE];
+bool Window::mouse[MOUSE_SIZE];
 bool Window::gameStarted;
 bool Window::doneInitialRender;
 
 //objects to render
 vector<Character*> Window::chars(4); //all the characters players get to control
+unordered_map<PlayerType, Character*> Window::playerTypeToCharacterMap;
 vector<EnvElement*> Window::envs; //all the environmental static objects
+//factory object for ground tiles; this object is responsible for creating all the individual GroundTile objects,
+//all the texture, vertice and normal data are shared between the GroundTiles
+Ground* Window::ground;
 map<int, ObjElement*> Window::objectiveMap;
 unordered_map<int, ProjectileElement*> Window::projectiles; //all the environmental static objects
 Character* Window::clientChar;
@@ -22,8 +31,8 @@ bool LeftDown, RightDown;
 int MouseX, MouseY;
 
 // The shader program id
-GLuint Window::shaderProgram;
-GLuint Window::texShader;
+GLuint Window::shaderProgram; //Phong lighting shader; only use this for models without texture
+GLuint Window::texShader;     //shader for model with textures. NOTE, it also calculates texture alphas
 
 // projection Matrices 
 glm::mat4 Window::projection;
@@ -40,10 +49,16 @@ glm::mat4 Window::view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window
 
 // last input from the window
 CLIENT_INPUT Window::lastInput = NO_MOVE;
+float Window::lastAngle = 0;
 
 // GUI manager
 GUIManager* Window::guiManager;
 
+// Audio Program
+AudioProgram* Window::audioProgram;
+vector<PlayerType> Window::playerJobs {UNKNOWN, UNKNOWN, UNKNOWN, MONSTER};
+
+std::chrono::steady_clock::time_point lastCombatMusicPlayTime;
 
 bool Window::initializeProgram() {
 	// Create a shader program with a vertex shader and a fragment shader.
@@ -119,9 +134,41 @@ bool Window::initializeObjects()
 		glm::vec3(0.f, -1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
 
 
+	//for now tileScale should be tileSize / 2.0
+	ground = new Ground("shaders/environment/ground.obj", &projection, &view, texShader,
+		"shaders/environment/dry_grass_texture_3x3.png", "shaders/environment/cracked_tile_texture_3x3.png", &table, 3.0f);
+
+
 	#ifdef RENDER_MAP
 	printf("=======================================\nIt will take a while for the game to launch, please wait.\n");
-	ifstream map_file("../assets/layout/map_client.csv");
+	initMap();
+	#endif
+
+
+	//  ==========  End of Environment Initialization  ========== 
+
+	//  ==========  Character Initialization   ========== 
+
+	
+	/* ===== THIS #ifndef CODE IS ONLY FOR NON-CONNECTED CLIENTS TO IMPROVE GRAPHICS DEVELOPMENT ==== */
+	#ifndef SERVER_ENABLED
+	chars[0] = new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+		glm::vec3(SPAWN_POSITIONS[0][0], 1.5f, SPAWN_POSITIONS[0][1]), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
+		"shaders/character/MAGE");	
+	clientChar = chars[0];
+	Window::gameStarted = true;
+	guiManager->healthBar->flashHealthBar();
+	#endif
+	/* ===== end of #ifndef (no-server client) code ==== */
+
+	initCharacters();
+
+	//  ==========  End of Character Initialization ========== 
+	return true;
+}
+
+void Window::initMap() {
+		ifstream map_file("../assets/layout/map_client.csv");
     string line;
     string id;
 
@@ -173,7 +220,7 @@ bool Window::initializeObjects()
 			objX += width / 2;
 			objY += height / 2;
 			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, shaderProgram,
-				glm::vec3(objX, 8.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.f, 1.f, 0.f));
+				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.f, 1.f, 0.f));
 			table.insert(e);
 
 		// dead tree = grayish black
@@ -181,7 +228,7 @@ bool Window::initializeObjects()
 			objX += width / 2;
 			objY += height / 2;
 			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, shaderProgram,
-				glm::vec3(objX, 8.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.2f, 0.2f, 0.2f));
+				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.2f, 0.2f, 0.2f));
 			table.insert(e);
 
 		// gray ==  Rock
@@ -208,53 +255,38 @@ bool Window::initializeObjects()
 		}
 		
 	} 
-	#endif
+}
+
+void Window::initCharacters() {
+
+	// Initialize character objects before the screen loads.
+	playerTypeToCharacterMap[FIGHTER] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+		glm::vec3(0.f, 2.f, 0.f), 
+		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/FIGHTER"));	
+	playerTypeToCharacterMap[MAGE] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+		glm::vec3(0.f, 2.f, 0.f), 
+		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MAGE"));	
+	playerTypeToCharacterMap[CLERIC] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+		glm::vec3(0.f, 2.f, 0.f), 
+		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/CLERIC"));	
+	playerTypeToCharacterMap[ROGUE] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+		glm::vec3(0.f, 2.f, 0.f), 
+		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/ROGUE"));
+	playerTypeToCharacterMap[MONSTER] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+		glm::vec3(0.f, 2.f, 0.f), 
+		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MAGE"));
+	
+	// Load animations
+	playerTypeToCharacterMap[FIGHTER]->loadAnimationAssets("shaders/character/FIGHTER");
+	playerTypeToCharacterMap[MAGE]->loadAnimationAssets("shaders/character/MAGE");
+	playerTypeToCharacterMap[CLERIC]->loadAnimationAssets("shaders/character/CLERIC");
+	playerTypeToCharacterMap[ROGUE]->loadAnimationAssets("shaders/character/ROGUE");
+	playerTypeToCharacterMap[MONSTER]->loadAnimationAssets("shaders/character/MAGE");
 
 
-	//  ==========  End of Environment Initialization  ========== 
-
-	//  ==========  Character Initialization   ========== 
-
-	// Characters on the map now (scaled 3x)
-	// chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-	// 	glm::vec3(5.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
-	// 	"shaders/character/MAGE"));	
-	// chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-	// 	glm::vec3(15.f, 1.f, 5.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
-	// 	"shaders/character/MAGE"));	
-	// chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-	// 	glm::vec3(5.f, 1.f, 15.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
-	// 	"shaders/character/MAGE"));	
-	// chars.push_back(new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-	// 	glm::vec3(70.f, 1.f, 70.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
-	// 	"shaders/character/MAGE"));
-
-	// #ifdef SERVER_ENABLED
-	// clientChar = chars[client->getId()];
-
-	// #else 
-	// clientChar = chars[0];
-	// gameStarted = true;
-	// #endif
-
-	/* ===== THIS #ifndef CODE IS ONLY FOR NON-CONNECTED CLIENTS TO IMPROVE GRAPHICS DEVELOPMENT ==== */
-	#ifndef SERVER_ENABLED
-	chars[0] = new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-		glm::vec3(SPAWN_POSITIONS[0][0], 1.f, SPAWN_POSITIONS[0][1]), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
-		"shaders/character/MAGE");	
-	clientChar = chars[0];
-	Window::gameStarted = true;
-	guiManager->healthBar->flashHealthBar();
-	#endif
-	/* ===== end of #ifndef (no-server client) code ==== */
-
-
-	chars[3] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-		glm::vec3(SPAWN_POSITIONS[3][0], 1.f, SPAWN_POSITIONS[3][1]), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
-		"shaders/character/MAGE"));
-
-	//  ==========  End of Character Initialization ========== 
-	return true;
+	// Set the last character's vector to the monster character object
+	chars[3] = playerTypeToCharacterMap[MONSTER];
+	chars[3]->moveTo(glm::vec3(SPAWN_POSITIONS[3][0], 1.5f, SPAWN_POSITIONS[3][1]));
 }
 
 // End of Nano GUI Methods
@@ -297,12 +329,18 @@ GLFWwindow* Window::createWindow(int width, int height)
 	Window::guiManager = new GUIManager(width, height, fbWidth, fbHeight);
 	guiManager->setConnectingScreenVisible(true);
 
+	// setup audio program
+	audioProgram = new AudioProgram();
+	audioProgram->setMusicVolume(0.55);
+
 	/* ===== THIS #ifndef CODE IS ONLY FOR NON-CONNECTED CLIENTS TO IMPROVE GRAPHICS DEVELOPMENT ==== */
 #ifndef SERVER_ENABLED // Client-only (no server)	
 	guiManager->setConnectingScreenVisible(false);
 	guiManager->setHUDVisible(true);
 	guiManager->beaconBar->setAmount(18.f);
 #endif
+
+	audioProgram->playAudioWithLooping(TITLE_MUSIC);
 	/* ===== end of #ifndef (no-server client) code ==== */
 
 	// Set swap interval to 1 if you want buffer 
@@ -320,21 +358,24 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 	// Set the viewport size.
 	glViewport(0, 0, width, height);
 
+	// Fixes window crashing when resizing or minimizing
+	if (height > 0 && width > 0) {
 
+		// Update the GUIManager's window height/width
+		int fbWidth, fbHeight;
+		glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+		guiManager->resizeWindow(width, height, fbWidth, fbHeight);
 
-	// Update the GUIManager's window height/width
-	int fbWidth, fbHeight;
-	glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-	guiManager->resizeWindow(width, height, fbWidth, fbHeight);
+		// Set the projection matrix.
+		Window::projection = glm::perspective(glm::radians(80.0), double(width) / (double)height, 0.5, 1000.0);
 
-	// Set the projection matrix.
-	Window::projection = glm::perspective(glm::radians(80.0), double(width) / (double)height, 0.5, 1000.0);
+	}
 
 	// update projection matrix for all the objects
-	int i;
-	for (i = 0; i < chars.size(); i++) {
+	//int i;
+	//for (i = 0; i < chars.size(); i++) {
 		
-	}
+	//}
 }
 
 void Window::idleCallback()
@@ -344,7 +385,10 @@ void Window::idleCallback()
 #ifdef SERVER_ENABLED
 	if(client->isConnected()) {
 		// 1 + 2. Get the latest input and send it to the server
-		client->sendInput(Window::lastInput);
+		GAME_INPUT input;
+		input.input = Window::lastInput;
+		input.angle = Window::lastAngle;
+		client->sendInput(input);
 
 		// 3. Receive updated gamestate from server
 		std::vector<GameUpdate> updates = client->receiveGameUpdates();
@@ -357,9 +401,12 @@ void Window::idleCallback()
 #endif
 	//update camera location
 	if(Window::gameStarted && clientChar != nullptr) {
-		lookAtPoint = clientChar->pos;
+		if(clientChar->getState() == spectating)
+			lookAtPoint = chars[ clientChar->getViewingSpecID() ]->pos;
+		else
+			lookAtPoint = clientChar->pos;
 	}
-	eyePos = lookAtPoint + glm::vec3(0.f, 8.f, 6.f);
+	eyePos = lookAtPoint + glm::vec3(0.f, 10.f, 6.f);
 	view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window::upVector);
 
 	int i;
@@ -386,13 +433,13 @@ void Window::displayCallback(GLFWwindow* window)
 	}
 
 	//then selectively draw objects nearby this player
-	vector<EnvElement*> result;
-	float h = table.getDistance();
+	vector<Object*> result;
+	float h = SPATIAL_HASH_SEARCH_DISTANCE;
 	int j;
 	glm::vec3 base1(-1.f * h, 0.f, 0.f);
 	for (j = 0; j < 3 && Window::gameStarted; j++) {
 		int k;
-		glm::vec3 base2(0.f, 0.f, -1.f * h);
+		glm::vec3 base2(0.f, 0.f, -2.f * h);   //negative 2 multiplier, so the search area is ahead into the screan
 		for (k = 0; k < 3; k++) {
 			glm::vec3 loc = base1 + base2;
 			if(clientChar != nullptr) {
@@ -433,10 +480,14 @@ void Window::displayCallback(GLFWwindow* window)
 
 	glfwPollEvents();
 	glfwSwapBuffers(window);
-	if(!doneInitialRender && client->isConnected()) {
+	if(client->isConnected() && !guiManager->selectScreen->isVisible && !gameStarted) {
 	#ifdef SERVER_ENABLED
 		// send update that we've finished rendering to the server
-		client->sendInput(DONE_RENDERING);
+		GAME_INPUT gameInput;
+		gameInput.input = DONE_RENDERING;
+		printf("sending done_rendering signal to server\n");
+		client->sendInput(gameInput);
+		printf("done_rendering signal sent\n");
 		Sleep(TICK_TIME);
 	#endif
 		doneInitialRender = true;
@@ -454,20 +505,21 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			guiManager->connectingScreen->handleKeyInput(key, window);
 		}
 
+		if(key == GLFW_KEY_M) {
+			audioProgram->toggleMute();
+		}
+
 	 // Check for a key release.
 	} else if (action == GLFW_RELEASE) {
 		keyboard[key] = false;
 	}
 }
 
+
 void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods)
 {
-	if (button == GLFW_MOUSE_BUTTON_LEFT) {
-
-	}
-	if (button == GLFW_MOUSE_BUTTON_RIGHT) {
-
-	}
+	if (button == GLFW_MOUSE_BUTTON_LEFT) mouse[MOUSE_LEFT_INDEX] = (action == GLFW_PRESS);
+	if (button == GLFW_MOUSE_BUTTON_RIGHT)  mouse[MOUSE_RIGHT_INDEX] = (action == GLFW_PRESS);
 }
 
 void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
@@ -478,6 +530,14 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 
 	MouseX = (int)currX;
 	MouseY = (int)currY;
+
+	float dx2 = width / 2 - MouseX;
+	float dy2 = MouseY - height / 2;
+	float dx1 = 0;
+	float dy1 = 1;
+	float dot = dx1*dx2 + dy1*dy2;      // dot product
+	float det = dx1*dy2 - dy1*dx2;      // determinant
+	lastAngle = atan2(det, dot) - M_PI / 2;  // atan2(y, x) or atan2(sin, cos)
 
 	if (LeftDown) {
 		return;
@@ -508,34 +568,27 @@ void Window::handleUpdates(std::vector<GameUpdate> updates) {
 void Window::handleRoleClaim(GameUpdate update) {
 	
 	guiManager->selectScreen->handleRoleClaimed(update.roleClaimed);
+	playerJobs[update.id] = update.roleClaimed;
 
 	switch(update.roleClaimed) {
 		case FIGHTER:
-			chars[update.id] = new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
-				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/FIGHTER");	
-			chars[update.id]->loadAnimationAssets("shaders/character/FIGHTER");
+			chars[update.id] = playerTypeToCharacterMap[FIGHTER];
+			chars[update.id]->moveTo(glm::vec3(SPAWN_POSITIONS[update.id][0], 2.f, SPAWN_POSITIONS[update.id][1]));
 			break;
 
 		case MAGE:
-			chars[update.id] = new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
-				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MAGE");	
-			chars[update.id]->loadAnimationAssets("shaders/character/MAGE");
+			chars[update.id] = playerTypeToCharacterMap[MAGE];
+			chars[update.id]->moveTo(glm::vec3(SPAWN_POSITIONS[update.id][0], 1.5f, SPAWN_POSITIONS[update.id][1]));
 			break;
 
 		case CLERIC:
-			chars[update.id] = new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
-				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/CLERIC");	
-			chars[update.id]->loadAnimationAssets("shaders/character/CLERIC");
+			chars[update.id] = playerTypeToCharacterMap[CLERIC];
+			chars[update.id]->moveTo(glm::vec3(SPAWN_POSITIONS[update.id][0], 2.f, SPAWN_POSITIONS[update.id][1]));
 			break;
 
 		case ROGUE:
-			chars[update.id] = new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
-				glm::vec3(SPAWN_POSITIONS[update.id][0], 1.f, SPAWN_POSITIONS[update.id][1]), 
-				glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/ROGUE");
-			chars[update.id]->loadAnimationAssets("shaders/character/ROGUE");
+			chars[update.id] = playerTypeToCharacterMap[ROGUE];
+			chars[update.id]->moveTo(glm::vec3(SPAWN_POSITIONS[update.id][0], 2.f, SPAWN_POSITIONS[update.id][1]));
 			break;
 	}
 
@@ -559,13 +612,24 @@ void Window::handleRoleClaim(GameUpdate update) {
 // Handles specific update on the graphics side.
 void Window::handleUpdate(GameUpdate update) {
     switch(update.updateType) {
-        case PLAYER_DAMAGE_TAKEN:
+        case PLAYER_DAMAGE_TAKEN: {
+
 			if(update.id == client->getId()) {
 				guiManager->healthBar->decrementHp(update.damageTaken);
 				guiManager->healthBar->flashHealthBar();
 			}
 			chars[update.id]->flashDamage();
+
+			auto now = std::chrono::steady_clock::now();
+    		std::chrono::duration<float> duration = now - lastCombatMusicPlayTime;
+
+			
+			if (std::chrono::duration_cast<std::chrono::seconds>(duration).count() > audioProgram->getSoundLength(COMBAT_MUSIC)) {
+				audioProgram->playAudioWithoutLooping(COMBAT_MUSIC);
+				lastCombatMusicPlayTime = now;
+			}
             break;
+		}
 		case PLAYER_HP_INCREMENT:
 			if(update.id == client->getId()) {
 				guiManager->healthBar->incrementHp(update.healAmount);
@@ -574,7 +638,7 @@ void Window::handleUpdate(GameUpdate update) {
         case PLAYER_MOVE:
 		{
 			chars[update.id]->setState(moving);
-			switch(update.player_direc) {
+			switch(update.direction) {
 				case NORTH:
 					chars[update.id]->setDirection(NORTH);
 					break;
@@ -598,45 +662,20 @@ void Window::handleUpdate(GameUpdate update) {
 		{
 			
 			glm::vec3 trans = glm::vec3(update.playerPos.x, 1.f, update.playerPos.y);
-			glm::vec3 rotAxis = glm::vec3(1.f, 0.f, 0.f);
-			float rotRad = glm::radians(0.f);
 			float scale = 1.f;
 			glm::vec3 color = glm::vec3(1.f, .5f, .5f);
 			string textFile;
 
 			// select projectile texture
-			if (update.projectileType == MAGE_FIREBALL) textFile ="shaders/projectile/fireball";
-			if (update.projectileType == MAGE_SHOOT) textFile ="shaders/projectile/fireball";
-			if (update.projectileType == ROGUE_ARROW) textFile ="shaders/projectile/arrow";
-			if (update.projectileType == CLERIC_SHOOT) textFile ="shaders/projectile/lightball";
-			if (update.projectileType == MONSTER_RANGED) textFile ="shaders/projectile/earthchunk";
-
-			// select projectile direction
-			if (update.direction == NORTH) {
-				textFile += "_up.png";
-				rotRad = glm::radians(-90.f);
-			}
-			if (update.direction == SOUTH) {
-				textFile += "_down.png";
-				rotRad = glm::radians(-90.f);
-			}
-			if (update.direction == WEST) {
-				textFile += "_left.png";
-
-				glm::vec3 targetVec = eyePos - trans;
-				rotRad = - glm::atan(targetVec.y, targetVec.z);
-			}
-			if (update.direction == EAST) {
-				textFile += "_right.png";
-
-				glm::vec3 targetVec = eyePos - trans;
-				rotRad = - glm::atan(targetVec.y, targetVec.z);
-			} 
-			
+			if (update.projectileType == MAGE_FIREBALL) textFile ="shaders/projectile/fireball_up.png";
+			if (update.projectileType == MAGE_SHOOT) textFile ="shaders/projectile/firearrow_up.png";
+			if (update.projectileType == ROGUE_ARROW) textFile ="shaders/projectile/arrow_up.png";
+			if (update.projectileType == CLERIC_SHOOT) textFile ="shaders/projectile/lightball_up.png";
+			if (update.projectileType == MONSTER_RANGED) textFile ="shaders/projectile/earthchunk_up.png";
 
 
 			ProjectileElement* pEle = new ProjectileElement("shaders/character/billboard.obj", &projection, &view, texShader, &eyePos,
-															trans, rotAxis, rotRad, scale, color, (char*) textFile.c_str());
+															trans, scale, color, (char*) textFile.c_str(), update.floatDeltaX, update.floatDeltaY);
 			projectiles[update.id] = pEle;
 
             break;
@@ -649,6 +688,7 @@ void Window::handleUpdate(GameUpdate update) {
 			Window::gameStarted = true;
 			guiManager->setSelectScreenVisible(false); // disable the selects creen
 			guiManager->setHUDVisible(true); // sets the hud visible
+			audioProgram->stopAudio(TITLE_MUSIC);
 			break;
 		case ROLE_CLAIMED:
 			Window::handleRoleClaim(update);
@@ -696,15 +736,58 @@ void Window::handleUpdate(GameUpdate update) {
             // The level up process done in another update.
             removeObj(update.objectiveID);
             break;
+		case PLAYER_NEXT_SPECT:
+		case PLAYER_PREV_SPECT:
+			printf("Calling handleSpectateRequest\n");
+			handleSpectateRequest(update);
+			break;
         default:
             printf("Not Handled Update Type: %d\n", update.updateType);
             break;
     }
 }
 
+void Window::handleSpectateRequest(GameUpdate update) {
+	if(chars[update.id]->getState() != spectating) {
+		chars[update.id]->setState(spectating);
+		clientChar->oldPos = clientChar->pos;
+	}
+
+	chars[update.id]->setViewingSpecID(update.specID);
+}
+
 void Window::handleAttack(GameUpdate update) {
-	printf("Player %id is attacking\n", update.id);
+	printf("Player %d is attacking\n", update.id);
 	chars[update.id]->setState(attacking);
+
+	// Play the audio
+	if(glm::distance(chars[update.id]->pos, clientChar->pos) < MAX_HEARING_DISTANCE) {
+		
+		AudioPosition clientPos = {clientChar->pos.x, clientChar->pos.z};
+		AudioPosition otherPos = {chars[update.id]->pos.x, chars[update.id]->pos.z};
+		switch(playerJobs[update.id]) {
+			case FIGHTER:
+				audioProgram->playDirectionalEffect(FIGHTER_ATTACK_SOUND, clientPos, otherPos);
+				break;
+
+			case MAGE:
+				audioProgram->playDirectionalEffect(MAGE_ATTACK_SOUND, clientPos, otherPos);
+				break;
+
+			case CLERIC:
+				audioProgram->playDirectionalEffect(CLERIC_ATTACK_SOUND, clientPos, otherPos);
+				break;
+
+			case ROGUE:
+				audioProgram->playDirectionalEffect(ROGUE_ATTACK_SOUND, clientPos, otherPos);
+				break;
+
+			case MONSTER:
+				audioProgram->playDirectionalEffect(MONSTER_THROW_SOUND, clientPos, otherPos);
+				break;
+		}
+	}
+	
 }
 
 
@@ -716,14 +799,6 @@ void Window::updateLastInput() {
 		lastInput = INTERACT;
 
 	// J key
-	} else if (keyboard[GLFW_KEY_J]) {
-		lastInput = ATTACK;
-
-	// K key
-	} else if (keyboard[GLFW_KEY_K]) {
-		lastInput = UNIQUE_ATTACK;
-
-	// W key
 	} else if (keyboard[GLFW_KEY_W]) {
 		lastInput = MOVE_FORWARD;
 
@@ -741,46 +816,65 @@ void Window::updateLastInput() {
 
 	// 1 key (select fighter)
 	} else if(keyboard[GLFW_KEY_1]) {
-		if (guiManager->connectingScreen->hasConnectedToServer) {
+
+		// Select screen logic
+		if (guiManager->connectingScreen->hasConnectedToServer && !gameStarted) {
 			guiManager->selectScreen->handleSelecting(FIGHTER);
+			audioProgram->playAudioWithoutLooping(SELECT_SOUND);
 		}
 	// 2 key (select mage)
 	} else if(keyboard[GLFW_KEY_2]) {
 		
-		if (guiManager->connectingScreen->hasConnectedToServer) {
+		// Select screen logic
+		if (guiManager->connectingScreen->hasConnectedToServer && !gameStarted) {
 			guiManager->selectScreen->handleSelecting(MAGE);
+			audioProgram->playAudioWithoutLooping(SELECT_SOUND);
 		}
 
 	// 3 key (select cleric)
 	} else if(keyboard[GLFW_KEY_3]) {
 		
-		if (guiManager->connectingScreen->hasConnectedToServer) {
+		// Select screen logic
+		if (guiManager->connectingScreen->hasConnectedToServer && !gameStarted) {
 			guiManager->selectScreen->handleSelecting(CLERIC);
+			audioProgram->playAudioWithoutLooping(SELECT_SOUND);
 		}
 
 	// 4 key (select rogue)
 	} else if(keyboard[GLFW_KEY_4]) {
 		
-		if (guiManager->connectingScreen->hasConnectedToServer) {
+		// Select screen logic
+		if (guiManager->connectingScreen->hasConnectedToServer && !gameStarted) {
 			guiManager->selectScreen->handleSelecting(ROGUE);
+			audioProgram->playAudioWithoutLooping(SELECT_SOUND);
 		}
 		
 	// enter key (claim selected role)
 	} else if (keyboard[GLFW_KEY_ENTER]) {
-		switch(guiManager->selectScreen->selecting) {
-			case FIGHTER:
-				lastInput = CLAIM_FIGHTER;
-				break;
-			case MAGE:
-				lastInput = CLAIM_MAGE;
-				break;
-			case CLERIC:
-				lastInput = CLAIM_CLERIC;
-				break;
-			case ROGUE:
-				lastInput = CLAIM_ROGUE;
-				break;
+
+		// Select screen logic
+		if (guiManager->connectingScreen->hasConnectedToServer && !gameStarted) {
+			switch(guiManager->selectScreen->selecting) {
+				case FIGHTER:
+					lastInput = CLAIM_FIGHTER;
+					break;
+				case MAGE:
+					lastInput = CLAIM_MAGE;
+					break;
+				case CLERIC:
+					lastInput = CLAIM_CLERIC;
+					break;
+				case ROGUE:
+					lastInput = CLAIM_ROGUE;
+					break;
+			}
+			audioProgram->playAudioWithoutLooping(SELECT_SOUND);
 		}
+	} else if (mouse[MOUSE_LEFT_INDEX]) {
+		lastInput = LEFT_MOUSE_ATTACK;
+
+	} else if (mouse[MOUSE_RIGHT_INDEX]) {
+		lastInput = RIGHT_MOUSE_ATTACK;
 	}
 
 	/* ===== THIS #ifndef CODE IS ONLY FOR NON-CONNECTED CLIENTS TO IMPROVE GRAPHICS DEVELOPMENT ==== */
@@ -799,6 +893,8 @@ void Window::updateLastInput() {
 	// D key
 	} else if(keyboard[GLFW_KEY_D]) {
 		chars[0]->moveToGivenDelta(INIT_SPEED, 0);
+	} else if(keyboard[GLFW_KEY_J]) {
+		audioProgram->playDirectionalEffect(MAGE_FIREBALL_SOUND, {0,0}, {0,0});
 	}
 	#endif
 	/* ===== end of #ifndef (no-server client) code ==== */

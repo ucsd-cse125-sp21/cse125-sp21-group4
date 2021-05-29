@@ -2,13 +2,19 @@
 #define _WINDOW_H_
 
 #define KEYBOARD_SIZE 350
+#define MOUSE_SIZE 2
+#define MOUSE_LEFT_INDEX 0
+#define MOUSE_RIGHT_INDEX 1
 #define SERVER_ENABLED
 #define RENDER_MAP
 #define _USE_MATH_DEFINES
+#define SPATIAL_HASH_SEARCH_DISTANCE 20.0
+
 
 #include "Main.h"
 #include "shader.h"
 #include "Character.h"
+#include "Ground.h"
 #include "EnvElement.h"
 #include "ProjectileElement.h"
 #include "ScreenElement.h"
@@ -19,6 +25,7 @@
 #include "../common/networking/CommunicationConstants.h"
 #include "../common/game/Projectile.h"
 #include "gui/GUIManager.h"
+#include "AudioProgram.h"
 
 #include <fstream>
 #include <string>
@@ -26,7 +33,6 @@
 #include <unordered_map>
 #include <iostream>
 #include <cmath>
-
 
 
 class Window
@@ -41,7 +47,10 @@ public:
 
 	//objects to render
 	static vector<Character*> chars;
+	static unordered_map<PlayerType, Character*> Window::playerTypeToCharacterMap;
+
 	static vector<EnvElement*> envs;
+	static Ground* ground;
 	static unordered_map<int, ProjectileElement*> projectiles;
 	static vector<ScreenElement*> selectScreenElements;
 	static map<int, ObjElement*> objectiveMap; 
@@ -50,6 +59,11 @@ public:
 	// Shader Program 
 	static GLuint shaderProgram;
 	static GLuint texShader;
+
+	// Audio Program
+	static AudioProgram* audioProgram;
+	static std::vector<PlayerType> playerJobs;
+
 
 	// Camera Matrices 
 	// Projection matrix:
@@ -61,9 +75,11 @@ public:
 
 	// Last CLIENT_INPUT recorded
 	static CLIENT_INPUT lastInput;
+	static float lastAngle; // used for projectile angle
 
 	// Keyboard keys that are being held down or pressed
 	static bool keyboard[KEYBOARD_SIZE];
+	static bool mouse[MOUSE_SIZE];
 
 	// Used to determine whether or not camera should be looking at player or select screen
 	static bool gameStarted;
@@ -109,6 +125,12 @@ public:
 
 	// Used to remove objectives
 	static void Window::removeObj(int objectiveID);
+
+	static void Window::initCharacters();
+	static void Window::initMap();
+
+	static void Window::handleSpectateRequest(GameUpdate update);
+
 };
 
 #endif

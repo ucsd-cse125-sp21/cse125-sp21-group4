@@ -282,6 +282,10 @@ void Character::draw(glm::mat4 c) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void Character::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
+	draw();
+}
+
 //no longer used
 void Character::move(int dir) {
 }
@@ -289,9 +293,7 @@ void Character::move(int dir) {
 void Character::moveTo(glm::vec3 newPos) {
 	if (pos == newPos)
 		currState = idle;
-	// TODO: Uncomment this else once we add moving animations
-	// else
-	// 	currState = moving;
+
 	pos = newPos;
 	model = glm::translate(pos) * scaleMtx;
 }
@@ -311,6 +313,9 @@ void Character::moveToGivenDelta(float deltaX, float deltaY) {
 
 void Character::update() {
 	currTime = clock();
+
+	if (currState == spectating) return;
+
 	if (currState != prevState) {
 		frameIdx = 0; // start a new sequence of animation
 		textId = ( *(*animSequence[currState]) [currDirec] )[frameIdx];
@@ -338,7 +343,7 @@ void Character::update() {
 			// check if on the last frame of a sequence
 			if (frameIdx + 1 == ( *(*animSequence[currState]) [currDirec] ).size()) {
 				frameIdx = 0;
-				if(currState != idle) currState = idle; // get out of attack state. May need more complicated reset later.
+				if(currState != idle && currState != spectating) currState = idle; // get out of attack and movement state.
 			}
 			else
 				frameIdx++;
@@ -458,6 +463,10 @@ void Character::setState(CharState state) {
 	currState = state;
 }
 
+CharState Character::getState() {
+	return currState;
+}
+
 void Character::flashDamage() {
 	damageFlashUntil = clock() + CHARACTER_DAMAGE_TAKEN_FLASHING_TIME_MS * CLOCKS_PER_SEC / 1000;
 }
@@ -465,4 +474,12 @@ void Character::flashDamage() {
 // set the current direction the player is facing
 void Character::setDirection(Direction d) {
 	currDirec = d;
+}
+
+int Character::getViewingSpecID() {
+	return viewingSpecID;
+}
+
+void Character::setViewingSpecID(int id) {
+	viewingSpecID = id;
 }

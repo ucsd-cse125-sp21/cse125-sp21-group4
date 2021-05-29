@@ -103,6 +103,9 @@
     <Link>
       <AdditionalDependencies>opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <ClCompile>
+      <PreprocessorDefinitions>WITH_MINIAUDIO</PreprocessorDefinitions>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>
@@ -110,10 +113,38 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AudioProgram.cpp" />
+    <ClCompile Include="audio\include\dr_impl.cpp" />
+    <ClCompile Include="audio\include\soloud.cpp" />
+    <ClCompile Include="audio\include\soloud_audiosource.cpp" />
+    <ClCompile Include="audio\include\soloud_bus.cpp" />
+    <ClCompile Include="audio\include\soloud_core_3d.cpp" />
+    <ClCompile Include="audio\include\soloud_core_basicops.cpp" />
+    <ClCompile Include="audio\include\soloud_core_faderops.cpp" />
+    <ClCompile Include="audio\include\soloud_core_filterops.cpp" />
+    <ClCompile Include="audio\include\soloud_core_getters.cpp" />
+    <ClCompile Include="audio\include\soloud_core_setters.cpp" />
+    <ClCompile Include="audio\include\soloud_core_voicegroup.cpp" />
+    <ClCompile Include="audio\include\soloud_core_voiceops.cpp" />
+    <ClCompile Include="audio\include\soloud_fader.cpp" />
+    <ClCompile Include="audio\include\soloud_fft.cpp" />
+    <ClCompile Include="audio\include\soloud_fft_lut.cpp" />
+    <ClCompile Include="audio\include\soloud_file.cpp" />
+    <ClCompile Include="audio\include\soloud_filter.cpp" />
+    <ClCompile Include="audio\include\soloud_miniaudio.cpp" />
+    <ClCompile Include="audio\include\soloud_misc.cpp" />
+    <ClCompile Include="audio\include\soloud_null.cpp" />
+    <ClCompile Include="audio\include\soloud_queue.cpp" />
+    <ClCompile Include="audio\include\soloud_thread.cpp" />
+    <ClCompile Include="audio\include\soloud_wav.cpp" />
+    <ClCompile Include="audio\include\soloud_wavstream.cpp" />
+    <ClCompile Include="audio\include\stb_vorbis.c" />
     <ClCompile Include="Cell.cpp" />
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="CommunicationClient.cpp" />
     <ClCompile Include="EnvElement.cpp" />
+    <ClCompile Include="Ground.cpp" />
+    <ClCompile Include="GroundTile.cpp" />
     <ClCompile Include="gui\BeaconBar.cpp" />
     <ClCompile Include="gui\GUIManager.cpp" />
     <ClCompile Include="gui\HealthBar.cpp" />
@@ -130,11 +161,54 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AudioProgram.h" />
+    <ClInclude Include="audio\include\dr_flac.h" />
+    <ClInclude Include="audio\include\dr_mp3.h" />
+    <ClInclude Include="audio\include\dr_wav.h" />
+    <ClInclude Include="audio\include\miniaudio.h" />
+    <ClInclude Include="audio\include\soloud.h" />
+    <ClInclude Include="audio\include\soloud_audiosource.h" />
+    <ClInclude Include="audio\include\soloud_bassboostfilter.h" />
+    <ClInclude Include="audio\include\soloud_biquadresonantfilter.h" />
+    <ClInclude Include="audio\include\soloud_bus.h" />
+    <ClInclude Include="audio\include\soloud_c.h" />
+    <ClInclude Include="audio\include\soloud_dcremovalfilter.h" />
+    <ClInclude Include="audio\include\soloud_echofilter.h" />
+    <ClInclude Include="audio\include\soloud_error.h" />
+    <ClInclude Include="audio\include\soloud_fader.h" />
+    <ClInclude Include="audio\include\soloud_fft.h" />
+    <ClInclude Include="audio\include\soloud_fftfilter.h" />
+    <ClInclude Include="audio\include\soloud_file.h" />
+    <ClInclude Include="audio\include\soloud_file_hack_off.h" />
+    <ClInclude Include="audio\include\soloud_file_hack_on.h" />
+    <ClInclude Include="audio\include\soloud_filter.h" />
+    <ClInclude Include="audio\include\soloud_flangerfilter.h" />
+    <ClInclude Include="audio\include\soloud_freeverbfilter.h" />
+    <ClInclude Include="audio\include\soloud_internal.h" />
+    <ClInclude Include="audio\include\soloud_lofifilter.h" />
+    <ClInclude Include="audio\include\soloud_misc.h" />
+    <ClInclude Include="audio\include\soloud_monotone.h" />
+    <ClInclude Include="audio\include\soloud_noise.h" />
+    <ClInclude Include="audio\include\soloud_openmpt.h" />
+    <ClInclude Include="audio\include\soloud_queue.h" />
+    <ClInclude Include="audio\include\soloud_robotizefilter.h" />
+    <ClInclude Include="audio\include\soloud_sfxr.h" />
+    <ClInclude Include="audio\include\soloud_speech.h" />
+    <ClInclude Include="audio\include\soloud_tedsid.h" />
+    <ClInclude Include="audio\include\soloud_thread.h" />
+    <ClInclude Include="audio\include\soloud_vic.h" />
+    <ClInclude Include="audio\include\soloud_vizsn.h" />
+    <ClInclude Include="audio\include\soloud_wav.h" />
+    <ClInclude Include="audio\include\soloud_waveshaperfilter.h" />
+    <ClInclude Include="audio\include\soloud_wavstream.h" />
+    <ClInclude Include="audio\include\stb_vorbis.h" />
     <ClInclude Include="Cell.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="CommunicationClient.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="EnvElement.h" />
+    <ClInclude Include="Ground.h" />
+    <ClInclude Include="GroundTile.h" />
     <ClInclude Include="gui\BeaconBar.h" />
     <ClInclude Include="gui\GUIManager.h" />
     <ClInclude Include="gui\HealthBar.h" />

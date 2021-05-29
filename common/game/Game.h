@@ -41,6 +41,7 @@ public:
 
     int renderCount;
     bool started; // used to determine if we've passed the initial screen.
+    bool doneRenderedClients[PLAYER_NUM];
 
     // public member functions
     Game(); // default constructor
@@ -58,7 +59,7 @@ public:
     void printGameState (GameState gameState);
     ~Game(); // destructor
 
-    bool handleInputs(CLIENT_INPUT playersInputs[PLAYER_NUM]);
+    bool handleInputs(GAME_INPUT playersInputs[PLAYER_NUM]);
     void handleUserClaim(CLIENT_INPUT claimType, int playerID);
     void updateProjectiles();
     void processEvent (GameEvent* event);

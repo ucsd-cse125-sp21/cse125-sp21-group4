@@ -2,6 +2,6 @@
 
 Cell::Cell(int iD) {
 	next = NULL;
-	items = vector<EnvElement*>(0);
+	items = vector<Object*>(0);
 	id = iD;
 }

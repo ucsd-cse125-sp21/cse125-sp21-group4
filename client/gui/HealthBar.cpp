@@ -16,10 +16,10 @@ void HealthBar::setHp(int hp) {
 }
 
 void HealthBar::decrementHp(int damage) {
-	this->hp -= damage;
+	this->hp = std::max(0, hp - damage);
 }
 void HealthBar::incrementHp(int heal) {
-	this->hp += heal;
+	this->hp += std::min(this->hp + heal, this->maxHp);
 }
 void HealthBar::setMaxHp(int newMax) {
     this->maxHp = newMax;

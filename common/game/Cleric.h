@@ -12,8 +12,8 @@ public:
     Cleric(); // Constructor for GameComponent
     Cleric(PlayerPosition position); // Constructor for GameComponent
 
-    void attack (Game* game);
-    void uniqueAttack (Game* game);
+    void attack (Game* game, float angle);
+    void uniqueAttack (Game* game, float angle);
     void interact (Game* game);
 };
 

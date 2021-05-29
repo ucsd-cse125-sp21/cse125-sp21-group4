@@ -7,6 +7,15 @@ SpatialHashTable::SpatialHashTable() {
 	count = 0;
 }
 
+
+/*
+	size: how many cells are going to be used in this hash table; default is 2000.
+	dis:  this is the width of a grid box in the 3d space; the bigger this value
+		  is, the larger the amount of 3d space a grid box would cover. Generally
+		  you want larger grid boxes if you want to commute farther objects, and
+		  smaller grid boxe if you only want to consider near by objects. Default is
+		  0.01f.
+*/
 SpatialHashTable::SpatialHashTable(int size, float dis) {
 	listSize = 2000;
 	if (size > listSize)
@@ -37,7 +46,7 @@ Cell* SpatialHashTable::getCell(glm::vec3 p) {
 	return NULL;
 }
 
-void SpatialHashTable::insert(EnvElement* p) {
+void SpatialHashTable::insert(Object* p) {
 	int iD = (int)(p->pos.x / h) + (int)(p->pos.y / h) + (int)(p->pos.z / h);
 	int index = ((((int)(p->pos.x / h) * 73856093) ^
 		((int)(p->pos.y / h) * 19349663) ^
@@ -68,7 +77,7 @@ void SpatialHashTable::insert(EnvElement* p) {
 	}
 }
 
-void SpatialHashTable::remove(EnvElement* p) {
+void SpatialHashTable::remove(Object* p) {
 	int iD = (int)(p->pos.x / h) + (int)(p->pos.y / h) + (int)(p->pos.z / h);
 	int index = ((((int)(p->pos.x / h) * 73856093) ^
 		((int)(p->pos.y / h) * 19349663) ^

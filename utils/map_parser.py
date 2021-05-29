@@ -3,10 +3,12 @@ import numpy as np
 file = open("assets\layout\map.json", "r")
 
 mapJson = json.load(file)
-objects = mapJson["layers"][1]["objects"]
+tiles = mapJson["layers"][1]["objects"]
+objects = mapJson["layers"][2]["objects"]
 
 serverCSV = open("assets/layout/map_server.csv", "w")
 graphicsCSV = open("assets/layout/map_client.csv", "w")
+groundCSV = open("assets/layout/map_ground.csv", "w")
 ratio = 16
 
 # Tile IDs
@@ -79,3 +81,23 @@ for y in range (MAP_HEIGHT):
         else:
             serverCSV.write(str(int(grid[x][y])) + ",")
     serverCSV.write("\n")
+
+
+tile_grid = np.zeros((int(MAP_WIDTH / 5), int(MAP_HEIGHT / 5)))
+for tile in tiles:
+    # print(object)
+    objectX = int(tile["x"] / ratio)
+    objectY = int(tile["y"] / ratio)
+    objectWidth = int(tile["width"] / ratio)
+    objectHeight = int(tile["height"] / ratio)
+    tile_grid[objectX // 6][objectY // 6] = 1
+
+for y in range(100):
+    for x in range(100):
+        if x == 99:
+            groundCSV.write(str(int(tile_grid[x][y])))
+        else:
+            groundCSV.write(str(int(tile_grid[x][y])) + ",")
+    groundCSV.write("\n")
+
+

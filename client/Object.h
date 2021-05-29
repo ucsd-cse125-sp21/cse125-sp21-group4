@@ -10,11 +10,19 @@
 
 using namespace std;
 
+/*
+	Object is now supported by the spatial hash table. Any subclass now can be used
+	in spatial hash table for proximity rendering.
+*/
+
 class Object{
 public:
+	glm::vec3 pos; // pos now moved to Object class to have support in spatial hash table
+	glm::vec3 oldPos; // to restore the old camera position if the player is revived
 	virtual void draw(glm::mat4 c) = 0;
 	virtual void update() = 0;
 	virtual void updateView(glm::mat4, glm::vec3) = 0;
+	virtual void drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c = glm::mat4(1)) = 0;
 };
 
 #endif

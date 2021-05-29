@@ -13,11 +13,22 @@
 */
 
 ProjectileElement::ProjectileElement(string fileName, glm::mat4* p, glm::mat4* v, GLuint s, glm::vec3* vPos,
-	glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale, glm::vec3 c, char* textFile) {
+	glm::vec3 trans, float scale, glm::vec3 c, char* textFile, float deltaX, float deltaY) {
 
 	// initial translation will bthe initial position
 	pos = trans;
+	// model = glm::rotate(glm::translate(trans), rotRad, rotAxis);
+	glm::vec3 rotAxis = glm::vec3(0.f, 0.f, 1.f);
+	float rotRad = glm::radians(-90.f) - glm::atan(deltaY, deltaX);
 	model = glm::rotate(glm::translate(trans), rotRad, rotAxis);
+    if (abs(glm::atan(deltaY / deltaX)) > glm::radians(5.f)) {
+        float rotRad2 = -glm::atan(deltaY /  deltaX);
+        if(deltaX > 0) {
+            rotRad2 = -rotRad2;
+        }
+        glm::vec3 rotAxis2 = glm::vec3(1.f, 0.f, 0.f);
+        model = glm::rotate(model, rotRad2, rotAxis2);
+    }
 	// * glm::scale(glm::vec3(scale));
 	projection = p;
 	view = v;
@@ -182,30 +193,6 @@ void ProjectileElement::draw(glm::mat4 c) {
 	glm::mat4 m = model * c;
 	glUseProgram(shader);
 
-	// glm::vec3 z = glm::vec3(0.f, 0.f, 0.f);
-	// for (int i = 0; i < 3; i++) {
-	// 	z[i] = pos[i] - (*eyep)[i];
-	// }
-
-	// float scaleX = sqrt(m[0][0]*m[0][0]+m[0][1]*m[0][1]+m[0][2]*m[0][2]);
-	// float scaleY = sqrt(m[1][0]*m[1][0]+m[1][1]*m[1][1]+m[0][2]*m[1][2]);
-	// float scaleZ = sqrt(m[2][0]*m[2][0]+m[2][1]*m[2][1]+m[0][2]*m[2][2]);
-
-	// glm::vec3 x = glm::cross(glm::vec3(0.f, 0.1f, 0.f), z);
-	// glm::vec3 y = glm::cross(x, z);
-	// glm::vec3 xn = glm::normalize(x);
-	// glm::vec3 yn = glm::normalize(y);
-	// glm::vec3 zn = glm::normalize(z);
-
-	// // rotate the character so it will parallel with the line from camera to character
-	// for (int i = 0; i < 3;  i++) m[i][0] = xn[i];
-	// for (int i = 0; i < 3;  i++) m[i][1] = yn[i];
-	// for (int i = 0; i < 3;  i++) m[i][2] = zn[i];
-	// // restore scaling
-	// m[0][0] = scaleX;
-	// m[1][1] = scaleY;
-	// m[2][2] = scaleZ;
-
 	// Get the shader variable locations and send the uniform data to the shader 
 	glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, false, glm::value_ptr(*view));
 	glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, false, glm::value_ptr(*projection));
@@ -232,6 +219,10 @@ void ProjectileElement::draw(glm::mat4 c) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void ProjectileElement::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
+	draw();
+}
+
 void ProjectileElement::update() {
 
 }
@@ -256,9 +247,7 @@ void ProjectileElement::moveToGivenPos(float x, float y) {
 	moveTo(newPos);
 }
 
-void ProjectileElement::updateView(glm::mat4 proj, glm::vec3) {
-
-}
+void ProjectileElement::updateView(glm::mat4 proj, glm::vec3) {}
 
 bool ProjectileElement::loadTexture(char* texturePath) {
 	// const char* texturePath = path.c_str();

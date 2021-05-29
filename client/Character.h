@@ -15,11 +15,12 @@
 enum CharState {
 	idle,
 	moving,
-	attacking
+	attacking,
+	spectating
 	//add more for other actions
 };
 
-class Character : Object {
+class Character : public Object {
 private:
 	std::vector<glm::vec3> normal;
 	std::vector<glm::vec3> points;
@@ -68,6 +69,7 @@ private:
 
 	
 	int frameIdx;	// current frame in animation sequence
+	int viewingSpecID;  // ID of the player this player is spectating
 	//add more for attack and other actions
 
 	glm::vec3 * eyep;
@@ -81,7 +83,7 @@ private:
 
 public:
 	//character specific status such as positions, stats etc
-	glm::vec3 pos;
+
 	//...
 
 	/*
@@ -97,6 +99,7 @@ public:
 		GLuint shader, glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale,
 		glm::vec3 c = glm::vec3(0.f, 0.f, 0.f), char* textFile = "");
 	void draw(glm::mat4 c = glm::mat4(1));
+	void drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c = glm::mat4(1));
 	void update();
 	void move(int); // no longer used
 	void moveTo(glm::vec3);
@@ -106,8 +109,11 @@ public:
 	bool loadAnimation(CharState state, Direction d, string animFile);
 	bool loadAnimationAssets(string assetFolder);
 	void setState(CharState state);
+	CharState getState();
 	void flashDamage();
 	void setDirection(Direction d);
+	int getViewingSpecID();
+	void setViewingSpecID(int id);
 };
 
 #endif
