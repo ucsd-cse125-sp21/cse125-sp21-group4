@@ -32,6 +32,7 @@ int MouseX, MouseY;
 // The shader program id
 GLuint Window::shaderProgram; //Phong lighting shader; only use this for models without texture
 GLuint Window::texShader;     //shader for model with textures. NOTE, it also calculates texture alphas
+GLuint Window::groundShader;  //array instance shader that draw multiple objects using same set of data
 
 // projection Matrices 
 glm::mat4 Window::projection;
@@ -63,6 +64,7 @@ bool Window::initializeProgram() {
 	// Create a shader program with a vertex shader and a fragment shader.
 	shaderProgram = LoadShaders("shaders/shader/shader.vert", "shaders/shader/shader.frag");
 	texShader = LoadShaders("shaders/shader/texture.vert", "shaders/shader/texture.frag");
+	groundShader = LoadShaders("shaders/shader/groundShader.vert", "shaders/shader/groundShader.frag");
 	// Check the shader program.
 	if (!shaderProgram)
 	{
@@ -102,10 +104,6 @@ bool Window::initializeObjects()
 	// 	glm::vec3(0.f, -1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
 
 
-	//for now tileScale should be tileSize / 2.0
-	ground = new Ground("shaders/environment/ground.obj", &projection, &view, texShader,
-		"shaders/environment/dry_grass_texture_3x3.png", "shaders/environment/cracked_tile_texture_3x3.png", &table, 3.0f);
-
 	#ifdef RENDER_MAP
 	printf("=======================================\nIt will take a while for the game to launch, please wait.\n");
 	initMap();
@@ -137,6 +135,11 @@ bool Window::initializeObjects()
 }
 
 void Window::initMap() {
+	cout << "initing map" << endl;
+	//for now tileScale should be tileSize / 2.0
+	ground = new Ground("shaders/environment/ground.obj", &projection, &view, groundShader,
+		"shaders/environment/dry_grass_texture_3x3.png", "shaders/environment/cracked_tile_texture_3x3.png", 3.0f);
+
 	ifstream map_file("../assets/layout/map_client.csv");
     string line;
     string id;
@@ -443,6 +446,9 @@ void Window::displayCallback(GLFWwindow* window)
 	for (i = 0; i < envs.size(); i++) {
 		envs[i]->draw();
 	}
+
+	if(ground != NULL)
+		ground->draw();
 
 	//then selectively draw objects nearby this player
 	vector<Object*> result;
