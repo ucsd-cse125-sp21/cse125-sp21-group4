@@ -5,10 +5,10 @@
 #define MOUSE_SIZE 2
 #define MOUSE_LEFT_INDEX 0
 #define MOUSE_RIGHT_INDEX 1
-#define SERVER_ENABLED
+//#define SERVER_ENABLED
 #define RENDER_MAP
 #define _USE_MATH_DEFINES
-#define SPATIAL_HASH_SEARCH_DISTANCE 20.0
+#define SPATIAL_HASH_SEARCH_DISTANCE 11.0
 
 
 // camera offsets for player
@@ -55,7 +55,7 @@ public:
 	static unordered_map<PlayerType, Character*> Window::playerTypeToCharacterMap;
 
 	static vector<EnvElement*> envs;
-	static Ground* ground;
+	static Ground * ground;
 	static unordered_map<int, ProjectileElement*> projectiles;
 	static vector<ScreenElement*> selectScreenElements;
 	static map<int, ObjElement*> objectiveMap; 
@@ -63,7 +63,9 @@ public:
 
 	// Shader Program 
 	static GLuint shaderProgram;
+	static GLuint phongTexShader;
 	static GLuint texShader;
+	static GLuint groundShader;
 
 	// Audio Program
 	static AudioProgram* audioProgram;
