@@ -1,7 +1,5 @@
 #include "Window.h"
 
-#define SERVER_ENABLED
-
 //// Window Properties
 int Window::width;
 int Window::height;
@@ -274,14 +272,14 @@ void Window::initCharacters() {
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/ROGUE"));
 	playerTypeToCharacterMap[MONSTER] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 		glm::vec3(0.f, 2.f, 0.f), 
-		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MAGE"));
+		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MONSTER"));
 	
 	// Load animations
 	playerTypeToCharacterMap[FIGHTER]->loadAnimationAssets("shaders/character/FIGHTER");
 	playerTypeToCharacterMap[MAGE]->loadAnimationAssets("shaders/character/MAGE");
 	playerTypeToCharacterMap[CLERIC]->loadAnimationAssets("shaders/character/CLERIC");
 	playerTypeToCharacterMap[ROGUE]->loadAnimationAssets("shaders/character/ROGUE");
-	playerTypeToCharacterMap[MONSTER]->loadAnimationAssets("shaders/character/MAGE");
+	playerTypeToCharacterMap[MONSTER]->loadAnimationAssets("shaders/character/MONSTER");
 
 
 	// Set the last character's vector to the monster character object
