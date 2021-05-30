@@ -51,6 +51,8 @@ enum UPDATE_TYPE {
     PLAYER_MOVE,
     PROJECTILE_MOVE,
     PROJECTILE_END,
+    PLAYER_NEXT_SPECT,
+    PLAYER_PREV_SPECT,
 
     BEACON_BEING_TAKEN,
     BEACON_DECAYING,
@@ -71,13 +73,13 @@ enum UPDATE_TYPE {
     GAME_END, // endStatus can be 1(hunters win), 2(monster win), 3(tie)
     INVALID_UPDATE, // this will be sent if people forget to update the updateType
 
-
 };
 
 // GameUpdate packet payload
 struct GameUpdate {
     UPDATE_TYPE updateType = INVALID_UPDATE;
     int id = -1; // -1 instead of 0 because 0 is a valid player id.
+    int specID; // id of the player the current player  is going to spectate
     int objectiveID = -1; // -1 instead of 0 for valid objectiveID.
     int damageTaken = 0; // Used for a damage taken event
     int attackAmount = 0; // amount of damage per attack

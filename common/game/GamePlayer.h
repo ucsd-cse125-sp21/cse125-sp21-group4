@@ -33,8 +33,13 @@ protected:
     float speed; // current move speed
     float acceleration; // acceleration relative to server tick
     float maxSpeed; // the maximum speed player can do
+    std::chrono::steady_clock::time_point prevTime;
+
 
     int id; // Used for determining playerID
+    int specID; // ID of the player this player is spectating
+
+    long long getTimeDiff();
 
 public:
     GamePlayer(); // Constructor for GamePlayer
@@ -90,6 +95,8 @@ public:
 
     void setID(int newID); // used to know what the id of the player is
     int getID();
+
+    void spectate(Game* game, UPDATE_TYPE update);
 };
 
 #endif
