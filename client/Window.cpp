@@ -662,6 +662,11 @@ void Window::handleUpdate(GameUpdate update) {
 				guiManager->healthBar->incrementHp(update.healAmount);
 			}
 			break;
+		case SAFE_REGION_UPDATE:
+			guiManager->miniMap->safeRegionX = update.playerPos.x;
+			guiManager->miniMap->safeRegionY = update.playerPos.y;
+			guiManager->miniMap->safeRegionRadius = update.beaconCaptureAmount;
+			break;
         case PLAYER_MOVE:
 		{
 			chars[update.id]->setState(moving);

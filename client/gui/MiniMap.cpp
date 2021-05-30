@@ -54,11 +54,23 @@ void MiniMap::draw(float x, float y, float w, float h) {
 	// nvgFill(vg);
 	// nvgClosePath(vg);
 
+
     NVGpaint imgPaint =  nvgImagePattern(vg, x, y, w, h, 0.0f/180.0f*NVG_PI, image, 1.f);
     nvgBeginPath(vg);
     nvgRoundedRect(vg, x, y, w, h, 5);
     nvgFillPaint(vg, imgPaint);
     nvgFill(vg);
+
+
+	// draw safe region
+	if (safeRegionRadius > 0) {
+		nvgBeginPath(vg);
+		nvgCircle(vg, x + safeRegionX/MAP_WIDTH*w, y + safeRegionY/MAP_HEIGHT*h, 
+			safeRegionRadius/sqrt(pow(MAP_WIDTH,2)+pow(MAP_HEIGHT,2))*sqrt(pow(w,2)+pow(h,2)));
+		nvgFillColor(vg, nvgRGBA(0,255,33,100));
+		nvgFill(vg);
+	}
+
 
 	// Draw current player and teammates' positions
 	if (currPlayerType == MONSTER)  {

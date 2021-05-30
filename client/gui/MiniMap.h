@@ -15,6 +15,9 @@ public:
     PlayerType playerTypes[PLAYER_NUM]; // used later if we want to add minimap icons
     PlayerPosition playerPositions[PLAYER_NUM]; // actual player positions on the map
     PlayerPosition pingPositions[PLAYER_NUM];
+    float safeRegionX=SAFE_REGION_X;
+    float safeRegionY=SAFE_REGION_Y;
+    float safeRegionRadius=-1;
     NVGcontext* vg;
     bool isVisible;
     bool hasTeamCapturedBeacon; // for those who have captured the beacon
