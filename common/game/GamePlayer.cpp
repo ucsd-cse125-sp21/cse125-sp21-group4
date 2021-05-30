@@ -498,7 +498,7 @@ void GamePlayer::handleUserInput (Game* game, GAME_INPUT userInput) {
     if (isDead()) return;
 
     switch (userInput.input) {
-        // Eric TODO: add gameupdates
+        // straight movement
         case MOVE_FORWARD:
             move(game, NORTH);
             break;
@@ -511,12 +511,11 @@ void GamePlayer::handleUserInput (Game* game, GAME_INPUT userInput) {
         case MOVE_RIGHT:
             move(game, EAST);
             break;
+        // diagonal movement
         case MOVE_UPLEFT:
-            printf("move upleft %d\n", 1);
             move(game, NORTH_WEST);
             break;
         case MOVE_UPRIGHT:
-		    printf("call move server %d \n", 1);
             move(game, NORTH_EAST);
             break;
         case MOVE_DOWNLEFT:
@@ -525,6 +524,73 @@ void GamePlayer::handleUserInput (Game* game, GAME_INPUT userInput) {
         case MOVE_DOWNRIGHT:
             move(game, SOUTH_EAST);
             break;
+        // straight move and attack
+        case MOVE_FORWARD_ATTACK:
+            move(game, NORTH);
+            attack(game, userInput.angle);
+            break;
+        case MOVE_FORWARD_UNIQUE_ATTACK:
+            move(game, NORTH);
+            uniqueAttack(game, userInput.angle);
+            break;
+        case MOVE_BACKWARD_ATTACK:
+            move(game, SOUTH);
+            attack(game, userInput.angle);
+            break;
+        case MOVE_BACKWARD_UNIQUE_ATTACK:
+            move(game, SOUTH);
+            uniqueAttack(game, userInput.angle);
+            break;
+        case MOVE_LEFT_ATTACK:
+            move(game, WEST);
+            attack(game, userInput.angle);
+            break;
+        case MOVE_LEFT_UNIQUE_ATTACK:
+            move(game, WEST);
+            uniqueAttack(game, userInput.angle);
+            break;
+        case MOVE_RIGHT_ATTACK:
+            move(game, EAST);
+            attack(game, userInput.angle);
+            break;
+        case MOVE_RIGHT_UNIQUE_ATTACK:
+            move(game, EAST);
+            uniqueAttack(game, userInput.angle);
+            break;
+        // diagonal move and attack
+        case MOVE_UPLEFT_ATTACK:
+            move(game, NORTH_WEST);
+            attack(game, userInput.angle);
+            break;
+        case MOVE_UPLEFT_UNIQUE_ATTACK:
+            move(game, NORTH_WEST);
+            uniqueAttack(game, userInput.angle);
+            break;
+        case MOVE_UPRIGHT_ATTACK:
+            move(game, NORTH_EAST);
+            attack(game, userInput.angle);
+            break;
+        case MOVE_UPRIGHT_UNIQUE_ATTACK:
+            move(game, NORTH_EAST);
+            uniqueAttack(game, userInput.angle);
+            break;
+        case MOVE_DOWNRIGHT_ATTACK:
+            move(game, SOUTH_EAST);
+            attack(game, userInput.angle);
+            break;
+        case MOVE_DOWNRIGHT_UNIQUE_ATTACK:
+            move(game, SOUTH_EAST);
+            uniqueAttack(game, userInput.angle);
+            break;
+        case MOVE_DOWNLEFT_ATTACK:
+            move(game, SOUTH_WEST);
+            attack(game, userInput.angle);
+            break;
+        case MOVE_DOWNLEFT_UNIQUE_ATTACK:
+            move(game, SOUTH_WEST);
+            uniqueAttack(game, userInput.angle);
+            break;
+        
         case INTERACT:
             interact(game);
             break;

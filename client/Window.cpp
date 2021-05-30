@@ -887,7 +887,6 @@ void Window::handleUniqueAttack(GameUpdate update) {
 
 // This function checks if a certain key is being pressed or held down.
 void Window::updateLastInput() {
-
 	// E key
 	if (keyboard[GLFW_KEY_E]) {
 		lastInput = INTERACT;
@@ -895,37 +894,52 @@ void Window::updateLastInput() {
 	// WA key together
 	} 
 	else if(keyboard[GLFW_KEY_W] && keyboard[GLFW_KEY_A]) {
-		lastInput = MOVE_UPLEFT;
+		if (mouse[MOUSE_LEFT_INDEX]) lastInput = MOVE_UPLEFT_ATTACK;
+		else if (mouse[MOUSE_RIGHT_INDEX]) lastInput = MOVE_UPLEFT_UNIQUE_ATTACK;
+		else lastInput = MOVE_UPLEFT;
 
 	// WD key together
 	} else if(keyboard[GLFW_KEY_W] && keyboard[GLFW_KEY_D]) {
-		printf("update input as upright %d \n", 1);
-		lastInput = MOVE_UPRIGHT;
+		if (mouse[MOUSE_LEFT_INDEX]) lastInput = MOVE_UPRIGHT_ATTACK;
+		else if (mouse[MOUSE_RIGHT_INDEX]) lastInput = MOVE_UPRIGHT_UNIQUE_ATTACK;
+		else lastInput = MOVE_UPRIGHT;
 
 	// AS key together
 	} else if(keyboard[GLFW_KEY_S] && keyboard[GLFW_KEY_A]) {
-		lastInput = MOVE_DOWNLEFT;
+		if (mouse[MOUSE_LEFT_INDEX]) lastInput = MOVE_DOWNLEFT_ATTACK;
+		else if (mouse[MOUSE_RIGHT_INDEX]) lastInput = MOVE_DOWNLEFT_UNIQUE_ATTACK;
+		else lastInput = MOVE_DOWNLEFT;
 
 	// SD key together
 	} else if(keyboard[GLFW_KEY_S] && keyboard[GLFW_KEY_D]) {
-		lastInput = MOVE_DOWNRIGHT;
+		if (mouse[MOUSE_LEFT_INDEX]) lastInput = MOVE_DOWNRIGHT_ATTACK;
+		else if (mouse[MOUSE_RIGHT_INDEX]) lastInput =MOVE_DOWNRIGHT_UNIQUE_ATTACK;
+		else lastInput = MOVE_DOWNRIGHT;
 
 	// W key
 	} 
 	else if (keyboard[GLFW_KEY_W]) {
-		lastInput = MOVE_FORWARD;
+		if (mouse[MOUSE_LEFT_INDEX]) lastInput = MOVE_FORWARD_ATTACK;
+		else if (mouse[MOUSE_RIGHT_INDEX]) lastInput = MOVE_FORWARD_UNIQUE_ATTACK;
+		else lastInput = MOVE_FORWARD;
 
 	// A key
 	} else if(keyboard[GLFW_KEY_A]) {
-		lastInput = MOVE_LEFT;
+		if (mouse[MOUSE_LEFT_INDEX]) lastInput = MOVE_LEFT_ATTACK;
+		else if (mouse[MOUSE_RIGHT_INDEX]) lastInput = MOVE_LEFT_UNIQUE_ATTACK;
+		else lastInput = MOVE_LEFT;
 
 	// S key
 	} else if(keyboard[GLFW_KEY_S]) {
-		lastInput = MOVE_BACKWARD;
+		if (mouse[MOUSE_LEFT_INDEX]) lastInput = MOVE_BACKWARD_ATTACK;
+		else if (mouse[MOUSE_RIGHT_INDEX]) lastInput = MOVE_BACKWARD_UNIQUE_ATTACK;
+		else lastInput = MOVE_BACKWARD;
 		
 	// D key
 	} else if(keyboard[GLFW_KEY_D]) {
-		lastInput = MOVE_RIGHT;
+		if (mouse[MOUSE_LEFT_INDEX]) lastInput = MOVE_RIGHT_ATTACK;
+		else if (mouse[MOUSE_RIGHT_INDEX]) lastInput = MOVE_RIGHT_UNIQUE_ATTACK;
+		else lastInput = MOVE_RIGHT;
 
 	// 1 (selec fighter)
 	} else if(keyboard[GLFW_KEY_1]) {
