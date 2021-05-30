@@ -13,17 +13,20 @@
 #define HPBAR_DAMAGE_TAKEN_FLASHING_INTERVAL_MS 200
 #define HPBAR_SHADOW_HP_INTERVAL_MS 150
 
+#define HEALTH_BAR_ALPHA 222.f
+
 
 class HealthBar {
 
 private:
-    const NVGcolor shadowRedColor = nvgRGBA(235, 141, 141, 192);
-    const NVGcolor shadowWhiteColor = nvgRGBA(255, 255, 255, 192);
-    const NVGcolor redColor = nvgRGBA(211, 33, 33, 192);
-    const NVGcolor whiteColor = nvgRGBA(255, 255, 255, 192);
-    const NVGcolor armorColor = nvgRGBA(35, 192, 225, 192);
+    const NVGcolor shadowRedColor = nvgRGBA(235, 141, 141, HEALTH_BAR_ALPHA);
+    const NVGcolor shadowWhiteColor = nvgRGBA(255, 255, 255, HEALTH_BAR_ALPHA);
+    const NVGcolor redColor = nvgRGBA(211, 33, 33, HEALTH_BAR_ALPHA);
+    const NVGcolor whiteColor = nvgRGBA(255, 255, 255, HEALTH_BAR_ALPHA);
+    const NVGcolor armorColor = nvgRGBA(35, 192, 225, HEALTH_BAR_ALPHA);
 
 public:
+    int image,  imgWidth, imgHeight;
     int hp;
     int shadowHp;
     int maxHp;

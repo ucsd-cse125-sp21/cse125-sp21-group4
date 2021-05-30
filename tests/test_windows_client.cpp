@@ -142,7 +142,10 @@ int __cdecl main(int argc, char **argv)
         //         printf("recv failed with error: %d\n", WSAGetLastError());
 
         // } while( iResult > 0 );
-
+        if(!commClient->isConnected()) {
+            printf("Connection lost.");
+            break;
+        }
     }
     delete game;
     commClient->cleanup();

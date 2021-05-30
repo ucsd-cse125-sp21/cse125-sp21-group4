@@ -9,6 +9,7 @@
 class Monster : public GamePlayer {
 private:
     std::chrono::steady_clock::time_point lastAttackTime;
+    float clientSideEvo;
     float evo;
 public:
     Monster(); // Constructor for GameComponent

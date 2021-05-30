@@ -88,7 +88,8 @@ void CommunicationClient::sendInput(GAME_INPUT input) {
             printf("send failed with error: %d\n", WSAGetLastError());
             closesocket(serverSocket);
             WSACleanup();
-            exit(1);
+            connected = false;
+            // exit(1);
         }
     }
 }
@@ -107,12 +108,11 @@ void CommunicationClient::cleanup() {
     int iResult = shutdown(serverSocket, SD_SEND);
     if (iResult == SOCKET_ERROR) {
         printf("shutdown failed with error: %d\n", WSAGetLastError());
-        closesocket(serverSocket);
-        WSACleanup();
-        exit(1);
+        // exit(1);
     }
 
     // cleanup
+    connected = false;
     closesocket(serverSocket);
     WSACleanup();
 }
@@ -150,7 +150,9 @@ void CommunicationClient::validateRecv(int iResult) {
         printf("Connection closed\n");
         closesocket(serverSocket);
         WSACleanup();
-        exit(1);
+        // exit(1);
+        connected = false;
+
     }
 
     // Errors with recv
@@ -162,8 +164,10 @@ void CommunicationClient::validateRecv(int iResult) {
         } else {
             printf("error with recv(): %d\n", WSAGetLastError());
             closesocket(serverSocket);
-            WSACleanup();
-            exit(1);
+            WSACleanup(); 
+            connected = false;
+
+            // exit(1);
         }
     }
 

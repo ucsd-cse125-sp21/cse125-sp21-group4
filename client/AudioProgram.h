@@ -52,6 +52,7 @@ public:
     void playAudioWithoutLooping(Sound);
     void playAudioWithLooping(Sound);
     void stopAudio(Sound);
+    void stopAllAudio();
     void setSpecificVolume(Sound, float);
     void setAllVolume(float);
     void setEffectsVolume(float);

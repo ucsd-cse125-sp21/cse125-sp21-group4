@@ -3,8 +3,8 @@ import numpy as np
 file = open("assets\layout\map.json", "r")
 
 mapJson = json.load(file)
-tiles = mapJson["layers"][1]["objects"]
-objects = mapJson["layers"][2]["objects"]
+tiles = mapJson["layers"][2]["objects"]
+objects = mapJson["layers"][3]["objects"]
 
 serverCSV = open("assets/layout/map_server.csv", "w")
 graphicsCSV = open("assets/layout/map_client.csv", "w")

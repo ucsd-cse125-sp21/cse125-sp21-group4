@@ -774,7 +774,7 @@ void Game::updateBeacon() {
     Return 2 if monster wins.
     Return 3 if there is a tie.
 */
-void Game::checkEnd() {
+bool Game::checkEnd() {
     int deadHunterNum = 0;
     int deadMonsterNum = 0;
 
@@ -793,12 +793,13 @@ void Game::checkEnd() {
     else if (deadHunterNum == PLAYER_NUM - 1)
         endStatus = 2;
     // otherwise, game continues
-    if (endStatus == 0) return;
+    if (endStatus == 0) return false;
 
     GameUpdate gameEndUpdate;
     gameEndUpdate.updateType = GAME_END;
     gameEndUpdate.endStatus = endStatus;
     addUpdate(gameEndUpdate);
+    return true;
 }
 
 /* Process a single event */
@@ -1068,28 +1069,29 @@ void Game::checkEvoLevel() {
             // printf("Monster evo level: ");
             // printf("%f\n", monster->getEvo());
 
-            if (monster->getHp() <= 0.2 * MONSTER_MAX_HP) { 
+            // Monster should force level for every chunk. However, the max evo should only be reached 
+            // once the monster has reached critical (10%) HP. 
+            if (monster->getHp() <= 0.1 * MONSTER_MAX_HP) { 
                 if (monster->getEvo() < MONSTER_FIFTH_STAGE_THRESHOLD) {
                     monster->updateEvo(this, MONSTER_FIFTH_STAGE_THRESHOLD) ;
                 }
-            } else if (monster->getHp() <= 0.4 * MONSTER_MAX_HP) {
+            } else if (monster->getHp() <= 0.2 * MONSTER_MAX_HP) {
                 if (monster->getEvo() < MONSTER_FOURTH_STAGE_THRESHOLD) {
                     monster->updateEvo(this, MONSTER_FOURTH_STAGE_THRESHOLD);
                 }
-            } else if (monster->getHp() <= 0.6 * MONSTER_MAX_HP) {
+            } else if (monster->getHp() <= 0.4 * MONSTER_MAX_HP) {
                 if (monster->getEvo() < MONSTER_THIRD_STAGE_THRESHOLD) {
                     monster->updateEvo(this, MONSTER_THIRD_STAGE_THRESHOLD);
                 }
-            } else if (monster->getHp() <= 0.8 * MONSTER_MAX_HP) { 
+            } else if (monster->getHp() <= 0.6 * MONSTER_MAX_HP) { 
                 if (monster->getEvo() < MONSTER_SECOND_STAGE_THRESHOLD) {
                     monster->updateEvo(this, MONSTER_SECOND_STAGE_THRESHOLD);
                 }
-            } else if (monster->getHp() <= MONSTER_MAX_HP) { 
+            } else if (monster->getHp() <= 0.8 * MONSTER_MAX_HP) { 
                 if (monster->getEvo() < MONSTER_FIRST_STAGE_THRESHOLD) {
                     monster->updateEvo(this, MONSTER_FIRST_STAGE_THRESHOLD);
                 }
             } else {
-                printf("Do not need to update evoLevel based on HP.\n");
                 return;
             }
         }

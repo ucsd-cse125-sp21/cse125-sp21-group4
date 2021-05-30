@@ -11,6 +11,12 @@
 #define SPATIAL_HASH_SEARCH_DISTANCE 20.0
 
 
+// camera offsets for player
+#define CAMERA_X_OFFSET 0.f
+#define CAMERA_Y_OFFSET 10.f
+#define CAMERA_Z_OFFSET 6.f
+
+
 #include "Main.h"
 #include "shader.h"
 #include "Character.h"
@@ -84,6 +90,7 @@ public:
 	// Used to determine whether or not camera should be looking at player or select screen
 	static bool gameStarted;
 	static bool doneInitialRender;
+	static bool gameEnded;
 
 	// GUI Manager (HUD)
 	static GUIManager* guiManager;
@@ -126,8 +133,14 @@ public:
 	// Used to remove objectives
 	static void Window::removeObj(int objectiveID);
 
+	// Used to determine which objective should tell the user to do something
+	static void Window::checkNearObjectiveText(ObjElement*);
+
 	static void Window::initCharacters();
 	static void Window::initMap();
+	static void Window::initSelectScreenElements();
+
+	static void Window::endGame();
 
 	static void Window::handleSpectateRequest(GameUpdate update);
 

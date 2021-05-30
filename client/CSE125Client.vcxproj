@@ -111,6 +111,9 @@
     <Link>
       <AdditionalDependencies>opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <ClCompile>
+      <PreprocessorDefinitions>WITH_MINIAUDIO</PreprocessorDefinitions>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AudioProgram.cpp" />
@@ -146,11 +149,14 @@
     <ClCompile Include="Ground.cpp" />
     <ClCompile Include="GroundTile.cpp" />
     <ClCompile Include="gui\BeaconBar.cpp" />
+    <ClCompile Include="gui\EndScreen.cpp" />
+    <ClCompile Include="gui\EvolutionBar.cpp" />
     <ClCompile Include="gui\GUIManager.cpp" />
     <ClCompile Include="gui\HealthBar.cpp" />
     <ClCompile Include="gui\MiniMap.cpp" />
     <ClCompile Include="gui\SelectScreen.cpp" />
     <ClCompile Include="gui\ConnectingScreen.cpp" />
+    <ClCompile Include="gui\SplashScreen.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="nanovg\nanovg.c" />
     <ClCompile Include="ObjElement.cpp" />
@@ -210,11 +216,14 @@
     <ClInclude Include="Ground.h" />
     <ClInclude Include="GroundTile.h" />
     <ClInclude Include="gui\BeaconBar.h" />
+    <ClInclude Include="gui\EndScreen.h" />
+    <ClInclude Include="gui\EvolutionBar.h" />
     <ClInclude Include="gui\GUIManager.h" />
     <ClInclude Include="gui\HealthBar.h" />
     <ClInclude Include="gui\MiniMap.h" />
     <ClInclude Include="gui\SelectScreen.h" />
     <ClInclude Include="gui\ConnectingScreen.h" />
+    <ClInclude Include="gui\SplashScreen.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="nanovg\fontstash.h" />
     <ClInclude Include="nanovg\nanovg.h" />

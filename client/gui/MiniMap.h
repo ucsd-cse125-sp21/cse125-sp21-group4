@@ -10,6 +10,7 @@ class MiniMap {
 
 public:
     int currPlayerId;
+    int image,  imgWidth, imgHeight;
     PlayerType currPlayerType; // used to determine if this player should see teammates
     PlayerType playerTypes[PLAYER_NUM]; // used later if we want to add minimap icons
     PlayerPosition playerPositions[PLAYER_NUM]; // actual player positions on the map
@@ -28,5 +29,6 @@ public:
     void updatePlayerPositionDelta(int, float deltaX, float deltaY);
     void updatePingPosition(int, PlayerPosition);
     void handleCaptureEvent(float);
+    void reset();
 };
 #endif

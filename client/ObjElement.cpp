@@ -13,16 +13,22 @@
 */
 
 ObjElement::ObjElement(string fileName, glm::mat4 * p, glm::mat4 * v, GLuint s, 
-	glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale, glm::vec3 c, bool reverseColor, char* textFile) {
-	
+	glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale, glm::vec3 c, bool reverseColor, char* textFile, ObjectiveType type, Restriction restriction) {
+
 	// initial translation will bthe initial position
 	pos = trans;
 	model = glm::rotate(rotRad, rotAxis) * glm::translate(trans) * glm::scale(glm::vec3(scale));
 	projection = p;
 	view = v;
 	shader = s;
+
 	//default color is black
 	color = c;
+
+	// Objective Restrictions and Types
+	this->type = type;
+	this->restriction = restriction;
+	
 	// if path is NOT given at construction time, hasTexture will be false.
 	hasTexture = loadTexture(textFile, reverseColor);
 
@@ -138,7 +144,7 @@ ObjElement::ObjElement(string fileName, glm::mat4 * p, glm::mat4 * v, GLuint s,
 
 	// Generate a Vertex Array (VAO) and Vertex Buffer Object (VBO)
 	glGenVertexArrays(1, &VAO);
-	glGenBuffers(2, VBO);
+	glGenBuffers(3, VBO);
 
 	// Bind VAO
 	glBindVertexArray(VAO);
@@ -148,18 +154,18 @@ ObjElement::ObjElement(string fileName, glm::mat4 * p, glm::mat4 * v, GLuint s,
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * points.size(), points.data(), GL_STATIC_DRAW);
 	// Enable Vertex Attribute 0 to pass point data through to the shader
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * normal.size(), normal.data(), GL_STATIC_DRAW);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 	if (hasTexture) {
 		glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * textCoord.size(), textCoord.data(), GL_STATIC_DRAW);
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), 0);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	}
 
 	glGenBuffers(1, &EBO);
@@ -254,4 +260,12 @@ bool ObjElement::loadTexture(char* texturePath, bool reverseColor) {
 	stbi_image_free(data);
 	fclose(f);
 	return true;
+}
+
+
+ObjectiveType ObjElement::getObjType() {
+	return type;
+}
+Restriction ObjElement::getRestrictionType() {
+	return restriction;
 }

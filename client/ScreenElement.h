@@ -30,6 +30,11 @@ private:
 	glm::vec3 * eyep;
 	glm::vec3 color;
 
+	// specific to screen elements
+	glm::vec2 screenPos;
+	float rotRad;
+	glm::vec3 rotAxis;
+
 public:
 	//ScreenElement specific status such as positions, stats etc
 	
@@ -45,7 +50,7 @@ public:
 	color c is the initial model color; default is black
 */
 	ScreenElement(string fileName, glm::mat4* proj, glm::mat4* view, glm::vec3* viewPos,
-		GLuint shader, glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale,
+		GLuint shader, glm::vec2 screenPos, float scale,
 		glm::vec3 c = glm::vec3(0.f, 0.f, 0.f), char* textFile = "");
 	void draw(glm::mat4 c = glm::mat4(1));
 	void drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c = glm::mat4(1));
