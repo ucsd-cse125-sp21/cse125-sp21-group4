@@ -30,6 +30,9 @@
 #define DECAY_UPPER_THRESHOLD 1.f
 #define DECAY_LOWER_THRESHOLD -1.f
 
+// Delay between inputs in miliseconds
+#define SPECTATE_INPUT_DELAY 100
+
 // MAX HP Constants
 #define FIGHTER_MAX_HP 100
 #define MAGE_MAX_HP 100

@@ -16,7 +16,6 @@
 #define CAMERA_Y_OFFSET 10.f
 #define CAMERA_Z_OFFSET 6.f
 
-
 #include "Main.h"
 #include "shader.h"
 #include "Character.h"
@@ -142,6 +141,8 @@ public:
 	static void Window::initSelectScreenElements();
 
 	static void Window::endGame();
+
+	static void Window::handleSpectateRequest(GameUpdate update);
 
 };
 

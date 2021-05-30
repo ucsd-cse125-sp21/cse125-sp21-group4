@@ -2,8 +2,10 @@
 
 GamePlayer::GamePlayer() {}
 
-GamePlayer::GamePlayer(PlayerPosition position) {
+GamePlayer::GamePlayer(PlayerPosition position){
     type = UNKNOWN;
+    specID = 0;
+    prevTime = std::chrono::steady_clock::now();
     setFaceDirection(NORTH);
     setPosition(position);
     setSpeed(0); // init speed is 0
@@ -379,7 +381,7 @@ void GamePlayer::move (Game* game, Direction direction) {
 
 
 void GamePlayer::hpDecrement (int damage) {
-    hp -= damage;
+    hp = std::max(0, hp - damage);
 }
 
 void GamePlayer::hpIncrement (int amount) {
@@ -484,6 +486,42 @@ bool GamePlayer::canInteractWithObjective(Objective * objective) {
     
 }
 
+long long GamePlayer::getTimeDiff() {
+    auto currentTime = std::chrono::steady_clock::now();
+    std::chrono::duration<float> timeDiff = currentTime - prevTime;
+    return std::chrono::duration_cast<std::chrono::milliseconds>(timeDiff).count();
+}
+
+void GamePlayer::spectate(Game* game, UPDATE_TYPE update) {
+    
+    if(getTimeDiff() <= SPECTATE_INPUT_DELAY) return;
+
+    GameUpdate gameUpdate;
+    int numLooped = 0;
+
+    // find the next available to player to spectate
+    // a player can be spectated if all conditions are satisfied: 
+    // (1) it's not themselves, (2) it's not the monster, (3) the other player is alive
+    do {
+        if(update == PLAYER_NEXT_SPECT)
+            this->specID = (this->specID + 1) % (MAX_PLAYERS - 1); // skip monster ID
+        else {
+            this->specID--;
+            if(this->specID < 0) 
+                this->specID = MAX_PLAYERS - 2; // skip monster ID
+        }
+        printf("Loop: Spectator id %d\n", this->specID);
+        ++numLooped;
+    } while(numLooped < MAX_PLAYERS - 1 && (this->specID == this->id || game->players[specID]->isDead()));
+
+    gameUpdate.id = this->id;
+    gameUpdate.updateType = update;
+    gameUpdate.specID = this->specID;
+    game->addUpdate(gameUpdate);
+    prevTime = std::chrono::steady_clock::now();
+    printf("Spectator id %d\n", this->specID);
+}
+
 bool allowLeftMouseShooting(PlayerType type) {
     return type == MAGE || type == CLERIC || type == ROGUE;
 }
@@ -492,10 +530,19 @@ bool allowRightMouseShooting(PlayerType type) {
     return type == MAGE || type == ROGUE;
 }
 
-
 void GamePlayer::handleUserInput (Game* game, GAME_INPUT userInput) {
     // if player is dead, stop handling input
-    if (isDead()) return;
+    if (isDead()) {
+        switch(userInput.input) {
+            case LEFT_MOUSE_ATTACK:
+                spectate(game, PLAYER_NEXT_SPECT);
+                break;
+            case RIGHT_MOUSE_ATTACK:
+                spectate(game, PLAYER_PREV_SPECT);
+                break;
+        }
+        return;
+    }
 
     switch (userInput.input) {
         // Eric TODO: add gameupdates
