@@ -138,6 +138,14 @@ void Monster::uniqueAttack(Game* game, float angle) {
             game->addUpdate(gameUpdate);
         }
     }
+
+    // Send an update to the clients: PLAYER_UNIQUE_ATTACK
+    GameUpdate attackUpdate;
+    attackUpdate.updateType = PLAYER_UNIQUE_ATTACK;
+    attackUpdate.id = this->id;                        // id of player attacking
+    attackUpdate.attackAmount = getAttackDamage();     // attack damage amount
+    attackUpdate.roleClaimed = MONSTER;
+    game->addUpdate(attackUpdate);
 }
 // To update the stage of the monster.
 void Monster::updateEvo(Game* game, float evoLevel) {
