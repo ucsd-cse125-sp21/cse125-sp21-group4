@@ -455,11 +455,11 @@ void Window::displayCallback(GLFWwindow* window)
 	vector<Object*> result;
 	float h = SPATIAL_HASH_SEARCH_DISTANCE;
 	int j;
-	glm::vec3 base1(-1.f * h, 0.f, 0.f);
-	for (j = 0; j < 3 && Window::gameStarted; j++) {
+	glm::vec3 base1(-2.f * h, 0.f, 0.f);
+	for (j = 0; j < 5 && Window::gameStarted; j++) {
 		int k;
-		glm::vec3 base2(0.f, 0.f, -2.f * h);   //negative 2 multiplier, so the search area is ahead into the screan
-		for (k = 0; k < 3; k++) {
+		glm::vec3 base2(0.f, 0.f, -3.f * h);   //negative 2 multiplier, so the search area is ahead into the screan
+		for (k = 0; k < 5; k++) {
 			glm::vec3 loc = base1 + base2;
 			if(clientChar != nullptr) {
 				loc += clientChar->pos;
