@@ -628,9 +628,13 @@ void EnvElement::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
 	
 	int sum = 0;
 	for(int i = 0; i < materialSize.size(); i++) {
-		glm::vec3 ambient = materials[i].ambient;
-		glm::vec3 diffuse = materials[i].diffuse;
-		glm::vec3 spectral = materials[i].specular;
+		if (i < materials.size()) {
+			glUniform3fv(glGetUniformLocation(shader, "ambientColor"), 1, glm::value_ptr(materials[i].ambient));
+			glUniform3fv(glGetUniformLocation(shader, "diffuseFactor"), 1, glm::value_ptr(materials[i].diffuse));
+			glUniform3fv(glGetUniformLocation(shader, "specColor"), 1, glm::value_ptr(materials[i].specular));
+			glUniform1f(glGetUniformLocation(shader, "specHighlight"), materials[i].shininess);
+			glUniform1f(glGetUniformLocation(shader, "dissolve"), materials[i].dissolve);
+		}
 		glDrawElements(GL_TRIANGLES, 3 * materialSize[i], GL_UNSIGNED_INT, (GLvoid*) (sizeof(GLuint) * sum));
 		sum += 3*materialSize[i];
 	}

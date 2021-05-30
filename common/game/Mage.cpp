@@ -82,6 +82,14 @@ void Mage::uniqueAttack(Game* game, float angle) {
     p->damage = 0;
     game->projectiles[game->nextProjectileId] = p;
     game->nextProjectileId = (game->nextProjectileId + 1) % MAX_PROJECTILE_ID;
+
+    // Send an update to the clients: PLAYER_UNIQUE_ATTACK
+    GameUpdate attackUpdate;
+    attackUpdate.updateType = PLAYER_UNIQUE_ATTACK;
+    attackUpdate.id = this->id;                        // id of player attacking
+    attackUpdate.attackAmount = getAttackDamage();     // attack damage amount
+    attackUpdate.roleClaimed = MAGE;
+    game->addUpdate(attackUpdate);
 }
 
 void Mage::interact(Game* game) {

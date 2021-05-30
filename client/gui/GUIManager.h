@@ -10,7 +10,15 @@
 #include "ConnectingScreen.h"
 #include "EndScreen.h"
 #include "SplashScreen.h"
+#include "CooldownIcon.h"
 #include "../nanovg/nanovg.h"
+
+#define NUM_COOLDOWNS 2
+
+enum CooldownID {
+    NORMAL_ATTACK = 0,
+    UNIQUE_ATTACK = 1,
+};
 
 class GUIManager    
 {
@@ -31,6 +39,7 @@ public:
     ConnectingScreen* connectingScreen;
     EndScreen* endScreen;
     SplashScreen* splashScreen;
+    CooldownIcon* cooldownIcons[NUM_COOLDOWNS]; // 2 because there's attack and unique attack.
 
     GUIManager(int width, int height, int fbWidth, int fbHeight);
     void resizeWindow(int width, int height, int fbWidth, int fbHeight);
@@ -43,8 +52,10 @@ public:
     void setGameEndVisible(bool visibility);
     void setSplashScreenVisible(bool visibility);
     void setSplashLoaded(bool loaded);
-
+    
+    void initCooldownIcons(PlayerType type);
     void handleMouseSelect(int x, int y);
+    void handleCooldownUpdate(CooldownID);
     void updateHUDPositions();
 
     void reset();

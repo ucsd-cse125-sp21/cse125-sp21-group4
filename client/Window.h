@@ -8,14 +8,13 @@
 // #define SERVER_ENABLED
 #define RENDER_MAP
 #define _USE_MATH_DEFINES
-#define SPATIAL_HASH_SEARCH_DISTANCE 20.0
+#define SPATIAL_HASH_SEARCH_DISTANCE 11.0
 
 
 // camera offsets for player
 #define CAMERA_X_OFFSET 0.f
 #define CAMERA_Y_OFFSET 10.f
 #define CAMERA_Z_OFFSET 6.f
-
 
 #include "Main.h"
 #include "shader.h"
@@ -57,7 +56,7 @@ public:
 	static unordered_map<PlayerType, Character*> Window::playerTypeToCharacterMap;
 
 	static vector<EnvElement*> envs;
-	static Ground* ground;
+	static Ground * ground;
 	static unordered_map<int, ProjectileElement*> projectiles;
 	static vector<ScreenElement*> selectScreenElements;
 	static map<int, ObjElement*> objectiveMap; 
@@ -65,7 +64,9 @@ public:
 
 	// Shader Program 
 	static GLuint shaderProgram;
+	static GLuint phongTexShader;
 	static GLuint texShader;
+	static GLuint groundShader;
 
 	// Audio Program
 	static AudioProgram* audioProgram;
@@ -124,6 +125,7 @@ public:
 	static void handleRoleClaim(GameUpdate update);
 	static void handleUpdate(GameUpdate update);
 	static void Window::handleAttack(GameUpdate update);
+	static void Window::handleUniqueAttack(GameUpdate update);
 
 	// Used to set lastInput based on keyboard inputs
 	static void Window::updateLastInput(); 
@@ -145,6 +147,8 @@ public:
 	static void Window::initSelectScreenElements();
 
 	static void Window::endGame();
+
+	static void Window::handleSpectateRequest(GameUpdate update);
 
 };
 

@@ -31,6 +31,12 @@ GUIManager::GUIManager(int width, int height, int fbWidth, int fbHeight) {
 	connectingScreen = new ConnectingScreen(vg);
 	endScreen = new EndScreen(vg);
 	splashScreen = new SplashScreen(vg);
+	
+	// Will be initialized later
+	for (int i = 0; i < NUM_COOLDOWNS; i++) {
+		cooldownIcons[i] = nullptr;
+	}
+
 }
 
 void GUIManager::draw() {
@@ -39,6 +45,11 @@ void GUIManager::draw() {
 	healthBar->draw(30, 14.5 * this->windowHeight / 16, this->windowWidth / 2.5, this->windowHeight / 16);
 	beaconBar->draw(this->windowWidth / 2 - (this->windowWidth / 2.5) / 2, this->windowHeight / 16, this->windowWidth / 2.5, this->windowHeight / 16);
 	evoBar->draw(30, 13.5 * this->windowHeight / 16, this->windowWidth / 2.5, this->windowHeight / 16);
+	for(int i = 0; i < NUM_COOLDOWNS; i++) {
+		if(cooldownIcons[i] != nullptr) {
+			cooldownIcons[i]->draw(this->windowWidth / 14 * i + this->windowWidth / 2, 13.5 * this->windowHeight / 16, this->windowWidth / 16, this->windowWidth / 16);
+		}
+	}
 	miniMap->draw(this->windowWidth - (MAP_WIDTH / 2), this->windowHeight - (MAP_HEIGHT / 2), (MAP_WIDTH / 2), (MAP_HEIGHT / 2));
 	selectScreen->draw(this->windowWidth, this->windowHeight);
 	splashScreen->draw(this->windowWidth, this->windowHeight);
@@ -63,6 +74,13 @@ void GUIManager::setHUDVisible(bool visibility) {
 	beaconBar->setVisible(visibility);
 	miniMap->setVisible(visibility);
 	evoBar->setVisible(visibility);
+
+	for(int i = 0; i < NUM_COOLDOWNS; i++) {
+		if(cooldownIcons[i] != nullptr) {
+			cooldownIcons[i]->setVisible(visibility);
+		}
+	}
+
 }
 
 void GUIManager::setSelectScreenVisible(bool visibility) {
@@ -176,9 +194,49 @@ void GUIManager::reset() {
 	// selectScreen
 	selectScreen->reset();
 	// connectingScreen
-	connectingScreen->init();
+	connectingScreen->init();	
+	// cooldown icons
+	for(int i = 0; i < NUM_COOLDOWNS; i++) {
+		if(cooldownIcons[i] != nullptr) {
+			delete cooldownIcons[i];
+			cooldownIcons[i] = nullptr;
+		}
+	}
 }
 
 void GUIManager::setSplashLoaded(bool loaded) {
 	splashScreen->setSplashLoaded(loaded);
+}
+
+void GUIManager::initCooldownIcons(PlayerType type) {
+	switch(type) {
+		case FIGHTER:
+			cooldownIcons[NORMAL_ATTACK] = new CooldownIcon(vg, "Slash", FIGHTER, FIGHTER_ATTACK_TIME_INTERVAL);
+			break;
+		case MAGE:
+			cooldownIcons[NORMAL_ATTACK] = new CooldownIcon(vg, "Fire Arrow", MAGE, MAGE_ATTACK_TIME_INTERVAL);
+			cooldownIcons[UNIQUE_ATTACK] = new CooldownIcon(vg, "Fire Ball", MAGE, FIREBALL_TIME_INTERVAL);
+			break;
+		case CLERIC:
+			cooldownIcons[NORMAL_ATTACK] = new CooldownIcon(vg, "Light Ball", CLERIC, CLERIC_ATTACK_TIME_INTERVAL);
+			cooldownIcons[UNIQUE_ATTACK] = new CooldownIcon(vg, "Area Heal", CLERIC, HEALING_AURA_TIME_INTERVAL);
+			break;
+		case ROGUE:
+			cooldownIcons[NORMAL_ATTACK] = new CooldownIcon(vg, "Arrow", ROGUE, ROGUE_ATTACK_TIME_INTERVAL);
+			break;
+		case MONSTER:
+			cooldownIcons[NORMAL_ATTACK] = new CooldownIcon(vg, "Throw", MONSTER, MONSTER_ATTACK_TIME_INTERVAL);
+			cooldownIcons[UNIQUE_ATTACK] = new CooldownIcon(vg, "Claw", MONSTER, MONSTER_ATTACK_TIME_INTERVAL);
+			break;
+		default:
+			printf("Error in init cooldown icons\n");
+			break;
+	}
+}
+
+// Window.cpp should have already checked this is the right player id.
+void GUIManager::handleCooldownUpdate(CooldownID id) {
+	if(cooldownIcons[id] != nullptr) {
+		cooldownIcons[id]->handleAction();
+	}
 }

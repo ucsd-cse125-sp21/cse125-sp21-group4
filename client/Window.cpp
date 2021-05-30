@@ -31,7 +31,9 @@ int MouseX, MouseY;
 
 // The shader program id
 GLuint Window::shaderProgram; //Phong lighting shader; only use this for models without texture
+GLuint Window::phongTexShader; //Phong lighting shader with texture
 GLuint Window::texShader;     //shader for model with textures. NOTE, it also calculates texture alphas
+GLuint Window::groundShader;  //array instance shader that draw multiple objects using same set of data
 
 // projection Matrices 
 glm::mat4 Window::projection;
@@ -66,6 +68,8 @@ bool Window::initializeProgram() {
 	// Create a shader program with a vertex shader and a fragment shader.
 	shaderProgram = LoadShaders("shaders/shader/shader.vert", "shaders/shader/shader.frag");
 	texShader = LoadShaders("shaders/shader/texture.vert", "shaders/shader/texture.frag");
+	groundShader = LoadShaders("shaders/shader/groundShader.vert", "shaders/shader/groundShader.frag");
+	phongTexShader = LoadShaders("shaders/shader/phongTexture.vert", "shaders/shader/phongTexture.frag");
 	// Check the shader program.
 	if (!shaderProgram)
 	{
@@ -105,10 +109,6 @@ bool Window::initializeObjects()
 	// 	glm::vec3(0.f, -1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
 
 
-	//for now tileScale should be tileSize / 2.0
-	ground = new Ground("shaders/environment/ground.obj", &projection, &view, texShader,
-		"shaders/environment/dry_grass_texture_3x3.png", "shaders/environment/cracked_tile_texture_3x3.png", &table, 3.0f);
-
 	#ifdef RENDER_MAP
 	printf("=======================================\nIt will take a while for the game to launch, please wait.\n");
 	initMap();
@@ -140,6 +140,11 @@ bool Window::initializeObjects()
 }
 
 void Window::initMap() {
+	cout << "initing map" << endl;
+	//for now tileScale should be tileSize / 2.0
+	ground = new Ground("shaders/environment/ground.obj", &projection, &view, groundShader,
+		"shaders/environment/dry_grass_texture_3x3.png", "shaders/environment/cracked_tile_texture_3x3.png", 3.0f);
+
 	ifstream map_file("../assets/layout/map_client.csv");
     string line;
     string id;
@@ -192,7 +197,7 @@ void Window::initMap() {
 			objX += width / 2;
 			objY += height / 2;
 			// int handle = materialManager.loadMaterial("shaders/environment/lowpolypine.mtl");
-			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, shaderProgram,
+			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, phongTexShader,
 				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, &materialManager, glm::vec3(0.f, 1.f, 0.f));
 			table.insert(e);
 
@@ -248,7 +253,7 @@ void Window::initCharacters() {
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/ROGUE"));
 	playerTypeToCharacterMap[MONSTER] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 		glm::vec3(0.f, 2.f, 0.f), 
-		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MAGE"));
+		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MONSTER"));
 	
 	// Load animations
 	// playerTypeToCharacterMap[FIGHTER]->loadAnimationAssets("shaders/character/FIGHTER");
@@ -354,13 +359,14 @@ GLFWwindow* Window::createWindow(int width, int height)
 	/* ===== THIS #ifndef CODE IS ONLY FOR NON-CONNECTED CLIENTS TO IMPROVE GRAPHICS DEVELOPMENT ==== */
 #ifndef SERVER_ENABLED // Client-only (no server)	
 	guiManager->setConnectingScreenVisible(false);
-	guiManager->setHUDVisible(true);
 	guiManager->beaconBar->setAmount(18.f);
-	guiManager->setSelectScreenVisible(false);
-	guiManager->evoBar->setVisible(true);
 	guiManager->evoBar->setEvo(2.65f);
+	guiManager->setSelectScreenVisible(false);
 	guiManager->setGameEndVisible(false);
 	guiManager->setSplashScreenVisible(false);
+	guiManager->initCooldownIcons(MONSTER);
+	guiManager->setHUDVisible(true);
+	guiManager->evoBar->setVisible(true);
 #endif
 
 	/* ===== end of #ifndef (no-server client) code ==== */
@@ -419,7 +425,10 @@ void Window::idleCallback()
 #endif
 	//update camera location
 	if(Window::gameStarted && clientChar != nullptr) {
-		lookAtPoint = clientChar->pos;
+		if(clientChar->getState() == spectating)
+			lookAtPoint = chars[ clientChar->getViewingSpecID() ]->pos;
+		else
+			lookAtPoint = clientChar->pos;
 	}
 	eyePos = lookAtPoint + glm::vec3(CAMERA_X_OFFSET, CAMERA_Y_OFFSET, CAMERA_Z_OFFSET);
 	view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window::upVector);
@@ -448,15 +457,18 @@ void Window::displayCallback(GLFWwindow* window)
 		envs[i]->draw();
 	}
 
+	if(ground != NULL)
+		ground->draw();
+
 	//then selectively draw objects nearby this player
 	vector<Object*> result;
 	float h = SPATIAL_HASH_SEARCH_DISTANCE;
 	int j;
-	glm::vec3 base1(-1.f * h, 0.f, 0.f);
-	for (j = 0; j < 3 && Window::gameStarted; j++) {
+	glm::vec3 base1(-2.f * h, 0.f, 0.f);
+	for (j = 0; j < 5 && Window::gameStarted; j++) {
 		int k;
-		glm::vec3 base2(0.f, 0.f, -2.f * h);   //negative 2 multiplier, so the search area is ahead into the screan
-		for (k = 0; k < 3; k++) {
+		glm::vec3 base2(0.f, 0.f, -3.f * h);   //negative 2 multiplier, so the search area is ahead into the screan
+		for (k = 0; k < 5; k++) {
 			glm::vec3 loc = base1 + base2;
 			if(clientChar != nullptr) {
 				loc += clientChar->pos;
@@ -633,6 +645,7 @@ void Window::handleRoleClaim(GameUpdate update) {
 		guiManager->healthBar->initGivenPlayerType(update.roleClaimed);
 		guiManager->miniMap->setCurrentPlayer(client->getId(), update.roleClaimed);
 		guiManager->selectScreen->hasClaimed = true;
+		guiManager->initCooldownIcons(update.roleClaimed);
 	} else {
 		guiManager->miniMap->setPlayerType(update.id, update.roleClaimed);
 	}
@@ -734,6 +747,9 @@ void Window::handleUpdate(GameUpdate update) {
 			printf("Calling handleAttack()\n");
 			Window::handleAttack(update);
 			break;
+		case PLAYER_UNIQUE_ATTACK:
+			Window::handleUniqueAttack(update);
+			break;
 		// Beacon bar updates
 		case BEACON_BEING_TAKEN:
 		case BEACON_DECAYING:
@@ -775,6 +791,11 @@ void Window::handleUpdate(GameUpdate update) {
             removeObj(update.objectiveID);
             break;
 
+		case PLAYER_NEXT_SPECT:
+		case PLAYER_PREV_SPECT:
+			printf("Calling handleSpectateRequest\n");
+			handleSpectateRequest(update);
+
 		case MONSTER_EVO_UP:
 			guiManager->evoBar->setEvo(update.newEvoLevel);
 			break;
@@ -792,9 +813,23 @@ void Window::handleUpdate(GameUpdate update) {
     }
 }
 
+void Window::handleSpectateRequest(GameUpdate update) {
+	if(chars[update.id]->getState() != spectating) {
+		chars[update.id]->setState(spectating);
+		clientChar->oldPos = clientChar->pos;
+	}
+
+	chars[update.id]->setViewingSpecID(update.specID);
+}
+
 void Window::handleAttack(GameUpdate update) {
 	printf("Player %d is attacking\n", update.id);
 	chars[update.id]->setState(attacking);
+
+	// Update the cooldown timer
+	if(update.id == client->getId()) {
+		guiManager->handleCooldownUpdate(NORMAL_ATTACK);
+	}
 
 	// Play the audio
 	if(glm::distance(chars[update.id]->pos, clientChar->pos) < MAX_HEARING_DISTANCE) {
@@ -823,9 +858,49 @@ void Window::handleAttack(GameUpdate update) {
 				break;
 		}
 	}
-	
 }
 
+void Window::handleUniqueAttack(GameUpdate update) {
+
+	// animation depends on who is attacking but for now it's default.
+	// e.g. fighter should not slash when they use their armor ability
+	chars[update.id]->setState(attacking);
+
+	// Update the cooldown timer
+	if(update.id == client->getId()) {
+		guiManager->handleCooldownUpdate(UNIQUE_ATTACK);
+	}
+
+	// TO BE ADDED: Audio for unique attacks
+	// if(glm::distance(chars[update.id]->pos, clientChar->pos) < MAX_HEARING_DISTANCE) {
+		
+	// 	AudioPosition clientPos = {clientChar->pos.x, clientChar->pos.z};
+	// 	AudioPosition otherPos = {chars[update.id]->pos.x, chars[update.id]->pos.z};
+	// 	switch(playerJobs[update.id]) {
+	// 		case FIGHTER:
+	// 			audioProgram->playDirectionalEffect(FIGHTER_ATTACK_SOUND, clientPos, otherPos);
+	// 			break;
+
+	// 		case MAGE:
+	// 			audioProgram->playDirectionalEffect(MAGE_ATTACK_SOUND, clientPos, otherPos);
+	// 			break;
+
+	// 		case CLERIC:
+	// 			audioProgram->playDirectionalEffect(CLERIC_ATTACK_SOUND, clientPos, otherPos);
+	// 			break;
+
+	// 		case ROGUE:
+	// 			audioProgram->playDirectionalEffect(ROGUE_ATTACK_SOUND, clientPos, otherPos);
+	// 			break;
+
+	// 		case MONSTER:
+	// 			audioProgram->playDirectionalEffect(MONSTER_THROW_SOUND, clientPos, otherPos);
+	// 			break;
+	// 	}
+	// }
+
+	
+}
 
 // This function checks if a certain key is being pressed or held down.
 void Window::updateLastInput() {
@@ -950,6 +1025,7 @@ bool Window::connectCommClient(std::string serverIP) {
 	if(client->getId() == 3) {
 		guiManager->healthBar->initGivenPlayerType(MONSTER);
 		guiManager->selectScreen->setMonster(true);
+		guiManager->initCooldownIcons(MONSTER);
 	}
 	guiManager->miniMap->setCurrentPlayer(3, MONSTER); // Monster is currently id = 3
 	#endif // SERVER_ENABLED
