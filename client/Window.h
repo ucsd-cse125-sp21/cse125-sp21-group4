@@ -16,9 +16,6 @@
 #define CAMERA_Y_OFFSET 10.f
 #define CAMERA_Z_OFFSET 6.f
 
-// server enable flag
-#define SERVER_ENABLED
-
 #include "Main.h"
 #include "shader.h"
 #include "Character.h"
