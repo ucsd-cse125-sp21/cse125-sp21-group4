@@ -16,11 +16,11 @@
 typedef struct {
   std::string name;
 
-  GLfloat ambient[3];
-  GLfloat diffuse[3];
-  GLfloat specular[3];
-  GLfloat transmittance[3];
-  GLfloat emission[3];
+  glm::vec3 ambient;
+  glm::vec3 diffuse;
+  glm::vec3 specular;
+  glm::vec3 transmittance;
+  glm::vec3 emission;
   GLfloat shininess;
   GLfloat ior;       // index of refraction
   GLfloat dissolve;  // 1 == opaque; 0 == fully transparent

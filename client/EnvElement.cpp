@@ -599,10 +599,6 @@ void EnvElement::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
 	glUniform3fv(glGetUniformLocation(shader, "viewPos"), 1, glm::value_ptr(eyep));
 	glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(color));
 
-	// for(int i = 0; i < meshes.size(); i++) {
-	// 	meshes[i].draw(shader);
-	// }
-
 	//Bind the VAO
 	glBindVertexArray(VAO);
 
@@ -622,14 +618,19 @@ void EnvElement::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
 	if(isCloseToObstructing) {
 		// printf("EnvElement is blocking the character.\n");
 		glDepthMask(GL_FALSE);
-		glBlendColor(0, 0, 0, abs(glm::distance(clientPos, pos) - 5.f) * 2.f / 255.f);
-		glBlendFunc(GL_SRC_ALPHA, GL_CONSTANT_COLOR);
-
-	}
+		// glBlendColor(0, 0, 0, abs(glm::distance(clientPos, pos) - 5.f) * 2.f / 255.f);
+		// glBlendFunc(GL_SRC_ALPHA, GL_CONSTANT_COLOR);
+		// glUniform1f(glGetUniformLocation(shader, "alpha"), abs(glm::distance(clientPos, pos) - 5.f) / 255.f);
+	} 
+	// else {
+	// 	glUniform1f(glGetUniformLocation(shader, "alpha"), 1.f);
+	// }
 	
 	int sum = 0;
 	for(int i = 0; i < materialSize.size(); i++) {
-		
+		glm::vec3 ambient = materials[i].ambient;
+		glm::vec3 diffuse = materials[i].diffuse;
+		glm::vec3 spectral = materials[i].specular;
 		glDrawElements(GL_TRIANGLES, 3 * materialSize[i], GL_UNSIGNED_INT, (GLvoid*) (sizeof(GLuint) * sum));
 		sum += 3*materialSize[i];
 	}
