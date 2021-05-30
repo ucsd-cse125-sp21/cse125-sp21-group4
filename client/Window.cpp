@@ -245,7 +245,7 @@ void Window::initCharacters() {
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/ROGUE"));
 	playerTypeToCharacterMap[MONSTER] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 		glm::vec3(0.f, 2.f, 0.f), 
-		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MAGE"));
+		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MONSTER"));
 	
 	// Load animations
 	// playerTypeToCharacterMap[FIGHTER]->loadAnimationAssets("shaders/character/FIGHTER");
@@ -417,7 +417,10 @@ void Window::idleCallback()
 #endif
 	//update camera location
 	if(Window::gameStarted && clientChar != nullptr) {
-		lookAtPoint = clientChar->pos;
+		if(clientChar->getState() == spectating)
+			lookAtPoint = chars[ clientChar->getViewingSpecID() ]->pos;
+		else
+			lookAtPoint = clientChar->pos;
 	}
 	eyePos = lookAtPoint + glm::vec3(CAMERA_X_OFFSET, CAMERA_Y_OFFSET, CAMERA_Z_OFFSET);
 	view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window::upVector);
@@ -793,6 +796,11 @@ void Window::handleUpdate(GameUpdate update) {
             removeObj(update.objectiveID);
             break;
 
+		case PLAYER_NEXT_SPECT:
+		case PLAYER_PREV_SPECT:
+			printf("Calling handleSpectateRequest\n");
+			handleSpectateRequest(update);
+
 		case MONSTER_EVO_UP:
 			guiManager->evoBar->setEvo(update.newEvoLevel);
 			break;
@@ -808,6 +816,15 @@ void Window::handleUpdate(GameUpdate update) {
             printf("Not Handled Update Type: %d\n", update.updateType);
             break;
     }
+}
+
+void Window::handleSpectateRequest(GameUpdate update) {
+	if(chars[update.id]->getState() != spectating) {
+		chars[update.id]->setState(spectating);
+		clientChar->oldPos = clientChar->pos;
+	}
+
+	chars[update.id]->setViewingSpecID(update.specID);
 }
 
 void Window::handleAttack(GameUpdate update) {

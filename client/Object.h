@@ -18,6 +18,7 @@ using namespace std;
 class Object{
 public:
 	glm::vec3 pos; // pos now moved to Object class to have support in spatial hash table
+	glm::vec3 oldPos; // to restore the old camera position if the player is revived
 	virtual void draw(glm::mat4 c) = 0;
 	virtual void update() = 0;
 	virtual void updateView(glm::mat4, glm::vec3) = 0;
