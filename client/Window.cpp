@@ -31,6 +31,7 @@ int MouseX, MouseY;
 
 // The shader program id
 GLuint Window::shaderProgram; //Phong lighting shader; only use this for models without texture
+GLuint Window::phongTexShader; //Phong lighting shader with texture
 GLuint Window::texShader;     //shader for model with textures. NOTE, it also calculates texture alphas
 GLuint Window::groundShader;  //array instance shader that draw multiple objects using same set of data
 
@@ -65,6 +66,7 @@ bool Window::initializeProgram() {
 	shaderProgram = LoadShaders("shaders/shader/shader.vert", "shaders/shader/shader.frag");
 	texShader = LoadShaders("shaders/shader/texture.vert", "shaders/shader/texture.frag");
 	groundShader = LoadShaders("shaders/shader/groundShader.vert", "shaders/shader/groundShader.frag");
+	phongTexShader = LoadShaders("shaders/shader/phongTexture.vert", "shaders/shader/phongTexture.frag");
 	// Check the shader program.
 	if (!shaderProgram)
 	{

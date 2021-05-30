@@ -63,6 +63,7 @@ public:
 
 	// Shader Program 
 	static GLuint shaderProgram;
+	static GLuint phongTexShader;
 	static GLuint texShader;
 	static GLuint groundShader;
 

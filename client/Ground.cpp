@@ -28,7 +28,7 @@ char * crackedTileTextFile, float tileScale) {
     j = 0;
     while(getline(map_file, line)) {
         stringstream ss(line);
-        
+         
         while(getline(ss, id, ',')) {
 			// j = x, i = y.
             int objID = std::stoi(id);
