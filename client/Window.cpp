@@ -56,8 +56,11 @@ GUIManager* Window::guiManager;
 // Audio Program
 AudioProgram* Window::audioProgram;
 vector<PlayerType> Window::playerJobs {UNKNOWN, UNKNOWN, UNKNOWN, MONSTER};
-
 std::chrono::steady_clock::time_point lastCombatMusicPlayTime;
+
+// Material Manager
+MaterialManager Window::materialManager;
+
 
 bool Window::initializeProgram() {
 	// Create a shader program with a vertex shader and a fragment shader.
@@ -188,8 +191,9 @@ void Window::initMap() {
 		} else if (strcmp(objName.c_str(), "tree_live") == 0) {
 			objX += width / 2;
 			objY += height / 2;
+			// int handle = materialManager.loadMaterial("shaders/environment/lowpolypine.mtl");
 			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, shaderProgram,
-				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.f, 1.f, 0.f));
+				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, &materialManager, glm::vec3(0.f, 1.f, 0.f));
 			table.insert(e);
 
 		// dead tree = grayish black
