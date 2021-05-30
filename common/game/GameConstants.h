@@ -152,6 +152,10 @@ enum Direction {
     EAST, // 1
     SOUTH, // 2
     WEST, // 3
+    NORTH_WEST,
+    NORTH_EAST, // 5
+    SOUTH_WEST,
+    SOUTH_EAST,
 };
 
 enum PlayerType {

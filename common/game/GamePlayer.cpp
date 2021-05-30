@@ -263,6 +263,39 @@ bool GamePlayer::samePosition (PlayerPosition p1, PlayerPosition p2) {
     return true;
 }
 
+bool clearSpeed (Direction faceDirection, Direction moveDirection) {
+    switch (faceDirection)
+    {
+        case NORTH:
+            return !(moveDirection == NORTH || moveDirection == NORTH_EAST || moveDirection == NORTH_WEST);
+            break;
+        case EAST:
+            return !(moveDirection == EAST || moveDirection == NORTH_EAST || moveDirection == SOUTH_EAST);
+            break;
+        case SOUTH:
+            return !(moveDirection == SOUTH || moveDirection == SOUTH_WEST || moveDirection == SOUTH_EAST);
+            break;
+        case WEST:
+            return !(moveDirection == WEST || moveDirection == SOUTH_WEST || moveDirection == NORTH_WEST);
+            break;
+        case NORTH_WEST:
+            return !(moveDirection == WEST || moveDirection == NORTH_WEST || moveDirection == NORTH);
+            break;
+        case NORTH_EAST:
+            return !(moveDirection == NORTH || moveDirection == NORTH_EAST || moveDirection == EAST);
+            break;
+        case SOUTH_EAST:
+            return !(moveDirection == EAST || moveDirection == SOUTH_EAST || moveDirection == SOUTH);
+            break;
+        case SOUTH_WEST:
+            return !(moveDirection == SOUTH || moveDirection == SOUTH_WEST || moveDirection == WEST);
+            break;
+        default:
+            return true;
+            break;
+    }
+}
+
 
 
 /* 
@@ -282,14 +315,17 @@ void GamePlayer::move (Game* game, Direction direction) {
     }   
     game->events = newEvents;   
     
-    printf("direction: %d, facedirection: %d\n", direction, faceDirection);
 
     // if player changes direction, set speed back to 0
-    if (direction != getFaceDirection()) speed = 0;
-    else speed = std::min(speed + acceleration, maxSpeed);
+    // if (clearSpeed(getFaceDirection(), direction)) speed = 0;
+    // else 
+    speed = std::min(speed + acceleration, maxSpeed);
+
+    printf("direction: %d, facedirection: %d, speed: %d\n", direction, faceDirection, speed);
+
 
     // turn the face direction as the parameter direction no matter the movement is succ or not
-    setFaceDirection(direction);
+    // setFaceDirection(direction);
 
     // calculating destination
     PlayerPosition destPosition = PlayerPosition();
@@ -300,10 +336,16 @@ void GamePlayer::move (Game* game, Direction direction) {
     if (direction == NORTH || direction == SOUTH) {
         destPosition.x = position.x;
         destPosition.y = direction == NORTH ? position.y - speed : position.y + speed;
-    } else {
+    } else if (direction == EAST || direction == WEST) {
     // y stays the same
         destPosition.y = position.y;
         destPosition.x = direction == WEST ? position.x - speed : position.x + speed;
+    } else if (direction == NORTH_EAST || direction == NORTH_WEST) {
+        destPosition.y = position.y - speed/sqrt(2);
+        destPosition.x = direction == NORTH_WEST ? position.x - speed/sqrt(2) : position.x + speed/sqrt(2);
+    } else if (direction == SOUTH_EAST || direction == SOUTH_WEST) {
+        destPosition.y = position.y + speed/sqrt(2);
+        destPosition.x = direction == SOUTH_WEST ? position.x - speed/sqrt(2) : position.x + speed/sqrt(2);
     }
 
     // if destination is invalid, return immediately
@@ -469,11 +511,24 @@ void GamePlayer::handleUserInput (Game* game, GAME_INPUT userInput) {
         case MOVE_RIGHT:
             move(game, EAST);
             break;
+        case MOVE_UPLEFT:
+            printf("move upleft %d\n", 1);
+            move(game, NORTH_WEST);
+            break;
+        case MOVE_UPRIGHT:
+		    printf("call move server %d \n", 1);
+            move(game, NORTH_EAST);
+            break;
+        case MOVE_DOWNLEFT:
+            move(game, SOUTH_WEST);
+            break;
+        case MOVE_DOWNRIGHT:
+            move(game, SOUTH_EAST);
+            break;
         case INTERACT:
             interact(game);
             break;
         case LEFT_MOUSE_ATTACK:
-            printf("initiating left mouse attack\n");
             attack(game, userInput.angle);
             break;
         case RIGHT_MOUSE_ATTACK:

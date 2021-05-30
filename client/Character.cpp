@@ -23,12 +23,16 @@ Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPo
 	currTime = clock();
 	prevTime = currTime;
 
+	printf("before loading char 1\n");
+
 	// prepare vectors for idle animations
 	idleTex[Direction::WEST] = &idle_west;
 	idleTex[Direction::EAST] = &idle_east;
 	idleTex[Direction::NORTH] = &idle_north;
 	idleTex[Direction::SOUTH] = &idle_south;
 	animSequence.push_back(&idleTex); //order must match the enum in header file
+
+	printf("before loading char 2\n");
 
 	// prepare vectors for move animations
 	moveTex[Direction::WEST] = &move_west;
@@ -37,12 +41,16 @@ Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPo
 	moveTex[Direction::SOUTH] = &move_south;
 	animSequence.push_back(&moveTex);
 
+	printf("before loading char 3\n");
+
 	// prepare vectors for attack animations
 	attackTex[Direction::WEST] = &attack_west;
 	attackTex[Direction::EAST] = &attack_east;
 	attackTex[Direction::NORTH] = &attack_north;
 	attackTex[Direction::SOUTH] = &attack_south;
 	animSequence.push_back(&attackTex);
+
+	printf("before loading char 4\n");
 
 	// initial translation will bthe initial position
 	pos = trans;

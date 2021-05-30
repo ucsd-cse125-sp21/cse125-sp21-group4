@@ -228,6 +228,7 @@ void Window::initMap() {
 }
 
 void Window::initCharacters() {
+	printf("duolan init char\n");
 
 	// Initialize character objects before the screen loads.
 	playerTypeToCharacterMap[FIGHTER] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
@@ -501,7 +502,6 @@ void Window::displayCallback(GLFWwindow* window)
 		// send update that we've finished rendering to the server
 		GAME_INPUT gameInput;
 		gameInput.input = DONE_RENDERING;
-		printf("sending done_rendering signal to server\n");
 		client->sendInput(gameInput);
 		printf("done_rendering signal sent\n");
 		Sleep(TICK_TIME);
@@ -677,6 +677,18 @@ void Window::handleUpdate(GameUpdate update) {
 					break;
 				case WEST:
 					chars[update.id]->setDirection(WEST);
+					break;
+				case NORTH_WEST:
+					chars[update.id]->setDirection(WEST);
+					break;
+				case SOUTH_WEST:
+					chars[update.id]->setDirection(WEST);
+					break;
+				case NORTH_EAST:
+					chars[update.id]->setDirection(EAST);
+					break;
+				case SOUTH_EAST:
+					chars[update.id]->setDirection(EAST);
 					break;
 			}
 			chars[update.id]->moveToGivenDelta(update.floatDeltaX, update.floatDeltaY);
@@ -880,8 +892,27 @@ void Window::updateLastInput() {
 	if (keyboard[GLFW_KEY_E]) {
 		lastInput = INTERACT;
 
-	// J key
-	} else if (keyboard[GLFW_KEY_W]) {
+	// WA key together
+	} 
+	else if(keyboard[GLFW_KEY_W] && keyboard[GLFW_KEY_A]) {
+		lastInput = MOVE_UPLEFT;
+
+	// WD key together
+	} else if(keyboard[GLFW_KEY_W] && keyboard[GLFW_KEY_D]) {
+		printf("update input as upright %d \n", 1);
+		lastInput = MOVE_UPRIGHT;
+
+	// AS key together
+	} else if(keyboard[GLFW_KEY_S] && keyboard[GLFW_KEY_A]) {
+		lastInput = MOVE_DOWNLEFT;
+
+	// SD key together
+	} else if(keyboard[GLFW_KEY_S] && keyboard[GLFW_KEY_D]) {
+		lastInput = MOVE_DOWNRIGHT;
+
+	// W key
+	} 
+	else if (keyboard[GLFW_KEY_W]) {
 		lastInput = MOVE_FORWARD;
 
 	// A key
@@ -896,7 +927,7 @@ void Window::updateLastInput() {
 	} else if(keyboard[GLFW_KEY_D]) {
 		lastInput = MOVE_RIGHT;
 
-	// 1 key (select fighter)
+	// 1 (selec fighter)
 	} else if(keyboard[GLFW_KEY_1]) {
 
 		// Select screen logic
