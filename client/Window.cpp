@@ -244,7 +244,7 @@ void Window::initCharacters() {
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/ROGUE"));
 	playerTypeToCharacterMap[MONSTER] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 		glm::vec3(0.f, 2.f, 0.f), 
-		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MONSTER"));
+		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MAGE"));
 	
 	// Load animations
 	// playerTypeToCharacterMap[FIGHTER]->loadAnimationAssets("shaders/character/FIGHTER");
