@@ -1,7 +1,5 @@
 #include "Window.h"
 
-#define SERVER_ENABLED
-
 //// Window Properties
 int Window::width;
 int Window::height;
