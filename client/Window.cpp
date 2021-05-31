@@ -240,7 +240,6 @@ void Window::initMap() {
 }
 
 void Window::initCharacters() {
-	printf("duolan init char\n");
 
 	// Initialize character objects before the screen loads.
 	playerTypeToCharacterMap[FIGHTER] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
