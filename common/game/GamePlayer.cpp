@@ -354,7 +354,7 @@ void GamePlayer::move (Game* game, Direction direction) {
     // else 
     speed = std::min(speed + acceleration, maxSpeed);
 
-    printf("direction: %d, facedirection: %d, speed: %d\n", direction, faceDirection, speed);
+    // printf("direction: %d, facedirection: %d, speed: %f\n", direction, faceDirection, speed);
 
 
     // turn the face direction as the parameter direction no matter the movement is succ or not

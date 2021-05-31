@@ -63,6 +63,7 @@ int main(void)
         // 4. Wait until tick ends
         auto end = std::chrono::steady_clock::now();
         std::chrono::duration<float> duration = end - start;
+        printf("Milliseconds per tick: %d\n", std::chrono::duration_cast<std::chrono::milliseconds>(duration).count());
         while(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() < TICK_TIME) {
             end = std::chrono::steady_clock::now();
             duration = end - start;

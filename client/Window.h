@@ -67,6 +67,7 @@ public:
 	static GLuint phongTexShader;
 	static GLuint texShader;
 	static GLuint groundShader;
+	static GLuint satTextureShader;
 
 	// Audio Program
 	static AudioProgram* audioProgram;

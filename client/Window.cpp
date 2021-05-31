@@ -34,6 +34,7 @@ GLuint Window::shaderProgram; //Phong lighting shader; only use this for models 
 GLuint Window::phongTexShader; //Phong lighting shader with texture
 GLuint Window::texShader;     //shader for model with textures. NOTE, it also calculates texture alphas
 GLuint Window::groundShader;  //array instance shader that draw multiple objects using same set of data
+GLuint Window::satTextureShader; // shader for monster's saturation levels
 
 // projection Matrices 
 glm::mat4 Window::projection;
@@ -70,6 +71,7 @@ bool Window::initializeProgram() {
 	texShader = LoadShaders("shaders/shader/texture.vert", "shaders/shader/texture.frag");
 	groundShader = LoadShaders("shaders/shader/groundShader.vert", "shaders/shader/groundShader.frag");
 	phongTexShader = LoadShaders("shaders/shader/phongTexture.vert", "shaders/shader/phongTexture.frag");
+	satTextureShader = LoadShaders("shaders/shader/texture.vert", "shaders/shader/satTexture.frag");
 	// Check the shader program.
 	if (!shaderProgram)
 	{
@@ -242,19 +244,19 @@ void Window::initMap() {
 void Window::initCharacters() {
 
 	// Initialize character objects before the screen loads.
-	playerTypeToCharacterMap[FIGHTER] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+	playerTypeToCharacterMap[FIGHTER] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, satTextureShader,
 		glm::vec3(0.f, 2.f, 0.f), 
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/FIGHTER"));	
-	playerTypeToCharacterMap[MAGE] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+	playerTypeToCharacterMap[MAGE] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, satTextureShader,
 		glm::vec3(0.f, 2.f, 0.f), 
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MAGE"));	
-	playerTypeToCharacterMap[CLERIC] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+	playerTypeToCharacterMap[CLERIC] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, satTextureShader,
 		glm::vec3(0.f, 2.f, 0.f), 
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/CLERIC"));	
-	playerTypeToCharacterMap[ROGUE] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+	playerTypeToCharacterMap[ROGUE] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, satTextureShader,
 		glm::vec3(0.f, 2.f, 0.f), 
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/ROGUE"));
-	playerTypeToCharacterMap[MONSTER] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
+	playerTypeToCharacterMap[MONSTER] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, satTextureShader,
 		glm::vec3(0.f, 2.f, 0.f), 
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MONSTER"));
 	
@@ -269,6 +271,7 @@ void Window::initCharacters() {
 	// Set the last character's vector to the monster character object
 	chars[3] = playerTypeToCharacterMap[MONSTER];
 	chars[3]->moveTo(glm::vec3(SPAWN_POSITIONS[3][0], 1.5f, SPAWN_POSITIONS[3][1]));
+	chars[3]->setSaturationLevel(0.1f);
 }
 
 void Window::initSelectScreenElements() {
@@ -816,6 +819,9 @@ void Window::handleUpdate(GameUpdate update) {
 			handleSpectateRequest(update);
 
 		case MONSTER_EVO_UP:
+			if(abs((int)update.newEvoLevel - (int)guiManager->evoBar->evoLevel) >= 1 && update.newEvoLevel <= MONSTER_FIFTH_STAGE_THRESHOLD) {
+				chars[3]->setSaturationLevel(update.newEvoLevel / MONSTER_FIFTH_STAGE_THRESHOLD);
+			}
 			guiManager->evoBar->setEvo(update.newEvoLevel);
 			break;
 
