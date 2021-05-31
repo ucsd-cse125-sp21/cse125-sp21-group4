@@ -32,7 +32,7 @@ private:
 	std::vector<int> materialSize;
 
 
-	glm::vec3 eyep;
+	glm::vec3 *eyep;
 	glm::vec3 color;
 
 
@@ -47,10 +47,10 @@ public:
 	scale is a factor you want to scale the initial object;
 	color c is the initial model color; default is black
 */
-	EnvElement(string fileName, glm::mat4 * proj, glm::mat4 * view, GLuint shader,
+	EnvElement(string fileName, glm::mat4 * proj, glm::mat4 * view, GLuint shader, glm::vec3* eyePos,
 		glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale,
 		glm::vec3 c = glm::vec3(0.f, 0.f, 0.f), char * textFile = "");
-	EnvElement(string fileName, glm::mat4 * proj, glm::mat4 * view, GLuint shader,
+	EnvElement(string fileName, glm::mat4 * proj, glm::mat4 * view, GLuint shader, glm::vec3* vPos, 
 		glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale, MaterialManager* matManager,
 		glm::vec3 c = glm::vec3(0.f, 0.f, 0.f));
 	void draw(glm::mat4 c = glm::mat4(1));

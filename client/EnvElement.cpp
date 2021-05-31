@@ -12,7 +12,7 @@
 	color c is the initial model color; default is black
 */
 
-EnvElement::EnvElement(string fileName, glm::mat4 * p, glm::mat4 * v, GLuint s, 
+EnvElement::EnvElement(string fileName, glm::mat4 * p, glm::mat4 * v, GLuint s, glm::vec3* eyePos,
 	glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale, glm::vec3 c, char* textFile) {
 	
 	// initial translation will bthe initial position
@@ -21,6 +21,7 @@ EnvElement::EnvElement(string fileName, glm::mat4 * p, glm::mat4 * v, GLuint s,
 	projection = p;
 	view = v;
 	shader = s;
+	this->eyep = eyePos;
 	//default color is black
 	color = c;
 	// if path is NOT given at construction time, hasTexture will be false.
@@ -176,7 +177,7 @@ EnvElement::EnvElement(string fileName, glm::mat4 * p, glm::mat4 * v, GLuint s,
 	glBindVertexArray(0);
 }
 
-EnvElement::EnvElement(string fileName, glm::mat4 * p, glm::mat4 * v, GLuint s, 
+EnvElement::EnvElement(string fileName, glm::mat4 * p, glm::mat4 * v, GLuint s, glm::vec3* vPos, 
 	glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale, MaterialManager* matManager, glm::vec3 c) {
 	
 	
@@ -188,8 +189,10 @@ EnvElement::EnvElement(string fileName, glm::mat4 * p, glm::mat4 * v, GLuint s,
 	shader = s;
 	//default color is black
 	color = c;
+	eyep = vPos;
 	// if path is NOT given at construction time, hasTexture will be false.
 	// hasTexture = loadTexture(textFile);
+	hasTexture = true;
 	hasMaterial = false; // will be loaded at another time.
 
 	std::vector<glm::vec3> normalp;
@@ -561,7 +564,7 @@ void EnvElement::draw(glm::mat4 c) {
 	glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, false, glm::value_ptr(*view));
 	glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, false, glm::value_ptr(*projection));
 	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, glm::value_ptr(m));
-	glUniform3fv(glGetUniformLocation(shader, "viewPos"), 1, glm::value_ptr(eyep));
+	glUniform3fv(glGetUniformLocation(shader, "viewPos"), 1, glm::value_ptr(*eyep));
 	glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(color));
 
 	// Bind the VAO
@@ -596,7 +599,7 @@ void EnvElement::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
 	glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, false, glm::value_ptr(*view));
 	glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, false, glm::value_ptr(*projection));
 	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, glm::value_ptr(m));
-	glUniform3fv(glGetUniformLocation(shader, "viewPos"), 1, glm::value_ptr(eyep));
+	glUniform3fv(glGetUniformLocation(shader, "viewPos"), 1, glm::value_ptr(*eyep));
 	glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(color));
 
 	//Bind the VAO
@@ -629,7 +632,8 @@ void EnvElement::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
 	int sum = 0;
 	for(int i = 0; i < materialSize.size(); i++) {
 		if (i < materials.size()) {
-			glUniform3fv(glGetUniformLocation(shader, "ambientColor"), 1, glm::value_ptr(materials[i].ambient));
+			glUniform3fv(glGetUniformLocation(shader, "viewPos"), 1, glm::value_ptr(*eyep));
+			glUniform3fv(glGetUniformLocation(shader, "ambientColor"), 1, glm::value_ptr(materials[i].diffuse));
 			glUniform3fv(glGetUniformLocation(shader, "diffuseFactor"), 1, glm::value_ptr(materials[i].diffuse));
 			glUniform3fv(glGetUniformLocation(shader, "specColor"), 1, glm::value_ptr(materials[i].specular));
 			glUniform1f(glGetUniformLocation(shader, "specHighlight"), materials[i].shininess);
