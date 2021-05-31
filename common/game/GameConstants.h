@@ -13,7 +13,7 @@
 // safeRegion should be a circle with center in the middle of the map
 #define SAFE_REGION_X 250
 #define SAFE_REGION_Y 300
-#define SAFE_REGION_START_RADIUS 250
+#define SAFE_REGION_START_RADIUS 250 
 #define SAFE_REGION_RADIUS_DEC 100
 #define SAFE_REGION_MIN_RADIUS 100.0
 #define SAFE_REGION_DEC_TIME 120 // circle shrinks every 2 minutes 120s = 2min

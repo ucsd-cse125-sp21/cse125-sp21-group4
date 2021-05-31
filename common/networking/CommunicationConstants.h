@@ -102,14 +102,13 @@ enum UPDATE_TYPE {
 struct GameUpdate {
     UPDATE_TYPE updateType = INVALID_UPDATE;
     int id = -1; // -1 instead of 0 because 0 is a valid player id.
-    int specID; // id of the player the current player  is going to spectate
     int objectiveID = -1; // -1 instead of 0 for valid objectiveID.
     int damageTaken = 0; // Used for a damage taken event
     int attackAmount = 0; // amount of damage per attack
     int healAmount = 0; // Used for a healing event
     int endStatus = 0;
     GridPosition gridPos = {0,0}; // Used for objectives and obstacles
-    PlayerPosition playerPos = {0.f, 0.f}; // Used for player positions or projectile position
+    PlayerPosition playerPos = {0.f, 0.f, 0.f, 0.f}; // Used for player positions or projectile position
     float newEvoLevel = -1.f; // Used for monster stage tracking
     float floatDeltaX = 0; // used for player movement or projectile movement
     float floatDeltaY = 0; // used for player movement or projectile movement
@@ -120,6 +119,7 @@ struct GameUpdate {
     std::chrono::steady_clock::time_point selectTimerStartTime; // Used for an accurate countdown timer
     ObjectiveType objectiveSpawnType = INVALID_OBJ;
     Restriction objRestrictionType = R_NEUTRAL;
+    int specID; // id of the player the current player  is going to spectate
 };
 
 
