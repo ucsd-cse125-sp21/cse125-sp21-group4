@@ -11,8 +11,6 @@
 #define GROUND_WIDTH 600
 #define TILE_SIZE 6.0
 
-
-
 #define DRY_GRASS_ID 0
 #define CRACKED_TILE_ID 1
 
@@ -23,20 +21,17 @@ private:
 	std::vector<glm::ivec3> triangles;
 	std::vector<glm::vec2> textCoord;
 
-	glm::mat4* view;
-	glm::mat4* projection;
-	GLuint shader;
+	vector<glm::vec3> grassTileTrans;
+	vector<glm::vec3> roadTileTrans;
 
-	GLuint textId[2]; // two bc we have two types of ground textures
-	bool hasTexture;
-
-	glm::vec3 eyep;
+	GroundTile * roadTiles;
+	GroundTile * grassTiles;
 
 public:
 	Ground(string fileName, glm::mat4* proj, glm::mat4* view, GLuint shader, char* grassTextFile,  
-		   char* crackedTileTextFile, SpatialHashTable* table, float tileScale);
+		   char* crackedTileTextFile, float tileScale);
 	void update();
-	bool loadTexture(char* tPath, GLuint* textId);
+	void draw();
 };
 
 #endif
