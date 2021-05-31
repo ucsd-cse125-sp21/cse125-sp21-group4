@@ -5,7 +5,7 @@
 #define MOUSE_SIZE 2
 #define MOUSE_LEFT_INDEX 0
 #define MOUSE_RIGHT_INDEX 1
-//#define SERVER_ENABLED
+#define SERVER_ENABLED
 #define RENDER_MAP
 #define _USE_MATH_DEFINES
 #define SPATIAL_HASH_SEARCH_DISTANCE 11.0
@@ -31,6 +31,7 @@
 #include "../common/game/Projectile.h"
 #include "gui/GUIManager.h"
 #include "AudioProgram.h"
+#include "MaterialManager.h"
 
 #include <fstream>
 #include <string>
@@ -70,6 +71,9 @@ public:
 	// Audio Program
 	static AudioProgram* audioProgram;
 	static std::vector<PlayerType> playerJobs;
+
+	// Material Manager
+	static MaterialManager materialManager;
 
 
 	// Camera Matrices 
