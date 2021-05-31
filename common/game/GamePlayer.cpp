@@ -54,7 +54,36 @@ void GamePlayer::setAttackDamage (int newAttackDamage) { attackDamage = newAttac
 Direction GamePlayer::getFaceDirection() {return faceDirection; }
 
 void GamePlayer::setFaceDirection(Direction newDirection) { 
-    faceDirection = newDirection; 
+    switch (newDirection)
+    {
+        case NORTH:
+            faceDirection = NORTH;
+            break;
+        case EAST:
+            faceDirection = EAST;
+            break;
+        case WEST:
+            faceDirection = WEST;
+            break;
+        case SOUTH:
+            faceDirection = SOUTH;
+            break;
+        case NORTH_EAST:
+            faceDirection = EAST;
+            break;
+        case SOUTH_EAST:
+            faceDirection = EAST;
+            break;
+        case NORTH_WEST:
+            faceDirection = WEST;
+            break;
+        case SOUTH_WEST:
+            faceDirection = WEST;
+            break;  
+        default:
+            faceDirection = WEST;
+            break;
+    }
 }
 
 float GamePlayer::getSpeed() { return speed; }
@@ -316,6 +345,8 @@ void GamePlayer::move (Game* game, Direction direction) {
         else newEvents.push_back(event);
     }   
     game->events = newEvents;   
+
+    setFaceDirection(direction);
     
 
     // if player changes direction, set speed back to 0

@@ -9,11 +9,12 @@
 
 int main(void)
 {
-    // Initialize game server that will take inputs from commServer
-    Game* game = new Game(); 
 
     // Initialize communication server that will interface with the clients
     CommunicationServer* commServer = new CommunicationServer();
+
+    // Initialize game server that will take inputs from commServer
+    Game* game = new Game(); 
     
     /**
      * Basic server architecture:
