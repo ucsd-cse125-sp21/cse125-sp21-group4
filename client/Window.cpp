@@ -460,7 +460,7 @@ void Window::displayCallback(GLFWwindow* window)
 		envs[i]->draw();
 	}
 
-	if(ground != NULL)
+	if(ground != NULL && gameStarted)
 		ground->draw();
 
 	//then selectively draw objects nearby this player
