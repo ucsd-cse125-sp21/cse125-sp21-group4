@@ -31,7 +31,9 @@ int MouseX, MouseY;
 
 // The shader program id
 GLuint Window::shaderProgram; //Phong lighting shader; only use this for models without texture
+GLuint Window::phongTexShader; //Phong lighting shader with texture
 GLuint Window::texShader;     //shader for model with textures. NOTE, it also calculates texture alphas
+GLuint Window::groundShader;  //array instance shader that draw multiple objects using same set of data
 
 // projection Matrices 
 glm::mat4 Window::projection;
@@ -56,13 +58,18 @@ GUIManager* Window::guiManager;
 // Audio Program
 AudioProgram* Window::audioProgram;
 vector<PlayerType> Window::playerJobs {UNKNOWN, UNKNOWN, UNKNOWN, MONSTER};
-
 std::chrono::steady_clock::time_point lastCombatMusicPlayTime;
+
+// Material Manager
+MaterialManager Window::materialManager;
+
 
 bool Window::initializeProgram() {
 	// Create a shader program with a vertex shader and a fragment shader.
 	shaderProgram = LoadShaders("shaders/shader/shader.vert", "shaders/shader/shader.frag");
 	texShader = LoadShaders("shaders/shader/texture.vert", "shaders/shader/texture.frag");
+	groundShader = LoadShaders("shaders/shader/groundShader.vert", "shaders/shader/groundShader.frag");
+	phongTexShader = LoadShaders("shaders/shader/phongTexture.vert", "shaders/shader/phongTexture.frag");
 	// Check the shader program.
 	if (!shaderProgram)
 	{
@@ -102,10 +109,6 @@ bool Window::initializeObjects()
 	// 	glm::vec3(0.f, -1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
 
 
-	//for now tileScale should be tileSize / 2.0
-	ground = new Ground("shaders/environment/ground.obj", &projection, &view, texShader,
-		"shaders/environment/dry_grass_texture_3x3.png", "shaders/environment/cracked_tile_texture_3x3.png", &table, 3.0f);
-
 	#ifdef RENDER_MAP
 	printf("=======================================\nIt will take a while for the game to launch, please wait.\n");
 	initMap();
@@ -137,6 +140,11 @@ bool Window::initializeObjects()
 }
 
 void Window::initMap() {
+	cout << "initing map" << endl;
+	//for now tileScale should be tileSize / 2.0
+	ground = new Ground("shaders/environment/ground.obj", &projection, &view, groundShader,
+		"shaders/environment/dry_grass_texture_3x3.png", "shaders/environment/cracked_tile_texture_3x3.png", 3.0f);
+
 	ifstream map_file("../assets/layout/map_client.csv");
     string line;
     string id;
@@ -170,7 +178,7 @@ void Window::initMap() {
 			for(int x = objX; x < objX + width; x++) {
 				for(int y = objY; y < objY + height; y++) {
 
-					EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
+					EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram, &eyePos,
 						glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f));
 					table.insert(e);
 				}
@@ -180,23 +188,27 @@ void Window::initMap() {
 		} else if (strcmp(objName.c_str(), "pillar") == 0) {
 			objX += width / 2;
 			objY += height / 2;
-			EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
+			EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram, &eyePos,
 				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f),  width, glm::vec3(1.f, 1.f, 1.f)); 
 			table.insert(e);
 
 		// Green Tree ==   tree_live
 		} else if (strcmp(objName.c_str(), "tree_live") == 0) {
+
 			objX += width / 2;
 			objY += height / 2;
-			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, shaderProgram,
-				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.f, 1.f, 0.f));
+			// int handle = materialManager.loadMaterial("shaders/environment/lowpolypine.mtl");
+			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, phongTexShader, &eyePos,
+				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, &materialManager, glm::vec3(0.f, 1.f, 0.f));
+			// EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, phongTexShader, &eyePos,
+			// 	glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians((float)(std::rand() % 360)), width, &materialManager, glm::vec3(0.f, 1.f, 0.f));
 			table.insert(e);
 
 		// dead tree = grayish black
 		} else if (strcmp(objName.c_str(), "tree_dead") == 0) {
 			objX += width / 2;
 			objY += height / 2;
-			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, shaderProgram,
+			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, shaderProgram, &eyePos,
 				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.2f, 0.2f, 0.2f));
 			table.insert(e);
 
@@ -205,7 +217,7 @@ void Window::initMap() {
 			objX += width / 2;
 			objY += height / 2;
 
-			EnvElement* e = new EnvElement("shaders/environment/lowpolyrock1.obj", &projection, &view, shaderProgram,
+			EnvElement* e = new EnvElement("shaders/environment/lowpolyrock1.obj", &projection, &view, shaderProgram, &eyePos,
 				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f),  width * 2.f, glm::vec3(0.7f, 0.7f, 0.7f));
 			table.insert(e);
 
@@ -216,7 +228,7 @@ void Window::initMap() {
 			for(int x = objX + 3.75f; x < objX + width - 4.0f; x+= 4) {
 				for(int y = objY; y < objY + height; y++) {
 
-					EnvElement* e = new EnvElement("shaders/environment/brickwall.obj", &projection, &view, texShader,
+					EnvElement* e = new EnvElement("shaders/environment/brickwall.obj", &projection, &view, texShader, &eyePos,
 						glm::vec3(x, 5.f, y + height / 2), glm::vec3(.5f, 0.f, .5f), glm::radians(180.f), 1.f, glm::vec3(1.f, .5f, .5f), "shaders/environment/brick_wall_texture_3x3.png");
 					table.insert(e);
 
@@ -449,15 +461,18 @@ void Window::displayCallback(GLFWwindow* window)
 		envs[i]->draw();
 	}
 
+	if(ground != NULL && gameStarted)
+		ground->draw();
+
 	//then selectively draw objects nearby this player
 	vector<Object*> result;
 	float h = SPATIAL_HASH_SEARCH_DISTANCE;
 	int j;
-	glm::vec3 base1(-1.f * h, 0.f, 0.f);
-	for (j = 0; j < 3 && Window::gameStarted; j++) {
+	glm::vec3 base1(-2.f * h, 0.f, 0.f);
+	for (j = 0; j < 5 && Window::gameStarted; j++) {
 		int k;
-		glm::vec3 base2(0.f, 0.f, -2.f * h);   //negative 2 multiplier, so the search area is ahead into the screan
-		for (k = 0; k < 3; k++) {
+		glm::vec3 base2(0.f, 0.f, -3.f * h);   //negative 2 multiplier, so the search area is ahead into the screan
+		for (k = 0; k < 5; k++) {
 			glm::vec3 loc = base1 + base2;
 			if(clientChar != nullptr) {
 				loc += clientChar->pos;
