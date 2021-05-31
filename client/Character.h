@@ -71,6 +71,7 @@ private:
 	int frameIdx;	// current frame in animation sequence
 	int viewingSpecID;  // ID of the player this player is spectating
 	//add more for attack and other actions
+	float saturation;
 
 	glm::vec3 * eyep;
 	glm::vec3 color;
@@ -114,6 +115,7 @@ public:
 	void setDirection(Direction d);
 	int getViewingSpecID();
 	void setViewingSpecID(int id);
+	void setSaturationLevel(float level);
 };
 
 #endif
