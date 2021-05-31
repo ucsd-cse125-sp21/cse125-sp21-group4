@@ -8,13 +8,16 @@
 #define SERVER_ENABLED
 #define RENDER_MAP
 #define _USE_MATH_DEFINES
-#define SPATIAL_HASH_SEARCH_DISTANCE 11.0
+#define SPATIAL_HASH_SEARCH_DISTANCE 20.0
 
 
 // camera offsets for player
-#define CAMERA_X_OFFSET 0.f
-#define CAMERA_Y_OFFSET 10.f
-#define CAMERA_Z_OFFSET 6.f
+#define MIN_CAMERA_X_OFFSET 0.f
+#define MIN_CAMERA_Y_OFFSET 10.f
+#define MIN_CAMERA_Z_OFFSET 6.f
+#define MAX_CAMERA_X_OFFSET 0.f
+#define MAX_CAMERA_Y_OFFSET 20.f
+#define MAX_CAMERA_Z_OFFSET 16.f
 
 #include "Main.h"
 #include "shader.h"
@@ -84,6 +87,7 @@ public:
 	// View Matrix:
 	static glm::vec3 eyePos, lookAtPoint, upVector;
 	static glm::mat4 view;
+	static glm::vec3 cameraOffset;
 
 	// Last CLIENT_INPUT recorded
 	static CLIENT_INPUT lastInput;
@@ -119,6 +123,7 @@ public:
 	// callbacks - for interaction
 	static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	static void mouse_callback(GLFWwindow* window, int button, int action, int mods);
+	static void mouse_scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 	static void cursor_callback(GLFWwindow* window, double currX, double currY);
 
 	// Used to handle GameUpdates from the CommunicationClient
