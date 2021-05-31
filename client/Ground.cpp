@@ -51,9 +51,9 @@ char * crackedTileTextFile, float tileScale) {
     }
 
 	//build the ground
-	roadTiles = new GroundTile("shaders/environment/ground.obj", "shaders/environment/cracked_tile_texture_3x3.png", proj, v, s,
+	roadTiles = new GroundTile("shaders/environment/ground.obj", crackedTileTextFile, proj, v, s,
 		tileScale, &roadTileTrans);
-	grassTiles = new GroundTile("shaders/environment/ground.obj", "shaders/environment/dry_grass_texture_3x3.png", proj, v, s,
+	grassTiles = new GroundTile("shaders/environment/ground.obj", grassTextFile, proj, v, s,
 		tileScale, &grassTileTrans);
 
 	cout << "ground tiles initialized" << endl;

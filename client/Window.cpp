@@ -48,6 +48,7 @@ glm::vec3 Window::lookAtPoint(0, 0, 0);
 glm::vec3 Window::upVector(0, 1, 0);
 //view matrix with all the above stuff combined
 glm::mat4 Window::view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window::upVector);
+glm::vec3 Window::cameraOffset(MAX_CAMERA_X_OFFSET, MAX_CAMERA_Y_OFFSET, MAX_CAMERA_Z_OFFSET);
 
 // last input from the window
 CLIENT_INPUT Window::lastInput = NO_MOVE;
@@ -145,7 +146,7 @@ void Window::initMap() {
 	cout << "initing map" << endl;
 	//for now tileScale should be tileSize / 2.0
 	ground = new Ground("shaders/environment/ground.obj", &projection, &view, groundShader,
-		"shaders/environment/dry_grass_texture_3x3.png", "shaders/environment/cracked_tile_texture_3x3.png", 3.0f);
+		"shaders/environment/dry_grass_red_3x3.png", "shaders/environment/cracked_tile_texture_3x3.png", 3.0f);
 
 	ifstream map_file("../assets/layout/map_client.csv");
     string line;
@@ -155,9 +156,9 @@ void Window::initMap() {
         istringstream ss(line);
         string field;
 
-		// fields: objName, x, y, width, height (x and y are upper left corner of obj)
+		// fields: objName, x, y, width, height (x and y are upper left corner of obj), random rotation
 		string objName;
-		int fields[4] = {0,0,0,0};
+		int fields[5] = {0,0,0,0,0};
 		int i = 0;
 		while (getline(ss, field, ',')) {
 			if(i == 0) {
@@ -171,6 +172,7 @@ void Window::initMap() {
 		float objY = fields[1];
 		float width = fields[2];
 		float height = fields[3];
+		float randomRotateDegree = fields[4];
 
 		// Spawn the obstacles based on their name
 		
@@ -201,7 +203,7 @@ void Window::initMap() {
 			objY += height / 2;
 			// int handle = materialManager.loadMaterial("shaders/environment/lowpolypine.mtl");
 			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, phongTexShader, &eyePos,
-				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, &materialManager, glm::vec3(0.f, 1.f, 0.f));
+				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(randomRotateDegree), width, &materialManager, glm::vec3(0.f, 1.f, 0.f));
 			// EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, phongTexShader, &eyePos,
 			// 	glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians((float)(std::rand() % 360)), width, &materialManager, glm::vec3(0.f, 1.f, 0.f));
 			table.insert(e);
@@ -211,7 +213,7 @@ void Window::initMap() {
 			objX += width / 2;
 			objY += height / 2;
 			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, shaderProgram, &eyePos,
-				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), width, glm::vec3(0.2f, 0.2f, 0.2f));
+				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(randomRotateDegree), width, glm::vec3(0.2f, 0.2f, 0.2f));
 			table.insert(e);
 
 		// gray ==  Rock
@@ -220,7 +222,7 @@ void Window::initMap() {
 			objY += height / 2;
 
 			EnvElement* e = new EnvElement("shaders/environment/lowpolyrock1.obj", &projection, &view, shaderProgram, &eyePos,
-				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f),  width * 2.f, glm::vec3(0.7f, 0.7f, 0.7f));
+				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(randomRotateDegree),  width * 2.f, glm::vec3(0.3f, 0.3f, 0.3f));
 			table.insert(e);
 
 		// Red cube ==  wall
@@ -436,7 +438,7 @@ void Window::idleCallback()
 		else
 			lookAtPoint = clientChar->pos;
 	}
-	eyePos = lookAtPoint + glm::vec3(CAMERA_X_OFFSET, CAMERA_Y_OFFSET, CAMERA_Z_OFFSET);
+	eyePos = lookAtPoint + cameraOffset;
 	view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window::upVector);
 
 	int i;
@@ -566,6 +568,21 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
 {
 	if (button == GLFW_MOUSE_BUTTON_LEFT) mouse[MOUSE_LEFT_INDEX] = (action == GLFW_PRESS);
 	if (button == GLFW_MOUSE_BUTTON_RIGHT)  mouse[MOUSE_RIGHT_INDEX] = (action == GLFW_PRESS);
+}
+
+void Window::mouse_scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+	// for simplicity sake, y and z change linearly if y += 1, then z += 1...
+	if (yoffset > 0) {
+		// Zoom in scroll up
+		cameraOffset.y = std::fmax(cameraOffset.y - yoffset, MIN_CAMERA_Y_OFFSET); 
+		cameraOffset.z = std::fmax(cameraOffset.z - yoffset, MIN_CAMERA_Z_OFFSET); 
+	}	
+	else {
+		// Zoom out scroll down
+		cameraOffset.y = std::fmin(cameraOffset.y - yoffset, MAX_CAMERA_Y_OFFSET); 
+		cameraOffset.z = std::fmin(cameraOffset.z - yoffset, MAX_CAMERA_Z_OFFSET); 
+	
+	}
 }
 
 void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
