@@ -194,7 +194,6 @@ void Window::initMap() {
 
 		// Green Tree ==   tree_live
 		} else if (strcmp(objName.c_str(), "tree_live") == 0) {
-			// if(objX < 100) {
 
 			objX += width / 2;
 			objY += height / 2;
@@ -205,7 +204,6 @@ void Window::initMap() {
 			// 	glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians((float)(std::rand() % 360)), width, &materialManager, glm::vec3(0.f, 1.f, 0.f));
 			table.insert(e);
 
-			// }
 		// dead tree = grayish black
 		} else if (strcmp(objName.c_str(), "tree_dead") == 0) {
 			objX += width / 2;
