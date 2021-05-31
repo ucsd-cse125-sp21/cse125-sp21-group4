@@ -30,6 +30,7 @@ Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPo
 	idleTex[Direction::SOUTH] = &idle_south;
 	animSequence.push_back(&idleTex); //order must match the enum in header file
 
+
 	// prepare vectors for move animations
 	moveTex[Direction::WEST] = &move_west;
 	moveTex[Direction::EAST] = &move_east;
@@ -37,12 +38,14 @@ Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPo
 	moveTex[Direction::SOUTH] = &move_south;
 	animSequence.push_back(&moveTex);
 
+
 	// prepare vectors for attack animations
 	attackTex[Direction::WEST] = &attack_west;
 	attackTex[Direction::EAST] = &attack_east;
 	attackTex[Direction::NORTH] = &attack_north;
 	attackTex[Direction::SOUTH] = &attack_south;
 	animSequence.push_back(&attackTex);
+
 
 	// initial translation will bthe initial position
 	pos = trans;
@@ -341,7 +344,9 @@ void Character::update() {
 		}
 		if (timeDiff >= interval) {
 			// check if on the last frame of a sequence
-			if (frameIdx + 1 == ( *(*animSequence[currState]) [currDirec] ).size()) {
+			// Previous
+			// if (frameIdx + 1 == (*(*animSequence[currState])[currDirec]).size()) {
+			if (frameIdx + 1 >= ( *(*animSequence[currState]) [currDirec] ).size()) {
 				frameIdx = 0;
 				if(currState != idle && currState != spectating) currState = idle; // get out of attack and movement state.
 			}

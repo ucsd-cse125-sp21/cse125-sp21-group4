@@ -34,6 +34,8 @@ Game::Game() {
     // initPlayers(); Will init players when the game starts and we know the jobs
     initSelectScreenStructures();
 
+    lastSafeRegionShrinkTime = std::chrono::steady_clock::now();
+    lastSafeRegionAttackTime = std::chrono::steady_clock::now();
 }
 
 // initializes the map structure for easier selecting of jobs
@@ -768,6 +770,28 @@ void Game::updateBeacon() {
     }
 }
 
+
+/*
+    This will be called on the server for each tick.
+*/
+void Game::updateSafeRegion () {
+    auto currentTime = std::chrono::steady_clock::now();
+    std::chrono::duration<float> duration = currentTime - lastSafeRegionShrinkTime;
+    if (std::chrono::duration_cast<std::chrono::seconds>(duration).count() 
+                                            > SAFE_REGION_DEC_TIME) {
+        shrinkSafeRegion();
+        lastSafeRegionShrinkTime = currentTime;
+    }
+
+    duration = currentTime - lastSafeRegionAttackTime;
+    if (std::chrono::duration_cast<std::chrono::seconds>(duration).count() 
+                                            > SAFE_REGION_DAMAGE_TIME) {
+        attackPlayersOutsideSafeRegion();
+        lastSafeRegionAttackTime = currentTime;
+    }
+}
+
+
 /*
     Return 0 if the game is not end.
     Return 1 if hunters win.
@@ -801,6 +825,42 @@ bool Game::checkEnd() {
     addUpdate(gameEndUpdate);
     return true;
 }
+
+
+void Game::shrinkSafeRegion () {
+    if (safeRegionRadius < 0) safeRegionRadius = SAFE_REGION_START_RADIUS;
+    else safeRegionRadius = max(safeRegionRadius-SAFE_REGION_RADIUS_DEC, (float) SAFE_REGION_MIN_RADIUS);
+
+    GameUpdate gameUpdate;
+    gameUpdate.updateType = SAFE_REGION_UPDATE;
+    gameUpdate.playerPos.x = safeRegionX;
+    gameUpdate.playerPos.y = safeRegionY;
+    gameUpdate.beaconCaptureAmount = safeRegionRadius;
+    addUpdate(gameUpdate);
+}
+
+
+void Game::attackPlayersOutsideSafeRegion () {
+    if (safeRegionRadius < 0) return;
+
+    for (int i = 0; i < PLAYER_NUM; i++) {
+        float distanceSqr = pow(players[i]->getPosition().x - safeRegionX, 2) +
+                       pow(players[i]->getPosition().y - safeRegionY, 2);
+
+        // if a player is outside of safeRegion, it will be attacked by the system
+        if (sqrt(distanceSqr) > safeRegionRadius) {
+            printf("Attack player with id %d \n", i);
+            players[i]->hpDecrement(SAFE_REGION_DAMAGE);
+            // queue this update to be send to other players
+            GameUpdate gameUpdate;
+            gameUpdate.updateType = PLAYER_DAMAGE_TAKEN;
+            gameUpdate.id = i;
+            gameUpdate.damageTaken = SAFE_REGION_DAMAGE;
+            addUpdate(gameUpdate);
+        }
+    }
+}
+
 
 /* Process a single event */
 void Game::processEvent (GameEvent* event) {

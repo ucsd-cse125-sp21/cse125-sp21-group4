@@ -27,6 +27,12 @@ class Game {
 public:
     /* public member variables */
     Grids gameGrids; // Grids is a 2d array of GameGrid pointers
+    float safeRegionX = SAFE_REGION_X;
+    float safeRegionY = SAFE_REGION_Y;
+    float safeRegionRadius = -1;
+    std::chrono::steady_clock::time_point lastSafeRegionShrinkTime;
+    std::chrono::steady_clock::time_point lastSafeRegionAttackTime;
+
     PlayerList players; // PlayerList is an size-4-array of GamePlayer 
                         // (either Fighter type or Monster type for now)
     PlayerType idToJobType [MAX_PLAYERS]; // used for selecting purposes, -1 == not taken
@@ -65,7 +71,11 @@ public:
     void processEvent (GameEvent* event);
     void updateGameEvents();
     void updateBeacon();
+    void updateSafeRegion();
     bool checkEnd();
+
+    void shrinkSafeRegion();
+    void attackPlayersOutsideSafeRegion();
 
     void printGameGrids();
     void printPlayers();
