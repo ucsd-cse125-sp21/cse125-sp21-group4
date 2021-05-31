@@ -20,7 +20,6 @@ enum CLIENT_INPUT{
     MOVE_FORWARD_ATTACK,
     MOVE_FORWARD_UNIQUE_ATTACK,
     MOVE_BACKWARD,
-    NO_MOVE,
     MOVE_BACKWARD_ATTACK, 
     MOVE_BACKWARD_UNIQUE_ATTACK,
     MOVE_LEFT,
@@ -47,6 +46,7 @@ enum CLIENT_INPUT{
     // MONSTER_MELEE_ATTACK,
     // HUNTER_SWORD_ATTACK,
     INTERACT, // used to interact with objectives
+    NO_MOVE,
 
     // These inputs are so players can claim a role
     CLAIM_FIGHTER,

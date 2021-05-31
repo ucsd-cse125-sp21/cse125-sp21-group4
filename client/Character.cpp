@@ -349,7 +349,9 @@ void Character::update() {
 		}
 		if (timeDiff >= interval) {
 			// check if on the last frame of a sequence
-			if (frameIdx + 1 == ( *(*animSequence[currState]) [currDirec] ).size()) {
+			// Previous
+			// if (frameIdx + 1 == (*(*animSequence[currState])[currDirec]).size()) {
+			if (frameIdx + 1 >= ( *(*animSequence[currState]) [currDirec] ).size()) {
 				frameIdx = 0;
 				if(currState != idle && currState != spectating) currState = idle; // get out of attack and movement state.
 			}
