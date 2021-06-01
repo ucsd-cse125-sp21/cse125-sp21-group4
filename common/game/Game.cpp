@@ -602,6 +602,20 @@ bool projectileIsCollidingEnemy (Projectile* p, Game* game) {
                 event->time = std::chrono::steady_clock::now() + 
                                 std::chrono::milliseconds(FIREBALL_EFFECT_TIME);
                 game->events.push_back(event);
+
+                event = new GameEvent();
+                event->type = FIREBALL_END;
+                event->ownerID = p->ownerID;
+                event->targetID = i;
+                event->time = std::chrono::steady_clock::now() + 
+                                std::chrono::milliseconds(FIREBALL_EFFECT_TIME);
+                game->events.push_back(event);
+
+                // send speed dec effect to client
+                GameUpdate gameUpdate;
+                gameUpdate.updateType = HIT_BY_MAGE_FIREBALL;
+                gameUpdate.id = i;
+                game->addUpdate(gameUpdate);
             }
             // projectile will only cause damage 
             else {
@@ -879,6 +893,20 @@ void Game::processEvent (GameEvent* event) {
         case SPEED_CHANGE:
             players[event->targetID]->speedChange(event->amount);
             break;
+        case FIREBALL_END: {
+                GameUpdate gameUpdate;
+                gameUpdate.updateType = RECOVER_FROM_MAGE_FIREBALL;
+                gameUpdate.id = event->targetID;
+                addUpdate(gameUpdate);
+                break;
+            }
+        case HEAL_END: {
+                GameUpdate gameUpdate;
+                gameUpdate.updateType = HEAL_BY_CLERIC_END;
+                gameUpdate.id = event->targetID;
+                addUpdate(gameUpdate);
+                break;
+            }
         case GAME_START: {
             this->started = true;
 

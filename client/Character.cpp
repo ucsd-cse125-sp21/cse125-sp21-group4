@@ -66,6 +66,8 @@ Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPo
 	damageFlashUntil = currTime;
 
 	setSaturationLevel(1.0f);
+	setRedSaturationLevel(1.0f);
+	setGreenSaturationLevel(1.0f);
 
 	std::vector<glm::vec3> normalp;
 	std::vector<glm::vec3> pointsp;
@@ -278,6 +280,8 @@ void Character::draw(glm::mat4 c) {
 
 
 	glUniform1f(glGetUniformLocation(shader, "saturation"), saturation);
+	glUniform1f(glGetUniformLocation(shader, "redSaturation"), redSaturation);
+	glUniform1f(glGetUniformLocation(shader, "greenSaturation"), greenSaturation);
 	glDrawElements(GL_TRIANGLES, 3 * triangles.size(), GL_UNSIGNED_INT, 0);
 
 	glDisable(GL_BLEND);
@@ -494,4 +498,12 @@ void Character::setViewingSpecID(int id) {
 
 void Character::setSaturationLevel(float level) {
 	saturation = level;
+}
+
+void Character::setRedSaturationLevel(float redSat) {
+	redSaturation = redSat;
+}
+
+void Character::setGreenSaturationLevel(float greenSat) {
+	greenSaturation = greenSat;
 }

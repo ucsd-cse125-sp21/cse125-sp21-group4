@@ -765,6 +765,19 @@ void Window::handleUpdate(GameUpdate update) {
 			delete projectiles[update.id];
 			projectiles.erase(update.id);
 			break;
+		case HIT_BY_MAGE_FIREBALL:
+			chars[update.id]->setRedSaturationLevel(5.f);
+			break;
+		case RECOVER_FROM_MAGE_FIREBALL:
+			chars[update.id]->setRedSaturationLevel(1.f);
+			break;
+		case HEAL_BY_CLERIC:
+			chars[update.id]->setGreenSaturationLevel(2.f);
+			break;
+		case HEAL_BY_CLERIC_END:
+			chars[update.id]->setGreenSaturationLevel(1.f);
+			break;
+		
 		case GAME_STARTED:
 			Window::gameStarted = true;
 			guiManager->setSelectScreenVisible(false); // disable the selects creen

@@ -3,6 +3,8 @@
 enum EventType {
     HP_DEC,
     SPEED_CHANGE,
+    FIREBALL_END,
+    HEAL_END,
     GAME_START,
 };
 

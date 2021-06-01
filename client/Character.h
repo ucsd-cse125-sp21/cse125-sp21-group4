@@ -72,6 +72,8 @@ private:
 	int viewingSpecID;  // ID of the player this player is spectating
 	//add more for attack and other actions
 	float saturation;
+	float redSaturation;
+	float greenSaturation;
 
 	glm::vec3 * eyep;
 	glm::vec3 color;
@@ -116,6 +118,8 @@ public:
 	int getViewingSpecID();
 	void setViewingSpecID(int id);
 	void setSaturationLevel(float level);
+	void setRedSaturationLevel(float redSat);
+	void setGreenSaturationLevel(float greenSat);
 };
 
 #endif

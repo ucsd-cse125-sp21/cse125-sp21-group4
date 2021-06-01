@@ -5,12 +5,14 @@ in vec2 texCoord;
 
 uniform sampler2D tex;
 uniform float saturation;
+uniform float redSaturation;
+uniform float greenSaturation;
 
 void main()
 {    
     FragColor = texture(tex, texCoord);
-    FragColor.r = FragColor.r * (saturation);
-    FragColor.g = FragColor.g * (saturation);
+    FragColor.r = FragColor.r * (saturation) * redSaturation;
+    FragColor.g = FragColor.g * (saturation) * greenSaturation;
     FragColor.b = FragColor.b * (saturation);
     if (FragColor.a < 0.1)
     {
