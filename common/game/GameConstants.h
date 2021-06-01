@@ -90,15 +90,15 @@
 
 // Player movement constants
 #define FIGHTER_ACCELERATION 0.05
-#define FIGHTER_MAX_SPEED 1
+#define FIGHTER_MAX_SPEED .8
 #define MAGE_ACCELERATION 0.05
-#define MAGE_MAX_SPEED 1
+#define MAGE_MAX_SPEED .8
 #define CLERIC_ACCELERATION 0.05
-#define CLERIC_MAX_SPEED 1
+#define CLERIC_MAX_SPEED .8
 #define ROGUE_ACCELERATION 0.05
-#define ROGUE_MAX_SPEED 1
+#define ROGUE_MAX_SPEED .8
 #define MONSTER_ACCELERATION 0.05
-#define MONSTER_MAX_SPEED 1
+#define MONSTER_MAX_SPEED .8
 
 
 
@@ -156,7 +156,7 @@ const float SPAWN_POSITIONS [4][2] = {
     {25.0, 25.0},
     {35.0, 25.0},
     {25.0, 35.0},
-    {65.0, 65.0}
+    {470.0, 570.0}
 };
 
 #define MOVE_DISTANCE 1

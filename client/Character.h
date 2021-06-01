@@ -7,6 +7,7 @@
 
 #define IDLE_ANIMATION_INTERVAL 0.2
 #define ATTACK_ANIMATION_INTERVAL 0.075
+#define UNIQUE_ATTACK_ANIMATION_INTERVAL 0.075
 #define MOVING_ANIMATION_INTERVAL 0.1
 
 #define CHARACTER_DAMAGE_TAKEN_FLASHING_TIME_MS 600
@@ -16,6 +17,7 @@ enum CharState {
 	idle,
 	moving,
 	attacking,
+	uniqueAttacking,
 	spectating
 	//add more for other actions
 };
@@ -51,6 +53,7 @@ private:
 	std::vector<std::vector<GLuint>*> idleTex;					  // idle animation sequences
 	std::vector<std::vector<GLuint>*> moveTex;					  // movement animation sequences
 	std::vector<std::vector<GLuint>*> attackTex;				  // attack animation sequences
+	std::vector<std::vector<GLuint>*> uniqueAttackTex;				  // attack animation sequences
 
 	std::vector<GLuint> idle_west;		// idle west animation
 	std::vector<GLuint> idle_east;		// idle east animation
@@ -66,6 +69,11 @@ private:
 	std::vector<GLuint> attack_east;	// attack east animation
 	std::vector<GLuint> attack_north;	// attack north animation
 	std::vector<GLuint> attack_south;	// attack south animation
+	
+	std::vector<GLuint> unique_attack_west;	// unique attack west animation
+	std::vector<GLuint> unique_attack_east;	// unique attack east animation
+	std::vector<GLuint> unique_attack_north;	// unique attack north animation
+	std::vector<GLuint> unique_attack_south;	// unique attack south animation
 
 	
 	int frameIdx;	// current frame in animation sequence
