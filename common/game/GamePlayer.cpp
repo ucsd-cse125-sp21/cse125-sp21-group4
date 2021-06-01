@@ -414,6 +414,7 @@ void GamePlayer::move (Game* game, Direction direction) {
 
 
 void GamePlayer::hpDecrement (int damage) {
+    if (hp == 0) return;
     hp = std::max(0, hp - damage);
     if (hp == 0) {
         deathTime = std::chrono::steady_clock::now();
@@ -456,7 +457,7 @@ void GamePlayer::revive(Game* game) {
             GamePlayer* otherPlayer = game->players[i];
             auto currentTime = std::chrono::steady_clock::now();
             std::chrono::duration<float> duration = currentTime - otherPlayer->deathTime;
-
+            printf("before checking time\n");
             if (std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() 
                                             <= REVIVE_TIME_INTERVAL) {
                 continue;
@@ -464,7 +465,7 @@ void GamePlayer::revive(Game* game) {
 
             int distance = sqrt(pow((this->getPosition().x - otherPlayer->getPosition().x),2) 
              + pow((this->getPosition().y - otherPlayer->getPosition().y),2));
-
+            
             if (distance <= REVIVE_DISTANCE) {
                 // only want to increase HP of other hunters 
                 if (!canAttack(game->players[i])) {

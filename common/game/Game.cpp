@@ -859,10 +859,11 @@ void Game::updateDeath () {
         // prev tick is dead but this tick is alive
         } else if (!prevPlayerStatus[i] && !players[i]->isDead()) {
             // send player being revived status to client
-            GameUpdate update;
-            update.updateType = PLAYER_REVIVED;
-            update.id = i;
-            addUpdate(update);
+            // DONE IN GAMEPLAYER
+            // GameUpdate update;
+            // update.updateType = PLAYER_REVIVE;
+            // update.id = i;
+            // addUpdate(update);
         }
 
         // kinda trick here, prevPlayerStatus[i] is true if player is alive
@@ -896,7 +897,6 @@ void Game::attackPlayersOutsideSafeRegion () {
 
         // if a player is outside of safeRegion, it will be attacked by the system
         if (sqrt(distanceSqr) > safeRegionRadius) {
-            printf("Attack player with id %d \n", i);
             players[i]->hpDecrement(SAFE_REGION_DAMAGE);
             // queue this update to be send to other players
             GameUpdate gameUpdate;

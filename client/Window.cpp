@@ -799,7 +799,7 @@ void Window::handleUpdate(GameUpdate update) {
 			printf("process player's dead signal duolan");
 			chars[update.id]->setTransparentAlpha(.3f);
 			break;
-		case PLAYER_REVIVED:
+		case PLAYER_REVIVE:
 			printf("process player's revival signal duolan");
 			chars[update.id]->setTransparentAlpha(1.f);
 			break;
