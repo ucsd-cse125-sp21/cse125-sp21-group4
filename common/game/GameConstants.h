@@ -77,7 +77,7 @@
 #define MONSTER_WIDTH 6
 #define MONSTER_HEIGHT 3
 
-#define INIT_SPEED .8
+#define INIT_SPEED 1
 
 // Player attack distance constants
 #define FIGHTER_ATTACK_DISTANCE 4
