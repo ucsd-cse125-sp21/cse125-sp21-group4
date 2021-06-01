@@ -139,6 +139,7 @@ bool Window::initializeObjects()
 	//  ==========  End of Character Initialization ========== 
 
 	guiManager->setSplashLoaded(true);
+	guiManager->setLoadingScreenVisible(false);
 	return true;
 }
 
@@ -357,9 +358,10 @@ GLFWwindow* Window::createWindow(int width, int height)
 
 	// Display once to show splash screen, then we can deal with connecting window.
 	audioProgram->playAudioWithLooping(TITLE_MUSIC);
-	guiManager->setSplashScreenVisible(true);
+	guiManager->setLoadingScreenVisible(true);
 	Window::displayCallback(window);
 	guiManager->setConnectingScreenVisible(true);
+	guiManager->setSplashScreenVisible(true); 
 
 	// Set swap interval to 1 if you want buffer 
 	glfwSwapInterval(0);
