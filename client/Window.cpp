@@ -194,7 +194,7 @@ void Window::initMap() {
 			objX += width / 2;
 			objY += height / 2;
 			EnvElement* e = new EnvElement("shaders/environment/lowpolypillar.obj", &projection, &view, phongTexShader, &eyePos,
-				glm::vec3(objX, 5.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(randomRotateDegree),  width / 2, glm::vec3(1.f, 1.f, 1.f)); 
+				glm::vec3(objX, 3.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(randomRotateDegree),  width / 2, &materialManager, glm::vec3(1.f, 1.f, 1.f)); 
 			table.insert(e);
 
 		// Green Tree ==   tree_live
@@ -1172,9 +1172,14 @@ void Window::initializeObjective(int objectiveID, ObjectiveType type, Restrictio
 		}
 		case BEACON:{
 
-			ObjElement* e = new ObjElement("shaders/environment/beacon.obj", &projection, &view, shaderProgram,
-				glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.3f, 0.3f, 0.3f), false, "", BEACON, R_NEUTRAL);
+			// I left this here bc i don't want to rewrite ObjElement to handle materials, but objelement is needed for the center text, so i just made it a really really small cube.
+			ObjElement* e = new ObjElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
+				glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 0.01f, glm::vec3(0.3f, 0.3f, 0.3f), false, "", BEACON, R_NEUTRAL);
 			objectiveMap[objectiveID] = e;
+			
+			EnvElement* env = new EnvElement("shaders/objectives/beacon.obj", &projection, &view, phongTexShader, &eyePos,
+				glm::vec3(x, 10.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 2.f , &materialManager,  glm::vec3(1.f, 1.f, 1.f)); 
+			table.insert(env);
 			break;
 		}
 		case ARMOR:{
