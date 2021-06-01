@@ -415,6 +415,9 @@ void GamePlayer::move (Game* game, Direction direction) {
 
 void GamePlayer::hpDecrement (int damage) {
     hp = std::max(0, hp - damage);
+    if (hp == 0) {
+        deathTime = std::chrono::steady_clock::now();
+    }
 }
 
 void GamePlayer::hpIncrement (int amount) {
@@ -424,8 +427,6 @@ void GamePlayer::hpIncrement (int amount) {
 bool GamePlayer::isDead () {
     return hp <= 0;
 }
-
-
 
 void GamePlayer::attack(Game* game, float angle) {
     printf("Overwriten failed\n");
@@ -441,8 +442,45 @@ void GamePlayer::interact(Game* game) {
     printf("Overridden Method failed.\n");
 }
 
+// Will revive a dead hunter
 void GamePlayer::revive(Game* game) {
-    // will revive a dead player
+
+    if (this->getType() == MONSTER) {
+        return;
+    }
+
+    for (int i = 0; i < PLAYER_NUM; i++) {
+        // skip the player itself
+        if (game->players[i] == this) continue;
+        if (game->players[i]->isDead()) {
+            GamePlayer* otherPlayer = game->players[i];
+            auto currentTime = std::chrono::steady_clock::now();
+            std::chrono::duration<float> duration = currentTime - otherPlayer->deathTime;
+
+            if (std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() 
+                                            <= REVIVE_TIME_INTERVAL) {
+                continue;
+            }
+
+            int distance = sqrt(pow((this->getPosition().x - otherPlayer->getPosition().x),2) 
+             + pow((this->getPosition().y - otherPlayer->getPosition().y),2));
+
+            if (distance <= REVIVE_DISTANCE) {
+                // only want to increase HP of other hunters 
+                if (!canAttack(game->players[i])) {
+                    int maxHp = game->players[i]->getMaxHp();
+                    game->players[i]->hpIncrement(maxHp/2);
+
+                    // queue this update to be sent to other players
+                    GameUpdate gameUpdate;
+                    gameUpdate.updateType = PLAYER_REVIVE;
+                    gameUpdate.id = i;
+                    gameUpdate.healAmount = maxHp/2;
+                    game->addUpdate(gameUpdate);
+                }  
+            }
+        } 
+    }
 }
 
 // Interacts with a Healing Objective
@@ -674,12 +712,12 @@ void GamePlayer::handleUserInput (Game* game, GAME_INPUT userInput) {
             move(game, SOUTH_WEST);
             uniqueAttack(game, userInput.angle);
             break;
-        
         case INTERACT:
             interact(game);
             break;
         case REVIVE:
             revive(game);
+            break;
         case LEFT_MOUSE_ATTACK:
             attack(game, userInput.angle);
             break;

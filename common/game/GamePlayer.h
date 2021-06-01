@@ -34,7 +34,7 @@ protected:
     float acceleration; // acceleration relative to server tick
     float maxSpeed; // the maximum speed player can do
     std::chrono::steady_clock::time_point prevTime;
-
+    std::chrono::steady_clock::time_point deathTime;
 
     int id; // Used for determining playerID
     int specID; // ID of the player this player is spectating

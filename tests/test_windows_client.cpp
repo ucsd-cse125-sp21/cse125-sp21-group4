@@ -79,7 +79,7 @@ int __cdecl main(int argc, char **argv)
                     sendInput.input = MOVE_RIGHT;
                     break;
                 case 'e':
-                    sendInput = REVIVE;
+                    sendInput.input = REVIVE;
                     break;
                 // case 'j':
                 //     sendInput.input = ATTACK;

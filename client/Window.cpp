@@ -950,9 +950,12 @@ void Window::updateLastInput() {
 	if (keyboard[GLFW_KEY_E]) {
 		lastInput = INTERACT;
 
+	// F key
+	} else if(keyboard[GLFW_KEY_F]) {
+		lastInput = REVIVE;
+	
 	// WA key together
-	} 
-	else if(keyboard[GLFW_KEY_W] && keyboard[GLFW_KEY_A]) {
+	} else if(keyboard[GLFW_KEY_W] && keyboard[GLFW_KEY_A]) {
 		if (mouse[MOUSE_LEFT_INDEX]) lastInput = MOVE_UPLEFT_ATTACK;
 		else if (mouse[MOUSE_RIGHT_INDEX]) lastInput = MOVE_UPLEFT_UNIQUE_ATTACK;
 		else lastInput = MOVE_UPLEFT;

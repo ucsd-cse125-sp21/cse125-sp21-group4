@@ -16,7 +16,6 @@ public:
     void attack (Game* game, float angle);
     // void uniqueAttack (Game* game, float angle);
     void interact (Game* game);
-    void revive(Game* game);
 };
 
 #endif
