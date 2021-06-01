@@ -48,7 +48,7 @@ glm::vec3 Window::lookAtPoint(0, 0, 0);
 glm::vec3 Window::upVector(0, 1, 0);
 //view matrix with all the above stuff combined
 glm::mat4 Window::view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window::upVector);
-glm::vec3 Window::cameraOffset(MAX_CAMERA_X_OFFSET, MAX_CAMERA_Y_OFFSET, MAX_CAMERA_Z_OFFSET);
+glm::vec3 Window::cameraOffset(MIN_CAMERA_X_OFFSET, MIN_CAMERA_Y_OFFSET, MIN_CAMERA_Z_OFFSET);
 
 // last input from the window
 CLIENT_INPUT Window::lastInput = NO_MOVE;
@@ -139,6 +139,7 @@ bool Window::initializeObjects()
 	//  ==========  End of Character Initialization ========== 
 
 	guiManager->setSplashLoaded(true);
+	guiManager->setLoadingScreenVisible(false);
 	return true;
 }
 
@@ -192,8 +193,8 @@ void Window::initMap() {
 		} else if (strcmp(objName.c_str(), "pillar") == 0) {
 			objX += width / 2;
 			objY += height / 2;
-			EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram, &eyePos,
-				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f),  width, glm::vec3(1.f, 1.f, 1.f)); 
+			EnvElement* e = new EnvElement("shaders/environment/lowpolypillar.obj", &projection, &view, phongTexShader, &eyePos,
+				glm::vec3(objX, 5.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(randomRotateDegree),  width / 2, glm::vec3(1.f, 1.f, 1.f)); 
 			table.insert(e);
 
 		// Green Tree ==   tree_live
@@ -258,7 +259,7 @@ void Window::initCharacters() {
 	playerTypeToCharacterMap[ROGUE] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, satTextureShader,
 		glm::vec3(0.f, 2.f, 0.f), 
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/ROGUE"));
-	playerTypeToCharacterMap[MONSTER] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, satTextureShader,
+	playerTypeToCharacterMap[MONSTER] = (new Character("shaders/character/monster_billboard.obj", &projection, &view, &eyePos, satTextureShader,
 		glm::vec3(0.f, 2.f, 0.f), 
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MONSTER"));
 	
@@ -357,9 +358,10 @@ GLFWwindow* Window::createWindow(int width, int height)
 
 	// Display once to show splash screen, then we can deal with connecting window.
 	audioProgram->playAudioWithLooping(TITLE_MUSIC);
-	guiManager->setSplashScreenVisible(true);
+	guiManager->setLoadingScreenVisible(true);
 	Window::displayCallback(window);
 	guiManager->setConnectingScreenVisible(true);
+	guiManager->setSplashScreenVisible(true); 
 
 	// Set swap interval to 1 if you want buffer 
 	glfwSwapInterval(0);
@@ -572,16 +574,19 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
 
 void Window::mouse_scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
 	// for simplicity sake, y and z change linearly if y += 1, then z += 1...
-	if (yoffset > 0) {
-		// Zoom in scroll up
-		cameraOffset.y = std::fmax(cameraOffset.y - yoffset, MIN_CAMERA_Y_OFFSET); 
-		cameraOffset.z = std::fmax(cameraOffset.z - yoffset, MIN_CAMERA_Z_OFFSET); 
-	}	
-	else {
-		// Zoom out scroll down
-		cameraOffset.y = std::fmin(cameraOffset.y - yoffset, MAX_CAMERA_Y_OFFSET); 
-		cameraOffset.z = std::fmin(cameraOffset.z - yoffset, MAX_CAMERA_Z_OFFSET); 
-	
+	if (gameStarted) {
+
+		if (yoffset > 0) {
+			// Zoom in scroll up
+			cameraOffset.y = std::fmax(cameraOffset.y - yoffset, MIN_CAMERA_Y_OFFSET); 
+			cameraOffset.z = std::fmax(cameraOffset.z - yoffset, MIN_CAMERA_Z_OFFSET); 
+		}	
+		else {
+			// Zoom out scroll down
+			cameraOffset.y = std::fmin(cameraOffset.y - yoffset, MAX_CAMERA_Y_OFFSET); 
+			cameraOffset.z = std::fmin(cameraOffset.z - yoffset, MAX_CAMERA_Z_OFFSET); 
+		
+		}
 	}
 }
 
@@ -1161,8 +1166,8 @@ void Window::initializeObjective(int objectiveID, ObjectiveType type, Restrictio
 		}
 		case BEACON:{
 
-			ObjElement* e = new ObjElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
-				glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), .25f, glm::vec3(0.f, 0.f, 1.f), false, "", BEACON, R_NEUTRAL);
+			ObjElement* e = new ObjElement("shaders/environment/beacon.obj", &projection, &view, shaderProgram,
+				glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.3f, 0.3f, 0.3f), false, "", BEACON, R_NEUTRAL);
 			objectiveMap[objectiveID] = e;
 			break;
 		}

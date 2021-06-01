@@ -254,6 +254,11 @@ void Character::draw(glm::mat4 c) {
 	m[2][2] = scaleZ;
 	// ========================================================
 
+	// Rotate character to face camera?
+	float rotationAmount = -glm::atan(CAMERA_Y_OFFSET, CAMERA_Z_OFFSET);
+	glm::vec3 rotationAxis = glm::vec3(1.0f, 0.f, 0.f);
+	m = glm::translate(pos) * glm::rotate(rotationAmount, rotationAxis) * scaleMtx;
+
 
 	// Get the shader variable locations and send the uniform data to the shader 
 	glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, false, glm::value_ptr(*view));
