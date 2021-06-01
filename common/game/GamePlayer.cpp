@@ -41,6 +41,8 @@ void GamePlayer::setPosition (PlayerPosition newPosition) {
     position.height = newPosition.height;
 }
 
+int GamePlayer::getMaxHp ()  { return maxHp; }
+
 int GamePlayer::getHp ()  { return hp; }
 
 void GamePlayer::setHp (int newHp) { hp = newHp; }

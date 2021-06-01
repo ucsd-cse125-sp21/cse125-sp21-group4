@@ -45,6 +45,7 @@ public:
     const std::string getTypeToString();
     PlayerPosition getPosition();
     void setPosition(PlayerPosition newPosition);
+    int getMaxHp();
     int getHp ();
     void setHp (int newHp);
     int getAttackDamage ();

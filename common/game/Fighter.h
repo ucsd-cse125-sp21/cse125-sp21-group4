@@ -13,6 +13,7 @@ public:
 
     void attack (Game* game);
     void interact (Game* game);
+    void revive(Game* game);
 };
 
 #endif
