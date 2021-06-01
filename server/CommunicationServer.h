@@ -30,7 +30,7 @@
 
 struct PlayerInfo {
     int id;
-    CLIENT_INPUT input;
+    GAME_INPUT input;
     bool outputChanged;
     std::vector<char> output;
 };
@@ -47,7 +47,7 @@ public:
 
     void cleanup(); // Ends the game
 
-    void getClientInputs(std::vector<std::pair<int,CLIENT_INPUT>> &clientInputs); // Obtains all the inputs from the clients for processing in the GameServer
+    void getClientInputs(std::vector<std::pair<int,GAME_INPUT>> &gameInputs); // Obtains all the inputs from the clients for processing in the GameServer
     void sendGameState(GameState gameState); // Sends the new game state to each client
 
     void sendGameUpdates(std::vector<GameUpdate> updates);

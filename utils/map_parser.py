@@ -1,10 +1,11 @@
 import json
 import numpy as np
+import random
 file = open("assets\layout\map.json", "r")
 
 mapJson = json.load(file)
-tiles = mapJson["layers"][1]["objects"]
-objects = mapJson["layers"][2]["objects"]
+tiles = mapJson["layers"][2]["objects"]
+objects = mapJson["layers"][3]["objects"]
 
 serverCSV = open("assets/layout/map_server.csv", "w")
 graphicsCSV = open("assets/layout/map_client.csv", "w")
@@ -40,8 +41,14 @@ for object in objects:
         objectY -= objectHeight
 
     # only want to draw obstacles in the beginning, will draw objectives when server tells the client
-    if object["type"] == "obstacle":
-        graphicsCSV.write("{},{},{},{},{}\n".format(object["name"], objectX, objectY, objectWidth, objectHeight))
+    object_type = object["type"]
+    if object_type == "obstacle":
+        object_name = object["name"]
+        if "tree" in object_name or "rock" in object_name:
+            graphicsCSV.write("{},{},{},{},{},{}\n".format(object["name"], objectX, objectY, objectWidth, objectHeight, random.randint(0, 359)))
+        else:
+            graphicsCSV.write("{},{},{},{},{},{}\n".format(object["name"], objectX, objectY, objectWidth, objectHeight, 0))
+
 
     tileID = SPACE_ID
 

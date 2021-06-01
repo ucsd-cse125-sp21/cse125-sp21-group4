@@ -30,6 +30,7 @@ Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPo
 	idleTex[Direction::SOUTH] = &idle_south;
 	animSequence.push_back(&idleTex); //order must match the enum in header file
 
+
 	// prepare vectors for move animations
 	moveTex[Direction::WEST] = &move_west;
 	moveTex[Direction::EAST] = &move_east;
@@ -37,12 +38,14 @@ Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPo
 	moveTex[Direction::SOUTH] = &move_south;
 	animSequence.push_back(&moveTex);
 
+
 	// prepare vectors for attack animations
 	attackTex[Direction::WEST] = &attack_west;
 	attackTex[Direction::EAST] = &attack_east;
 	attackTex[Direction::NORTH] = &attack_north;
 	attackTex[Direction::SOUTH] = &attack_south;
 	animSequence.push_back(&attackTex);
+
 
 	// initial translation will bthe initial position
 	pos = trans;
@@ -62,6 +65,7 @@ Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPo
 	lastDamageFlash = currTime;
 	damageFlashUntil = currTime;
 
+	setSaturationLevel(1.0f);
 
 	std::vector<glm::vec3> normalp;
 	std::vector<glm::vec3> pointsp;
@@ -177,7 +181,7 @@ Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPo
 
 	// Generate a Vertex Array (VAO) and Vertex Buffer Object (VBO)
 	glGenVertexArrays(1, &VAO);
-	glGenBuffers(2, VBO);
+	glGenBuffers(3, VBO);
 
 	// Bind VAO
 	glBindVertexArray(VAO);
@@ -187,18 +191,18 @@ Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPo
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * points.size(), points.data(), GL_STATIC_DRAW);
 	// Enable Vertex Attribute 0 to pass point data through to the shader
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * normal.size(), normal.data(), GL_STATIC_DRAW);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 	if (hasTexture) {
 		glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * textCoord.size(), textCoord.data(), GL_STATIC_DRAW);
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), 0);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	}
 
 	glGenBuffers(1, &EBO);
@@ -272,6 +276,8 @@ void Character::draw(glm::mat4 c) {
 		glBindTexture(GL_TEXTURE_2D, textId);
 	}
 
+
+	glUniform1f(glGetUniformLocation(shader, "saturation"), saturation);
 	glDrawElements(GL_TRIANGLES, 3 * triangles.size(), GL_UNSIGNED_INT, 0);
 
 	glDisable(GL_BLEND);
@@ -293,9 +299,7 @@ void Character::move(int dir) {
 void Character::moveTo(glm::vec3 newPos) {
 	if (pos == newPos)
 		currState = idle;
-	// TODO: Uncomment this else once we add moving animations
-	// else
-	// 	currState = moving;
+
 	pos = newPos;
 	model = glm::translate(pos) * scaleMtx;
 }
@@ -315,6 +319,9 @@ void Character::moveToGivenDelta(float deltaX, float deltaY) {
 
 void Character::update() {
 	currTime = clock();
+
+	if (currState == spectating) return;
+
 	if (currState != prevState) {
 		frameIdx = 0; // start a new sequence of animation
 		textId = ( *(*animSequence[currState]) [currDirec] )[frameIdx];
@@ -340,9 +347,11 @@ void Character::update() {
 		}
 		if (timeDiff >= interval) {
 			// check if on the last frame of a sequence
-			if (frameIdx + 1 == ( *(*animSequence[currState]) [currDirec] ).size()) {
+			// Previous
+			// if (frameIdx + 1 == (*(*animSequence[currState])[currDirec]).size()) {
+			if (frameIdx + 1 >= ( *(*animSequence[currState]) [currDirec] ).size()) {
 				frameIdx = 0;
-				if(currState != idle) currState = idle; // get out of attack state. May need more complicated reset later.
+				if(currState != idle && currState != spectating) currState = idle; // get out of attack and movement state.
 			}
 			else
 				frameIdx++;
@@ -462,6 +471,10 @@ void Character::setState(CharState state) {
 	currState = state;
 }
 
+CharState Character::getState() {
+	return currState;
+}
+
 void Character::flashDamage() {
 	damageFlashUntil = clock() + CHARACTER_DAMAGE_TAKEN_FLASHING_TIME_MS * CLOCKS_PER_SEC / 1000;
 }
@@ -469,4 +482,16 @@ void Character::flashDamage() {
 // set the current direction the player is facing
 void Character::setDirection(Direction d) {
 	currDirec = d;
+}
+
+int Character::getViewingSpecID() {
+	return viewingSpecID;
+}
+
+void Character::setViewingSpecID(int id) {
+	viewingSpecID = id;
+}
+
+void Character::setSaturationLevel(float level) {
+	saturation = level;
 }

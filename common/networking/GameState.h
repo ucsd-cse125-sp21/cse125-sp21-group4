@@ -6,7 +6,7 @@
 #include <vector>
 
 struct GameActions {
-    CLIENT_INPUT playersInputs[PLAYER_NUM];
+    GAME_INPUT playersInputs[PLAYER_NUM];
 };
 
 struct GameState{

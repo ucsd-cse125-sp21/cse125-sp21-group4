@@ -34,6 +34,8 @@ Game::Game() {
     // initPlayers(); Will init players when the game starts and we know the jobs
     initSelectScreenStructures();
 
+    lastSafeRegionShrinkTime = std::chrono::steady_clock::now();
+    lastSafeRegionAttackTime = std::chrono::steady_clock::now();
 }
 
 // initializes the map structure for easier selecting of jobs
@@ -410,21 +412,21 @@ Game::~Game() {
 }
 
 
-bool Game::handleInputs(CLIENT_INPUT playersInputs[PLAYER_NUM]) {
+bool Game::handleInputs(GAME_INPUT playersInputs[PLAYER_NUM]) {
     bool flag = false; // flag is true if there is effective movement in this round
                        // this is used to test on console, this can be removed later
     for (int i = 0; i < PLAYER_NUM; i++) {
-        if (playersInputs[i] != NO_MOVE) flag = true;
+        if (playersInputs[i].input != NO_MOVE) flag = true;
 
         // The selecting screen should not rely on players because those objects have not been created
-        switch(playersInputs[i]) {
+        switch(playersInputs[i].input) {
             case CLAIM_CLERIC:
             case CLAIM_FIGHTER:
             case CLAIM_MAGE:
             case CLAIM_ROGUE:
                 // If game started, we shouldn't be handling this.
                 if(!started) {
-                    handleUserClaim(playersInputs[i], i);
+                    handleUserClaim(playersInputs[i].input, i);
                 }
                 break;
             case DONE_RENDERING: {
@@ -524,22 +526,8 @@ void Game::handleUserClaim (CLIENT_INPUT claimType, int playerID) {
 }
 
 void projectileMove(Projectile* p) {
-    switch (p->direction) {
-        case SOUTH:
-            p->currentPosition.y += p->speed;
-            break;
-        case NORTH:
-            p->currentPosition.y -= p->speed;
-            break;
-        case WEST:
-            p->currentPosition.x -= p->speed;
-            break;
-        case EAST:
-            p->currentPosition.x += p->speed;
-            break;
-        default:
-            break;
-    }
+    p->currentPosition.x += p->deltaX;
+    p->currentPosition.y += p->deltaY;
 }
 
 
@@ -554,11 +542,8 @@ void projectileMove(Projectile* p) {
 */
 bool projectileIsEnd(Projectile* p, Game* game) {
     // 1. flying distance exceeds maxDistance
-    if (p->direction == SOUTH || p->direction == NORTH) {
-        if (abs(p->currentPosition.y - p->origin.y) > p->maxDistance) return true;
-    } else {
-        if (abs(p->currentPosition.x - p->origin.x) > p->maxDistance) return true; 
-    }
+    if (pow(p->currentPosition.x - p->origin.x, 2) >= pow(p->maxDistance, 2))
+        return true;
 
     float x = p->currentPosition.x;
     float y = p->currentPosition.y;
@@ -670,8 +655,9 @@ void Game::updateProjectiles () {
             projectileUpdate.updateType = PROJECTILE_MOVE;
             projectileUpdate.id = iter->first;
             projectileUpdate.projectileType = iter->second->type;
-            projectileUpdate.direction = iter->second->direction;
             projectileUpdate.playerPos = {iter->second->currentPosition.x, iter->second->currentPosition.y};
+            projectileUpdate.floatDeltaX = iter->second->deltaX;
+            projectileUpdate.floatDeltaY = iter->second->deltaY;
             addUpdate(projectileUpdate);
 
             iter++;
@@ -784,13 +770,35 @@ void Game::updateBeacon() {
     }
 }
 
+
+/*
+    This will be called on the server for each tick.
+*/
+void Game::updateSafeRegion () {
+    auto currentTime = std::chrono::steady_clock::now();
+    std::chrono::duration<float> duration = currentTime - lastSafeRegionShrinkTime;
+    if (std::chrono::duration_cast<std::chrono::seconds>(duration).count() 
+                                            > SAFE_REGION_DEC_TIME) {
+        shrinkSafeRegion();
+        lastSafeRegionShrinkTime = currentTime;
+    }
+
+    duration = currentTime - lastSafeRegionAttackTime;
+    if (std::chrono::duration_cast<std::chrono::seconds>(duration).count() 
+                                            > SAFE_REGION_DAMAGE_TIME) {
+        attackPlayersOutsideSafeRegion();
+        lastSafeRegionAttackTime = currentTime;
+    }
+}
+
+
 /*
     Return 0 if the game is not end.
     Return 1 if hunters win.
     Return 2 if monster wins.
     Return 3 if there is a tie.
 */
-void Game::checkEnd() {
+bool Game::checkEnd() {
     int deadHunterNum = 0;
     int deadMonsterNum = 0;
 
@@ -809,13 +817,50 @@ void Game::checkEnd() {
     else if (deadHunterNum == PLAYER_NUM - 1)
         endStatus = 2;
     // otherwise, game continues
-    if (endStatus == 0) return;
+    if (endStatus == 0) return false;
 
     GameUpdate gameEndUpdate;
     gameEndUpdate.updateType = GAME_END;
     gameEndUpdate.endStatus = endStatus;
     addUpdate(gameEndUpdate);
+    return true;
 }
+
+
+void Game::shrinkSafeRegion () {
+    if (safeRegionRadius < 0) safeRegionRadius = SAFE_REGION_START_RADIUS;
+    else safeRegionRadius = max(safeRegionRadius-SAFE_REGION_RADIUS_DEC, (float) SAFE_REGION_MIN_RADIUS);
+
+    GameUpdate gameUpdate;
+    gameUpdate.updateType = SAFE_REGION_UPDATE;
+    gameUpdate.playerPos.x = safeRegionX;
+    gameUpdate.playerPos.y = safeRegionY;
+    gameUpdate.beaconCaptureAmount = safeRegionRadius;
+    addUpdate(gameUpdate);
+}
+
+
+void Game::attackPlayersOutsideSafeRegion () {
+    if (safeRegionRadius < 0) return;
+
+    for (int i = 0; i < PLAYER_NUM; i++) {
+        float distanceSqr = pow(players[i]->getPosition().x - safeRegionX, 2) +
+                       pow(players[i]->getPosition().y - safeRegionY, 2);
+
+        // if a player is outside of safeRegion, it will be attacked by the system
+        if (sqrt(distanceSqr) > safeRegionRadius) {
+            printf("Attack player with id %d \n", i);
+            players[i]->hpDecrement(SAFE_REGION_DAMAGE);
+            // queue this update to be send to other players
+            GameUpdate gameUpdate;
+            gameUpdate.updateType = PLAYER_DAMAGE_TAKEN;
+            gameUpdate.id = i;
+            gameUpdate.damageTaken = SAFE_REGION_DAMAGE;
+            addUpdate(gameUpdate);
+        }
+    }
+}
+
 
 /* Process a single event */
 void Game::processEvent (GameEvent* event) {
@@ -1084,28 +1129,29 @@ void Game::checkEvoLevel() {
             // printf("Monster evo level: ");
             // printf("%f\n", monster->getEvo());
 
-            if (monster->getHp() <= 0.2 * MONSTER_MAX_HP) { 
+            // Monster should force level for every chunk. However, the max evo should only be reached 
+            // once the monster has reached critical (10%) HP. 
+            if (monster->getHp() <= 0.1 * MONSTER_MAX_HP) { 
                 if (monster->getEvo() < MONSTER_FIFTH_STAGE_THRESHOLD) {
                     monster->updateEvo(this, MONSTER_FIFTH_STAGE_THRESHOLD) ;
                 }
-            } else if (monster->getHp() <= 0.4 * MONSTER_MAX_HP) {
+            } else if (monster->getHp() <= 0.2 * MONSTER_MAX_HP) {
                 if (monster->getEvo() < MONSTER_FOURTH_STAGE_THRESHOLD) {
                     monster->updateEvo(this, MONSTER_FOURTH_STAGE_THRESHOLD);
                 }
-            } else if (monster->getHp() <= 0.6 * MONSTER_MAX_HP) {
+            } else if (monster->getHp() <= 0.4 * MONSTER_MAX_HP) {
                 if (monster->getEvo() < MONSTER_THIRD_STAGE_THRESHOLD) {
                     monster->updateEvo(this, MONSTER_THIRD_STAGE_THRESHOLD);
                 }
-            } else if (monster->getHp() <= 0.8 * MONSTER_MAX_HP) { 
+            } else if (monster->getHp() <= 0.6 * MONSTER_MAX_HP) { 
                 if (monster->getEvo() < MONSTER_SECOND_STAGE_THRESHOLD) {
                     monster->updateEvo(this, MONSTER_SECOND_STAGE_THRESHOLD);
                 }
-            } else if (monster->getHp() <= MONSTER_MAX_HP) { 
+            } else if (monster->getHp() <= 0.8 * MONSTER_MAX_HP) { 
                 if (monster->getEvo() < MONSTER_FIRST_STAGE_THRESHOLD) {
                     monster->updateEvo(this, MONSTER_FIRST_STAGE_THRESHOLD);
                 }
             } else {
-                printf("Do not need to update evoLevel based on HP.\n");
                 return;
             }
         }

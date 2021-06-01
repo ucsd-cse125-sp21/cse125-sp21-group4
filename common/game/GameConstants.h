@@ -1,13 +1,24 @@
 #ifndef _GAMECONSTANT_H_
 #define _GAMECONSTANT_H_
 
-#define MAP_WIDTH 600
+#define MAP_WIDTH 500
 #define MAP_HEIGHT 600
+
 #define GRID_WIDTH 1 // GRID_WIDTH should be able to fully divide MAP_WIDTH
 #define GRID_HEIGHT 1 // GRID_HEIGHT should be able to fully divide MAP_HEIGHT
 #define PLAYER_NUM 4 // used to change how many clients the server will accept
 #define MAX_PLAYERS 4  // used to determine the game's absolute maximum player count
 #define SELECT_SCREEN_TIME 20 // 20 seconds to select jobs
+
+// safeRegion should be a circle with center in the middle of the map
+#define SAFE_REGION_X 250
+#define SAFE_REGION_Y 300
+#define SAFE_REGION_START_RADIUS 250 
+#define SAFE_REGION_RADIUS_DEC 100
+#define SAFE_REGION_MIN_RADIUS 100.0
+#define SAFE_REGION_DEC_TIME 120 // circle shrinks every 2 minutes 120s = 2min
+#define SAFE_REGION_DAMAGE_TIME 10 // system will attack players outside of safe region every 10 seconds
+#define SAFE_REGION_DAMAGE 10 
 
 // Tile IDs
 #define SPACE_ID 0
@@ -29,6 +40,9 @@
 #define HUNTER_BEACON_CAPTURE_THRESHOLD 30.f
 #define DECAY_UPPER_THRESHOLD 1.f
 #define DECAY_LOWER_THRESHOLD -1.f
+
+// Delay between inputs in miliseconds
+#define SPECTATE_INPUT_DELAY 100
 
 // MAX HP Constants
 #define FIGHTER_MAX_HP 100
@@ -66,8 +80,10 @@
 #define INIT_SPEED 1
 
 // Player attack distance constants
-#define FIGHTER_ATTACK_DISTANCE 2
-#define MONSTER_ATTACK_DISTANCE 2
+#define FIGHTER_ATTACK_DISTANCE 4
+#define FIGHTER_ATTACK_EXTRA_WIDTH 4
+#define MONSTER_ATTACK_DISTANCE 6
+#define MONSTER_ATTACK_EXTRA_WIDTH 4
 #define ROGUE_ATTACK_DISTANCE 20
 #define MAGE_ATTACK_DISTANCE 40
 #define CLERIC_ATTACK_DISTANCE 15
@@ -120,7 +136,7 @@
 #define MONSTER_FIFTH_STAGE_THRESHOLD 5.f
 
 // Increase Monster Evo every tick by this amount
-#define MONSTER_EVO_TICK_INCREMENT 0.0001f
+#define MONSTER_EVO_TICK_INCREMENT 0.0005f
 
 #define EVO_AMOUNT 1.5f
 
@@ -150,6 +166,10 @@ enum Direction {
     EAST, // 1
     SOUTH, // 2
     WEST, // 3
+    NORTH_WEST,
+    NORTH_EAST, // 5
+    SOUTH_WEST,
+    SOUTH_EAST,
 };
 
 enum PlayerType {

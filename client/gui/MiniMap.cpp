@@ -13,7 +13,12 @@ MiniMap::MiniMap(NVGcontext* vg) {
 		pingPositions[i].y = SPAWN_POSITIONS[i][1];
 	}
 	hasTeamCapturedBeacon = false;
+
+	// Background image for the minimap
+    image = nvgCreateImage(vg, "shaders/hud_elements/minimap.png", 0);
+    nvgImageSize(vg, image, &imgWidth, &imgHeight);
 }
+
 
 void drawPlayerPixel(NVGcontext* vg, float x, float y, float w, float h, NVGcolor color) {
 	nvgBeginPath(vg);
@@ -42,12 +47,30 @@ void MiniMap::draw(float x, float y, float w, float h) {
 	float cornerRadius = 3.0f;
 	nvgSave(vg);
 
-	// Background color for the minimap
-	nvgBeginPath(vg);
-	nvgRoundedRect(vg, x, y, w, h, cornerRadius);
-	nvgFillColor(vg, nvgRGBA(28, 30, 34, 192));
-	nvgFill(vg);
-	nvgClosePath(vg);
+	// // Background color for the minimap
+	// nvgBeginPath(vg);
+	// nvgRoundedRect(vg, x, y, w, h, cornerRadius);
+	// nvgFillColor(vg, nvgRGBA(28, 30, 34, 192));
+	// nvgFill(vg);
+	// nvgClosePath(vg);
+
+
+    NVGpaint imgPaint =  nvgImagePattern(vg, x, y, w, h, 0.0f/180.0f*NVG_PI, image, 1.f);
+    nvgBeginPath(vg);
+    nvgRoundedRect(vg, x, y, w, h, 5);
+    nvgFillPaint(vg, imgPaint);
+    nvgFill(vg);
+
+
+	// draw safe region
+	if (safeRegionRadius > 0) {
+		nvgBeginPath(vg);
+		nvgCircle(vg, x + safeRegionX/MAP_WIDTH*w, y + safeRegionY/MAP_HEIGHT*h, 
+			safeRegionRadius/sqrt(pow(MAP_WIDTH,2)+pow(MAP_HEIGHT,2))*sqrt(pow(w,2)+pow(h,2)));
+		nvgFillColor(vg, nvgRGBA(0,255,33,100));
+		nvgFill(vg);
+	}
+
 
 	// Draw current player and teammates' positions
 	if (currPlayerType == MONSTER)  {
@@ -120,4 +143,18 @@ void MiniMap::handleCaptureEvent(float captureAmount) {
 }
 void MiniMap::updatePingPosition(int id, PlayerPosition pos) {
 	pingPositions[id] = pos;
+}
+
+void MiniMap::reset() {
+	isVisible = false;
+
+	currPlayerType = UNKNOWN;
+	for(int i = 0; i < PLAYER_NUM; i++) {
+		playerTypes[i] = UNKNOWN;
+		playerPositions[i].x = SPAWN_POSITIONS[i][0];
+		playerPositions[i].y = SPAWN_POSITIONS[i][1];
+		pingPositions[i].x = SPAWN_POSITIONS[i][0];
+		pingPositions[i].y = SPAWN_POSITIONS[i][1];
+	}
+	hasTeamCapturedBeacon = false;
 }

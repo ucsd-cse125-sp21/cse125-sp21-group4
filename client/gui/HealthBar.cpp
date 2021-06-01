@@ -8,6 +8,10 @@ HealthBar::HealthBar(NVGcontext* vg) {
 	isVisible = false;
 	barColor = redColor; // default red
 	shadowColor = shadowRedColor;
+
+    this->image = nvgCreateImage(vg, "shaders/hud_elements/health_bar.png", 0);
+	// printf("image: %d\n", image);
+    nvgImageSize(vg, image, &imgWidth, &imgHeight);
 }
 
 void HealthBar::setHp(int hp) {
@@ -16,7 +20,7 @@ void HealthBar::setHp(int hp) {
 }
 
 void HealthBar::decrementHp(int damage) {
-	this->hp -= damage;
+	this->hp = std::max(0, hp - damage);
 }
 void HealthBar::incrementHp(int heal) {
 	this->hp += heal;
@@ -59,11 +63,19 @@ void HealthBar::draw(float x, float y, float w, float h) {
 	float cornerRadius = 3.0f;
 	nvgSave(vg);
 
-	// Background color for the hp bar
-	nvgBeginPath(vg);
-	nvgRoundedRect(vg, x, y, w, h, cornerRadius);
-	nvgFillColor(vg, nvgRGBA(28, 30, 34, 192));
-	nvgFill(vg);
+	// Background image for the hp bar
+    NVGpaint imgPaint =  nvgImagePattern(vg, x, y, w, h, 0.0f/180.0f*NVG_PI, this->image, HEALTH_BAR_ALPHA / 255.f);
+    nvgBeginPath(vg);
+    nvgRoundedRect(vg, x, y, w, h, 5);
+    nvgFillPaint(vg, imgPaint);
+    nvgFill(vg);
+
+
+	// // Background color for the hp bar
+	// nvgBeginPath(vg);
+	// nvgRoundedRect(vg, x, y, w, h, cornerRadius);
+	// nvgFillColor(vg, nvgRGBA(28, 30, 34, 192));
+	// nvgFill(vg);
 
 	auto now = std::chrono::steady_clock::now();
 	std::chrono::duration<float> durationSinceFlash = now - lastFlash;
@@ -101,26 +113,33 @@ void HealthBar::draw(float x, float y, float w, float h) {
 		lastShadowChange = now;
 	}
 
+
+	// Draw the bar within the hud element
+	float barHeight = h / 5;
+	float barWidth = w * 4.75 / 6;
+	float barX = x + w / 6.3;
+	float barY = y + h / 3.1;
+
     // shadow hp bar
-    float shadowHpWidth = std::min(w * (float) shadowHp / (float) maxHp, w);
+    float shadowHpWidth = std::min(barWidth * (float) shadowHp / (float) maxHp, barWidth);
 	nvgBeginPath(vg);
-	nvgRoundedRect(vg, x, y, shadowHpWidth, h, cornerRadius);
+	nvgRoundedRect(vg, barX, barY, shadowHpWidth, barHeight, cornerRadius);
 	nvgFillColor(vg, shadowColor);
 	nvgFill(vg);
 
 	// actual hp bar (only fill if red)
 	if(barColor.r == redColor.r) {
-		float hpWidth = std::min(w * (float) hp / (float) maxHp, w);
+		float hpWidth = std::min(barWidth * (float) hp / (float) maxHp, barWidth);
 		nvgBeginPath(vg);
-		nvgRoundedRect(vg, x, y, hpWidth, h, cornerRadius);
+		nvgRoundedRect(vg, barX, barY, hpWidth, barHeight, cornerRadius);
 		nvgFillColor(vg, barColor);
 		nvgFill(vg);
 
 		// if hp > maxHP, show armored bar
 		if(hp > maxHp) {
-			float armorWidth = (float) (hp - maxHp) / (float) maxHp * w;
+			float armorWidth = (float) (hp - maxHp) / (float) maxHp * barWidth;
 			nvgBeginPath(vg);
-			nvgRoundedRect(vg, x, y + h + h / 10, armorWidth, h / 10, cornerRadius);
+			nvgRoundedRect(vg, barX, barY + barHeight + barHeight / 10, armorWidth, barHeight / 4, cornerRadius);
 			nvgFillColor(vg, armorColor);
 			nvgFill(vg);
 		}
@@ -130,14 +149,14 @@ void HealthBar::draw(float x, float y, float w, float h) {
 
 
     // hp text
-	nvgFontSize(vg, h/2);
+	nvgFontSize(vg, barHeight / 1.2);
 	nvgFontFace(vg, "sans");
 	nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
 
 	nvgFontBlur(vg, 0);
 	nvgFillColor(vg, nvgRGBA(200, 200, 200, 255));
 	std::string hpText = "HP : " + std::to_string(hp) + "/" + std::to_string(maxHp);
-	nvgText(vg, x + 5, y + h / 2, hpText.c_str(), NULL);
+	nvgText(vg, barX + 5, barY + barHeight / 2, hpText.c_str(), NULL);
     
 
 	nvgRestore(vg);

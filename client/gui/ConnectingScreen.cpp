@@ -3,12 +3,15 @@
 
 ConnectingScreen::ConnectingScreen(NVGcontext* vg) {
     this->vg = vg;
-	isVisible = false;
-    hasConnectedToServer = false;
-    connecting = false;
-    inputtedText = std::string();
+    init();
 }
 
+void ConnectingScreen::init() {
+	isVisible = false;
+	hasConnectedToServer = false;
+	connecting = false;
+	inputtedText = std::string();
+}
 
 void ConnectingScreen::draw(float windowWidth, float windowHeight) {
 

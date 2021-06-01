@@ -20,7 +20,7 @@ Mage::Mage(PlayerPosition position) : GamePlayer(position) {
 }
 
 // overide GamePlayer's attack
-void Mage::attack(Game* game) {
+void Mage::attack(Game* game, float angle) {
     // two consecutive attacks must have a tiem interval of at least FIGHTER_ATTACK_TIME_INTERVAL
     // otherwise, the second attack will not be initiated
     auto currentTime = std::chrono::steady_clock::now();
@@ -40,10 +40,10 @@ void Mage::attack(Game* game) {
     p->origin = position;
     p->currentPosition = position; 
     p->maxDistance = MAGE_ATTACK_DISTANCE;
+    p->deltaX = MAGE_SHOOT_SPEED * cos(angle);
+    p->deltaY = -1 * MAGE_SHOOT_SPEED * sin(angle);
     p->ownerID = getID();
     p->type = MAGE_SHOOT;
-    p->speed = MAGE_SHOOT_SPEED;
-    p->direction = getFaceDirection();
     p->damage = getAttackDamage();
     game->projectiles[game->nextProjectileId] = p;
     game->nextProjectileId = (game->nextProjectileId + 1) % MAX_PROJECTILE_ID;
@@ -57,7 +57,7 @@ void Mage::attack(Game* game) {
     game->addUpdate(attackUpdate);
 }
 
-void Mage::uniqueAttack(Game* game) {
+void Mage::uniqueAttack(Game* game, float angle) {
     auto currentTime = std::chrono::steady_clock::now();
     std::chrono::duration<float> duration = currentTime - lastUniqueAttackTime;
     if (std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() 
@@ -74,14 +74,22 @@ void Mage::uniqueAttack(Game* game) {
     Projectile* p = new Projectile();
     p->origin = position;
     p->currentPosition = position; 
+    p->deltaX = FIREBALL_SPEED * cos(angle);
+    p->deltaY = -1 * FIREBALL_SPEED * sin(angle);
     p->maxDistance = FIREBALL_DISTANCE;
     p->ownerID = getID();
     p->type = MAGE_FIREBALL;
-    p->speed = FIREBALL_SPEED;
-    p->direction = getFaceDirection();
     p->damage = 0;
     game->projectiles[game->nextProjectileId] = p;
     game->nextProjectileId = (game->nextProjectileId + 1) % MAX_PROJECTILE_ID;
+
+    // Send an update to the clients: PLAYER_UNIQUE_ATTACK
+    GameUpdate attackUpdate;
+    attackUpdate.updateType = PLAYER_UNIQUE_ATTACK;
+    attackUpdate.id = this->id;                        // id of player attacking
+    attackUpdate.attackAmount = getAttackDamage();     // attack damage amount
+    attackUpdate.roleClaimed = MAGE;
+    game->addUpdate(attackUpdate);
 }
 
 void Mage::interact(Game* game) {

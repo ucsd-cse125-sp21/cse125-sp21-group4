@@ -15,7 +15,8 @@
 enum CharState {
 	idle,
 	moving,
-	attacking
+	attacking,
+	spectating
 	//add more for other actions
 };
 
@@ -68,7 +69,9 @@ private:
 
 	
 	int frameIdx;	// current frame in animation sequence
+	int viewingSpecID;  // ID of the player this player is spectating
 	//add more for attack and other actions
+	float saturation;
 
 	glm::vec3 * eyep;
 	glm::vec3 color;
@@ -107,8 +110,12 @@ public:
 	bool loadAnimation(CharState state, Direction d, string animFile);
 	bool loadAnimationAssets(string assetFolder);
 	void setState(CharState state);
+	CharState getState();
 	void flashDamage();
 	void setDirection(Direction d);
+	int getViewingSpecID();
+	void setViewingSpecID(int id);
+	void setSaturationLevel(float level);
 };
 
 #endif

@@ -2,11 +2,22 @@
 #define _WINDOW_H_
 
 #define KEYBOARD_SIZE 350
+#define MOUSE_SIZE 2
+#define MOUSE_LEFT_INDEX 0
+#define MOUSE_RIGHT_INDEX 1
 #define SERVER_ENABLED
 #define RENDER_MAP
 #define _USE_MATH_DEFINES
 #define SPATIAL_HASH_SEARCH_DISTANCE 20.0
 
+
+// camera offsets for player
+#define MIN_CAMERA_X_OFFSET 0.f
+#define MIN_CAMERA_Y_OFFSET 10.f
+#define MIN_CAMERA_Z_OFFSET 6.f
+#define MAX_CAMERA_X_OFFSET 0.f
+#define MAX_CAMERA_Y_OFFSET 20.f
+#define MAX_CAMERA_Z_OFFSET 16.f
 
 #include "Main.h"
 #include "shader.h"
@@ -23,6 +34,7 @@
 #include "../common/game/Projectile.h"
 #include "gui/GUIManager.h"
 #include "AudioProgram.h"
+#include "MaterialManager.h"
 
 #include <fstream>
 #include <string>
@@ -47,7 +59,7 @@ public:
 	static unordered_map<PlayerType, Character*> Window::playerTypeToCharacterMap;
 
 	static vector<EnvElement*> envs;
-	static Ground* ground;
+	static Ground * ground;
 	static unordered_map<int, ProjectileElement*> projectiles;
 	static vector<ScreenElement*> selectScreenElements;
 	static map<int, ObjElement*> objectiveMap; 
@@ -55,11 +67,17 @@ public:
 
 	// Shader Program 
 	static GLuint shaderProgram;
+	static GLuint phongTexShader;
 	static GLuint texShader;
+	static GLuint groundShader;
+	static GLuint satTextureShader;
 
 	// Audio Program
 	static AudioProgram* audioProgram;
 	static std::vector<PlayerType> playerJobs;
+
+	// Material Manager
+	static MaterialManager materialManager;
 
 
 	// Camera Matrices 
@@ -69,16 +87,20 @@ public:
 	// View Matrix:
 	static glm::vec3 eyePos, lookAtPoint, upVector;
 	static glm::mat4 view;
+	static glm::vec3 cameraOffset;
 
 	// Last CLIENT_INPUT recorded
 	static CLIENT_INPUT lastInput;
+	static float lastAngle; // used for projectile angle
 
 	// Keyboard keys that are being held down or pressed
 	static bool keyboard[KEYBOARD_SIZE];
+	static bool mouse[MOUSE_SIZE];
 
 	// Used to determine whether or not camera should be looking at player or select screen
 	static bool gameStarted;
 	static bool doneInitialRender;
+	static bool gameEnded;
 
 	// GUI Manager (HUD)
 	static GUIManager* guiManager;
@@ -101,6 +123,7 @@ public:
 	// callbacks - for interaction
 	static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	static void mouse_callback(GLFWwindow* window, int button, int action, int mods);
+	static void mouse_scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 	static void cursor_callback(GLFWwindow* window, double currX, double currY);
 
 	// Used to handle GameUpdates from the CommunicationClient
@@ -108,6 +131,7 @@ public:
 	static void handleRoleClaim(GameUpdate update);
 	static void handleUpdate(GameUpdate update);
 	static void Window::handleAttack(GameUpdate update);
+	static void Window::handleUniqueAttack(GameUpdate update);
 
 	// Used to set lastInput based on keyboard inputs
 	static void Window::updateLastInput(); 
@@ -121,8 +145,16 @@ public:
 	// Used to remove objectives
 	static void Window::removeObj(int objectiveID);
 
+	// Used to determine which objective should tell the user to do something
+	static void Window::checkNearObjectiveText(ObjElement*);
+
 	static void Window::initCharacters();
 	static void Window::initMap();
+	static void Window::initSelectScreenElements();
+
+	static void Window::endGame();
+
+	static void Window::handleSpectateRequest(GameUpdate update);
 
 };
 

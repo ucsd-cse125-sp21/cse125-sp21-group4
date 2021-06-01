@@ -13,11 +13,22 @@
 */
 
 ProjectileElement::ProjectileElement(string fileName, glm::mat4* p, glm::mat4* v, GLuint s, glm::vec3* vPos,
-	glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale, glm::vec3 c, char* textFile) {
+	glm::vec3 trans, float scale, glm::vec3 c, char* textFile, float deltaX, float deltaY) {
 
 	// initial translation will bthe initial position
 	pos = trans;
+	// model = glm::rotate(glm::translate(trans), rotRad, rotAxis);
+	glm::vec3 rotAxis = glm::vec3(0.f, 0.f, 1.f);
+	float rotRad = glm::radians(-90.f) - glm::atan(deltaY, deltaX);
 	model = glm::rotate(glm::translate(trans), rotRad, rotAxis);
+    if (abs(glm::atan(deltaY / deltaX)) > glm::radians(5.f)) {
+        float rotRad2 = -glm::atan(deltaY /  deltaX);
+        if(deltaX > 0) {
+            rotRad2 = -rotRad2;
+        }
+        glm::vec3 rotAxis2 = glm::vec3(1.f, 0.f, 0.f);
+        model = glm::rotate(model, rotRad2, rotAxis2);
+    }
 	// * glm::scale(glm::vec3(scale));
 	projection = p;
 	view = v;
@@ -141,7 +152,7 @@ ProjectileElement::ProjectileElement(string fileName, glm::mat4* p, glm::mat4* v
 
 	// Generate a Vertex Array (VAO) and Vertex Buffer Object (VBO)
 	glGenVertexArrays(1, &VAO);
-	glGenBuffers(2, VBO);
+	glGenBuffers(3, VBO);
 
 	// Bind VAO
 	glBindVertexArray(VAO);
@@ -151,18 +162,18 @@ ProjectileElement::ProjectileElement(string fileName, glm::mat4* p, glm::mat4* v
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * points.size(), points.data(), GL_STATIC_DRAW);
 	// Enable Vertex Attribute 0 to pass point data through to the shader
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * normal.size(), normal.data(), GL_STATIC_DRAW);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 	if (hasTexture) {
 		glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * textCoord.size(), textCoord.data(), GL_STATIC_DRAW);
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), 0);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	}
 
 	glGenBuffers(1, &EBO);
@@ -181,30 +192,6 @@ void ProjectileElement::draw(glm::mat4 c) {
 	//model used in the shader would be this model mult with passed down transform model
 	glm::mat4 m = model * c;
 	glUseProgram(shader);
-
-	// glm::vec3 z = glm::vec3(0.f, 0.f, 0.f);
-	// for (int i = 0; i < 3; i++) {
-	// 	z[i] = pos[i] - (*eyep)[i];
-	// }
-
-	// float scaleX = sqrt(m[0][0]*m[0][0]+m[0][1]*m[0][1]+m[0][2]*m[0][2]);
-	// float scaleY = sqrt(m[1][0]*m[1][0]+m[1][1]*m[1][1]+m[0][2]*m[1][2]);
-	// float scaleZ = sqrt(m[2][0]*m[2][0]+m[2][1]*m[2][1]+m[0][2]*m[2][2]);
-
-	// glm::vec3 x = glm::cross(glm::vec3(0.f, 0.1f, 0.f), z);
-	// glm::vec3 y = glm::cross(x, z);
-	// glm::vec3 xn = glm::normalize(x);
-	// glm::vec3 yn = glm::normalize(y);
-	// glm::vec3 zn = glm::normalize(z);
-
-	// // rotate the character so it will parallel with the line from camera to character
-	// for (int i = 0; i < 3;  i++) m[i][0] = xn[i];
-	// for (int i = 0; i < 3;  i++) m[i][1] = yn[i];
-	// for (int i = 0; i < 3;  i++) m[i][2] = zn[i];
-	// // restore scaling
-	// m[0][0] = scaleX;
-	// m[1][1] = scaleY;
-	// m[2][2] = scaleZ;
 
 	// Get the shader variable locations and send the uniform data to the shader 
 	glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, false, glm::value_ptr(*view));
@@ -260,9 +247,7 @@ void ProjectileElement::moveToGivenPos(float x, float y) {
 	moveTo(newPos);
 }
 
-void ProjectileElement::updateView(glm::mat4 proj, glm::vec3) {
-
-}
+void ProjectileElement::updateView(glm::mat4 proj, glm::vec3) {}
 
 bool ProjectileElement::loadTexture(char* texturePath) {
 	// const char* texturePath = path.c_str();

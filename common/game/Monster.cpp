@@ -7,7 +7,8 @@ Monster::Monster() {
     setHp(MONSTER_MAX_HP); // init full health
     maxHp = MONSTER_MAX_HP;
     setAttackDamage(MONSTER_ATTACK_DAMAGE);
-    setEvo(MONSTER_FIRST_STAGE_THRESHOLD);
+    setEvo(0);
+    clientSideEvo = evo;
     setAcceleration(MONSTER_ACCELERATION);
     setMaxSpeed(MONSTER_MAX_SPEED);
 }
@@ -17,13 +18,14 @@ Monster::Monster(PlayerPosition position) : GamePlayer(position){
     setHp(MONSTER_MAX_HP); // init full health
     maxHp = MONSTER_MAX_HP;
     setAttackDamage(MONSTER_ATTACK_DAMAGE);
-    setEvo(MONSTER_FIRST_STAGE_THRESHOLD);
+    setEvo(0);
+    clientSideEvo = evo;
     setAcceleration(MONSTER_ACCELERATION);
     setMaxSpeed(MONSTER_MAX_SPEED);
 }
 
 // monster ranged attack
-void Monster::attack(Game* game) {
+void Monster::attack(Game* game, float angle) {
     auto currentTime = std::chrono::steady_clock::now();
     std::chrono::duration<float> duration = currentTime - lastAttackTime;
     if (std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() 
@@ -42,10 +44,10 @@ void Monster::attack(Game* game) {
     p->origin = position;
     p->currentPosition = position; 
     p->maxDistance = MONSTER_RANGED_ATTACK_DISTANCE; 
+    p->deltaX = FIREBALL_SPEED * cos(angle);
+    p->deltaY = -1 * FIREBALL_SPEED * sin(angle);
     p->ownerID = getID();
     p->type = MONSTER_RANGED; 
-    p->speed = MONSTER_RANGED_SPEED; //this?
-    p->direction = getFaceDirection();
     p->damage = getAttackDamage();
     game->projectiles[game->nextProjectileId] = p;
     game->nextProjectileId = (game->nextProjectileId + 1) % MAX_PROJECTILE_ID;
@@ -59,7 +61,7 @@ void Monster::attack(Game* game) {
     game->addUpdate(attackUpdate);
 }
 
-void Monster::uniqueAttack(Game* game) {
+void Monster::uniqueAttack(Game* game, float angle) {
     // two consecutive attacks must have a time interval of at least MONSTER_ATTACK_TIME_INTERVAL
     // otherwise, the second attack will not be initiated
     auto currentTime = std::chrono::steady_clock::now();
@@ -73,22 +75,26 @@ void Monster::uniqueAttack(Game* game) {
 
     // draw the attack region
     PlayerPosition attackRegion = PlayerPosition();
-    if (faceDirection == NORTH || faceDirection == SOUTH) {
-        attackRegion.x = position.x;
-        attackRegion.width = position.width;
+    if ((angle >= M_PI/4 && angle <= M_PI /2) || (angle <= -5*M_PI/4 && angle >= -3*M_PI/2)) {
+        attackRegion.width = position.width + MONSTER_ATTACK_EXTRA_WIDTH;
         attackRegion.height = MONSTER_ATTACK_DISTANCE;
-        if (faceDirection == NORTH)
-            attackRegion.y = position.y - position.height/2 - MONSTER_ATTACK_DISTANCE / 2;
-        else
-            attackRegion.y = position.y + position.height/2 + MONSTER_ATTACK_DISTANCE / 2;
-    } else {
-        attackRegion.y = position.y;
+        attackRegion.x = position.x;
+        attackRegion.y = position.y - position.height/2 - MONSTER_ATTACK_DISTANCE / 2;
+    } else if ((angle >= 0 && angle <= M_PI /4) || (angle <= 0 && angle >= -1*M_PI/4)) {
+        attackRegion.height = position.height + MONSTER_ATTACK_EXTRA_WIDTH;
         attackRegion.width = MONSTER_ATTACK_DISTANCE;
-        attackRegion.height = position.width;
-        if (faceDirection = EAST)
-            attackRegion.x = position.x + position.height / 2 + MONSTER_ATTACK_DISTANCE / 2;
-        else
-            attackRegion.x = position.x - position.height / 2 - MONSTER_ATTACK_DISTANCE / 2;
+        attackRegion.y = position.y;
+        attackRegion.x = position.x + position.width/2 + MONSTER_ATTACK_DISTANCE / 2;
+    } else if (angle >= -3*M_PI/4 && angle <= -1*M_PI /4) {
+        attackRegion.width = position.width + MONSTER_ATTACK_EXTRA_WIDTH;
+        attackRegion.height = MONSTER_ATTACK_DISTANCE;
+        attackRegion.x = position.x;
+        attackRegion.y = position.y + position.height/2 + MONSTER_ATTACK_DISTANCE / 2;
+    } else if (angle >= -5*M_PI/4 && angle <= -3*M_PI /4) {
+        attackRegion.height = position.height + MONSTER_ATTACK_EXTRA_WIDTH;
+        attackRegion.width = MONSTER_ATTACK_DISTANCE;
+        attackRegion.y = position.y;
+        attackRegion.x = position.x - position.width/2 - MONSTER_ATTACK_DISTANCE / 2;
     }
 
     // for every player, if their bounding box overlaps the attackRegion, and
@@ -132,20 +138,32 @@ void Monster::uniqueAttack(Game* game) {
             game->addUpdate(gameUpdate);
         }
     }
+
+    // Send an update to the clients: PLAYER_UNIQUE_ATTACK
+    GameUpdate attackUpdate;
+    attackUpdate.updateType = PLAYER_UNIQUE_ATTACK;
+    attackUpdate.id = this->id;                        // id of player attacking
+    attackUpdate.attackAmount = getAttackDamage();     // attack damage amount
+    attackUpdate.roleClaimed = MONSTER;
+    game->addUpdate(attackUpdate);
 }
 // To update the stage of the monster.
 void Monster::updateEvo(Game* game, float evoLevel) {
     
     // For now update the attack damage of the monster, maybe speed another time?
     if (evoLevel >= MONSTER_FIFTH_STAGE_THRESHOLD) {
-        setAttackDamage(MONSTER_ATTACK_DAMAGE + 4);
+        setAttackDamage(MONSTER_ATTACK_DAMAGE + 5);
     } else if (evoLevel >= MONSTER_FOURTH_STAGE_THRESHOLD) {
-        setAttackDamage(MONSTER_ATTACK_DAMAGE + 3);
+        setAttackDamage(MONSTER_ATTACK_DAMAGE + 4);
     } else if (evoLevel >= MONSTER_THIRD_STAGE_THRESHOLD) {
-        setAttackDamage(MONSTER_ATTACK_DAMAGE + 2);
+        setAttackDamage(MONSTER_ATTACK_DAMAGE + 3);
     } else if (evoLevel >= MONSTER_SECOND_STAGE_THRESHOLD) {
-        setAttackDamage(MONSTER_ATTACK_DAMAGE + 1);
+        setAttackDamage(MONSTER_ATTACK_DAMAGE + 2);
     } else if (evoLevel >= MONSTER_FIRST_STAGE_THRESHOLD) {
+        setAttackDamage(MONSTER_ATTACK_DAMAGE + 1);
+    
+    // Start counting from zero.
+    } else if (evoLevel >= 0.f) {
         setAttackDamage(MONSTER_ATTACK_DAMAGE);
     
     // Invalid levels should not update the evo variable and return
@@ -155,12 +173,14 @@ void Monster::updateEvo(Game* game, float evoLevel) {
     }
 
     // Checks if the evo has changed from one level to the next (int's truncate the decimal values)
-    if(abs((int) evoLevel - (int) this->evo) >= 1) {
+    if(abs((int) evoLevel - (int) this->evo) >= 1 || fabs(evoLevel - clientSideEvo) > 0.1f) {
         GameUpdate evoUpdate;
         evoUpdate.updateType = MONSTER_EVO_UP;
         evoUpdate.newEvoLevel = evoLevel;
         evoUpdate.id = this->id;
         game->addUpdate(evoUpdate);
+
+        clientSideEvo = evoLevel;
     }
     
     // Update evolution of the monster.
