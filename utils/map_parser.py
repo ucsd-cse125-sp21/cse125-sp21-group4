@@ -44,7 +44,7 @@ for object in objects:
     object_type = object["type"]
     if object_type == "obstacle":
         object_name = object["name"]
-        if "tree" in object_name or "rock" in object_name:
+        if "tree" in object_name or "rock" in object_name or "pillar" in object_name:
             graphicsCSV.write("{},{},{},{},{},{}\n".format(object["name"], objectX, objectY, objectWidth, objectHeight, random.randint(0, 359)))
         else:
             graphicsCSV.write("{},{},{},{},{},{}\n".format(object["name"], objectX, objectY, objectWidth, objectHeight, 0))
