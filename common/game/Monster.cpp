@@ -107,6 +107,8 @@ void Monster::uniqueAttack(Game* game, float angle) {
     for (int i = 0; i < PLAYER_NUM; i++) {
         // skip the player itself
         if (game->players[i] == this) continue;
+        // skip the dead player
+        if (game->players[i]->isDead()) continue;
         GamePlayer* otherPlayer = game->players[i];
         float p2ULX = getUpperLeftCoordinateX(otherPlayer->getPosition(), true);
         float p2ULY = getUpperLeftCoordinateY(otherPlayer->getPosition(), true);

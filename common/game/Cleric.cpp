@@ -110,6 +110,18 @@ void Cleric::uniqueAttack(Game* game, float angle) {
             gameUpdate.id = i;
             gameUpdate.healAmount = incAmount;
             game->addUpdate(gameUpdate);
+
+            GameUpdate healEffectUpdate;
+            healEffectUpdate.updateType = HEAL_BY_CLERIC;
+            healEffectUpdate.id = i;
+            game->addUpdate(healEffectUpdate);
+
+            GameEvent* healEnd = new GameEvent();
+            healEnd->targetID = i;
+            healEnd->type = HEAL_END;
+            healEnd->time = std::chrono::steady_clock::now() + 
+                            std::chrono::seconds(1);
+            game->events.push_back(healEnd);
         }
     }
 

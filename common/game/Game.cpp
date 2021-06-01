@@ -36,6 +36,11 @@ Game::Game() {
 
     lastSafeRegionShrinkTime = std::chrono::steady_clock::now();
     lastSafeRegionAttackTime = std::chrono::steady_clock::now();
+
+    // initialize player's liveness list
+    for (int i = 0; i < PLAYER_NUM; i++) {
+        prevPlayerStatus[i] = true;
+    }
 }
 
 // initializes the map structure for easier selecting of jobs
@@ -602,6 +607,20 @@ bool projectileIsCollidingEnemy (Projectile* p, Game* game) {
                 event->time = std::chrono::steady_clock::now() + 
                                 std::chrono::milliseconds(FIREBALL_EFFECT_TIME);
                 game->events.push_back(event);
+
+                event = new GameEvent();
+                event->type = FIREBALL_END;
+                event->ownerID = p->ownerID;
+                event->targetID = i;
+                event->time = std::chrono::steady_clock::now() + 
+                                std::chrono::milliseconds(FIREBALL_EFFECT_TIME);
+                game->events.push_back(event);
+
+                // send speed dec effect to client
+                GameUpdate gameUpdate;
+                gameUpdate.updateType = HIT_BY_MAGE_FIREBALL;
+                gameUpdate.id = i;
+                game->addUpdate(gameUpdate);
             }
             // projectile will only cause damage 
             else {
@@ -827,6 +846,35 @@ bool Game::checkEnd() {
 }
 
 
+void Game::updateDeath () {
+    for (int i = 0; i < PLAYER_NUM; i++) {
+        // prev tick is alive but this tick is dead
+        if (prevPlayerStatus[i] && players[i]->isDead()) {
+            // send dead status to client
+            printf("send player dead signal  duolan \n");
+            GameUpdate update;
+            update.updateType = PLAYER_DEAD;
+            update.id = i;
+            addUpdate(update);
+        // prev tick is dead but this tick is alive
+        } else if (!prevPlayerStatus[i] && !players[i]->isDead()) {
+            // send player being revived status to client
+            // DONE IN GAMEPLAYER
+            // GameUpdate update;
+            // update.updateType = PLAYER_REVIVE;
+            // update.id = i;
+            // addUpdate(update);
+        }
+
+        // kinda trick here, prevPlayerStatus[i] is true if player is alive
+        // but players[i]->isDead() is true if player is dead
+        prevPlayerStatus[i] = !players[i]->isDead();
+    }
+}
+
+
+
+
 void Game::shrinkSafeRegion () {
     if (safeRegionRadius < 0) safeRegionRadius = SAFE_REGION_START_RADIUS;
     else safeRegionRadius = max(safeRegionRadius-SAFE_REGION_RADIUS_DEC, (float) SAFE_REGION_MIN_RADIUS);
@@ -849,7 +897,6 @@ void Game::attackPlayersOutsideSafeRegion () {
 
         // if a player is outside of safeRegion, it will be attacked by the system
         if (sqrt(distanceSqr) > safeRegionRadius) {
-            printf("Attack player with id %d \n", i);
             players[i]->hpDecrement(SAFE_REGION_DAMAGE);
             // queue this update to be send to other players
             GameUpdate gameUpdate;
@@ -879,6 +926,20 @@ void Game::processEvent (GameEvent* event) {
         case SPEED_CHANGE:
             players[event->targetID]->speedChange(event->amount);
             break;
+        case FIREBALL_END: {
+                GameUpdate gameUpdate;
+                gameUpdate.updateType = RECOVER_FROM_MAGE_FIREBALL;
+                gameUpdate.id = event->targetID;
+                addUpdate(gameUpdate);
+                break;
+            }
+        case HEAL_END: {
+                GameUpdate gameUpdate;
+                gameUpdate.updateType = HEAL_BY_CLERIC_END;
+                gameUpdate.id = event->targetID;
+                addUpdate(gameUpdate);
+                break;
+            }
         case GAME_START: {
             this->started = true;
 
