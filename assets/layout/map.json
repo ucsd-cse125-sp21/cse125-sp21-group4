@@ -29945,6 +29945,28 @@
                  "width":48,
                  "x":4720,
                  "y":1984
+                }, 
+                {
+                 "height":96,
+                 "id":3274,
+                 "name":"invisible_obstacle",
+                 "rotation":0,
+                 "type":"obstacle",
+                 "visible":true,
+                 "width":176,
+                 "x":3872,
+                 "y":4832
+                }, 
+                {
+                 "height":96,
+                 "id":3277,
+                 "name":"invisible_obstacle",
+                 "rotation":0,
+                 "type":"obstacle",
+                 "visible":true,
+                 "width":176,
+                 "x":3872,
+                 "y":4944
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -29953,7 +29975,7 @@
          "y":0
         }],
  "nextlayerid":39,
- "nextobjectid":3274,
+ "nextobjectid":3278,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.6.0",

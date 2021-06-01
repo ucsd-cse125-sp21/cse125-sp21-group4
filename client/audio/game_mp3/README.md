@@ -32,3 +32,18 @@ https://freesound.org/people/HighPixel/sounds/431174/. Work is licensed under th
 - rogue_attack.wav:
 
 https://freesound.org/people/Lydmakeren/sounds/511490/. Work is licensed under the Creative Commons 0 License. http://creativecommons.org/publicdomain/zero/1.0/
+
+- cleric_heal.wav:
+
+https://freesound.org/people/Hotlavaman/sounds/349201/. Work is licensed under the Creative Commons 0 License. http://creativecommons.org/publicdomain/zero/1.0/
+
+- heal_objective_taken.wav:
+
+https://freesound.org/people/renatalmar/sounds/264981/. Work is licensed under the Creative Commons 0 License. http://creativecommons.org/publicdomain/zero/1.0/
+
+- monster_claw.wav:
+
+https://freesound.org/people/snowflakes/sounds/72191/. Work is licensed under the Creative Commons 0 License. http://creativecommons.org/publicdomain/zero/1.0/
+
+- damage_effect.mp3: 
+https://freesound.org/people/Raclure/sounds/458867/. Work is licensed under the Creative Commons 0 License. http://creativecommons.org/publicdomain/zero/1.0/

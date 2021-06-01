@@ -58,12 +58,15 @@
 #define ROGUE_ATTACK_DAMAGE 2
 #define MONSTER_ATTACK_DAMAGE 10
 
-// Atack Rate Constants
+// Attack Rate Constants
 #define FIGHTER_ATTACK_TIME_INTERVAL 500 // 0.5s = 500 ms
 #define ROGUE_ATTACK_TIME_INTERVAL 500 // 0.5s = 500 ms
 #define MAGE_ATTACK_TIME_INTERVAL 300 // 0.3s = 300 ms
 #define CLERIC_ATTACK_TIME_INTERVAL 300 // 0.3s = 300 ms
 #define MONSTER_ATTACK_TIME_INTERVAL 500 // 0.5s = 500 ms
+
+// Revive Time Constant
+#define REVIVE_TIME_INTERVAL 20000 // 20s = 20000 ms
 
 // Player Bouding Box Size Constants
 #define FIGHTER_WIDTH 2
@@ -88,17 +91,20 @@
 #define MAGE_ATTACK_DISTANCE 40
 #define CLERIC_ATTACK_DISTANCE 15
 
+//Revive distance constant
+#define REVIVE_DISTANCE 4
+
 // Player movement constants
 #define FIGHTER_ACCELERATION 0.05
-#define FIGHTER_MAX_SPEED 1
+#define FIGHTER_MAX_SPEED .8
 #define MAGE_ACCELERATION 0.05
-#define MAGE_MAX_SPEED 1
+#define MAGE_MAX_SPEED .8
 #define CLERIC_ACCELERATION 0.05
-#define CLERIC_MAX_SPEED 1
+#define CLERIC_MAX_SPEED .8
 #define ROGUE_ACCELERATION 0.05
-#define ROGUE_MAX_SPEED 1
+#define ROGUE_MAX_SPEED .8
 #define MONSTER_ACCELERATION 0.05
-#define MONSTER_MAX_SPEED 1
+#define MONSTER_MAX_SPEED .8
 
 
 
@@ -156,7 +162,7 @@ const float SPAWN_POSITIONS [4][2] = {
     {25.0, 25.0},
     {35.0, 25.0},
     {25.0, 35.0},
-    {65.0, 65.0}
+    {470.0, 570.0}
 };
 
 #define MOVE_DISTANCE 1

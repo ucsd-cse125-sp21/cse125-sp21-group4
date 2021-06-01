@@ -78,6 +78,9 @@ int __cdecl main(int argc, char **argv)
                 case 'd':
                     sendInput.input = MOVE_RIGHT;
                     break;
+                case 'e':
+                    sendInput.input = REVIVE;
+                    break;
                 // case 'j':
                 //     sendInput.input = ATTACK;
                 //     break;
