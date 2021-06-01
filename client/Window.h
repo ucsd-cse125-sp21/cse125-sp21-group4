@@ -5,7 +5,7 @@
 #define MOUSE_SIZE 2
 #define MOUSE_LEFT_INDEX 0
 #define MOUSE_RIGHT_INDEX 1
-#define SERVER_ENABLED
+// #define SERVER_ENABLED
 #define RENDER_MAP
 #define _USE_MATH_DEFINES
 #define SPATIAL_HASH_SEARCH_DISTANCE 20.0
@@ -27,6 +27,7 @@
 #include "ProjectileElement.h"
 #include "ScreenElement.h"
 #include "ObjElement.h"
+#include "Cursor.h"
 #include "SpatialHashTable.h"
 //#include "../common/constants.h"
 #include "CommunicationClient.h"
@@ -64,6 +65,10 @@ public:
 	static vector<ScreenElement*> selectScreenElements;
 	static map<int, ObjElement*> objectiveMap; 
 	static Character* clientChar;
+
+	static Cursor* cursor;
+	static float cursorOffsetX;
+	static float cursorOffsetY;
 
 	// Shader Program 
 	static GLuint shaderProgram;
@@ -125,6 +130,7 @@ public:
 	static void mouse_callback(GLFWwindow* window, int button, int action, int mods);
 	static void mouse_scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 	static void cursor_callback(GLFWwindow* window, double currX, double currY);
+	static void focus_callback(GLFWwindow* window, int focused);
 
 	// Used to handle GameUpdates from the CommunicationClient
 	static void handleUpdates(std::vector<GameUpdate> updates);

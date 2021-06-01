@@ -180,6 +180,9 @@
     <ClCompile Include="gui\LoadingScreen.cpp">
       <Filter>Source Files\gui</Filter>
     </ClCompile>
+    <ClCompile Include="Cursor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Character.h">
@@ -406,6 +409,9 @@
     </ClInclude>
     <ClInclude Include="gui\LoadingScreen.h">
       <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Cursor.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -29,6 +29,10 @@ Character* Window::clientChar;
 bool LeftDown, RightDown;
 int MouseX, MouseY;
 
+// Cursor
+Cursor* Window::cursor;
+float Window::cursorOffsetX, Window::cursorOffsetY;
+
 // The shader program id
 GLuint Window::shaderProgram; //Phong lighting shader; only use this for models without texture
 GLuint Window::phongTexShader; //Phong lighting shader with texture
@@ -137,6 +141,12 @@ bool Window::initializeObjects()
 	initCharacters();
 
 	//  ==========  End of Character Initialization ========== 
+
+	//  ======= init cursor ======== //
+	cursor = new Cursor("shaders/character/billboard.obj", &projection, &view, texShader, &eyePos, vec3(0,1.0f,0),  glm::vec3(1.f,0,0), glm::radians(0.f), 1.f, glm::vec3(0,0,0), "shaders/hud_elements/cursor2.png");
+	cursorOffsetX = 0.f;
+	cursorOffsetY = 0.f;
+	// ====== end cursor init ====== //
 
 	guiManager->setSplashLoaded(true);
 	guiManager->setLoadingScreenVisible(false);
@@ -325,8 +335,27 @@ GLFWwindow* Window::createWindow(int width, int height)
 		std::cerr << "Failed to initialize GLFW" << std::endl;
 		return NULL;
 	}
-	glfwWindowHint(GLFW_SAMPLES, 4);
-	GLFWwindow* window = glfwCreateWindow(width, height, windowTitle, NULL, NULL);
+	
+	// Old windowed mode
+	// glfwWindowHint(GLFW_SAMPLES, 4);
+	// GLFWwindow* window = glfwCreateWindow(width, height, windowTitle, NULL, NULL);
+	
+	// Fullscreen mode
+	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+ 
+	glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+	glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+	glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+	glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+	
+	GLFWwindow* window = glfwCreateWindow(mode->width, mode->height, windowTitle, primaryMonitor, NULL);
+	width = mode->width;
+	height = mode->height;
+
+	// Disables the cursor
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 	// Check if the window could not be created.
 	if (!window)
 	{
@@ -450,6 +479,10 @@ void Window::idleCallback()
 		}
 	}
 
+	// update cursor position relative to player
+	if(gameStarted) {
+		cursor->pos = clientChar->pos + glm::vec3(cursorOffsetX, 0, cursorOffsetY);
+	}
 	guiManager->updateHUDPositions();
 }
 
@@ -515,6 +548,12 @@ void Window::displayCallback(GLFWwindow* window)
 		for(auto iter = projectiles.begin(); iter != projectiles.end(); iter++) {
 			iter->second->draw();
 
+		}
+
+		// Draw cursor
+		if(clientChar->getState() != spectating) {
+			glClear(GL_DEPTH_BUFFER_BIT);
+			cursor->draw();
 		}
 
 	}
@@ -593,28 +632,95 @@ void Window::mouse_scroll_callback(GLFWwindow* window, double xoffset, double yo
 	}
 }
 
+
+
 void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 
-	int maxDelta = 100;
-	int dx = glm::clamp((int)currX - MouseX, -maxDelta, maxDelta);
-	int dy = glm::clamp(-((int)currY - MouseY), -maxDelta, maxDelta);
+	if(gameStarted) {
+		int maxDelta = 100;
+		int dx = glm::clamp((int)currX - MouseX, -maxDelta, maxDelta);
+		int dy = glm::clamp(-((int)currY - MouseY), -maxDelta, maxDelta);
 
-	MouseX = (int)currX;
-	MouseY = (int)currY;
+		float zoomFactor = cameraOffset.y / MAX_CAMERA_Y_OFFSET; // smaller = more zoomed in.
 
-	float dx2 = width / 2 - MouseX;
-	float dy2 = MouseY - height / 2;
-	float dx1 = 0;
-	float dy1 = 1;
-	float dot = dx1*dx2 + dy1*dy2;      // dot product
-	float det = dx1*dy2 - dy1*dx2;      // determinant
-	lastAngle = atan2(det, dot) - M_PI / 2;  // atan2(y, x) or atan2(sin, cos)
+		// float minWidth = -width / 50.0 * zoomFactor;
+		// float maxWidth = width / 50.0 * zoomFactor;
+		// float minHeight = -height / 50.0 * zoomFactor;
+		// float maxHeight = height / 100.0 * zoomFactor; // max height smaller bc of our camera angle
 
+		// float floatDx = (float) dx / 25.0;
+		// float floatDy = (float) -dy / 25.0;
+
+		// cursorOffsetX = glm::clamp(cursorOffsetX + floatDx, minWidth, maxWidth);
+		// cursorOffsetY = glm::clamp(cursorOffsetY + floatDy, minHeight, maxHeight);
+		// printf("%f, %f, %f, %f\n", minWidth, maxWidth, minHeight, maxHeight);
+		// printf("%f, %f\n", cursorOffsetX, cursorOffsetY);
+
+
+		MouseX = (int)currX;
+		MouseY = (int)currY;
+
+		float dx2 = width / 2 - MouseX;
+		float dy2 = MouseY - height / 2;
+		float dx1 = 0;
+		float dy1 = 1;
+		float dot = dx1*dx2 + dy1*dy2;      // dot product
+		float det = dx1*dy2 - dy1*dx2;      // determinant
+		lastAngle = atan2(det, dot) - M_PI / 2;  // atan2(y, x) or atan2(sin, cos)
+		// printf("Original: %f\n", lastAngle);
+		float distanceCursorFromPlayer = 7.f * zoomFactor;
+
+		// basically highest distance is about ~2202 (1920x1080)
+		distanceCursorFromPlayer *= sqrt(pow(abs(dx2),2) + pow(abs(dy2), 2)) / (width / 7.5);
+
+		cursorOffsetX =  cos(lastAngle) * distanceCursorFromPlayer;
+		cursorOffsetY = -sin(lastAngle) * distanceCursorFromPlayer;
+
+		// vec3 windowPoint = vec3(dx2 + width / 2, dy2 + height / 2, 0);
+		// GLfloat matrix[16]; 
+		// glGetFloatv (GL_MODELVIEW_MATRIX, matrix); 
+		// mat4 modelView = glm::make_mat4x4(matrix);
+		// vec4 viewPort = glm::vec4(0,0,width,height);
+		// mat4 projectioncopy = mat4(projection);
+		// vec3 unprojection = glm::unProject(windowPoint, modelView, projectioncopy, viewPort);
+		// cout << unprojection.x << " " << unprojection.y << " " << unprojection.z << endl;
+		// lastAngle = atan(unprojection.y, unprojection.x) - M_PI;  // atan2(y, x) or atan2(sin, cos)
+		// printf("Unprojection: %f\n", lastAngle);
+
+
+		// vec3 original = eyePos + glm::vec3(-dx2/ 10.0, 0, -dy2 / 10.0);
+
+		// mat4 model = translate(mat4(1.0f), vec3(0.0f, 0.0f, -10.0f));
+		// vec4 viewport(0.0f, 0.0f, width, height);
+
+		// vec3 projected = glm::project(original, model, projection, viewport);
+		// vec3 unprojected = glm::unProject(projected, model, projection, viewport);
+
+		// cout << original.x << " " << original.y << " " << original.z << endl;
+		// cout << projected.x << " " << projected.y << " " << projected.z << endl;
+		// cout << unprojected.x << " " << unprojected.y << " " << unprojected.z << endl;
+		
+		// lastAngle = atan(unprojected.z - clientChar->pos.z,  unprojected.x - clientChar->pos.x);
+		// cursorOffsetX = unprojected.x - clientChar->pos.x;
+		// cursorOffsetY = unprojected.z - clientChar->pos.z;
+		// printf("%f\n", lastAngle);
+	}
+	
+	
 	if (LeftDown) {
 		return;
 	}
 	if (RightDown) {
 		return;
+	}
+}
+
+
+void Window::focus_callback(GLFWwindow* window, int focused) {
+	if(focused) {
+		glfwRestoreWindow(window);
+	} else {
+		glfwHideWindow(window);
 	}
 }
 

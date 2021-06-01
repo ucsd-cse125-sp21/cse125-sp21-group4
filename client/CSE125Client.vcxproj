@@ -145,6 +145,7 @@
     <ClCompile Include="Cell.cpp" />
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="CommunicationClient.cpp" />
+    <ClCompile Include="Cursor.cpp" />
     <ClCompile Include="EnvElement.cpp" />
     <ClCompile Include="Ground.cpp" />
     <ClCompile Include="GroundTile.cpp" />
@@ -215,6 +216,7 @@
     <ClInclude Include="Character.h" />
     <ClInclude Include="CommunicationClient.h" />
     <ClInclude Include="Core.h" />
+    <ClInclude Include="Cursor.h" />
     <ClInclude Include="EnvElement.h" />
     <ClInclude Include="Ground.h" />
     <ClInclude Include="GroundTile.h" />
