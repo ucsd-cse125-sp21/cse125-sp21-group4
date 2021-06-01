@@ -74,6 +74,7 @@ private:
 	float saturation;
 	float redSaturation;
 	float greenSaturation;
+	float transparentAlpha;
 
 	glm::vec3 * eyep;
 	glm::vec3 color;
@@ -120,6 +121,7 @@ public:
 	void setSaturationLevel(float level);
 	void setRedSaturationLevel(float redSat);
 	void setGreenSaturationLevel(float greenSat);
+	void setTransparentAlpha(float transAlpha);
 };
 
 #endif

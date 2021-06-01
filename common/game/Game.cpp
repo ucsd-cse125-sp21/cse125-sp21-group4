@@ -36,6 +36,11 @@ Game::Game() {
 
     lastSafeRegionShrinkTime = std::chrono::steady_clock::now();
     lastSafeRegionAttackTime = std::chrono::steady_clock::now();
+
+    // initialize player's liveness list
+    for (int i = 0; i < PLAYER_NUM; i++) {
+        prevPlayerStatus[i] = true;
+    }
 }
 
 // initializes the map structure for easier selecting of jobs
@@ -839,6 +844,34 @@ bool Game::checkEnd() {
     addUpdate(gameEndUpdate);
     return true;
 }
+
+
+void Game::updateDeath () {
+    for (int i = 0; i < PLAYER_NUM; i++) {
+        // prev tick is alive but this tick is dead
+        if (prevPlayerStatus[i] && players[i]->isDead()) {
+            // send dead status to client
+            printf("send player dead signal  duolan \n");
+            GameUpdate update;
+            update.updateType = PLAYER_DEAD;
+            update.id = i;
+            addUpdate(update);
+        // prev tick is dead but this tick is alive
+        } else if (!prevPlayerStatus[i] && !players[i]->isDead()) {
+            // send player being revived status to client
+            GameUpdate update;
+            update.updateType = PLAYER_REVIVED;
+            update.id = i;
+            addUpdate(update);
+        }
+
+        // kinda trick here, prevPlayerStatus[i] is true if player is alive
+        // but players[i]->isDead() is true if player is dead
+        prevPlayerStatus[i] = !players[i]->isDead();
+    }
+}
+
+
 
 
 void Game::shrinkSafeRegion () {

@@ -51,6 +51,7 @@ int main(void)
             game->updateBeacon(); // used to determine players inside the beacon capture area
             game->checkEvoLevel(); // used to determine monster evolution level
             game->updateSafeRegion();
+            game->updateDeath();
             hasGameEnded = game->checkEnd(); // used to determine whether the game has ended
         }
 

@@ -782,7 +782,14 @@ void Window::handleUpdate(GameUpdate update) {
 		case HEAL_BY_CLERIC_END:
 			chars[update.id]->setGreenSaturationLevel(1.f);
 			break;
-		
+		case PLAYER_DEAD:
+			printf("process player's dead signal duolan");
+			chars[update.id]->setTransparentAlpha(.3f);
+			break;
+		case PLAYER_REVIVED:
+			printf("process player's revival signal duolan");
+			chars[update.id]->setTransparentAlpha(1.f);
+			break;
 		case GAME_STARTED:
 			Window::gameStarted = true;
 			guiManager->setSelectScreenVisible(false); // disable the selects creen
