@@ -31,6 +31,7 @@ GUIManager::GUIManager(int width, int height, int fbWidth, int fbHeight) {
 	connectingScreen = new ConnectingScreen(vg);
 	endScreen = new EndScreen(vg);
 	splashScreen = new SplashScreen(vg);
+	loadingScreen = new LoadingScreen(vg);
 	
 	// Will be initialized later
 	for (int i = 0; i < NUM_COOLDOWNS; i++) {
@@ -53,6 +54,7 @@ void GUIManager::draw() {
 	miniMap->draw(this->windowWidth - (MAP_WIDTH / 2), this->windowHeight - (MAP_HEIGHT / 2), (MAP_WIDTH / 2), (MAP_HEIGHT / 2));
 	selectScreen->draw(this->windowWidth, this->windowHeight);
 	splashScreen->draw(this->windowWidth, this->windowHeight);
+	loadingScreen->draw(this->windowWidth, this->windowHeight);
 	connectingScreen->draw(this->windowWidth, this->windowHeight);
 	endScreen->draw(this->windowWidth, this->windowHeight);
 
@@ -97,6 +99,10 @@ void GUIManager::setGameEndVisible(bool visibility) {
 
 void GUIManager::setSplashScreenVisible(bool visibility) {
 	splashScreen->setVisible(visibility);
+}
+
+void GUIManager::setLoadingScreenVisible(bool visibility) {
+	loadingScreen->setVisible(visibility);
 }
 
 

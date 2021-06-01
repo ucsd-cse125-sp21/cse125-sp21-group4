@@ -154,6 +154,7 @@
     <ClCompile Include="gui\EvolutionBar.cpp" />
     <ClCompile Include="gui\GUIManager.cpp" />
     <ClCompile Include="gui\HealthBar.cpp" />
+    <ClCompile Include="gui\LoadingScreen.cpp" />
     <ClCompile Include="gui\MiniMap.cpp" />
     <ClCompile Include="gui\SelectScreen.cpp" />
     <ClCompile Include="gui\ConnectingScreen.cpp" />
@@ -223,6 +224,7 @@
     <ClInclude Include="gui\EvolutionBar.h" />
     <ClInclude Include="gui\GUIManager.h" />
     <ClInclude Include="gui\HealthBar.h" />
+    <ClInclude Include="gui\LoadingScreen.h" />
     <ClInclude Include="gui\MiniMap.h" />
     <ClInclude Include="gui\SelectScreen.h" />
     <ClInclude Include="gui\ConnectingScreen.h" />

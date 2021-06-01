@@ -48,7 +48,7 @@ glm::vec3 Window::lookAtPoint(0, 0, 0);
 glm::vec3 Window::upVector(0, 1, 0);
 //view matrix with all the above stuff combined
 glm::mat4 Window::view = glm::lookAt(Window::eyePos, Window::lookAtPoint, Window::upVector);
-glm::vec3 Window::cameraOffset(MAX_CAMERA_X_OFFSET, MAX_CAMERA_Y_OFFSET, MAX_CAMERA_Z_OFFSET);
+glm::vec3 Window::cameraOffset(MIN_CAMERA_X_OFFSET, MIN_CAMERA_Y_OFFSET, MIN_CAMERA_Z_OFFSET);
 
 // last input from the window
 CLIENT_INPUT Window::lastInput = NO_MOVE;
@@ -139,6 +139,7 @@ bool Window::initializeObjects()
 	//  ==========  End of Character Initialization ========== 
 
 	guiManager->setSplashLoaded(true);
+	guiManager->setLoadingScreenVisible(false);
 	return true;
 }
 
@@ -192,8 +193,8 @@ void Window::initMap() {
 		} else if (strcmp(objName.c_str(), "pillar") == 0) {
 			objX += width / 2;
 			objY += height / 2;
-			EnvElement* e = new EnvElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram, &eyePos,
-				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f),  width, glm::vec3(1.f, 1.f, 1.f)); 
+			EnvElement* e = new EnvElement("shaders/environment/lowpolypillar.obj", &projection, &view, phongTexShader, &eyePos,
+				glm::vec3(objX, 3.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(randomRotateDegree),  width / 2, &materialManager, glm::vec3(1.f, 1.f, 1.f)); 
 			table.insert(e);
 
 		// Green Tree ==   tree_live
@@ -258,7 +259,7 @@ void Window::initCharacters() {
 	playerTypeToCharacterMap[ROGUE] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, satTextureShader,
 		glm::vec3(0.f, 2.f, 0.f), 
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/ROGUE"));
-	playerTypeToCharacterMap[MONSTER] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, satTextureShader,
+	playerTypeToCharacterMap[MONSTER] = (new Character("shaders/character/monster_billboard.obj", &projection, &view, &eyePos, satTextureShader,
 		glm::vec3(0.f, 2.f, 0.f), 
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MONSTER"));
 	
@@ -357,9 +358,10 @@ GLFWwindow* Window::createWindow(int width, int height)
 
 	// Display once to show splash screen, then we can deal with connecting window.
 	audioProgram->playAudioWithLooping(TITLE_MUSIC);
-	guiManager->setSplashScreenVisible(true);
+	guiManager->setLoadingScreenVisible(true);
 	Window::displayCallback(window);
 	guiManager->setConnectingScreenVisible(true);
+	guiManager->setSplashScreenVisible(true); 
 
 	// Set swap interval to 1 if you want buffer 
 	glfwSwapInterval(0);
@@ -460,57 +462,60 @@ void Window::displayCallback(GLFWwindow* window)
 	//draw all the characters and environmental elements
 	int i;
 
-	//first draw all globally viewable objects
-	for (i = 0; i < envs.size(); i++) {
-		envs[i]->draw();
-	}
+	if(gameStarted) {
+		//first draw all globally viewable objects
+		for (i = 0; i < envs.size(); i++) {
+			envs[i]->draw();
+		}
 
-	if(ground != NULL && gameStarted)
-		ground->draw();
+		if(ground != NULL)
+			ground->draw();
 
-	//then selectively draw objects nearby this player
-	vector<Object*> result;
-	float h = SPATIAL_HASH_SEARCH_DISTANCE;
-	int j;
-	glm::vec3 base1(-2.f * h, 0.f, 0.f);
-	for (j = 0; j < 5 && Window::gameStarted; j++) {
-		int k;
-		glm::vec3 base2(0.f, 0.f, -3.f * h);   //negative 2 multiplier, so the search area is ahead into the screan
-		for (k = 0; k < 5; k++) {
-			glm::vec3 loc = base1 + base2;
-			if(clientChar != nullptr) {
-				loc += clientChar->pos;
+		//then selectively draw objects nearby this player
+		vector<Object*> result;
+		float h = SPATIAL_HASH_SEARCH_DISTANCE;
+		int j;
+		glm::vec3 base1(-2.f * h, 0.f, 0.f);
+		for (j = 0; j < 5 && Window::gameStarted; j++) {
+			int k;
+			glm::vec3 base2(0.f, 0.f, -3.f * h);   //negative 2 multiplier, so the search area is ahead into the screan
+			for (k = 0; k < 5; k++) {
+				glm::vec3 loc = base1 + base2;
+				if(clientChar != nullptr) {
+					loc += clientChar->pos;
+				}
+				Cell* cell = table.getCell(loc);
+				if (cell != NULL && cell->items.size() != 0)
+					result.insert(result.end(), cell->items.begin(), cell->items.end());
+				base2 += glm::vec3(0.f, 0.f, 1.f * h);
 			}
-			Cell* cell = table.getCell(loc);
-			if (cell != NULL && cell->items.size() != 0)
-				result.insert(result.end(), cell->items.begin(), cell->items.end());
-			base2 += glm::vec3(0.f, 0.f, 1.f * h);
+			base1 += glm::vec3(1.f * h, 0.f, 0.f);
 		}
-		base1 += glm::vec3(1.f * h, 0.f, 0.f);
-	}
-	for (i = 0; i < result.size(); i++) {
-		if(clientChar != nullptr) {
-			result[i]->drawIfNotObstructing(clientChar->pos);
+		for (i = 0; i < result.size(); i++) {
+			if(clientChar != nullptr) {
+				result[i]->drawIfNotObstructing(clientChar->pos);
+			}
 		}
-	}
 
-	for (i = 0; i < chars.size() && Window::gameStarted; i++) {
-		if (chars[i] != nullptr) {
-			chars[i]->draw();
+		for (i = 0; i < chars.size() && Window::gameStarted; i++) {
+			if (chars[i] != nullptr) {
+				chars[i]->draw();
+			}
 		}
-	}
 
-	// Draws all the objectives in the objective map
-	for (auto const& x: objectiveMap) {
-		x.second->draw();
-		if(clientChar != nullptr) {
-			checkNearObjectiveText(x.second);
+		// Draws all the objectives in the objective map
+		for (auto const& x: objectiveMap) {
+			x.second->draw();
+			if(clientChar != nullptr) {
+				checkNearObjectiveText(x.second);
+			}
 		}
-	}
 
-	// Draws all the projectiles
-	for(auto iter = projectiles.begin(); iter != projectiles.end(); iter++) {
-		iter->second->draw();
+		// Draws all the projectiles
+		for(auto iter = projectiles.begin(); iter != projectiles.end(); iter++) {
+			iter->second->draw();
+
+		}
 
 	}
 
@@ -572,16 +577,19 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
 
 void Window::mouse_scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
 	// for simplicity sake, y and z change linearly if y += 1, then z += 1...
-	if (yoffset > 0) {
-		// Zoom in scroll up
-		cameraOffset.y = std::fmax(cameraOffset.y - yoffset, MIN_CAMERA_Y_OFFSET); 
-		cameraOffset.z = std::fmax(cameraOffset.z - yoffset, MIN_CAMERA_Z_OFFSET); 
-	}	
-	else {
-		// Zoom out scroll down
-		cameraOffset.y = std::fmin(cameraOffset.y - yoffset, MAX_CAMERA_Y_OFFSET); 
-		cameraOffset.z = std::fmin(cameraOffset.z - yoffset, MAX_CAMERA_Z_OFFSET); 
-	
+	if (gameStarted) {
+
+		if (yoffset > 0) {
+			// Zoom in scroll up
+			cameraOffset.y = std::fmax(cameraOffset.y - yoffset, MIN_CAMERA_Y_OFFSET); 
+			cameraOffset.z = std::fmax(cameraOffset.z - yoffset, MIN_CAMERA_Z_OFFSET); 
+		}	
+		else {
+			// Zoom out scroll down
+			cameraOffset.y = std::fmin(cameraOffset.y - yoffset, MAX_CAMERA_Y_OFFSET); 
+			cameraOffset.z = std::fmin(cameraOffset.z - yoffset, MAX_CAMERA_Z_OFFSET); 
+		
+		}
 	}
 }
 
@@ -678,6 +686,7 @@ void Window::handleUpdate(GameUpdate update) {
     switch(update.updateType) {
         case PLAYER_DAMAGE_TAKEN: {
 
+			// If the damage was taken by this player...
 			if(update.id == client->getId()) {
 				guiManager->healthBar->decrementHp(update.damageTaken);
 				guiManager->healthBar->flashHealthBar();
@@ -686,17 +695,26 @@ void Window::handleUpdate(GameUpdate update) {
 
 			auto now = std::chrono::steady_clock::now();
     		std::chrono::duration<float> duration = now - lastCombatMusicPlayTime;
+			float distanceToPlayer = glm::distance(clientChar->pos, chars[update.id]->pos);
 
-			
-			if (std::chrono::duration_cast<std::chrono::seconds>(duration).count() > audioProgram->getSoundLength(COMBAT_MUSIC)) {
+			// If the player was near this player (or is this player) play combat music
+			if (distanceToPlayer < MAX_HEARING_DISTANCE && std::chrono::duration_cast<std::chrono::seconds>(duration).count() > audioProgram->getSoundLength(COMBAT_MUSIC)) {
 				audioProgram->playAudioWithoutLooping(COMBAT_MUSIC);
 				lastCombatMusicPlayTime = now;
+			}
+
+			// Play the Damage taken audio
+			if(glm::distance(chars[update.id]->pos, clientChar->pos) < MAX_HEARING_DISTANCE) {
+				AudioPosition clientPos = {clientChar->pos.x, clientChar->pos.z};
+				AudioPosition otherPos = {chars[update.id]->pos.x, chars[update.id]->pos.z};
+				audioProgram->playDirectionalEffect(DAMAGE_TAKEN_SOUND, clientPos, otherPos);
 			}
             break;
 		}
 		case PLAYER_HP_INCREMENT:
 			if(update.id == client->getId()) {
 				guiManager->healthBar->incrementHp(update.healAmount);
+				audioProgram->playAudioWithoutLooping(HEALTH_PICKUP_SOUND);
 			}
 			break;
 		case SAFE_REGION_UPDATE:
@@ -913,33 +931,39 @@ void Window::handleUniqueAttack(GameUpdate update) {
 		guiManager->handleCooldownUpdate(UNIQUE_ATTACK);
 	}
 
+	// Only update the animation state if and only if the character has a unique animation for it:
+	// 1. MONSTER = Claw is uniquely animated
+	if (update.id == 3) {
+		chars[update.id]->setState(uniqueAttacking);
+	}
+
 	// TO BE ADDED: Audio for unique attacks
-	// if(glm::distance(chars[update.id]->pos, clientChar->pos) < MAX_HEARING_DISTANCE) {
+	if(glm::distance(chars[update.id]->pos, clientChar->pos) < MAX_HEARING_DISTANCE) {
 		
-	// 	AudioPosition clientPos = {clientChar->pos.x, clientChar->pos.z};
-	// 	AudioPosition otherPos = {chars[update.id]->pos.x, chars[update.id]->pos.z};
-	// 	switch(playerJobs[update.id]) {
-	// 		case FIGHTER:
-	// 			audioProgram->playDirectionalEffect(FIGHTER_ATTACK_SOUND, clientPos, otherPos);
-	// 			break;
+		AudioPosition clientPos = {clientChar->pos.x, clientChar->pos.z};
+		AudioPosition otherPos = {chars[update.id]->pos.x, chars[update.id]->pos.z};
+		switch(playerJobs[update.id]) {
+			// case FIGHTER:
+			// 	audioProgram->playDirectionalEffect(FIGHTER_ATTACK_SOUND, clientPos, otherPos);
+			// 	break;
 
-	// 		case MAGE:
-	// 			audioProgram->playDirectionalEffect(MAGE_ATTACK_SOUND, clientPos, otherPos);
-	// 			break;
+			case MAGE:
+				audioProgram->playDirectionalEffect(MAGE_FIREBALL_SOUND, clientPos, otherPos);
+				break;
 
-	// 		case CLERIC:
-	// 			audioProgram->playDirectionalEffect(CLERIC_ATTACK_SOUND, clientPos, otherPos);
-	// 			break;
+			case CLERIC:
+				audioProgram->playDirectionalEffect(CLERIC_HEAL_SOUND, clientPos, otherPos);
+				break;
 
-	// 		case ROGUE:
-	// 			audioProgram->playDirectionalEffect(ROGUE_ATTACK_SOUND, clientPos, otherPos);
-	// 			break;
+			// case ROGUE:
+			// 	audioProgram->playDirectionalEffect(ROGUE_ATTACK_SOUND, clientPos, otherPos);
+			// 	break;
 
-	// 		case MONSTER:
-	// 			audioProgram->playDirectionalEffect(MONSTER_THROW_SOUND, clientPos, otherPos);
-	// 			break;
-	// 	}
-	// }
+			case MONSTER:
+				audioProgram->playDirectionalEffect(MONSTER_CLAW_SOUND, clientPos, otherPos);
+				break;
+		}
+	}
 
 	
 }
@@ -1151,9 +1175,14 @@ void Window::initializeObjective(int objectiveID, ObjectiveType type, Restrictio
 		}
 		case BEACON:{
 
+			// I left this here bc i don't want to rewrite ObjElement to handle materials, but objelement is needed for the center text, so i just made it a really really small cube.
 			ObjElement* e = new ObjElement("shaders/environment/cube_env.obj", &projection, &view, shaderProgram,
-				glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), .25f, glm::vec3(0.f, 0.f, 1.f), false, "", BEACON, R_NEUTRAL);
+				glm::vec3(x, 1.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 0.01f, glm::vec3(0.3f, 0.3f, 0.3f), false, "", BEACON, R_NEUTRAL);
 			objectiveMap[objectiveID] = e;
+			
+			EnvElement* env = new EnvElement("shaders/objectives/beacon.obj", &projection, &view, phongTexShader, &eyePos,
+				glm::vec3(x, 10.f, y), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 2.f , &materialManager,  glm::vec3(1.f, 1.f, 1.f)); 
+			table.insert(env);
 			break;
 		}
 		case ARMOR:{
@@ -1235,19 +1264,24 @@ void Window::checkNearObjectiveText(ObjElement* obj) {
 
 				if(glm::distance(obj->pos, clientChar->pos) < HEALING_INTERACTION_RANGE) {
 					// nvg draw text to interact with
-					guiManager->drawCenterText(std::string("Press E to pickup the health."), width, height);
+
+					if (guiManager->healthBar->hp >= guiManager->healthBar->maxHp) {
+						guiManager->drawCenterText(std::string("Cannot pickup health (MAX HP)."), width, height);
+					} else {
+						guiManager->drawCenterText(std::string("Press E to pickup the health (+50 HP until MAX)."), width, height);
+					}
 				}
 				break;
 			case EVO:
 				if(glm::distance(obj->pos, clientChar->pos) < EVO_INTERACTION_RANGE) {
 					// nvg draw text to interact with
-					guiManager->drawCenterText(std::string("Press E to pickup the shard."), width, height);
+					guiManager->drawCenterText(std::string("Press E to pickup the shard (+1.5 Evo)."), width, height);
 				}
 				break;
 			case ARMOR:
 				if(glm::distance(obj->pos, clientChar->pos) < ARMOR_INTERACTION_RANGE) {
 					// nvg draw text to interact with
-					guiManager->drawCenterText(std::string("Press E to pickup the armor."), width, height);
+					guiManager->drawCenterText(std::string("Press E to pickup the armor (+50 HP)."), width, height);
 				}
 				break;
 			case BEACON:

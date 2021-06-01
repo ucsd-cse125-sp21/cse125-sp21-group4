@@ -45,6 +45,9 @@ void AudioProgram::initializeAllAudioFiles() {
     SoLoud::Wav* clericAttackEffect =  new SoLoud::Wav();
     clericAttackEffect->load("audio/game_mp3/cleric_attack.wav");
     effectMap[CLERIC_ATTACK_SOUND] = clericAttackEffect;
+    SoLoud::Wav* clericHealEffect =  new SoLoud::Wav();
+    clericHealEffect->load("audio/game_mp3/cleric_heal.wav");
+    effectMap[CLERIC_HEAL_SOUND] = clericHealEffect;
 
     // Rogue Sounds
     SoLoud::Wav* rogueAttackEffect =  new SoLoud::Wav();
@@ -55,11 +58,20 @@ void AudioProgram::initializeAllAudioFiles() {
     SoLoud::Wav* monsterThrowEffect =  new SoLoud::Wav();
     monsterThrowEffect->load("audio/game_mp3/monster_throw.wav");
     effectMap[MONSTER_THROW_SOUND] = monsterThrowEffect;
+    SoLoud::Wav* monsterClawEffect =  new SoLoud::Wav();
+    monsterClawEffect->load("audio/game_mp3/monster_claw.wav");
+    effectMap[MONSTER_CLAW_SOUND] = monsterClawEffect;
 
     // Other Sounds
     SoLoud::Wav* selectEffect =  new SoLoud::Wav();
     selectEffect->load("audio/game_mp3/pop.wav");
     effectMap[SELECT_SOUND] = selectEffect;
+    SoLoud::Wav* healthPickupEffect =  new SoLoud::Wav();
+    healthPickupEffect->load("audio/game_mp3/heal_objective_taken.wav");
+    effectMap[HEALTH_PICKUP_SOUND] = healthPickupEffect;
+    SoLoud::Wav* damageTakenEffect =  new SoLoud::Wav();
+    damageTakenEffect->load("audio/game_mp3/damage_effect.mp3");
+    effectMap[DAMAGE_TAKEN_SOUND] = damageTakenEffect;
 }
 
 

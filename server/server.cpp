@@ -69,10 +69,6 @@ int main(void)
             duration = end - start;
         }
 
-        // if game has ended, just close the server so graphics client can't do anything.
-        if(hasGameEnded) {
-            break;
-        }
     }
     commServer->cleanup();
     delete commServer;

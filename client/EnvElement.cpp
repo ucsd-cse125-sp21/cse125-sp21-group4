@@ -453,6 +453,11 @@ void EnvElement::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
 			glUniform1f(glGetUniformLocation(shader, "specHighlight"), materials[i].shininess);
 			glUniform1f(glGetUniformLocation(shader, "dissolve"), materials[i].dissolve);
 		}
+		if (isCloseToObstructing) {
+			glUniform3fv(glGetUniformLocation(shader, "specColor"), 1, glm::value_ptr(glm::vec3(0)));
+			glUniform1f(glGetUniformLocation(shader, "specHighlight"), 0);
+			glUniform1f(glGetUniformLocation(shader, "dissolve"), 0.01f);
+		}
 		glDrawElements(GL_TRIANGLES, 3 * materialSize[i], GL_UNSIGNED_INT, (GLvoid*) (sizeof(GLuint) * sum));
 		sum += 3*materialSize[i];
 	}

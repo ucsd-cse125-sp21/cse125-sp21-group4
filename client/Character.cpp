@@ -14,7 +14,7 @@
 
 Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPos,
 	GLuint s, glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale,
-	glm::vec3 c, char* textFile) : idleTex(4), moveTex(4), attackTex(4), currDirec(Direction::WEST) {
+	glm::vec3 c, char* textFile) : idleTex(4), moveTex(4), attackTex(4), uniqueAttackTex(4), currDirec(Direction::WEST) {
 
 	//animation related
 	frameIdx = 0;
@@ -46,6 +46,12 @@ Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPo
 	attackTex[Direction::SOUTH] = &attack_south;
 	animSequence.push_back(&attackTex);
 
+	// prepare vectors for unique attack animations
+	uniqueAttackTex[Direction::WEST] = &unique_attack_west;
+	uniqueAttackTex[Direction::EAST] = &unique_attack_east;
+	uniqueAttackTex[Direction::NORTH] = &unique_attack_north;
+	uniqueAttackTex[Direction::SOUTH] = &unique_attack_south;
+	animSequence.push_back(&uniqueAttackTex);
 
 	// initial translation will bthe initial position
 	pos = trans;
@@ -252,6 +258,11 @@ void Character::draw(glm::mat4 c) {
 	m[2][2] = scaleZ;
 	// ========================================================
 
+	// Rotate character to face camera?
+	float rotationAmount = -glm::atan(CAMERA_Y_OFFSET, CAMERA_Z_OFFSET);
+	glm::vec3 rotationAxis = glm::vec3(1.0f, 0.f, 0.f);
+	m = glm::translate(pos) * glm::rotate(rotationAmount, rotationAxis) * scaleMtx;
+
 
 	// Get the shader variable locations and send the uniform data to the shader 
 	glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, false, glm::value_ptr(*view));
@@ -342,6 +353,9 @@ void Character::update() {
 			case moving:
 				interval = MOVING_ANIMATION_INTERVAL;
 				break;
+			case uniqueAttacking:
+				interval = UNIQUE_ATTACK_ANIMATION_INTERVAL;
+				break;
 			default:
 				printf("Invalid animation state. Update the switch statement.\n");
 		}
@@ -407,6 +421,7 @@ GLuint Character::loadTexture(string path) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ftw, fth, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	// glTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, ftw, fth, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(data);
 	fclose(f);
