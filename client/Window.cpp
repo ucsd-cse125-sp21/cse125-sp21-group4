@@ -163,6 +163,21 @@ void Window::initMap() {
     string line;
     string id;
 
+
+	const int num_live_trees = 2;
+	const int num_dead_trees = 4;
+	string liveTreeStringPaths[num_live_trees] = {"shaders/environment/lowpolypine.obj",
+								 "shaders/environment/lowpolypine.obj"
+								};
+	string deadTreeStringPaths[num_dead_trees] = {
+								"shaders/environment/lowpolydeadtree.obj",
+								 "shaders/environment/lowpolydeadtree2.obj",
+								 "shaders/environment/lowpolydeadtreepair.obj",
+								 "shaders/environment/lowpolyblackenedtree.obj"
+
+		
+	};
+
     while(getline(map_file, line)) {
         istringstream ss(line);
         string field;
@@ -210,21 +225,26 @@ void Window::initMap() {
 		// Green Tree ==   tree_live
 		} else if (strcmp(objName.c_str(), "tree_live") == 0) {
 
+			int randomTreeIndex = rand() % num_live_trees;
+
 			objX += width / 2;
 			objY += height / 2;
 			// int handle = materialManager.loadMaterial("shaders/environment/lowpolypine.mtl");
-			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, phongTexShader, &eyePos,
+			EnvElement* e = new EnvElement(liveTreeStringPaths[randomTreeIndex], &projection, &view, phongTexShader, &eyePos,
 				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(randomRotateDegree), width, &materialManager, glm::vec3(0.f, 1.f, 0.f));
+			
 			// EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, phongTexShader, &eyePos,
 			// 	glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians((float)(std::rand() % 360)), width, &materialManager, glm::vec3(0.f, 1.f, 0.f));
 			table.insert(e);
 
 		// dead tree = grayish black
 		} else if (strcmp(objName.c_str(), "tree_dead") == 0) {
+			int randomTreeIndex = rand() % num_dead_trees;
+
 			objX += width / 2;
 			objY += height / 2;
-			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, shaderProgram, &eyePos,
-				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(randomRotateDegree), width, glm::vec3(0.2f, 0.2f, 0.2f));
+			EnvElement* e = new EnvElement(deadTreeStringPaths[randomTreeIndex], &projection, &view, shaderProgram, &eyePos,
+				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(randomRotateDegree), width * 3, &materialManager, glm::vec3(0.2f, 0.2f, 0.2f));
 			table.insert(e);
 
 		// gray ==  Rock
