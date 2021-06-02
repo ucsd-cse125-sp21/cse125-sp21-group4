@@ -13,6 +13,9 @@ GUIManager* TitleWindow::guiManager;
 // Audio Program
 AudioProgram* TitleWindow::audioProgram;
 
+//
+bool TitleWindow::launchGame = false;
+
 
 
 bool TitleWindow::initializeProgram() {
@@ -147,6 +150,7 @@ void TitleWindow::displayCallback(GLFWwindow* window)
 
 void TitleWindow::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	if(action == GLFW_PRESS) {
+		launchGame = true;
 		glfwSetWindowShouldClose(window, 1); // closes the title screen.
 	}
 }

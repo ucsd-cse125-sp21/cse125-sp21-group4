@@ -30,6 +30,9 @@ public:
 	// GUI Manager (HUD)
 	static GUIManager* guiManager;
 	static AudioProgram* audioProgram;
+	
+	// Manual Exit Or Key Enter? Launch game tells us that
+	static bool launchGame;
 
 	// Act as Constructors and desctructors 
 	static bool initializeProgram();

@@ -151,6 +151,10 @@ bool Window::initializeObjects(GLFWwindow* window)
 	guiManager->setConnectingScreenVisible(true);
 	guiManager->setSplashScreenVisible(true); 
 	guiManager->setSplashLoaded(true);
+	#ifndef SERVER_ENABLED
+	guiManager->setConnectingScreenVisible(false);
+	guiManager->setSplashScreenVisible(false); 
+	#endif
 	guiManager->setLoadingScreenVisible(false);
 	return true;
 }
@@ -621,6 +625,7 @@ void Window::displayCallback(GLFWwindow* window)
 	#endif
 		doneInitialRender = true;
 	}
+	
 }
 
 
@@ -630,9 +635,11 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	if (action == GLFW_PRESS)
 	{
 		keyboard[key] = true;
-		if (!guiManager->connectingScreen->hasConnectedToServer && !gameEnded) {
+		if (!guiManager->inGameMenu->isVisible && !guiManager->connectingScreen->hasConnectedToServer && !gameEnded) {
 			guiManager->connectingScreen->handleKeyInput(key, window);
 		}
+
+		guiManager->inGameMenu->handleKeyInput(key, window);
 
 		if(key == GLFW_KEY_M) {
 			audioProgram->toggleMute();

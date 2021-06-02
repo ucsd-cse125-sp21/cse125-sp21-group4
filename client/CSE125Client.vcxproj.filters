@@ -189,6 +189,9 @@
     <ClCompile Include="gui\TitleScreen.cpp">
       <Filter>Source Files\gui</Filter>
     </ClCompile>
+    <ClCompile Include="gui\InGameMenu.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Character.h">
@@ -424,6 +427,9 @@
     </ClInclude>
     <ClInclude Include="TitleWindow.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\InGameMenu.h">
+      <Filter>Header Files\gui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

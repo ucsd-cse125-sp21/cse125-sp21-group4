@@ -97,6 +97,10 @@ int main(int argc, char* argv[])
 	// Destroy the window.
 	glfwDestroyWindow(titleWindow);
 
+	if(!TitleWindow::launchGame) {
+		exit(EXIT_SUCCESS);
+	}
+
 
 	// Create the GLFW window.
 	GLFWwindow* window = Window::createWindow(800, 600, audioProgram);
