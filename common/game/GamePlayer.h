@@ -34,7 +34,7 @@ protected:
     float acceleration; // acceleration relative to server tick
     float maxSpeed; // the maximum speed player can do
     std::chrono::steady_clock::time_point prevTime;
-
+    std::chrono::steady_clock::time_point deathTime;
 
     int id; // Used for determining playerID
     int specID; // ID of the player this player is spectating
@@ -50,6 +50,7 @@ public:
     const std::string getTypeToString();
     PlayerPosition getPosition();
     void setPosition(PlayerPosition newPosition);
+    int getMaxHp();
     int getHp ();
     void setHp (int newHp);
     int getAttackDamage ();
@@ -85,9 +86,11 @@ public:
     void interactHeal (Game* game, Heal* heal);
     void interactArmor (Game* game, Armor* armor);
     virtual void interact (Game* game);
+    void revive(Game* game);
     bool isWithinObjective(Objective * objective);
     bool canInteractWithObjective(Objective * objective);
     bool isDead ();
+    
     
     bool isEnemy (GamePlayer* otherPlayer);
 

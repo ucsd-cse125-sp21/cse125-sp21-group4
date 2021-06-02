@@ -909,6 +909,26 @@ void Window::handleUpdate(GameUpdate update) {
 			delete projectiles[update.id];
 			projectiles.erase(update.id);
 			break;
+		case HIT_BY_MAGE_FIREBALL:
+			chars[update.id]->setRedSaturationLevel(5.f);
+			break;
+		case RECOVER_FROM_MAGE_FIREBALL:
+			chars[update.id]->setRedSaturationLevel(1.f);
+			break;
+		case HEAL_BY_CLERIC:
+			chars[update.id]->setGreenSaturationLevel(2.f);
+			break;
+		case HEAL_BY_CLERIC_END:
+			chars[update.id]->setGreenSaturationLevel(1.f);
+			break;
+		case PLAYER_DEAD:
+			printf("process player's dead signal duolan");
+			chars[update.id]->setTransparentAlpha(.3f);
+			break;
+		case PLAYER_REVIVE:
+			printf("process player's revival signal duolan");
+			chars[update.id]->setTransparentAlpha(1.f);
+			break;
 		case GAME_STARTED:
 			Window::gameStarted = true;
 			guiManager->setSelectScreenVisible(false); // disable the selects creen
@@ -1100,9 +1120,12 @@ void Window::updateLastInput() {
 	if (keyboard[GLFW_KEY_E]) {
 		lastInput = INTERACT;
 
+	// F key
+	} else if(keyboard[GLFW_KEY_F]) {
+		lastInput = REVIVE;
+	
 	// WA key together
-	} 
-	else if(keyboard[GLFW_KEY_W] && keyboard[GLFW_KEY_A]) {
+	} else if(keyboard[GLFW_KEY_W] && keyboard[GLFW_KEY_A]) {
 		if (mouse[MOUSE_LEFT_INDEX]) lastInput = MOVE_UPLEFT_ATTACK;
 		else if (mouse[MOUSE_RIGHT_INDEX]) lastInput = MOVE_UPLEFT_UNIQUE_ATTACK;
 		else lastInput = MOVE_UPLEFT;

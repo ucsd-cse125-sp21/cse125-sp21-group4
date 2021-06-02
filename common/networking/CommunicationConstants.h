@@ -56,6 +56,8 @@ enum CLIENT_INPUT{
 
     // Used to tell the server to start the select screen timer
     DONE_RENDERING,
+
+    REVIVE,
 };
 
 struct GAME_INPUT {
@@ -74,6 +76,7 @@ enum UPDATE_TYPE {
     PROJECTILE_END,
     PLAYER_NEXT_SPECT,
     PLAYER_PREV_SPECT,
+    PLAYER_REVIVE,
 
     BEACON_BEING_TAKEN,
     BEACON_DECAYING,
@@ -81,6 +84,13 @@ enum UPDATE_TYPE {
     BEACON_PING_PLAYER,
 
     SAFE_REGION_UPDATE,
+
+    HIT_BY_MAGE_FIREBALL,
+    RECOVER_FROM_MAGE_FIREBALL,
+    HEAL_BY_CLERIC,
+    HEAL_BY_CLERIC_END,
+
+    PLAYER_DEAD,
 
     SPAWN_OBJECTIVE,
     HEAL_OBJECTIVE_TAKEN,

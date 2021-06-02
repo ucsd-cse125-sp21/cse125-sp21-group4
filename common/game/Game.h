@@ -34,7 +34,8 @@ public:
     std::chrono::steady_clock::time_point lastSafeRegionAttackTime;
 
     PlayerList players; // PlayerList is an size-4-array of GamePlayer 
-                        // (either Fighter type or Monster type for now)
+    bool prevPlayerStatus[PLAYER_NUM]; // prevPlayerStatus is an size-4-array 
+                                       // indicate player's liveness status last server tick
     PlayerType idToJobType [MAX_PLAYERS]; // used for selecting purposes, -1 == not taken
     std::set<PlayerType> availableJobs;
 
@@ -73,6 +74,7 @@ public:
     void updateBeacon();
     void updateSafeRegion();
     bool checkEnd();
+    void updateDeath();
 
     void shrinkSafeRegion();
     void attackPlayersOutsideSafeRegion();
