@@ -32,6 +32,8 @@ GUIManager::GUIManager(int width, int height, int fbWidth, int fbHeight) {
 	endScreen = new EndScreen(vg);
 	splashScreen = new SplashScreen(vg);
 	loadingScreen = new LoadingScreen(vg);
+	titleScreen = new TitleScreen(vg);
+	inGameMenu = new InGameMenu(vg);
 	
 	// Will be initialized later
 	for (int i = 0; i < NUM_COOLDOWNS; i++) {
@@ -57,6 +59,8 @@ void GUIManager::draw() {
 	loadingScreen->draw(this->windowWidth, this->windowHeight);
 	connectingScreen->draw(this->windowWidth, this->windowHeight);
 	endScreen->draw(this->windowWidth, this->windowHeight);
+	titleScreen->draw(this->windowWidth, this->windowHeight);
+	inGameMenu->draw(this->windowWidth, this->windowHeight);
 
 	nvgEndFrame(vg);
 }
@@ -104,7 +108,6 @@ void GUIManager::setSplashScreenVisible(bool visibility) {
 void GUIManager::setLoadingScreenVisible(bool visibility) {
 	loadingScreen->setVisible(visibility);
 }
-
 
 void GUIManager::handleMouseSelect(int x, int y) {
 	// might need this if we decide to add mouse support.

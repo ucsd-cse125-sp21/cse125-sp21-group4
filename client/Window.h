@@ -5,7 +5,7 @@
 #define MOUSE_SIZE 2
 #define MOUSE_LEFT_INDEX 0
 #define MOUSE_RIGHT_INDEX 1
-//#define SERVER_ENABLED
+#define SERVER_ENABLED
 #define RENDER_MAP
 #define _USE_MATH_DEFINES
 #define SPATIAL_HASH_SEARCH_DISTANCE 20.0
@@ -27,6 +27,7 @@
 #include "ProjectileElement.h"
 #include "ScreenElement.h"
 #include "ObjElement.h"
+#include "Cursor.h"
 #include "SpatialHashTable.h"
 //#include "../common/constants.h"
 #include "CommunicationClient.h"
@@ -64,6 +65,10 @@ public:
 	static vector<ScreenElement*> selectScreenElements;
 	static map<int, ObjElement*> objectiveMap; 
 	static Character* clientChar;
+
+	static Cursor* cursor;
+	static float cursorOffsetX;
+	static float cursorOffsetY;
 
 	// Shader Program 
 	static GLuint shaderProgram;
@@ -108,11 +113,11 @@ public:
 	// Act as Constructors and desctructors 
 	static bool initializeProgram();
 	//static bool initializeObjects(char * file, char* file1, char* file2);
-	static bool initializeObjects();
+	static bool initializeObjects(GLFWwindow*);
 	static void cleanUp();
 
 	// for the Window
-	static GLFWwindow* createWindow(int width, int height);
+	static GLFWwindow* createWindow(int width, int height, AudioProgram* audioProgram);
 	static void resizeCallback(GLFWwindow* window, int width, int height);
 
 	// update and draw functions
@@ -125,6 +130,7 @@ public:
 	static void mouse_callback(GLFWwindow* window, int button, int action, int mods);
 	static void mouse_scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 	static void cursor_callback(GLFWwindow* window, double currX, double currY);
+	static void focus_callback(GLFWwindow* window, int focused);
 
 	// Used to handle GameUpdates from the CommunicationClient
 	static void handleUpdates(std::vector<GameUpdate> updates);
@@ -148,13 +154,15 @@ public:
 	// Used to determine which objective should tell the user to do something
 	static void Window::checkNearObjectiveText(ObjElement*);
 
-	static void Window::initCharacters();
-	static void Window::initMap();
+	static void Window::initCharacters(GLFWwindow*);
+	static void Window::initMap(GLFWwindow *);
 	static void Window::initSelectScreenElements();
 
 	static void Window::endGame();
 
 	static void Window::handleSpectateRequest(GameUpdate update);
+
+	static void shuffleLoadingScreen(GLFWwindow *);
 
 };
 

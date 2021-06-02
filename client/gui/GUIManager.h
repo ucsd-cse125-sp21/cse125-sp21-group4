@@ -12,6 +12,8 @@
 #include "SplashScreen.h"
 #include "CooldownIcon.h"
 #include "LoadingScreen.h"
+#include "TitleScreen.h"
+#include "InGameMenu.h"
 #include "../nanovg/nanovg.h"
 
 #define NUM_COOLDOWNS 2
@@ -41,6 +43,8 @@ public:
     EndScreen* endScreen;
     SplashScreen* splashScreen;
     LoadingScreen* loadingScreen;
+    TitleScreen* titleScreen;
+    InGameMenu* inGameMenu;
     CooldownIcon* cooldownIcons[NUM_COOLDOWNS]; // 2 because there's attack and unique attack.
 
     GUIManager(int width, int height, int fbWidth, int fbHeight);

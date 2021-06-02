@@ -29,6 +29,10 @@ Character* Window::clientChar;
 bool LeftDown, RightDown;
 int MouseX, MouseY;
 
+// Cursor
+Cursor* Window::cursor;
+float Window::cursorOffsetX, Window::cursorOffsetY;
+
 // The shader program id
 GLuint Window::shaderProgram; //Phong lighting shader; only use this for models without texture
 GLuint Window::phongTexShader; //Phong lighting shader with texture
@@ -98,7 +102,7 @@ initialize all the objects
 which need (fileName, projection matrix, view matrix , shader id, translation vector, 
 rotation axis, rotation in radian, scale factor in float, model color)
 */
-bool Window::initializeObjects()
+bool Window::initializeObjects(GLFWwindow* window)
 {
 	//  ==========  Select Screen  ========== 
 	initSelectScreenElements();
@@ -111,10 +115,15 @@ bool Window::initializeObjects()
 	// envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram,
 	// 	glm::vec3(0.f, -1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
 
+	//  ======= init cursor ======== //
+	cursor = new Cursor("shaders/character/billboard.obj", &projection, &view, texShader, &eyePos, vec3(0,1.0f,0),  glm::vec3(1.f,0,0), glm::radians(0.f), 1.f, glm::vec3(0,0,0), "shaders/hud_elements/cursor2.png");
+	cursorOffsetX = 0.f;
+	cursorOffsetY = 0.f;
+	// ====== end cursor init ====== //
 
 	#ifdef RENDER_MAP
 	printf("=======================================\nIt will take a while for the game to launch, please wait.\n");
-	initMap();
+	initMap(window);
 	#endif
 
 
@@ -134,26 +143,61 @@ bool Window::initializeObjects()
 	#endif
 	/* ===== end of #ifndef (no-server client) code ==== */
 
-	initCharacters();
+	initCharacters(window);
 
 	//  ==========  End of Character Initialization ========== 
 
+
+	guiManager->setConnectingScreenVisible(true);
+	guiManager->setSplashScreenVisible(true); 
 	guiManager->setSplashLoaded(true);
+	#ifndef SERVER_ENABLED
+	guiManager->setConnectingScreenVisible(false);
+	guiManager->setSplashScreenVisible(false); 
+	#endif
 	guiManager->setLoadingScreenVisible(false);
 	return true;
 }
 
-void Window::initMap() {
+void Window::initMap(GLFWwindow * window) {
 	cout << "initing map" << endl;
 	//for now tileScale should be tileSize / 2.0
 	ground = new Ground("shaders/environment/ground.obj", &projection, &view, groundShader,
 		"shaders/environment/dry_grass_red_3x3.png", "shaders/environment/cracked_tile_texture_3x3.png", 3.0f);
 
 	ifstream map_file("../assets/layout/map_client.csv");
+	ifstream temp_file("../assets/layout/map_client.csv");
     string line;
     string id;
 
+
+	const int num_live_trees = 2;
+	const int num_dead_trees = 4;
+	string liveTreeStringPaths[num_live_trees] = {"shaders/environment/lowpolypine.obj",
+								 "shaders/environment/lowpolypine.obj"
+								};
+	string deadTreeStringPaths[num_dead_trees] = {
+								"shaders/environment/lowpolydeadtree.obj",
+								 "shaders/environment/lowpolydeadtree2.obj",
+								 "shaders/environment/lowpolydeadtreepair.obj",
+								 "shaders/environment/lowpolyblackenedtree.obj"
+
+		
+	};
+
+	int line_count = 0;
+	while(getline(temp_file, line)) {
+		line_count++;
+	}
+
+	int count = 0;
     while(getline(map_file, line)) {
+		count++;
+		// Shuffle loading screen every 500 objects
+		if(count % 1250 == 0) {
+			shuffleLoadingScreen(window);
+		}
+
         istringstream ss(line);
         string field;
 
@@ -200,21 +244,26 @@ void Window::initMap() {
 		// Green Tree ==   tree_live
 		} else if (strcmp(objName.c_str(), "tree_live") == 0) {
 
+			int randomTreeIndex = rand() % num_live_trees;
+
 			objX += width / 2;
 			objY += height / 2;
 			// int handle = materialManager.loadMaterial("shaders/environment/lowpolypine.mtl");
-			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, phongTexShader, &eyePos,
+			EnvElement* e = new EnvElement(liveTreeStringPaths[randomTreeIndex], &projection, &view, phongTexShader, &eyePos,
 				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(randomRotateDegree), width, &materialManager, glm::vec3(0.f, 1.f, 0.f));
+			
 			// EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, phongTexShader, &eyePos,
 			// 	glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians((float)(std::rand() % 360)), width, &materialManager, glm::vec3(0.f, 1.f, 0.f));
 			table.insert(e);
 
 		// dead tree = grayish black
 		} else if (strcmp(objName.c_str(), "tree_dead") == 0) {
+			int randomTreeIndex = rand() % num_dead_trees;
+
 			objX += width / 2;
 			objY += height / 2;
-			EnvElement* e = new EnvElement("shaders/environment/lowpolypine.obj", &projection, &view, shaderProgram, &eyePos,
-				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(randomRotateDegree), width, glm::vec3(0.2f, 0.2f, 0.2f));
+			EnvElement* e = new EnvElement(deadTreeStringPaths[randomTreeIndex], &projection, &view, shaderProgram, &eyePos,
+				glm::vec3(objX, 7.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(randomRotateDegree), width * 3, &materialManager, glm::vec3(0.2f, 0.2f, 0.2f));
 			table.insert(e);
 
 		// gray ==  Rock
@@ -244,24 +293,32 @@ void Window::initMap() {
 	} 
 }
 
-void Window::initCharacters() {
+void Window::initCharacters(GLFWwindow * window) {
 
 	// Initialize character objects before the screen loads.
 	playerTypeToCharacterMap[FIGHTER] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, satTextureShader,
 		glm::vec3(0.f, 2.f, 0.f), 
-		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/FIGHTER"));	
+		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/FIGHTER"));			
 	playerTypeToCharacterMap[MAGE] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, satTextureShader,
 		glm::vec3(0.f, 2.f, 0.f), 
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MAGE"));	
+
+	shuffleLoadingScreen(window);
+
 	playerTypeToCharacterMap[CLERIC] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, satTextureShader,
 		glm::vec3(0.f, 2.f, 0.f), 
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/CLERIC"));	
 	playerTypeToCharacterMap[ROGUE] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, satTextureShader,
 		glm::vec3(0.f, 2.f, 0.f), 
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/ROGUE"));
+	
+	shuffleLoadingScreen(window);
+
+
 	playerTypeToCharacterMap[MONSTER] = (new Character("shaders/character/monster_billboard.obj", &projection, &view, &eyePos, satTextureShader,
 		glm::vec3(0.f, 2.f, 0.f), 
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MONSTER"));
+
 	
 	// Load animations
 	// playerTypeToCharacterMap[FIGHTER]->loadAnimationAssets("shaders/character/FIGHTER");
@@ -275,6 +332,11 @@ void Window::initCharacters() {
 	chars[3] = playerTypeToCharacterMap[MONSTER];
 	chars[3]->moveTo(glm::vec3(SPAWN_POSITIONS[3][0], 1.5f, SPAWN_POSITIONS[3][1]));
 	chars[3]->setSaturationLevel(0.1f);
+}
+
+void Window::shuffleLoadingScreen(GLFWwindow * window) {
+	guiManager->loadingScreen->nextScreen();
+	displayCallback(window);
 }
 
 void Window::initSelectScreenElements() {
@@ -318,15 +380,34 @@ void Window::cleanUp()
 	glDeleteProgram(shaderProgram);
 }
 
-GLFWwindow* Window::createWindow(int width, int height)
+GLFWwindow* Window::createWindow(int width, int height, AudioProgram* audioProgram)
 {
 	if (!glfwInit())
 	{
 		std::cerr << "Failed to initialize GLFW" << std::endl;
 		return NULL;
 	}
-	glfwWindowHint(GLFW_SAMPLES, 4);
-	GLFWwindow* window = glfwCreateWindow(width, height, windowTitle, NULL, NULL);
+	
+	// Old windowed mode
+	// glfwWindowHint(GLFW_SAMPLES, 4);
+	// GLFWwindow* window = glfwCreateWindow(width, height, windowTitle, NULL, NULL);
+	
+	// Fullscreen mode
+	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+ 
+	glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+	glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+	glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+	glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+	
+	GLFWwindow* window = glfwCreateWindow(mode->width, mode->height, windowTitle, primaryMonitor, NULL);
+	width = mode->width;
+	height = mode->height;
+
+	// Disables the cursor
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 	// Check if the window could not be created.
 	if (!window)
 	{
@@ -352,16 +433,15 @@ GLFWwindow* Window::createWindow(int width, int height)
 	client = new CommunicationClient();
 
 	// setup audio program
-	audioProgram = new AudioProgram();
+	Window::audioProgram = audioProgram;
 	audioProgram->setMusicVolume(0.55);
 
 
 	// Display once to show splash screen, then we can deal with connecting window.
-	audioProgram->playAudioWithLooping(TITLE_MUSIC);
+	// Commenting out bc the music is played at title music.
+	// audioProgram->playAudioWithLooping(TITLE_MUSIC);
 	guiManager->setLoadingScreenVisible(true);
 	Window::displayCallback(window);
-	guiManager->setConnectingScreenVisible(true);
-	guiManager->setSplashScreenVisible(true); 
 
 	// Set swap interval to 1 if you want buffer 
 	glfwSwapInterval(0);
@@ -450,6 +530,10 @@ void Window::idleCallback()
 		}
 	}
 
+	// update cursor position relative to player
+	if(gameStarted) {
+		cursor->pos = clientChar->pos + glm::vec3(cursorOffsetX, 0, cursorOffsetY);
+	}
 	guiManager->updateHUDPositions();
 }
 
@@ -517,7 +601,13 @@ void Window::displayCallback(GLFWwindow* window)
 
 		}
 
-	}
+		// Draw cursor
+		if(clientChar->getState() != spectating) {
+			glClear(GL_DEPTH_BUFFER_BIT);
+			cursor->draw();
+		}
+
+	} 
 
 	Window::guiManager->draw();
 
@@ -535,6 +625,7 @@ void Window::displayCallback(GLFWwindow* window)
 	#endif
 		doneInitialRender = true;
 	}
+	
 }
 
 
@@ -544,9 +635,11 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	if (action == GLFW_PRESS)
 	{
 		keyboard[key] = true;
-		if (!guiManager->connectingScreen->hasConnectedToServer && !gameEnded) {
+		if (!guiManager->inGameMenu->isVisible && !guiManager->connectingScreen->hasConnectedToServer && !gameEnded) {
 			guiManager->connectingScreen->handleKeyInput(key, window);
 		}
+
+		guiManager->inGameMenu->handleKeyInput(key, window);
 
 		if(key == GLFW_KEY_M) {
 			audioProgram->toggleMute();
@@ -593,28 +686,153 @@ void Window::mouse_scroll_callback(GLFWwindow* window, double xoffset, double yo
 	}
 }
 
+
 void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 
-	int maxDelta = 100;
-	int dx = glm::clamp((int)currX - MouseX, -maxDelta, maxDelta);
-	int dy = glm::clamp(-((int)currY - MouseY), -maxDelta, maxDelta);
+	if(gameStarted) {
+		int maxDelta = 100;
+		int dx = glm::clamp((int)currX - MouseX, -maxDelta, maxDelta);
+		int dy = glm::clamp(-((int)currY - MouseY), -maxDelta, maxDelta);
 
-	MouseX = (int)currX;
-	MouseY = (int)currY;
+		float zoomFactor = cameraOffset.y / MAX_CAMERA_Y_OFFSET; // smaller = more zoomed in.
 
-	float dx2 = width / 2 - MouseX;
-	float dy2 = MouseY - height / 2;
-	float dx1 = 0;
-	float dy1 = 1;
-	float dot = dx1*dx2 + dy1*dy2;      // dot product
-	float det = dx1*dy2 - dy1*dx2;      // determinant
-	lastAngle = atan2(det, dot) - M_PI / 2;  // atan2(y, x) or atan2(sin, cos)
+		// float minWidth = -width / 50.0 * zoomFactor;
+		// float maxWidth = width / 50.0 * zoomFactor;
+		// float minHeight = -height / 50.0 * zoomFactor;
+		// float maxHeight = height / 100.0 * zoomFactor; // max height smaller bc of our camera angle
 
+		// float floatDx = (float) dx / 25.0;
+		// float floatDy = (float) -dy / 25.0;
+
+		// cursorOffsetX = glm::clamp(cursorOffsetX + floatDx, minWidth, maxWidth);
+		// cursorOffsetY = glm::clamp(cursorOffsetY + floatDy, minHeight, maxHeight);
+		// printf("%f, %f, %f, %f\n", minWidth, maxWidth, minHeight, maxHeight);
+		// printf("%f, %f\n", cursorOffsetX, cursorOffsetY);
+
+		currX = glm::clamp(currX, 0.0, (double)width);
+		currY = glm::clamp(currY, 0.0, (double)height);
+
+		MouseX = (int)currX;
+		MouseY = (int)currY;
+
+		float dx2 = width / 2 - MouseX;
+		float dy2 = MouseY - height / 2;
+
+		// printf("%f, %f, \n", dx2, dy2);
+
+		// Preprocessing: If cursor is near the end of the screen, we would want to angle it towards the center to offset the weird ground.
+		// if((dy >= 1 || dy <= -1) ) {
+		// 	float rotationAngle = atan(abs(dx2 / width) / 1.0f);
+		// 	dx2 = tan(rotationAngle) * dy2;
+		// }
+
+		// If the cursor is not at the bounds, do some offset.
+		if(!(dy2 >= width / 2 - 100|| dy2 <= -width / 2 + 100)) {
+			dx2 -= dy * 1.5;
+		}
+
+
+
+		float dx1 = 0;
+		float dy1 = 1;
+		float dot = dx1*dx2 + dy1*dy2;      // dot product
+		float det = dx1*dy2 - dy1*dx2;      // determinant
+		lastAngle = atan2(det, dot) - M_PI / 2;  // atan2(y, x) or atan2(sin, cos)
+		// printf("Original: %f\n", lastAngle);
+		float distanceCursorFromPlayer = 7.f * zoomFactor;
+
+		// basically highest distance is about ~2202 (1920x1080)
+		distanceCursorFromPlayer *= sqrt(pow(abs(dx2),2) + pow(abs(dy2), 2)) / (width / 7.5);
+
+		cursorOffsetX =  cos(lastAngle) * distanceCursorFromPlayer;
+		cursorOffsetY = -sin(lastAngle) * distanceCursorFromPlayer;
+
+		// Bound the offset such that it can't go below the camera or above the view of the camera
+		cursorOffsetY = glm::clamp(cursorOffsetY, -MAX_CAMERA_Z_OFFSET, eyePos.z);
+
+		// Bound the offset such that it can't go past -10 or 10 
+		cursorOffsetX = glm::clamp(cursorOffsetX, -30.f * zoomFactor, 30.f * zoomFactor);
+
+		// Scale Matrix
+		cursor->setScale(zoomFactor * 1.5f);
+
+		// vec3 windowPoint = vec3(dx2 + width / 2, dy2 + height / 2, 0);
+		// GLfloat matrix[16]; 
+		// glGetFloatv (GL_MODELVIEW_MATRIX, matrix); 
+		// mat4 modelView = glm::make_mat4x4(matrix);
+		// vec4 viewPort = glm::vec4(0,0,width,height);
+		// mat4 projectioncopy = mat4(projection);
+		// vec3 unprojection = glm::unProject(windowPoint, modelView, projectioncopy, viewPort);
+		// cout << unprojection.x << " " << unprojection.y << " " << unprojection.z << endl;
+		// lastAngle = atan(unprojection.y, unprojection.x) - M_PI;  // atan2(y, x) or atan2(sin, cos)
+		// printf("Unprojection: %f\n", lastAngle);
+
+
+		// vec3 original = eyePos + glm::vec3(-dx2/ 10.0, 0, -dy2 / 10.0);
+
+		// mat4 model = translate(mat4(1.0f), vec3(0.0f, 0.0f, -10.0f));
+		// vec4 viewport(0.0f, 0.0f, width, height);
+
+		// vec3 projected = glm::project(original, model, projection, viewport);
+		// vec3 unprojected = glm::unProject(projected, model, projection, viewport);
+
+		// cout << original.x << " " << original.y << " " << original.z << endl;
+		// cout << projected.x << " " << projected.y << " " << projected.z << endl;
+		// cout << unprojected.x << " " << unprojected.y << " " << unprojected.z << endl;
+		
+		// lastAngle = atan(unprojected.z - clientChar->pos.z,  unprojected.x - clientChar->pos.x);
+		// cursorOffsetX = unprojected.x - clientChar->pos.x;
+		// cursorOffsetY = unprojected.z - clientChar->pos.z;
+		// printf("%f\n", lastAngle);
+
+				
+		// these positions must be in range [-1, 1] (!!!), not [0, width] and [0, height]
+		// float mouseX = (-dx2) / (width  * 0.5f);
+		// float mouseY = (dy2) / (height * 0.5f);
+		// printf("%f, %f\n", mouseX, mouseY);
+
+		// glm::mat4 invVP = glm::inverse(projection * view);
+		// glm::vec4 screenPos = glm::vec4(mouseX, -mouseY, 1.0f, 1.0f);
+		// glm::vec4 worldPos = invVP * screenPos;
+
+		// glm::vec3 rayDirection = glm::normalize(glm::vec3(worldPos));
+
+
+		// // Values you might be interested:
+		// glm::vec3 cameraPosition = eyePos; // some camera position, this is supplied by you
+		// glm::vec3 rayStartPosition = cameraPosition;
+		// glm::vec3 rayEndPosition = rayStartPosition + rayDirection * glm::distance(clientChar->pos, eyePos);
+
+		// while(rayEndPosition.y > 0) {
+		// 	rayEndPosition += rayDirection;
+		// }
+		
+		// printf("%f, %f, %f\n", rayEndPosition.x, rayEndPosition.y, rayEndPosition.z);
+
+		// printf("Old: %f\n", lastAngle);
+		// lastAngle = -atan(rayEndPosition.z - clientChar->pos.z,  rayEndPosition.x - clientChar->pos.x);
+
+		// printf("New: %f\n", lastAngle);
+
+
+
+	}
+	
+	
 	if (LeftDown) {
 		return;
 	}
 	if (RightDown) {
 		return;
+	}
+}
+
+
+void Window::focus_callback(GLFWwindow* window, int focused) {
+	if(focused) {
+		glfwRestoreWindow(window);
+	} else {
+		glfwHideWindow(window);
 	}
 }
 
