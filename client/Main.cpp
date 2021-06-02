@@ -93,6 +93,10 @@ int main(int argc, char* argv[])
 		Sleep(5);
 	}
 
+	Window::cleanUp();
+	// Destroy the window.
+	glfwDestroyWindow(titleWindow);
+
 
 	// Create the GLFW window.
 	GLFWwindow* window = Window::createWindow(800, 600, audioProgram);
