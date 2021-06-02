@@ -123,7 +123,7 @@ bool Window::initializeObjects(GLFWwindow* window)
 
 	#ifdef RENDER_MAP
 	printf("=======================================\nIt will take a while for the game to launch, please wait.\n");
-	initMap();
+	initMap(window);
 	#endif
 
 
@@ -148,18 +148,21 @@ bool Window::initializeObjects(GLFWwindow* window)
 	//  ==========  End of Character Initialization ========== 
 
 
+	guiManager->setConnectingScreenVisible(true);
+	guiManager->setSplashScreenVisible(true); 
 	guiManager->setSplashLoaded(true);
 	guiManager->setLoadingScreenVisible(false);
 	return true;
 }
 
-void Window::initMap() {
+void Window::initMap(GLFWwindow * window) {
 	cout << "initing map" << endl;
 	//for now tileScale should be tileSize / 2.0
 	ground = new Ground("shaders/environment/ground.obj", &projection, &view, groundShader,
 		"shaders/environment/dry_grass_red_3x3.png", "shaders/environment/cracked_tile_texture_3x3.png", 3.0f);
 
 	ifstream map_file("../assets/layout/map_client.csv");
+	ifstream temp_file("../assets/layout/map_client.csv");
     string line;
     string id;
 
@@ -178,7 +181,19 @@ void Window::initMap() {
 		
 	};
 
+	int line_count = 0;
+	while(getline(temp_file, line)) {
+		line_count++;
+	}
+
+	int count = 0;
     while(getline(map_file, line)) {
+		count++;
+		// Shuffle loading screen every 500 objects
+		if(count % 1250 == 0) {
+			shuffleLoadingScreen(window);
+		}
+
         istringstream ss(line);
         string field;
 
@@ -279,24 +294,27 @@ void Window::initCharacters(GLFWwindow * window) {
 	// Initialize character objects before the screen loads.
 	playerTypeToCharacterMap[FIGHTER] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, satTextureShader,
 		glm::vec3(0.f, 2.f, 0.f), 
-		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/FIGHTER"));	
-	displayCallback(window);
+		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/FIGHTER"));			
 	playerTypeToCharacterMap[MAGE] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, satTextureShader,
 		glm::vec3(0.f, 2.f, 0.f), 
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MAGE"));	
-	displayCallback(window);
+
+	shuffleLoadingScreen(window);
+
 	playerTypeToCharacterMap[CLERIC] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, satTextureShader,
 		glm::vec3(0.f, 2.f, 0.f), 
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/CLERIC"));	
-	displayCallback(window);
 	playerTypeToCharacterMap[ROGUE] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, satTextureShader,
 		glm::vec3(0.f, 2.f, 0.f), 
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/ROGUE"));
-	displayCallback(window);
+	
+	shuffleLoadingScreen(window);
+
+
 	playerTypeToCharacterMap[MONSTER] = (new Character("shaders/character/monster_billboard.obj", &projection, &view, &eyePos, satTextureShader,
 		glm::vec3(0.f, 2.f, 0.f), 
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MONSTER"));
-	displayCallback(window);
+
 	
 	// Load animations
 	// playerTypeToCharacterMap[FIGHTER]->loadAnimationAssets("shaders/character/FIGHTER");
@@ -310,6 +328,11 @@ void Window::initCharacters(GLFWwindow * window) {
 	chars[3] = playerTypeToCharacterMap[MONSTER];
 	chars[3]->moveTo(glm::vec3(SPAWN_POSITIONS[3][0], 1.5f, SPAWN_POSITIONS[3][1]));
 	chars[3]->setSaturationLevel(0.1f);
+}
+
+void Window::shuffleLoadingScreen(GLFWwindow * window) {
+	guiManager->loadingScreen->nextScreen();
+	displayCallback(window);
 }
 
 void Window::initSelectScreenElements() {
@@ -353,7 +376,7 @@ void Window::cleanUp()
 	glDeleteProgram(shaderProgram);
 }
 
-GLFWwindow* Window::createWindow(int width, int height)
+GLFWwindow* Window::createWindow(int width, int height, AudioProgram* audioProgram)
 {
 	if (!glfwInit())
 	{
@@ -406,16 +429,15 @@ GLFWwindow* Window::createWindow(int width, int height)
 	client = new CommunicationClient();
 
 	// setup audio program
-	audioProgram = new AudioProgram();
+	Window::audioProgram = audioProgram;
 	audioProgram->setMusicVolume(0.55);
 
 
 	// Display once to show splash screen, then we can deal with connecting window.
-	audioProgram->playAudioWithLooping(TITLE_MUSIC);
+	// Commenting out bc the music is played at title music.
+	// audioProgram->playAudioWithLooping(TITLE_MUSIC);
 	guiManager->setLoadingScreenVisible(true);
 	Window::displayCallback(window);
-	guiManager->setConnectingScreenVisible(true);
-	guiManager->setSplashScreenVisible(true); 
 
 	// Set swap interval to 1 if you want buffer 
 	glfwSwapInterval(0);
@@ -581,7 +603,7 @@ void Window::displayCallback(GLFWwindow* window)
 			cursor->draw();
 		}
 
-	}
+	} 
 
 	Window::guiManager->draw();
 
@@ -689,7 +711,7 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 		float dx2 = width / 2 - MouseX;
 		float dy2 = MouseY - height / 2;
 
-		printf("%f, %f, \n", dx2, dy2);
+		// printf("%f, %f, \n", dx2, dy2);
 
 		// Preprocessing: If cursor is near the end of the screen, we would want to angle it towards the center to offset the weird ground.
 		// if((dy >= 1 || dy <= -1) ) {

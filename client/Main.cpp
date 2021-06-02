@@ -61,9 +61,41 @@ void print_versions()
  */
 int main(int argc, char* argv[])
 {
+	// There can only be one audio program, hence its initialization here and not in createWindow
+	AudioProgram* audioProgram = new AudioProgram();
+
+	// Title Screen:
+	GLFWwindow* titleWindow = TitleWindow::createWindow(800, 600, audioProgram);
+
+	if (!titleWindow) exit(EXIT_FAILURE);
+
+	// Title Screen callbacks
+	// Set the window resize callback.
+	glfwSetWindowSizeCallback(titleWindow, TitleWindow::resizeCallback);
+
+	// Set the key callback.
+	glfwSetKeyCallback(titleWindow, TitleWindow::keyCallback);
+
+	// Set the mouse and cursor callbacks
+	glfwSetMouseButtonCallback(titleWindow, TitleWindow::mouse_callback);
+	glfwSetCursorPosCallback(titleWindow, TitleWindow::cursor_callback);
+
+	TitleWindow::initializeObjects(titleWindow);
+	// Loop while title screen stays open
+	while (!glfwWindowShouldClose(titleWindow))
+	{
+		// Idle callback. Updating objects, etc. can be done here.
+		TitleWindow::idleCallback();
+
+		// Main render display callback. Rendering of objects is done here.
+		TitleWindow::displayCallback(titleWindow);
+
+		Sleep(5);
+	}
+
 
 	// Create the GLFW window.
-	GLFWwindow* window = Window::createWindow(800, 600);
+	GLFWwindow* window = Window::createWindow(800, 600, audioProgram);
 
 	if (!window) exit(EXIT_FAILURE);
 
@@ -74,10 +106,14 @@ int main(int argc, char* argv[])
 	// Setup OpenGL settings.
 	setup_opengl_settings();
 
-	auto start = std::chrono::steady_clock::now();
 
 	// Initialize the shader program; exit if initialization fails.
 	if (!Window::initializeProgram()) exit(EXIT_FAILURE);
+
+
+	auto start = std::chrono::steady_clock::now();
+
+	// Initialize the objects in the map
 	if (!Window::initializeObjects(window)) exit(EXIT_FAILURE);
 
 	auto duration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - start).count();

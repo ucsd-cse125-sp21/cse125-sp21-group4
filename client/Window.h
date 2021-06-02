@@ -5,7 +5,7 @@
 #define MOUSE_SIZE 2
 #define MOUSE_LEFT_INDEX 0
 #define MOUSE_RIGHT_INDEX 1
-// #define SERVER_ENABLED
+#define SERVER_ENABLED
 #define RENDER_MAP
 #define _USE_MATH_DEFINES
 #define SPATIAL_HASH_SEARCH_DISTANCE 20.0
@@ -117,7 +117,7 @@ public:
 	static void cleanUp();
 
 	// for the Window
-	static GLFWwindow* createWindow(int width, int height);
+	static GLFWwindow* createWindow(int width, int height, AudioProgram* audioProgram);
 	static void resizeCallback(GLFWwindow* window, int width, int height);
 
 	// update and draw functions
@@ -155,12 +155,14 @@ public:
 	static void Window::checkNearObjectiveText(ObjElement*);
 
 	static void Window::initCharacters(GLFWwindow*);
-	static void Window::initMap();
+	static void Window::initMap(GLFWwindow *);
 	static void Window::initSelectScreenElements();
 
 	static void Window::endGame();
 
 	static void Window::handleSpectateRequest(GameUpdate update);
+
+	static void shuffleLoadingScreen(GLFWwindow *);
 
 };
 

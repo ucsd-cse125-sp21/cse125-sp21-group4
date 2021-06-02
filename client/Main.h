@@ -10,10 +10,12 @@
 #include <chrono>
 
 #include "Window.h"
+#include "TitleWindow.h"
 
 #include "CommunicationClient.h"
 #include "../common/networking/CommunicationConstants.h"
 #include "../common/networking/GameState.h"
+#include "AudioProgram.h"
 
 using namespace std;
 using namespace glm;

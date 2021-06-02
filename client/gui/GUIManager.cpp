@@ -32,6 +32,7 @@ GUIManager::GUIManager(int width, int height, int fbWidth, int fbHeight) {
 	endScreen = new EndScreen(vg);
 	splashScreen = new SplashScreen(vg);
 	loadingScreen = new LoadingScreen(vg);
+	titleScreen = new TitleScreen(vg);
 	
 	// Will be initialized later
 	for (int i = 0; i < NUM_COOLDOWNS; i++) {
@@ -57,6 +58,7 @@ void GUIManager::draw() {
 	loadingScreen->draw(this->windowWidth, this->windowHeight);
 	connectingScreen->draw(this->windowWidth, this->windowHeight);
 	endScreen->draw(this->windowWidth, this->windowHeight);
+	titleScreen->draw(this->windowWidth, this->windowHeight);
 
 	nvgEndFrame(vg);
 }

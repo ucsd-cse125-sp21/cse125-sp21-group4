@@ -160,6 +160,7 @@
     <ClCompile Include="gui\SelectScreen.cpp" />
     <ClCompile Include="gui\ConnectingScreen.cpp" />
     <ClCompile Include="gui\SplashScreen.cpp" />
+    <ClCompile Include="gui\TitleScreen.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MaterialManager.cpp" />
     <ClCompile Include="nanovg\nanovg.c" />
@@ -168,6 +169,7 @@
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ProjectileElement.cpp" />
     <ClCompile Include="SpatialHashTable.cpp" />
+    <ClCompile Include="TitleWindow.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -231,6 +233,7 @@
     <ClInclude Include="gui\SelectScreen.h" />
     <ClInclude Include="gui\ConnectingScreen.h" />
     <ClInclude Include="gui\SplashScreen.h" />
+    <ClInclude Include="gui\TitleScreen.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="MaterialManager.h" />
     <ClInclude Include="nanovg\fontstash.h" />
@@ -246,6 +249,7 @@
     <ClInclude Include="SpatialHashTable.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="tinyobjloader\tiny_obj_loader.h" />
+    <ClInclude Include="TitleWindow.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
