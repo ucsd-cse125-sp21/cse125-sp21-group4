@@ -291,3 +291,7 @@ bool Cursor::loadTexture(char* texturePath) {
 	fclose(f);
 	return true;
 }
+
+void Cursor::setScale(float scale) {
+	scaleMtx = glm::scale(glm::vec3(scale));
+}

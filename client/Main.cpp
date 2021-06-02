@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
 
 	// Initialize the shader program; exit if initialization fails.
 	if (!Window::initializeProgram()) exit(EXIT_FAILURE);
-	if (!Window::initializeObjects()) exit(EXIT_FAILURE);
+	if (!Window::initializeObjects(window)) exit(EXIT_FAILURE);
 
 	auto duration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - start).count();
 

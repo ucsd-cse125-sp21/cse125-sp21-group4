@@ -47,6 +47,7 @@ public:
 	void update();
 	void updateView(glm::mat4, glm::vec3);
 	bool loadTexture(char* texturePath);
+	void setScale(float);
 };
 
 #endif

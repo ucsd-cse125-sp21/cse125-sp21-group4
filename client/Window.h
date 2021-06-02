@@ -5,7 +5,7 @@
 #define MOUSE_SIZE 2
 #define MOUSE_LEFT_INDEX 0
 #define MOUSE_RIGHT_INDEX 1
-//#define SERVER_ENABLED
+// #define SERVER_ENABLED
 #define RENDER_MAP
 #define _USE_MATH_DEFINES
 #define SPATIAL_HASH_SEARCH_DISTANCE 20.0
@@ -113,7 +113,7 @@ public:
 	// Act as Constructors and desctructors 
 	static bool initializeProgram();
 	//static bool initializeObjects(char * file, char* file1, char* file2);
-	static bool initializeObjects();
+	static bool initializeObjects(GLFWwindow*);
 	static void cleanUp();
 
 	// for the Window
@@ -154,7 +154,7 @@ public:
 	// Used to determine which objective should tell the user to do something
 	static void Window::checkNearObjectiveText(ObjElement*);
 
-	static void Window::initCharacters();
+	static void Window::initCharacters(GLFWwindow*);
 	static void Window::initMap();
 	static void Window::initSelectScreenElements();
 

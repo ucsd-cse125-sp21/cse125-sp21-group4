@@ -102,7 +102,7 @@ initialize all the objects
 which need (fileName, projection matrix, view matrix , shader id, translation vector, 
 rotation axis, rotation in radian, scale factor in float, model color)
 */
-bool Window::initializeObjects()
+bool Window::initializeObjects(GLFWwindow* window)
 {
 	//  ==========  Select Screen  ========== 
 	initSelectScreenElements();
@@ -115,6 +115,11 @@ bool Window::initializeObjects()
 	// envs.push_back(new EnvElement("shaders/environment/ground.obj", &projection, &view, shaderProgram,
 	// 	glm::vec3(0.f, -1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f, glm::vec3(0.f, 1.f, 0.f)));
 
+	//  ======= init cursor ======== //
+	cursor = new Cursor("shaders/character/billboard.obj", &projection, &view, texShader, &eyePos, vec3(0,1.0f,0),  glm::vec3(1.f,0,0), glm::radians(0.f), 1.f, glm::vec3(0,0,0), "shaders/hud_elements/cursor2.png");
+	cursorOffsetX = 0.f;
+	cursorOffsetY = 0.f;
+	// ====== end cursor init ====== //
 
 	#ifdef RENDER_MAP
 	printf("=======================================\nIt will take a while for the game to launch, please wait.\n");
@@ -138,15 +143,10 @@ bool Window::initializeObjects()
 	#endif
 	/* ===== end of #ifndef (no-server client) code ==== */
 
-	initCharacters();
+	initCharacters(window);
 
 	//  ==========  End of Character Initialization ========== 
 
-	//  ======= init cursor ======== //
-	cursor = new Cursor("shaders/character/billboard.obj", &projection, &view, texShader, &eyePos, vec3(0,1.0f,0),  glm::vec3(1.f,0,0), glm::radians(0.f), 1.f, glm::vec3(0,0,0), "shaders/hud_elements/cursor2.png");
-	cursorOffsetX = 0.f;
-	cursorOffsetY = 0.f;
-	// ====== end cursor init ====== //
 
 	guiManager->setSplashLoaded(true);
 	guiManager->setLoadingScreenVisible(false);
@@ -274,24 +274,29 @@ void Window::initMap() {
 	} 
 }
 
-void Window::initCharacters() {
+void Window::initCharacters(GLFWwindow * window) {
 
 	// Initialize character objects before the screen loads.
 	playerTypeToCharacterMap[FIGHTER] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, satTextureShader,
 		glm::vec3(0.f, 2.f, 0.f), 
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/FIGHTER"));	
+	displayCallback(window);
 	playerTypeToCharacterMap[MAGE] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, satTextureShader,
 		glm::vec3(0.f, 2.f, 0.f), 
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MAGE"));	
+	displayCallback(window);
 	playerTypeToCharacterMap[CLERIC] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, satTextureShader,
 		glm::vec3(0.f, 2.f, 0.f), 
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/CLERIC"));	
+	displayCallback(window);
 	playerTypeToCharacterMap[ROGUE] = (new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, satTextureShader,
 		glm::vec3(0.f, 2.f, 0.f), 
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/ROGUE"));
+	displayCallback(window);
 	playerTypeToCharacterMap[MONSTER] = (new Character("shaders/character/monster_billboard.obj", &projection, &view, &eyePos, satTextureShader,
 		glm::vec3(0.f, 2.f, 0.f), 
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MONSTER"));
+	displayCallback(window);
 	
 	// Load animations
 	// playerTypeToCharacterMap[FIGHTER]->loadAnimationAssets("shaders/character/FIGHTER");
@@ -653,7 +658,6 @@ void Window::mouse_scroll_callback(GLFWwindow* window, double xoffset, double yo
 }
 
 
-
 void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 
 	if(gameStarted) {
@@ -676,12 +680,30 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 		// printf("%f, %f, %f, %f\n", minWidth, maxWidth, minHeight, maxHeight);
 		// printf("%f, %f\n", cursorOffsetX, cursorOffsetY);
 
+		currX = glm::clamp(currX, 0.0, (double)width);
+		currY = glm::clamp(currY, 0.0, (double)height);
 
 		MouseX = (int)currX;
 		MouseY = (int)currY;
 
 		float dx2 = width / 2 - MouseX;
 		float dy2 = MouseY - height / 2;
+
+		printf("%f, %f, \n", dx2, dy2);
+
+		// Preprocessing: If cursor is near the end of the screen, we would want to angle it towards the center to offset the weird ground.
+		// if((dy >= 1 || dy <= -1) ) {
+		// 	float rotationAngle = atan(abs(dx2 / width) / 1.0f);
+		// 	dx2 = tan(rotationAngle) * dy2;
+		// }
+
+		// If the cursor is not at the bounds, do some offset.
+		if(!(dy2 >= width / 2 - 100|| dy2 <= -width / 2 + 100)) {
+			dx2 -= dy * 1.5;
+		}
+
+
+
 		float dx1 = 0;
 		float dy1 = 1;
 		float dot = dx1*dx2 + dy1*dy2;      // dot product
@@ -695,6 +717,15 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 
 		cursorOffsetX =  cos(lastAngle) * distanceCursorFromPlayer;
 		cursorOffsetY = -sin(lastAngle) * distanceCursorFromPlayer;
+
+		// Bound the offset such that it can't go below the camera or above the view of the camera
+		cursorOffsetY = glm::clamp(cursorOffsetY, -MAX_CAMERA_Z_OFFSET, eyePos.z);
+
+		// Bound the offset such that it can't go past -10 or 10 
+		cursorOffsetX = glm::clamp(cursorOffsetX, -30.f * zoomFactor, 30.f * zoomFactor);
+
+		// Scale Matrix
+		cursor->setScale(zoomFactor * 1.5f);
 
 		// vec3 windowPoint = vec3(dx2 + width / 2, dy2 + height / 2, 0);
 		// GLfloat matrix[16]; 
@@ -724,6 +755,38 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 		// cursorOffsetX = unprojected.x - clientChar->pos.x;
 		// cursorOffsetY = unprojected.z - clientChar->pos.z;
 		// printf("%f\n", lastAngle);
+
+				
+		// these positions must be in range [-1, 1] (!!!), not [0, width] and [0, height]
+		// float mouseX = (-dx2) / (width  * 0.5f);
+		// float mouseY = (dy2) / (height * 0.5f);
+		// printf("%f, %f\n", mouseX, mouseY);
+
+		// glm::mat4 invVP = glm::inverse(projection * view);
+		// glm::vec4 screenPos = glm::vec4(mouseX, -mouseY, 1.0f, 1.0f);
+		// glm::vec4 worldPos = invVP * screenPos;
+
+		// glm::vec3 rayDirection = glm::normalize(glm::vec3(worldPos));
+
+
+		// // Values you might be interested:
+		// glm::vec3 cameraPosition = eyePos; // some camera position, this is supplied by you
+		// glm::vec3 rayStartPosition = cameraPosition;
+		// glm::vec3 rayEndPosition = rayStartPosition + rayDirection * glm::distance(clientChar->pos, eyePos);
+
+		// while(rayEndPosition.y > 0) {
+		// 	rayEndPosition += rayDirection;
+		// }
+		
+		// printf("%f, %f, %f\n", rayEndPosition.x, rayEndPosition.y, rayEndPosition.z);
+
+		// printf("Old: %f\n", lastAngle);
+		// lastAngle = -atan(rayEndPosition.z - clientChar->pos.z,  rayEndPosition.x - clientChar->pos.x);
+
+		// printf("New: %f\n", lastAngle);
+
+
+
 	}
 	
 	
