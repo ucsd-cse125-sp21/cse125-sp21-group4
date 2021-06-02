@@ -140,6 +140,13 @@ bool Window::initializeObjects(GLFWwindow* window)
 	clientChar = chars[0];
 	Window::gameStarted = true;
 	guiManager->healthBar->flashHealthBar();
+	
+	
+	
+	EnvElement* env = new EnvElement("shaders/objectives/beacon.obj", &projection, &view, phongTexShader, &eyePos,
+		glm::vec3(247.f, 10.f, 308.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 2.f , &materialManager,  glm::vec3(1.f, 1.f, 1.f)); 
+	table.insert(env);
+
 	#endif
 	/* ===== end of #ifndef (no-server client) code ==== */
 
@@ -1495,7 +1502,7 @@ void Window::checkNearObjectiveText(ObjElement* obj) {
 	ObjectiveType objType = obj->getObjType();
 	Restriction restriction = obj->getRestrictionType();
 
-	// For restricted objectives
+	// For objectives that are obtainable
 	if((playerJob == MONSTER && restriction == R_MONSTER) || (playerJob != MONSTER && restriction == R_HUNTER) || (restriction == R_NEUTRAL)) {
 		switch(objType) {
 			case HEAL:
@@ -1527,6 +1534,34 @@ void Window::checkNearObjectiveText(ObjElement* obj) {
 					guiManager->beaconBar->captureAmount < HUNTER_BEACON_CAPTURE_THRESHOLD && 
 					glm::distance(obj->pos, clientChar->pos) < BEACON_INTERACTION_RANGE) {
 					guiManager->drawCenterText(std::string("Capturing beacon..."), width, height);
+				}
+				break;
+			default:
+				break;
+		}
+	}
+
+	// For objectives that aren't for you.
+	else {
+		switch(objType) {
+			case HEAL:
+
+				if(glm::distance(obj->pos, clientChar->pos) < HEALING_INTERACTION_RANGE) {
+					// nvg draw text to interact with
+					guiManager->drawCenterText(std::string("This Health pickup is for the other team."), width, height);
+					
+				}
+				break;
+			case EVO:
+				if(glm::distance(obj->pos, clientChar->pos) < EVO_INTERACTION_RANGE) {
+					// nvg draw text to interact with
+					guiManager->drawCenterText(std::string("This Mirror Shard is for the other team."), width, height);
+				}
+				break;
+			case ARMOR:
+				if(glm::distance(obj->pos, clientChar->pos) < ARMOR_INTERACTION_RANGE) {
+					// nvg draw text to interact with
+					guiManager->drawCenterText(std::string("This Armor is for the other team."), width, height);
 				}
 				break;
 			default:
