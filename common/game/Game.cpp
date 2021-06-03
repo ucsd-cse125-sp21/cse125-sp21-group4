@@ -796,10 +796,17 @@ void Game::updateBeacon() {
 void Game::updateSafeRegion () {
     auto currentTime = std::chrono::steady_clock::now();
     std::chrono::duration<float> duration = currentTime - lastSafeRegionShrinkTime;
-    if (std::chrono::duration_cast<std::chrono::seconds>(duration).count() 
-                                            > SAFE_REGION_DEC_TIME) {
+
+    // if safe region hasn't appeared yet
+    if (safeRegionRadius < 0 && std::chrono::duration_cast<std::chrono::seconds>(duration).count() > SAFE_REGION_FIRST_SPAWN_TIME) {
         shrinkSafeRegion();
         lastSafeRegionShrinkTime = currentTime;
+
+    } else if (safeRegionRadius > 0 && std::chrono::duration_cast<std::chrono::seconds>(duration).count() > SAFE_REGION_DAMAGE_TIME) {
+        shrinkSafeRegion();
+        lastSafeRegionShrinkTime = currentTime;
+    } else {
+        return;
     }
 
     duration = currentTime - lastSafeRegionAttackTime;
@@ -897,12 +904,15 @@ void Game::attackPlayersOutsideSafeRegion () {
 
         // if a player is outside of safeRegion, it will be attacked by the system
         if (sqrt(distanceSqr) > safeRegionRadius) {
-            players[i]->hpDecrement(SAFE_REGION_DAMAGE);
+            float damage = 0;
+            if (players[i]->getType() == MONSTER) damage = SAFE_REGION_MONSTER_DAMAGE;
+            else damage = SAFE_REGION_HUNTER_DAMAGE;
+            players[i]->hpDecrement(damage);
             // queue this update to be send to other players
             GameUpdate gameUpdate;
             gameUpdate.updateType = PLAYER_DAMAGE_TAKEN;
             gameUpdate.id = i;
-            gameUpdate.damageTaken = SAFE_REGION_DAMAGE;
+            gameUpdate.damageTaken = damage;
             addUpdate(gameUpdate);
         }
     }
