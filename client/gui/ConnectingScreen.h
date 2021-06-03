@@ -6,6 +6,9 @@
 #include <GLFW/glfw3.h>
 #include <string>
 
+#define NUM_CONNECTING_IMAGES 2
+
+
 class ConnectingScreen {
 
 public:
@@ -14,6 +17,11 @@ public:
     bool hasConnectedToServer; // tells if they've established connection
     bool connecting; // tells if the screen is trying to connect.
     std::string inputtedText;
+
+    
+    int image [NUM_CONNECTING_IMAGES];
+    int imgWidth [NUM_CONNECTING_IMAGES]; 
+    int imgHeight [NUM_CONNECTING_IMAGES];
     
     ConnectingScreen(NVGcontext* vg);
     void draw(float windowWidth, float windowHeight);

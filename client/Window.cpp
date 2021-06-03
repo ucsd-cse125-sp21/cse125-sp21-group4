@@ -458,7 +458,9 @@ GLFWwindow* Window::createWindow(int width, int height, AudioProgram* audioProgr
 
 	// setup audio program
 	Window::audioProgram = audioProgram;
-	audioProgram->setMusicVolume(0.55);
+	
+	// Should be set in TitleWindow
+	// audioProgram->setMusicVolume(0.55);
 
 
 	// Display once to show splash screen, then we can deal with connecting window.
