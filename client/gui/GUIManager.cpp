@@ -47,7 +47,7 @@ void GUIManager::draw() {
 	nvgBeginFrame(vg, this->windowWidth, this->windowHeight, this->pixelRatio);
 	// starter code window: this->drawWindow("Test", 50, 50, this->windowWidth / 4, this->windowHeight / 4);
 	healthBar->draw(30, 14.5 * this->windowHeight / 16, this->windowWidth / 2.5, this->windowHeight / 16);
-	beaconBar->draw(this->windowWidth / 2 - (this->windowWidth / 2.5) / 2, this->windowHeight / 16, this->windowWidth / 2.5, this->windowHeight / 16);
+	beaconBar->draw(this->windowWidth / 2 - (this->windowWidth / 2.5) / 2, this->windowHeight / 14, this->windowWidth / 2.5, this->windowHeight / 16);
 	evoBar->draw(30, 13.5 * this->windowHeight / 16, this->windowWidth / 2.5, this->windowHeight / 16);
 	for(int i = 0; i < NUM_COOLDOWNS; i++) {
 		if(cooldownIcons[i] != nullptr) {

@@ -189,7 +189,7 @@ void Window::initMap(GLFWwindow * window) {
 	const int num_live_trees = 2;
 	const int num_dead_trees = 4;
 	string liveTreeStringPaths[num_live_trees] = {"shaders/environment/lowpolypine.obj",
-								 "shaders/environment/lowpolypine.obj"
+								 "shaders/environment/lowpolypinegreen.obj"
 								};
 	string deadTreeStringPaths[num_dead_trees] = {
 								"shaders/environment/lowpolydeadtree.obj",
@@ -465,7 +465,7 @@ GLFWwindow* Window::createWindow(int width, int height, AudioProgram* audioProgr
 	/* ===== THIS #ifndef CODE IS ONLY FOR NON-CONNECTED CLIENTS TO IMPROVE GRAPHICS DEVELOPMENT ==== */
 #ifndef SERVER_ENABLED // Client-only (no server)	
 	guiManager->setConnectingScreenVisible(false);
-	guiManager->beaconBar->setAmount(18.f);
+	guiManager->beaconBar->setAmount(-18.f);
 	guiManager->evoBar->setEvo(2.65f);
 	guiManager->setSelectScreenVisible(false);
 	guiManager->setGameEndVisible(false);
