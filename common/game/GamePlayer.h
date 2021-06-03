@@ -86,7 +86,7 @@ public:
     void move (Game* game, Direction direction); 
     virtual void attack (Game* game, float angle);
     virtual void uniqueAttack (Game* game, float angle);
-    void hpDecrement (int damage);
+    virtual void hpDecrement (int damage, bool fromSystem);
     void hpIncrement (int heal);
     void interactHeal (Game* game, Heal* heal);
     void interactArmor (Game* game, Armor* armor);

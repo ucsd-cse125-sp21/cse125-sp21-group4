@@ -1,6 +1,8 @@
 #include "Fighter.h"
 #include "Game.h"
 
+using namespace std;
+
 Fighter::Fighter() { 
     setType(FIGHTER); // Fighter type game component
     setHp(FIGHTER_MAX_HP); // init full health
@@ -8,6 +10,7 @@ Fighter::Fighter() {
     setAttackDamage(FIGHTER_ATTACK_DAMAGE);
     setAcceleration(FIGHTER_ACCELERATION);
     setMaxSpeed(FIGHTER_MAX_SPEED);
+    setShieldOn(false);
 }
 
 Fighter::Fighter(PlayerPosition position) : GamePlayer(position) {
@@ -17,7 +20,24 @@ Fighter::Fighter(PlayerPosition position) : GamePlayer(position) {
     setAttackDamage(FIGHTER_ATTACK_DAMAGE);
     setAcceleration(FIGHTER_ACCELERATION);
     setMaxSpeed(FIGHTER_MAX_SPEED);
+    setShieldOn(false);
 }
+
+void Fighter::hpDecrement (int damage, bool fromSystem) {
+    // if shield is on, fighter cannot be attacked by the monster
+    if (getShieldOn() && !fromSystem) return;
+    if (hp == 0) return;
+
+    hp = std::max(0, hp - damage);
+    if (hp == 0) {
+        deathTime = std::chrono::steady_clock::now();
+    }
+}
+
+bool Fighter::getShieldOn () { return shieldOn; }
+
+void Fighter::setShieldOn (bool newShieldOn)  { shieldOn = newShieldOn; }
+
 
 /*
     Fighter's attack function
@@ -94,7 +114,7 @@ void Fighter::attack(Game* game, float angle) {
         if (p1ULY >= p2BRY || p2ULY >= p1BRY) continue;
 
         if (canAttack(game->players[i])) {
-            game->players[i]->hpDecrement(attackDamage);
+            game->players[i]->hpDecrement(attackDamage, false);
             // cancel all the prescheduled damage overtime
             std::vector<GameEvent*> newEvents;
             for (auto iter = game->events.begin(); iter != game->events.end(); iter++) {
@@ -134,6 +154,38 @@ void Fighter::attack(Game* game, float angle) {
     attackUpdate.roleClaimed = FIGHTER;
     game->addUpdate(attackUpdate);
 }
+
+
+void Fighter::uniqueAttack(Game* game, float angle) {
+    std::vector<GameEvent*> newEvents;
+    for (auto iter = game->events.begin(); iter != game->events.end(); iter++) {
+        GameEvent* event = *iter;
+        if (event->ownerID == getID() && event->targetID == getID() && event->type == TAKE_FIGHTER_SHIELD_DOWN) delete event;
+        else newEvents.push_back(event);
+    }   
+    game->events = newEvents;   
+
+    // if shield is already up, no need send update to client, simply delay the down time
+    // if shield is not up, send update to client, and calculate down time
+    if (!getShieldOn()) {
+        setShieldOn(true);
+        // Send an update to the clients: PLAYER_UNIQUE_ATTACK
+        GameUpdate update;
+        update.updateType = FIGHTER_SHIELD_UP;
+        update.id = this->id;                      
+        game->addUpdate(update);
+    }
+
+    GameEvent* event = new GameEvent();
+    event->type = TAKE_FIGHTER_SHIELD_DOWN;
+    event->ownerID = getID();
+    event->targetID = getID();
+    event->time = std::chrono::steady_clock::now() + std::chrono::milliseconds(FIGHTER_SHIELD_HOLD_TIME);
+    game->events.push_back(event);
+}
+
+
+
 
 void Fighter::interact(Game* game) {
     // Go through each objective and check if it's within a range

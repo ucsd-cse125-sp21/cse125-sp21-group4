@@ -597,7 +597,27 @@ bool projectileIsCollidingEnemy (Projectile* p, Game* game) {
             // projectile will cause effect
             if (p->type == MAGE_FIREBALL) {
                 otherPlayer->slowDown(FIREBALL_SPEED_DEC);
-
+                // restrict player's max speed
+                switch (otherPlayer->getType())
+                {
+                    case MONSTER:
+                        otherPlayer->setMaxSpeed(MONSTER_MAX_SPEED / 2);
+                        break;
+                    case FIGHTER:
+                        otherPlayer->setMaxSpeed(FIGHTER_MAX_SPEED / 2);
+                        break;
+                    case MAGE:
+                        otherPlayer->setMaxSpeed(MAGE_MAX_SPEED / 2);
+                        break;
+                    case CLERIC:
+                        otherPlayer->setMaxSpeed(CLERIC_MAX_SPEED / 2);
+                        break;
+                    case ROGUE:
+                        otherPlayer->setMaxSpeed(ROGUE_MAX_SPEED / 2);
+                        break;                
+                    default:
+                        break;
+                }
                 // create an event to add the speed back later
                 GameEvent* event = new GameEvent();
                 event->type = SPEED_CHANGE;
@@ -624,8 +644,11 @@ bool projectileIsCollidingEnemy (Projectile* p, Game* game) {
             }
             // projectile will only cause damage 
             else {
-                otherPlayer->hpDecrement(p->damage);
+                otherPlayer->hpDecrement(p->damage, false);
 
+                // if fighter's shield is on, it cannot be damaged by other players
+                if (otherPlayer->getType() == FIGHTER && ((Fighter*) otherPlayer)->getShieldOn())
+                    continue;
                 // queue this update to be send to other players
                 GameUpdate gameUpdate;
                 gameUpdate.updateType = PLAYER_DAMAGE_TAKEN;
@@ -796,10 +819,17 @@ void Game::updateBeacon() {
 void Game::updateSafeRegion () {
     auto currentTime = std::chrono::steady_clock::now();
     std::chrono::duration<float> duration = currentTime - lastSafeRegionShrinkTime;
-    if (std::chrono::duration_cast<std::chrono::seconds>(duration).count() 
-                                            > SAFE_REGION_DEC_TIME) {
+
+    // if safe region hasn't appeared yet
+    if (safeRegionRadius < 0 && std::chrono::duration_cast<std::chrono::seconds>(duration).count() > SAFE_REGION_FIRST_SPAWN_TIME) {
         shrinkSafeRegion();
         lastSafeRegionShrinkTime = currentTime;
+
+    } else if (safeRegionRadius > 0 && std::chrono::duration_cast<std::chrono::seconds>(duration).count() > SAFE_REGION_DAMAGE_TIME) {
+        shrinkSafeRegion();
+        lastSafeRegionShrinkTime = currentTime;
+    } else {
+        return;
     }
 
     duration = currentTime - lastSafeRegionAttackTime;
@@ -897,12 +927,15 @@ void Game::attackPlayersOutsideSafeRegion () {
 
         // if a player is outside of safeRegion, it will be attacked by the system
         if (sqrt(distanceSqr) > safeRegionRadius) {
-            players[i]->hpDecrement(SAFE_REGION_DAMAGE);
+            float damage = 0;
+            if (players[i]->getType() == MONSTER) damage = SAFE_REGION_MONSTER_DAMAGE;
+            else damage = SAFE_REGION_HUNTER_DAMAGE;
+            players[i]->hpDecrement(damage, true);
             // queue this update to be send to other players
             GameUpdate gameUpdate;
             gameUpdate.updateType = PLAYER_DAMAGE_TAKEN;
             gameUpdate.id = i;
-            gameUpdate.damageTaken = SAFE_REGION_DAMAGE;
+            gameUpdate.damageTaken = damage;
             addUpdate(gameUpdate);
         }
     }
@@ -914,7 +947,7 @@ void Game::processEvent (GameEvent* event) {
     switch (event->type)
     {
         case HP_DEC: {
-                players[event->targetID]->hpDecrement(event->amount);
+                players[event->targetID]->hpDecrement(event->amount, false);
                 // queue this update to be send to other players
                 GameUpdate gameUpdate;
                 gameUpdate.updateType = PLAYER_DAMAGE_TAKEN;
@@ -926,11 +959,42 @@ void Game::processEvent (GameEvent* event) {
         case SPEED_CHANGE:
             players[event->targetID]->speedChange(event->amount);
             break;
+        case TAKE_FIGHTER_SHIELD_DOWN: {
+                if (players[event->ownerID]->getType() != FIGHTER) break;
+                ((Fighter*) players[event->ownerID])->setShieldOn(false);
+                GameUpdate update;
+                update.updateType = FIGHTER_SHIELD_DOWN;
+                update.id = event->ownerID;                      
+                addUpdate(update);
+                break;
+            }
         case FIREBALL_END: {
                 GameUpdate gameUpdate;
                 gameUpdate.updateType = RECOVER_FROM_MAGE_FIREBALL;
                 gameUpdate.id = event->targetID;
                 addUpdate(gameUpdate);
+
+                // reset player's max speed
+                switch (players[event->targetID]->getType())
+                {
+                    case MONSTER:
+                        players[event->targetID]->setMaxSpeed(MONSTER_MAX_SPEED);
+                        break;
+                    case FIGHTER:
+                        players[event->targetID]->setMaxSpeed(FIGHTER_MAX_SPEED);
+                        break;
+                    case MAGE:
+                        players[event->targetID]->setMaxSpeed(MAGE_MAX_SPEED);
+                        break;
+                    case CLERIC:
+                        players[event->targetID]->setMaxSpeed(CLERIC_MAX_SPEED);
+                        break;
+                    case ROGUE:
+                        players[event->targetID]->setMaxSpeed(ROGUE_MAX_SPEED);
+                        break;                
+                    default:
+                        break;
+                }
                 break;
             }
         case HEAL_END: {
@@ -1092,7 +1156,7 @@ void Game::handleUpdates(std::vector<GameUpdate> updates) {
 void Game::handleUpdate(GameUpdate update) {
     switch(update.updateType) {
         case PLAYER_DAMAGE_TAKEN:
-            players[update.id]->hpDecrement(update.damageTaken);
+            players[update.id]->hpDecrement(update.damageTaken, false);
             break;
         case PLAYER_HP_INCREMENT:
             players[update.id]->hpIncrement(update.healAmount);

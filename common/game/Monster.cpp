@@ -1,4 +1,5 @@
 #include "Monster.h"
+#include "Fighter.h"
 #include "Game.h"
 
 
@@ -122,7 +123,7 @@ void Monster::uniqueAttack(Game* game, float angle) {
         if (p1ULY >= p2BRY || p2ULY >= p1BRY) continue;
 
         if (canAttack(game->players[i])) {
-            game->players[i]->hpDecrement(attackDamage);
+            game->players[i]->hpDecrement(attackDamage, false);
             // cancel all the prescheduled damage overtime
             std::vector<GameEvent*> newEvents;
             for (auto iter = game->events.begin(); iter != game->events.end(); iter++) {
@@ -132,6 +133,7 @@ void Monster::uniqueAttack(Game* game, float angle) {
             }   
             game->events = newEvents;    
 
+            if (game->players[i]->getType() == FIGHTER && ((Fighter *) game->players[i])->getShieldOn()) continue;
             // queue this update to be send to other players
             GameUpdate gameUpdate;
             gameUpdate.updateType = PLAYER_DAMAGE_TAKEN;

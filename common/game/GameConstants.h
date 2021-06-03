@@ -14,11 +14,13 @@
 #define SAFE_REGION_X 250
 #define SAFE_REGION_Y 300
 #define SAFE_REGION_START_RADIUS 250 
-#define SAFE_REGION_RADIUS_DEC 100
+#define SAFE_REGION_FIRST_SPAWN_TIME 120 // safe region appears after 2 minutes
+#define SAFE_REGION_RADIUS_DEC 10
 #define SAFE_REGION_MIN_RADIUS 100.0
-#define SAFE_REGION_DEC_TIME 120 // circle shrinks every 2 minutes 120s = 2min
-#define SAFE_REGION_DAMAGE_TIME 10 // system will attack players outside of safe region every 10 seconds
-#define SAFE_REGION_DAMAGE 10 
+#define SAFE_REGION_DEC_TIME 10 // circle shrinks every 2 minutes 120s = 2min
+#define SAFE_REGION_DAMAGE_TIME 5 // system will attack players outside of safe region every 10 seconds
+#define SAFE_REGION_HUNTER_DAMAGE 2 
+#define SAFE_REGION_MONSTER_DAMAGE 10
 
 // Tile IDs
 #define SPACE_ID 0
@@ -119,6 +121,7 @@
 // 2 damages over 4 seconds. Timer resets on the next hit
 #define FIGHTER_OVERTIME_DAMAGE_INTERVAL 2000 // 2000ms = 2s
 #define FIGHTER_OVERTIME_DAMAGE_NUM 2
+#define FIGHTER_SHIELD_HOLD_TIME 500 // 500ms = 0.5
 // ------------------------------------------------------
 #define FIREBALL_SPEED_DEC 0.5 // decrease the speed by  0.5 unit per tick
 #define FIREBALL_EFFECT_TIME 3000 // 3s = 3000ms
