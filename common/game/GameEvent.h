@@ -6,6 +6,7 @@ enum EventType {
     FIREBALL_END,
     HEAL_END,
     GAME_START,
+    TAKE_FIGHTER_SHIELD_DOWN,
 };
 
 class GameEvent {
