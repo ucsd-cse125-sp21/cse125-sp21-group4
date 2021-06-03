@@ -597,7 +597,27 @@ bool projectileIsCollidingEnemy (Projectile* p, Game* game) {
             // projectile will cause effect
             if (p->type == MAGE_FIREBALL) {
                 otherPlayer->slowDown(FIREBALL_SPEED_DEC);
-
+                // restrict player's max speed
+                switch (otherPlayer->getType())
+                {
+                    case MONSTER:
+                        otherPlayer->setMaxSpeed(MONSTER_MAX_SPEED / 2);
+                        break;
+                    case FIGHTER:
+                        otherPlayer->setMaxSpeed(FIGHTER_MAX_SPEED / 2);
+                        break;
+                    case MAGE:
+                        otherPlayer->setMaxSpeed(MAGE_MAX_SPEED / 2);
+                        break;
+                    case CLERIC:
+                        otherPlayer->setMaxSpeed(CLERIC_MAX_SPEED / 2);
+                        break;
+                    case ROGUE:
+                        otherPlayer->setMaxSpeed(ROGUE_MAX_SPEED / 2);
+                        break;                
+                    default:
+                        break;
+                }
                 // create an event to add the speed back later
                 GameEvent* event = new GameEvent();
                 event->type = SPEED_CHANGE;
@@ -941,6 +961,28 @@ void Game::processEvent (GameEvent* event) {
                 gameUpdate.updateType = RECOVER_FROM_MAGE_FIREBALL;
                 gameUpdate.id = event->targetID;
                 addUpdate(gameUpdate);
+
+                // reset player's max speed
+                switch (players[event->targetID]->getType())
+                {
+                    case MONSTER:
+                        players[event->targetID]->setMaxSpeed(MONSTER_MAX_SPEED);
+                        break;
+                    case FIGHTER:
+                        players[event->targetID]->setMaxSpeed(FIGHTER_MAX_SPEED);
+                        break;
+                    case MAGE:
+                        players[event->targetID]->setMaxSpeed(MAGE_MAX_SPEED);
+                        break;
+                    case CLERIC:
+                        players[event->targetID]->setMaxSpeed(CLERIC_MAX_SPEED);
+                        break;
+                    case ROGUE:
+                        players[event->targetID]->setMaxSpeed(ROGUE_MAX_SPEED);
+                        break;                
+                    default:
+                        break;
+                }
                 break;
             }
         case HEAL_END: {
