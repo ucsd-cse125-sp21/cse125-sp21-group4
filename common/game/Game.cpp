@@ -602,6 +602,7 @@ bool projectileIsCollidingEnemy (Projectile* p, Game* game) {
                 {
                     case MONSTER:
                         otherPlayer->setMaxSpeed(MONSTER_MAX_SPEED / 2);
+                        ((Monster*) otherPlayer)->setFire(true);
                         break;
                     case FIGHTER:
                         otherPlayer->setMaxSpeed(FIGHTER_MAX_SPEED / 2);
@@ -958,6 +959,12 @@ void Game::processEvent (GameEvent* event) {
             break;
         case SPEED_CHANGE:
             players[event->targetID]->speedChange(event->amount);
+            if(players[event->targetID]->getType() == MONSTER) {
+                Monster* monsterPlayer = (Monster*)players[event->targetID];
+                if(monsterPlayer->isOnFire()) {
+                    monsterPlayer->setFire(false);
+                }
+            }
             break;
         case TAKE_FIGHTER_SHIELD_DOWN: {
                 if (players[event->ownerID]->getType() != FIGHTER) break;

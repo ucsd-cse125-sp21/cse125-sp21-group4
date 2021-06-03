@@ -12,6 +12,7 @@ Monster::Monster() {
     clientSideEvo = evo;
     setAcceleration(MONSTER_ACCELERATION);
     setMaxSpeed(MONSTER_MAX_SPEED);
+    onFire = false;
 }
 
 Monster::Monster(PlayerPosition position) : GamePlayer(position){
@@ -23,6 +24,7 @@ Monster::Monster(PlayerPosition position) : GamePlayer(position){
     clientSideEvo = evo;
     setAcceleration(MONSTER_ACCELERATION);
     setMaxSpeed(MONSTER_MAX_SPEED);
+    onFire = false;
 }
 
 // monster ranged attack
@@ -157,19 +159,29 @@ void Monster::updateEvo(Game* game, float evoLevel) {
     // For now update the attack damage of the monster, maybe speed another time?
     if (evoLevel >= MONSTER_FIFTH_STAGE_THRESHOLD) {
         setAttackDamage(MONSTER_ATTACK_DAMAGE + 5);
-        setMaxSpeed(MONSTER_MAX_SPEED + 0.25);
+        if(!onFire) {
+            setMaxSpeed(MONSTER_MAX_SPEED + 0.25);
+        } 
     } else if (evoLevel >= MONSTER_FOURTH_STAGE_THRESHOLD) {
         setAttackDamage(MONSTER_ATTACK_DAMAGE + 4);
-        setMaxSpeed(MONSTER_MAX_SPEED + 0.2);
+        if(!onFire) {
+            setMaxSpeed(MONSTER_MAX_SPEED + 0.2);
+        } 
     } else if (evoLevel >= MONSTER_THIRD_STAGE_THRESHOLD) {
         setAttackDamage(MONSTER_ATTACK_DAMAGE + 3);
-        setMaxSpeed(MONSTER_MAX_SPEED + 0.15);
+        if(!onFire) {
+            setMaxSpeed(MONSTER_MAX_SPEED + 0.15);
+        } 
     } else if (evoLevel >= MONSTER_SECOND_STAGE_THRESHOLD) {
         setAttackDamage(MONSTER_ATTACK_DAMAGE + 2);
-        setMaxSpeed(MONSTER_MAX_SPEED + 0.1);
+        if(!onFire) {
+            setMaxSpeed(MONSTER_MAX_SPEED + 0.1);
+        } 
     } else if (evoLevel >= MONSTER_FIRST_STAGE_THRESHOLD) {
         setAttackDamage(MONSTER_ATTACK_DAMAGE + 1);
-        setMaxSpeed(MONSTER_MAX_SPEED + 0.05);
+        if(!onFire) {
+            setMaxSpeed(MONSTER_MAX_SPEED + 0.05);
+        } 
     
     // Start counting from zero.
     } else if (evoLevel >= 0.f) {
@@ -252,4 +264,12 @@ void Monster::interact(Game* game) {
             return;
         }
     }
+}
+
+void Monster::setFire(bool onFire) {
+    this->onFire = onFire;
+}
+
+bool Monster::isOnFire() {
+    return this->onFire;
 }

@@ -20,7 +20,7 @@ void setup_callbacks(GLFWwindow* window)
 	glfwSetMouseButtonCallback(window, Window::mouse_callback);
 	glfwSetCursorPosCallback(window, Window::cursor_callback);
 	glfwSetScrollCallback(window, Window::mouse_scroll_callback);
-	glfwSetWindowFocusCallback(window, Window::focus_callback);
+	// glfwSetWindowFocusCallback(window, Window::focus_callback);
 }
 
 void setup_opengl_settings()
