@@ -446,7 +446,7 @@ void EnvElement::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
 	int sum = 0;
 	if(hasMaterial) {
 		for(int i = 1; i < materialSize.size(); i++) {
-			if (i < materials.size()) {
+			if (i - 1 < materials.size()) {
 				glUniform3fv(glGetUniformLocation(shader, "viewPos"), 1, glm::value_ptr(*eyep));
 				glUniform3fv(glGetUniformLocation(shader, "ambientColor"), 1, glm::value_ptr(materials[i-1].diffuse));
 				glUniform3fv(glGetUniformLocation(shader, "diffuseFactor"), 1, glm::value_ptr(materials[i-1].diffuse));
