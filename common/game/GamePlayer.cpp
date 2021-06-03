@@ -413,7 +413,7 @@ void GamePlayer::move (Game* game, Direction direction) {
 }
 
 
-void GamePlayer::hpDecrement (int damage) {
+void GamePlayer::hpDecrement (int damage, bool fromSystem) {
     if (hp == 0) return;
     hp = std::max(0, hp - damage);
     if (hp == 0) {

@@ -121,6 +121,7 @@
 // 2 damages over 4 seconds. Timer resets on the next hit
 #define FIGHTER_OVERTIME_DAMAGE_INTERVAL 2000 // 2000ms = 2s
 #define FIGHTER_OVERTIME_DAMAGE_NUM 2
+#define FIGHTER_SHIELD_HOLD_TIME 500 // 500ms = 0.5
 // ------------------------------------------------------
 #define FIREBALL_SPEED_DEC 0.5 // decrease the speed by  0.5 unit per tick
 #define FIREBALL_EFFECT_TIME 3000 // 3s = 3000ms

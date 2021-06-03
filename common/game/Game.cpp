@@ -644,8 +644,11 @@ bool projectileIsCollidingEnemy (Projectile* p, Game* game) {
             }
             // projectile will only cause damage 
             else {
-                otherPlayer->hpDecrement(p->damage);
+                otherPlayer->hpDecrement(p->damage, false);
 
+                // if fighter's shield is on, it cannot be damaged by other players
+                if (otherPlayer->getType() == FIGHTER && ((Fighter*) otherPlayer)->getShieldOn())
+                    continue;
                 // queue this update to be send to other players
                 GameUpdate gameUpdate;
                 gameUpdate.updateType = PLAYER_DAMAGE_TAKEN;
@@ -927,7 +930,7 @@ void Game::attackPlayersOutsideSafeRegion () {
             float damage = 0;
             if (players[i]->getType() == MONSTER) damage = SAFE_REGION_MONSTER_DAMAGE;
             else damage = SAFE_REGION_HUNTER_DAMAGE;
-            players[i]->hpDecrement(damage);
+            players[i]->hpDecrement(damage, true);
             // queue this update to be send to other players
             GameUpdate gameUpdate;
             gameUpdate.updateType = PLAYER_DAMAGE_TAKEN;
@@ -944,7 +947,7 @@ void Game::processEvent (GameEvent* event) {
     switch (event->type)
     {
         case HP_DEC: {
-                players[event->targetID]->hpDecrement(event->amount);
+                players[event->targetID]->hpDecrement(event->amount, false);
                 // queue this update to be send to other players
                 GameUpdate gameUpdate;
                 gameUpdate.updateType = PLAYER_DAMAGE_TAKEN;
@@ -956,6 +959,15 @@ void Game::processEvent (GameEvent* event) {
         case SPEED_CHANGE:
             players[event->targetID]->speedChange(event->amount);
             break;
+        case TAKE_FIGHTER_SHIELD_DOWN: {
+                if (players[event->ownerID]->getType() != FIGHTER) break;
+                ((Fighter*) players[event->ownerID])->setShieldOn(false);
+                GameUpdate update;
+                update.updateType = FIGHTER_SHIELD_DOWN;
+                update.id = event->ownerID;                      
+                addUpdate(update);
+                break;
+            }
         case FIREBALL_END: {
                 GameUpdate gameUpdate;
                 gameUpdate.updateType = RECOVER_FROM_MAGE_FIREBALL;
@@ -1144,7 +1156,7 @@ void Game::handleUpdates(std::vector<GameUpdate> updates) {
 void Game::handleUpdate(GameUpdate update) {
     switch(update.updateType) {
         case PLAYER_DAMAGE_TAKEN:
-            players[update.id]->hpDecrement(update.damageTaken);
+            players[update.id]->hpDecrement(update.damageTaken, false);
             break;
         case PLAYER_HP_INCREMENT:
             players[update.id]->hpIncrement(update.healAmount);

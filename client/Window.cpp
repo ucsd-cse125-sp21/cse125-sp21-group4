@@ -1056,6 +1056,16 @@ void Window::handleUpdate(GameUpdate update) {
 		case HEAL_BY_CLERIC_END:
 			chars[update.id]->setGreenSaturationLevel(1.f);
 			break;
+		case FIGHTER_SHIELD_UP:
+			printf("window: shield up\n");
+			chars[update.id]->setGreenSaturationLevel(3.f);
+			chars[update.id]->setRedSaturationLevel(3.f);
+			break;
+		case FIGHTER_SHIELD_DOWN:
+			printf("window: shield down\n");
+			chars[update.id]->setGreenSaturationLevel(1.f);
+			chars[update.id]->setRedSaturationLevel(1.f);
+			break;
 		case PLAYER_DEAD:
 			printf("process player's dead signal duolan");
 			chars[update.id]->setTransparentAlpha(.3f);
@@ -1369,11 +1379,11 @@ void Window::updateLastInput() {
 			}
 			audioProgram->playAudioWithoutLooping(SELECT_SOUND);
 		}
+	} else if (mouse[MOUSE_RIGHT_INDEX]) {
+		lastInput = RIGHT_MOUSE_ATTACK;
 	} else if (mouse[MOUSE_LEFT_INDEX]) {
 		lastInput = LEFT_MOUSE_ATTACK;
 
-	} else if (mouse[MOUSE_RIGHT_INDEX]) {
-		lastInput = RIGHT_MOUSE_ATTACK;
 	}
 
 	/* ===== THIS #ifndef CODE IS ONLY FOR NON-CONNECTED CLIENTS TO IMPROVE GRAPHICS DEVELOPMENT ==== */
