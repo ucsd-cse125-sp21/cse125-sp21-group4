@@ -69,6 +69,7 @@ std::chrono::steady_clock::time_point lastCombatMusicPlayTime;
 
 // Material Manager
 MaterialManager Window::materialManager;
+steady_clock::time_point Window::endTime;
 
 
 bool Window::initializeProgram() {
@@ -675,13 +676,18 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		}
 		
 		if (gameEnded) {
-			gameEnded = false;
-			guiManager->setConnectingScreenVisible(true);
-			guiManager->setSplashScreenVisible(true);
-			guiManager->setGameEndVisible(false);
+			// has enough time passed for delay?
+			auto duration = duration_cast<milliseconds>(steady_clock::now() - endTime);
+			if(duration.count() > END_GAME_DELAY_INPUT) {
 
-			audioProgram->stopAllAudio();
-			audioProgram->playAudioWithLooping(TITLE_MUSIC);
+				gameEnded = false;
+				guiManager->setConnectingScreenVisible(true);
+				guiManager->setSplashScreenVisible(true);
+				guiManager->setGameEndVisible(false);
+
+				audioProgram->stopAllAudio();
+				audioProgram->playAudioWithLooping(TITLE_MUSIC);
+			}
 		}
 
 	 // Check for a key release.
@@ -1553,6 +1559,8 @@ void Window::endGame() {
 	chars[3]->moveTo(glm::vec3(SPAWN_POSITIONS[3][0], 1.5f, SPAWN_POSITIONS[3][1]));
 
 	gameEnded = true;
+	endTime = steady_clock::now();
+	guiManager->endScreen->setEndTime(endTime);
 }
 
 void Window::checkNearObjectiveText(ObjElement* obj) {

@@ -20,6 +20,7 @@
 #define MAX_CAMERA_Y_OFFSET 20.f
 #define MAX_CAMERA_Z_OFFSET 16.f
 
+
 #include "Main.h"
 #include "shader.h"
 #include "Character.h"
@@ -44,7 +45,7 @@
 #include <unordered_map>
 #include <iostream>
 #include <cmath>
-
+#include <chrono>
 
 class Window
 {
@@ -107,6 +108,7 @@ public:
 	static bool gameStarted;
 	static bool doneInitialRender;
 	static bool gameEnded;
+	static steady_clock::time_point endTime;
 
 	// GUI Manager (HUD)
 	static GUIManager* guiManager;
