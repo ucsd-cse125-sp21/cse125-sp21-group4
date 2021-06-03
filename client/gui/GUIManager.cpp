@@ -34,7 +34,8 @@ GUIManager::GUIManager(int width, int height, int fbWidth, int fbHeight) {
 	loadingScreen = new LoadingScreen(vg);
 	titleScreen = new TitleScreen(vg);
 	inGameMenu = new InGameMenu(vg);
-	
+	monsterStageText = new MonsterStageText(vg);
+
 	// Will be initialized later
 	for (int i = 0; i < NUM_COOLDOWNS; i++) {
 		cooldownIcons[i] = nullptr;
@@ -54,6 +55,7 @@ void GUIManager::draw() {
 		}
 	}
 	miniMap->draw(this->windowWidth - (MAP_WIDTH / 2), this->windowHeight - (MAP_HEIGHT / 2), (MAP_WIDTH / 2), (MAP_HEIGHT / 2));
+	monsterStageText->draw(this->windowWidth, this->windowHeight);
 	selectScreen->draw(this->windowWidth, this->windowHeight);
 	splashScreen->draw(this->windowWidth, this->windowHeight);
 	loadingScreen->draw(this->windowWidth, this->windowHeight);

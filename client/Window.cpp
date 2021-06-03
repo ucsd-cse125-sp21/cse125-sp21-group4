@@ -27,7 +27,8 @@ Character* Window::clientChar;
 
 // Interaction Variables
 bool LeftDown, RightDown;
-int MouseX, MouseY;
+int prevX = 0, prevY = 0;
+int MouseX = 0, MouseY = 0;
 
 // Cursor
 Cursor* Window::cursor;
@@ -150,7 +151,9 @@ bool Window::initializeObjects(GLFWwindow* window)
 	#endif
 	/* ===== end of #ifndef (no-server client) code ==== */
 
+	#ifdef RENDER_CHARACTERS
 	initCharacters(window);
+	#endif
 
 	//  ==========  End of Character Initialization ========== 
 
@@ -158,10 +161,15 @@ bool Window::initializeObjects(GLFWwindow* window)
 	guiManager->setConnectingScreenVisible(true);
 	guiManager->setSplashScreenVisible(true); 
 	guiManager->setSplashLoaded(true);
+
+	// AFTER all initobjects
 	#ifndef SERVER_ENABLED
 	guiManager->setConnectingScreenVisible(false);
 	guiManager->setSplashScreenVisible(false); 
+	guiManager->monsterStageText->setVisible(true);
+	guiManager->monsterStageText->flashMonsterEvolveEvent(2);
 	#endif
+	guiManager->monsterStageText->setVisible(true);
 	guiManager->setLoadingScreenVisible(false);
 	return true;
 }
@@ -339,6 +347,7 @@ void Window::initCharacters(GLFWwindow * window) {
 	chars[3] = playerTypeToCharacterMap[MONSTER];
 	chars[3]->moveTo(glm::vec3(SPAWN_POSITIONS[3][0], 1.5f, SPAWN_POSITIONS[3][1]));
 	chars[3]->setSaturationLevel(0.1f);
+	chars[3]->setHp(MONSTER_MAX_HP);
 }
 
 void Window::shuffleLoadingScreen(GLFWwindow * window) {
@@ -617,28 +626,7 @@ void Window::displayCallback(GLFWwindow* window)
 
 		// Checks if the hunter is near another dead hunter
 		if(client->getId() != 3 && clientChar->getState() != spectating) {
-			for(int i = 0; i < PLAYER_NUM - 1; i++) {
-				if(i == client->getId()) continue;
-
-				if (chars[i] == nullptr) continue;
-
-				// If the other player's hp is <= 0, we can revive them.
-				if (chars[i]->getHp() <= 0 && glm::distance(clientChar->pos, chars[i]->pos) <= REVIVE_DISTANCE) {
-					time_t currTime = clock();
-					float deathTimeDiff = (float) (currTime - chars[i]->getDeathTime()) / CLOCKS_PER_SEC * 1000;
-					
-					// Revivable
-					if(deathTimeDiff > REVIVE_TIME_INTERVAL) {
-						std::string revivalText = "Press F to revive Player " + std::to_string(i);
-						guiManager->drawCenterText(revivalText, width, height);
-
-					// not revivable
-					} else {
-						std::string revivalText = "Wait " + std::to_string(deathTimeDiff / 1000) + " before reviving Player " + std::to_string(i);
-						guiManager->drawCenterText(revivalText, width, height);
-					}
-				}
-			}
+			checkNearDeadHunter();
 		}
 
 	} 
@@ -725,9 +713,8 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 
 	if(gameStarted) {
 		int maxDelta = 100;
-		int dx = glm::clamp((int)currX - MouseX, -maxDelta, maxDelta);
-		int dy = glm::clamp(-((int)currY - MouseY), -maxDelta, maxDelta);
-
+		int dx = glm::clamp((int)currX - prevX, -maxDelta, maxDelta);
+		int dy = glm::clamp(-((int)currY - prevY), -maxDelta, maxDelta);
 		float zoomFactor = cameraOffset.y / MAX_CAMERA_Y_OFFSET; // smaller = more zoomed in.
 
 		// float minWidth = -width / 50.0 * zoomFactor;
@@ -743,14 +730,21 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 		// printf("%f, %f, %f, %f\n", minWidth, maxWidth, minHeight, maxHeight);
 		// printf("%f, %f\n", cursorOffsetX, cursorOffsetY);
 
-		currX = glm::clamp(currX, 0.0, (double)width);
-		currY = glm::clamp(currY, 0.0, (double)height);
+		// currX = glm::clamp(currX, 0.0, (double)width);
+		// currY = glm::clamp(currY, 0.0, (double)height);
 
-		MouseX = (int)currX;
-		MouseY = (int)currY;
+
+		printf("dx: %d, dy: %d, \n", dx, dy);
+
+		prevX = (int)currX;
+		prevY = (int)currY;
+		MouseX = glm::clamp(MouseX + dx, 0, width);
+		MouseY = glm::clamp(MouseY - dy, 0, height);
+
 
 		float dx2 = width / 2 - MouseX;
 		float dy2 = MouseY - height / 2;
+
 
 		// printf("%f, %f, \n", dx2, dy2);
 
@@ -1138,10 +1132,16 @@ void Window::handleUpdate(GameUpdate update) {
 		case PLAYER_PREV_SPECT:
 			printf("Calling handleSpectateRequest\n");
 			handleSpectateRequest(update);
+			break;
 
 		case MONSTER_EVO_UP:
 			if(abs((int)update.newEvoLevel - (int)guiManager->evoBar->evoLevel) >= 1 && update.newEvoLevel <= MONSTER_FIFTH_STAGE_THRESHOLD) {
+				update.newEvoLevel = std::fmin(4.9f, update.newEvoLevel);
+				// printf("Monster Saturation Level: %f\n", update.newEvoLevel / MONSTER_FIFTH_STAGE_THRESHOLD);
 				chars[3]->setSaturationLevel(update.newEvoLevel / MONSTER_FIFTH_STAGE_THRESHOLD);
+				if(guiManager->monsterStageText->flashMonsterEvolveEvent(update.newEvoLevel)) {
+					// audioProgram->playAudioWithoutLooping(EVO_UP_SOUND);
+				}
 			}
 			guiManager->evoBar->setEvo(update.newEvoLevel);
 			break;
@@ -1285,7 +1285,7 @@ void Window::updateLastInput() {
 	// SD key together
 	} else if(keyboard[GLFW_KEY_S] && keyboard[GLFW_KEY_D]) {
 		if (mouse[MOUSE_LEFT_INDEX]) lastInput = MOVE_DOWNRIGHT_ATTACK;
-		else if (mouse[MOUSE_RIGHT_INDEX]) lastInput =MOVE_DOWNRIGHT_UNIQUE_ATTACK;
+		else if (mouse[MOUSE_RIGHT_INDEX]) lastInput = MOVE_DOWNRIGHT_UNIQUE_ATTACK;
 		else lastInput = MOVE_DOWNRIGHT;
 
 	// W key
@@ -1607,6 +1607,32 @@ void Window::checkNearObjectiveText(ObjElement* obj) {
 				break;
 			default:
 				break;
+		}
+	}
+}
+
+void Window::checkNearDeadHunter() {
+	
+	for(int i = 0; i < PLAYER_NUM - 1; i++) {
+		if(i == client->getId()) continue;
+
+		if (chars[i] == nullptr) continue;
+
+		// If the other player's hp is <= 0, we can revive them.
+		if (chars[i]->getHp() <= 0 && glm::distance(clientChar->pos, chars[i]->pos) <= REVIVE_DISTANCE) {
+			steady_clock::time_point currTime = steady_clock::now();
+			auto duration = duration_cast<milliseconds>(currTime - chars[i]->getDeathTime());
+			
+			// Revivable
+			if(duration.count() > REVIVE_TIME_INTERVAL) {
+				std::string revivalText = "Press F to revive Player " + std::to_string(i);
+				guiManager->drawCenterText(revivalText, width, height);
+
+			// not revivable
+			} else {
+				std::string revivalText = "Wait " + std::to_string((REVIVE_TIME_INTERVAL - duration.count()) / 1000) + " seconds before reviving Player " + std::to_string(i);
+				guiManager->drawCenterText(revivalText, width, height);
+			}
 		}
 	}
 }

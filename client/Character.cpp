@@ -70,7 +70,7 @@ Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPo
 	isVisible = true;
 	lastDamageFlash = currTime;
 	damageFlashUntil = currTime;
-	deathTime = currTime; 
+	deathTime = steady_clock::now(); 
 
 	setSaturationLevel(1.0f);
 	setRedSaturationLevel(1.0f);
@@ -296,6 +296,7 @@ void Character::draw(glm::mat4 c) {
 	glUniform1f(glGetUniformLocation(shader, "redSaturation"), redSaturation);
 	glUniform1f(glGetUniformLocation(shader, "greenSaturation"), greenSaturation);
 	glUniform1f(glGetUniformLocation(shader, "transparentAlpha"), transparentAlpha);
+	// printf("HP: %d, Sat: %f, Red: %f, Green: %f, Transparent: %f\n", hp, saturation, redSaturation, greenSaturation, transparentAlpha);
 	glDrawElements(GL_TRIANGLES, 3 * triangles.size(), GL_UNSIGNED_INT, 0);
 
 	glDisable(GL_BLEND);
@@ -545,13 +546,13 @@ void Character::decrementHp(int damage) {
 
 	hp = std::max(0, hp - damage);
 	if(hp == 0) {
-		deathTime = clock();
+		deathTime = steady_clock::now();
 	}
 }
 void Character::incrementHp(int heal) {
 	hp = hp + heal;
 }
 
-time_t Character::getDeathTime() {
+steady_clock::time_point Character::getDeathTime() {
 	return deathTime;
 }

@@ -7,6 +7,7 @@
 #define MOUSE_RIGHT_INDEX 1
 #define SERVER_ENABLED
 #define RENDER_MAP
+#define RENDER_CHARACTERS
 #define _USE_MATH_DEFINES
 #define SPATIAL_HASH_SEARCH_DISTANCE 20.0
 
@@ -163,6 +164,7 @@ public:
 	static void Window::handleSpectateRequest(GameUpdate update);
 
 	static void shuffleLoadingScreen(GLFWwindow *);
+	static void checkNearDeadHunter();
 
 };
 

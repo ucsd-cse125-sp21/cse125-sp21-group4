@@ -5,16 +5,16 @@
 #include "../nanovg/nanovg.h"
 #include <GLFW/glfw3.h>
 
-#define NUM_IMAGES 2
+#define NUM_LOADING_IMAGES 2
 
 class LoadingScreen {
 
 public:
     NVGcontext* vg;
     bool isVisible;
-    int image [NUM_IMAGES];
-    int imgWidth [NUM_IMAGES]; 
-    int imgHeight [NUM_IMAGES];
+    int image [NUM_LOADING_IMAGES];
+    int imgWidth [NUM_LOADING_IMAGES]; 
+    int imgHeight [NUM_LOADING_IMAGES];
     bool isLoaded;
     float loadingPercentage;
     int imgIndex;
