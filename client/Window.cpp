@@ -188,6 +188,7 @@ void Window::initMap(GLFWwindow * window) {
 
 	const int num_live_trees = 2;
 	const int num_dead_trees = 4;
+	const int num_pillars = 2;
 	string liveTreeStringPaths[num_live_trees] = {"shaders/environment/lowpolypine.obj",
 								 "shaders/environment/lowpolypinegreen.obj"
 								};
@@ -195,10 +196,15 @@ void Window::initMap(GLFWwindow * window) {
 								"shaders/environment/lowpolydeadtree.obj",
 								 "shaders/environment/lowpolydeadtree2.obj",
 								 "shaders/environment/lowpolydeadtreepair.obj",
-								 "shaders/environment/lowpolyblackenedtree.obj"
-
-		
+								 "shaders/environment/lowpolyblackenedtree.obj"		
 	};
+	string pillarStringPaths[num_pillars] = {
+								"shaders/environment/lowpolypillar.obj",
+								 "shaders/environment/lowpolypillarpair.obj",	
+	};
+
+
+
 
 	int line_count = 0;
 	while(getline(temp_file, line)) {
@@ -250,9 +256,10 @@ void Window::initMap(GLFWwindow * window) {
 
 		// White cube ==  pillar
 		} else if (strcmp(objName.c_str(), "pillar") == 0) {
+			int randomPillarIndex = rand() % num_pillars;
 			objX += width / 2;
 			objY += height / 2;
-			EnvElement* e = new EnvElement("shaders/environment/lowpolypillar.obj", &projection, &view, phongTexShader, &eyePos,
+			EnvElement* e = new EnvElement(pillarStringPaths[randomPillarIndex], &projection, &view, phongTexShader, &eyePos,
 				glm::vec3(objX, 3.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(randomRotateDegree),  width / 2, &materialManager, glm::vec3(1.f, 1.f, 1.f)); 
 			table.insert(e);
 
