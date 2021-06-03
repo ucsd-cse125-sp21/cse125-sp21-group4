@@ -549,6 +549,8 @@ bool projectileIsEnd(Projectile* p, Game* game) {
     // 1. flying distance exceeds maxDistance
     if (pow(p->currentPosition.x - p->origin.x, 2) >= pow(p->maxDistance, 2))
         return true;
+    if (pow(p->currentPosition.y - p->origin.y, 2) >= pow(p->maxDistance, 2))
+        return true;
 
     float x = p->currentPosition.x;
     float y = p->currentPosition.y;

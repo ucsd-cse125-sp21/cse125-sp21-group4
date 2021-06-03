@@ -412,24 +412,24 @@ GLFWwindow* Window::createWindow(int width, int height, AudioProgram* audioProgr
 	}
 	
 	// Old windowed mode
-	glfwWindowHint(GLFW_SAMPLES, 4);
-	GLFWwindow* window = glfwCreateWindow(width, height, windowTitle, NULL, NULL);
+	// glfwWindowHint(GLFW_SAMPLES, 4);
+	// GLFWwindow* window = glfwCreateWindow(width, height, windowTitle, NULL, NULL);
 	
 	// Fullscreen mode
-	// GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
-	// const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
  
-	// glfwWindowHint(GLFW_RED_BITS, mode->redBits);
-	// glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
-	// glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
-	// glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+	glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+	glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+	glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+	glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
 	
-	// GLFWwindow* window = glfwCreateWindow(mode->width, mode->height, windowTitle, primaryMonitor, NULL);
-	// width = mode->width;
-	// height = mode->height;
+	GLFWwindow* window = glfwCreateWindow(mode->width, mode->height, windowTitle, primaryMonitor, NULL);
+	width = mode->width;
+	height = mode->height;
 
-	// // Disables the cursor
-	// glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	// Disables the cursor
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	// Check if the window could not be created.
 	if (!window)

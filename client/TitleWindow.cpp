@@ -155,6 +155,10 @@ void TitleWindow::keyCallback(GLFWwindow* window, int key, int scancode, int act
 		audioProgram->playAudioWithoutLooping(SELECT_SOUND);
 		guiManager->titleScreen->handleKeyPress(key);
 
+		if(key == GLFW_KEY_M) {
+			audioProgram->toggleMute();
+		}
+		
 		if(key == GLFW_KEY_ENTER) {
 
 			switch(guiManager->titleScreen->currentState) {

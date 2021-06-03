@@ -79,11 +79,11 @@ void TitleScreen::handleKeyPress(int key) {
         return;
     } 
 
-    if(key == GLFW_KEY_DOWN) {
+    if(key == GLFW_KEY_DOWN || key == GLFW_KEY_S) {
         nextOption();
-    } else if (key == GLFW_KEY_UP) {
+    } else if (key == GLFW_KEY_UP || key == GLFW_KEY_W) {
         prevOption();
-    } else if (key == GLFW_KEY_ENTER) {
+    } else if (key == GLFW_KEY_ENTER || key == GLFW_KEY_SPACE) {
         pressOption();
     } else if (key == GLFW_KEY_ESCAPE && (currentState == HOW_TO_PLAY_SCREEN  || currentState == STORY_SCREEN)) {
         returnToMenu();
