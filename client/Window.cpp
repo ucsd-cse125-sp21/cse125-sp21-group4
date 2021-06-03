@@ -734,7 +734,7 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 		// currY = glm::clamp(currY, 0.0, (double)height);
 
 
-		printf("dx: %d, dy: %d, \n", dx, dy);
+		// printf("dx: %d, dy: %d, \n", dx, dy);
 
 		prevX = (int)currX;
 		prevY = (int)currY;
