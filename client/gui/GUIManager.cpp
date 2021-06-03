@@ -222,22 +222,22 @@ void GUIManager::setSplashLoaded(bool loaded) {
 void GUIManager::initCooldownIcons(PlayerType type) {
 	switch(type) {
 		case FIGHTER:
-			cooldownIcons[NORMAL_ATTACK] = new CooldownIcon(vg, "Slash", FIGHTER, FIGHTER_ATTACK_TIME_INTERVAL);
+			cooldownIcons[NORMAL_ATTACK] = new CooldownIcon(vg, "shaders/hud_elements/slash_button.png", FIGHTER, FIGHTER_ATTACK_TIME_INTERVAL);
 			break;
 		case MAGE:
-			cooldownIcons[NORMAL_ATTACK] = new CooldownIcon(vg, "Fire Arrow", MAGE, MAGE_ATTACK_TIME_INTERVAL);
-			cooldownIcons[UNIQUE_ATTACK] = new CooldownIcon(vg, "Fire Ball", MAGE, FIREBALL_TIME_INTERVAL);
+			cooldownIcons[NORMAL_ATTACK] = new CooldownIcon(vg, "shaders/hud_elements/fire_arrow_button.png", MAGE, MAGE_ATTACK_TIME_INTERVAL);
+			cooldownIcons[UNIQUE_ATTACK] = new CooldownIcon(vg, "shaders/hud_elements/fireball_button.png", MAGE, FIREBALL_TIME_INTERVAL);
 			break;
 		case CLERIC:
-			cooldownIcons[NORMAL_ATTACK] = new CooldownIcon(vg, "Light Ball", CLERIC, CLERIC_ATTACK_TIME_INTERVAL);
-			cooldownIcons[UNIQUE_ATTACK] = new CooldownIcon(vg, "Area Heal", CLERIC, HEALING_AURA_TIME_INTERVAL);
+			cooldownIcons[NORMAL_ATTACK] = new CooldownIcon(vg, "shaders/hud_elements/light_ball_button.png", CLERIC, CLERIC_ATTACK_TIME_INTERVAL);
+			cooldownIcons[UNIQUE_ATTACK] = new CooldownIcon(vg, "shaders/hud_elements/area_heal_button.png", CLERIC, HEALING_AURA_TIME_INTERVAL);
 			break;
 		case ROGUE:
-			cooldownIcons[NORMAL_ATTACK] = new CooldownIcon(vg, "Arrow", ROGUE, ROGUE_ATTACK_TIME_INTERVAL);
+			cooldownIcons[NORMAL_ATTACK] = new CooldownIcon(vg, "shaders/hud_elements/arrow_button.png", ROGUE, ROGUE_ATTACK_TIME_INTERVAL);
 			break;
 		case MONSTER:
-			cooldownIcons[NORMAL_ATTACK] = new CooldownIcon(vg, "Throw", MONSTER, MONSTER_ATTACK_TIME_INTERVAL);
-			cooldownIcons[UNIQUE_ATTACK] = new CooldownIcon(vg, "Claw", MONSTER, MONSTER_ATTACK_TIME_INTERVAL);
+			cooldownIcons[NORMAL_ATTACK] = new CooldownIcon(vg, "shaders/hud_elements/throw_button.png", MONSTER, MONSTER_ATTACK_TIME_INTERVAL);
+			cooldownIcons[UNIQUE_ATTACK] = new CooldownIcon(vg, "shaders/hud_elements/claw_button.png", MONSTER, MONSTER_ATTACK_TIME_INTERVAL);
 			break;
 		default:
 			printf("Error in init cooldown icons\n");
