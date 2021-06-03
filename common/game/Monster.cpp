@@ -155,14 +155,19 @@ void Monster::updateEvo(Game* game, float evoLevel) {
     // For now update the attack damage of the monster, maybe speed another time?
     if (evoLevel >= MONSTER_FIFTH_STAGE_THRESHOLD) {
         setAttackDamage(MONSTER_ATTACK_DAMAGE + 5);
+        setMaxSpeed(MONSTER_MAX_SPEED + 0.25);
     } else if (evoLevel >= MONSTER_FOURTH_STAGE_THRESHOLD) {
         setAttackDamage(MONSTER_ATTACK_DAMAGE + 4);
+        setMaxSpeed(MONSTER_MAX_SPEED + 0.2);
     } else if (evoLevel >= MONSTER_THIRD_STAGE_THRESHOLD) {
         setAttackDamage(MONSTER_ATTACK_DAMAGE + 3);
+        setMaxSpeed(MONSTER_MAX_SPEED + 0.15);
     } else if (evoLevel >= MONSTER_SECOND_STAGE_THRESHOLD) {
         setAttackDamage(MONSTER_ATTACK_DAMAGE + 2);
+        setMaxSpeed(MONSTER_MAX_SPEED + 0.1);
     } else if (evoLevel >= MONSTER_FIRST_STAGE_THRESHOLD) {
         setAttackDamage(MONSTER_ATTACK_DAMAGE + 1);
+        setMaxSpeed(MONSTER_MAX_SPEED + 0.05);
     
     // Start counting from zero.
     } else if (evoLevel >= 0.f) {
@@ -175,6 +180,7 @@ void Monster::updateEvo(Game* game, float evoLevel) {
     }
 
     // Checks if the evo has changed from one level to the next (int's truncate the decimal values)
+    // Also send update if evo differs by 0.1
     if(abs((int) evoLevel - (int) this->evo) >= 1 || fabs(evoLevel - clientSideEvo) > 0.1f) {
         GameUpdate evoUpdate;
         evoUpdate.updateType = MONSTER_EVO_UP;

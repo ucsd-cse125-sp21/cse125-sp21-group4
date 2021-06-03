@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
 	AudioProgram* audioProgram = new AudioProgram();
 
 	// Title Screen:
-	GLFWwindow* titleWindow = TitleWindow::createWindow(800, 600, audioProgram);
+	GLFWwindow* titleWindow = TitleWindow::createWindow(1200, 900, audioProgram);
 
 	if (!titleWindow) exit(EXIT_FAILURE);
 

@@ -6,7 +6,3 @@
 /Image6.png
 /Image7.png
 /Image8.png
-/Image9.png
-/Image10.png
-/Image11.png
-/Image12.png

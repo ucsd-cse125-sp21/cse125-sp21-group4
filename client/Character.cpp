@@ -70,6 +70,7 @@ Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPo
 	isVisible = true;
 	lastDamageFlash = currTime;
 	damageFlashUntil = currTime;
+	deathTime = currTime; 
 
 	setSaturationLevel(1.0f);
 	setRedSaturationLevel(1.0f);
@@ -527,4 +528,30 @@ void Character::setGreenSaturationLevel(float greenSat) {
 
 void Character::setTransparentAlpha(float transAlpha) {
 	transparentAlpha = transAlpha;
+}
+
+int Character::getHp() {
+	return hp;
+}
+
+void Character::setHp(int newHp) {
+	hp = newHp;
+}
+
+void Character::decrementHp(int damage) {
+	if(hp == 0) {
+		return;
+	}
+
+	hp = std::max(0, hp - damage);
+	if(hp == 0) {
+		deathTime = clock();
+	}
+}
+void Character::incrementHp(int heal) {
+	hp = hp + heal;
+}
+
+time_t Character::getDeathTime() {
+	return deathTime;
 }

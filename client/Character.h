@@ -93,6 +93,10 @@ private:
 	time_t lastDamageFlash;
 	time_t damageFlashUntil;
 
+	// used to determine revive UI and maybe other stuff in the future
+	int hp;
+	time_t deathTime;
+
 public:
 	//character specific status such as positions, stats etc
 
@@ -130,6 +134,12 @@ public:
 	void setRedSaturationLevel(float redSat);
 	void setGreenSaturationLevel(float greenSat);
 	void setTransparentAlpha(float transAlpha);
+
+	int getHp();
+	void setHp(int newHp);
+	void decrementHp(int damage);
+	void incrementHp(int heal);
+	long long getDeathTime();
 };
 
 #endif

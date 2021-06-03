@@ -613,6 +613,31 @@ void Window::displayCallback(GLFWwindow* window)
 			glClear(GL_DEPTH_BUFFER_BIT);
 			cursor->draw();
 		}
+		
+
+		// Checks if the hunter is near another dead hunter
+		if(client->getId() != 3 && clientChar->getState() != spectating) {
+			for(int i = 0; i < PLAYER_NUM - 1; i++) {
+				if(i == client->getId()) continue;
+
+				// If the other player's hp is <= 0, we can revive them.
+				if (chars[i]->getHp() <= 0 && glm::distance(clientChar->pos, chars[i]->pos) <= REVIVE_DISTANCE) {
+					time_t currTime = clock();
+					float deathTimeDiff = (float) (currTime - chars[i]->getDeathTime()) / CLOCKS_PER_SEC * 1000;
+					
+					// Revivable
+					if(deathTimeDiff > REVIVE_TIME_INTERVAL) {
+						std::string revivalText = "Press F to revive Player " + std::to_string(i);
+						guiManager->drawCenterText(revivalText, width, height);
+
+					// not revivable
+					} else {
+						std::string revivalText = "Wait " + std::to_string(deathTimeDiff / 1000) + " before reviving Player " + std::to_string(i);
+						guiManager->drawCenterText(revivalText, width, height);
+					}
+				}
+			}
+		}
 
 	} 
 
@@ -870,21 +895,25 @@ void Window::handleRoleClaim(GameUpdate update) {
 		case FIGHTER:
 			chars[update.id] = playerTypeToCharacterMap[FIGHTER];
 			chars[update.id]->moveTo(glm::vec3(SPAWN_POSITIONS[update.id][0], 2.f, SPAWN_POSITIONS[update.id][1]));
+			chars[update.id]->setHp(FIGHTER_MAX_HP);
 			break;
 
 		case MAGE:
 			chars[update.id] = playerTypeToCharacterMap[MAGE];
 			chars[update.id]->moveTo(glm::vec3(SPAWN_POSITIONS[update.id][0], 1.5f, SPAWN_POSITIONS[update.id][1]));
+			chars[update.id]->setHp(MAGE_MAX_HP);
 			break;
 
 		case CLERIC:
 			chars[update.id] = playerTypeToCharacterMap[CLERIC];
 			chars[update.id]->moveTo(glm::vec3(SPAWN_POSITIONS[update.id][0], 2.f, SPAWN_POSITIONS[update.id][1]));
+			chars[update.id]->setHp(CLERIC_MAX_HP);
 			break;
 
 		case ROGUE:
 			chars[update.id] = playerTypeToCharacterMap[ROGUE];
 			chars[update.id]->moveTo(glm::vec3(SPAWN_POSITIONS[update.id][0], 2.f, SPAWN_POSITIONS[update.id][1]));
+			chars[update.id]->setHp(ROGUE_MAX_HP);
 			break;
 	}
 
@@ -916,7 +945,11 @@ void Window::handleUpdate(GameUpdate update) {
 				guiManager->healthBar->decrementHp(update.damageTaken);
 				guiManager->healthBar->flashHealthBar();
 			}
-			chars[update.id]->flashDamage();
+			chars[update.id]->decrementHp(update.damageTaken);
+
+			if(chars[update.id]->getHp() >= 0) {
+				chars[update.id]->flashDamage();
+			}
 
 			auto now = std::chrono::steady_clock::now();
     		std::chrono::duration<float> duration = now - lastCombatMusicPlayTime;
@@ -941,6 +974,7 @@ void Window::handleUpdate(GameUpdate update) {
 				guiManager->healthBar->incrementHp(update.healAmount);
 				audioProgram->playAudioWithoutLooping(HEALTH_PICKUP_SOUND);
 			}
+			chars[update.id]->incrementHp(update.healAmount);
 			break;
 		case SAFE_REGION_UPDATE:
 			guiManager->miniMap->safeRegionX = update.playerPos.x;
@@ -1027,6 +1061,10 @@ void Window::handleUpdate(GameUpdate update) {
 		case PLAYER_REVIVE:
 			printf("process player's revival signal duolan");
 			chars[update.id]->setTransparentAlpha(1.f);
+			chars[update.id]->incrementHp(update.healAmount);
+			if(update.id == client->getId()) {
+				guiManager->healthBar->incrementHp(update.healAmount);
+			}
 			break;
 		case GAME_STARTED:
 			Window::gameStarted = true;
@@ -1086,6 +1124,7 @@ void Window::handleUpdate(GameUpdate update) {
 			if(update.id == client->getId()) {
 				guiManager->healthBar->incrementHp(update.healAmount);
 			}
+			chars[update.id]->incrementHp(update.healAmount);
             removeObj(update.objectiveID);
             break;
         case EVO_OBJECTIVE_TAKEN:

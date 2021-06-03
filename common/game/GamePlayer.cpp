@@ -443,6 +443,47 @@ void GamePlayer::interact(Game* game) {
     printf("Overridden Method failed.\n");
 }
 
+PlayerPosition GamePlayer::bfsSearchNonCollidingPosition(Game* game) {
+    PlayerPosition newPosition = this->position;
+    std::queue<GridPosition> positionQueue;
+    std::vector<GridPosition> used;
+    while(this->isCollidingObstacle(game, newPosition) || this->isCollidingPlayer(game, newPosition)) {
+        // Gridposition used instead of player position because floats might mess up the calculations
+        GridPosition moveRight = {(int) (newPosition.x + newPosition.width), (int) (newPosition.y)};
+        GridPosition moveLeft = {(int) (newPosition.x - newPosition.width), (int) (newPosition.y)};
+        GridPosition moveUp = {(int) (newPosition.x), (int) (newPosition.y - newPosition.height)};
+        GridPosition moveDown = {(int) (newPosition.x), (int) (newPosition.y - newPosition.height)};
+        if(std::find(used.begin(), used.end(), moveRight) == used.end()) {
+            positionQueue.push(moveRight);
+            used.push_back(moveRight);
+        }
+        if(std::find(used.begin(), used.end(), moveRight) == used.end()) {
+            positionQueue.push(moveRight);
+            used.push_back(moveRight);
+        }
+        if(std::find(used.begin(), used.end(), moveLeft) == used.end()) {
+            positionQueue.push(moveLeft);
+            used.push_back(moveLeft);
+        }
+        if(std::find(used.begin(), used.end(), moveUp) == used.end()) {
+            positionQueue.push(moveUp);
+            used.push_back(moveUp);
+        }
+        if(std::find(used.begin(), used.end(), moveDown) == used.end()) {
+            positionQueue.push(moveDown);
+            used.push_back(moveDown);
+        }
+        if(!positionQueue.empty()) {
+            GridPosition position = positionQueue.front();
+            newPosition.x = position.x;
+            newPosition.y = position.y;
+            positionQueue.pop();
+        }
+        printf("%d, %d\n", position.x, position.y);
+    }
+    return newPosition;
+}
+
 // Will revive a dead hunter
 void GamePlayer::revive(Game* game) {
 
@@ -471,6 +512,23 @@ void GamePlayer::revive(Game* game) {
                 if (!canAttack(game->players[i])) {
                     int maxHp = game->players[i]->getMaxHp();
                     game->players[i]->hpIncrement(maxHp/2);
+
+                    // if the current player is colliding with the revived player, just move it elsewhere.
+                    if(this->isCollidingPlayer(game, this->position)) {
+                        PlayerPosition newPosition = bfsSearchNonCollidingPosition(game);
+                        
+                        // push update onto queue for clients to know that a player has been unstuck
+                        GameUpdate gameUpdate;
+                        gameUpdate.id = this->id;
+                        gameUpdate.updateType = PLAYER_MOVE;
+                        gameUpdate.floatDeltaX = newPosition.x - position.x;
+                        gameUpdate.floatDeltaY = newPosition.y - position.y;
+                        gameUpdate.direction = getFaceDirection();
+                        game->addUpdate(gameUpdate);
+
+                        // Move to the new position
+                        position = newPosition;
+                    }
 
                     // queue this update to be sent to other players
                     GameUpdate gameUpdate;
