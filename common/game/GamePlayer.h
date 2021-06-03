@@ -10,6 +10,11 @@
 #include "Evolve.h"
 #include "Healing.h"
 
+// used for bfs search around the player
+#include <queue>
+#include <vector>
+
+
 // A GamePlayer's Bouding Box looks like
 //          width
 //     --------------
@@ -100,6 +105,8 @@ public:
     int getID();
 
     void spectate(Game* game, UPDATE_TYPE update);
+
+    PlayerPosition bfsSearchNonCollidingPosition(Game*);
 };
 
 #endif

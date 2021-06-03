@@ -70,6 +70,7 @@ Character::Character(string fileName, glm::mat4* p, glm::mat4* v, glm::vec3* vPo
 	isVisible = true;
 	lastDamageFlash = currTime;
 	damageFlashUntil = currTime;
+	deathTime = currTime; 
 
 	setSaturationLevel(1.0f);
 	setRedSaturationLevel(1.0f);
@@ -406,7 +407,7 @@ GLuint Character::loadTexture(string path) {
 		cout << "loading texture at " << texturePath << endl;
 	}
 	else {
-		cout << "cannot load texture at " << texturePath << endl;
+		cout << "[cannot open texture file] cannot load texture at " << texturePath << endl;
 		return false;
 	}
 
@@ -414,7 +415,7 @@ GLuint Character::loadTexture(string path) {
 	stbi_set_flip_vertically_on_load(true);
 	unsigned char* data = stbi_load(texturePath, &ftw, &fth, &channels, STBI_rgb_alpha);
 	if (data == NULL) {
-		cout << "cannot load texture at " << texturePath << endl;
+		cout << "[image data null] cannot load texture at " << texturePath << endl;
 		return false;
 	}
 	//cout << "num of channels: " << channels << endl;
@@ -455,7 +456,7 @@ bool Character::loadAnimation(CharState state, Direction d, string animFolder) {
 	std::string line;
 	while (std::getline(objFile, line)) {
 		string texFile =animFolder + line;
-		//cout << texFile << endl;
+		// cout << texFile << endl;
 		animation->push_back(loadTexture(texFile.c_str()));
 	}
 	objFile.close();
@@ -527,4 +528,30 @@ void Character::setGreenSaturationLevel(float greenSat) {
 
 void Character::setTransparentAlpha(float transAlpha) {
 	transparentAlpha = transAlpha;
+}
+
+int Character::getHp() {
+	return hp;
+}
+
+void Character::setHp(int newHp) {
+	hp = newHp;
+}
+
+void Character::decrementHp(int damage) {
+	if(hp == 0) {
+		return;
+	}
+
+	hp = std::max(0, hp - damage);
+	if(hp == 0) {
+		deathTime = clock();
+	}
+}
+void Character::incrementHp(int heal) {
+	hp = hp + heal;
+}
+
+time_t Character::getDeathTime() {
+	return deathTime;
 }

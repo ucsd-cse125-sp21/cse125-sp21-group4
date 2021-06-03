@@ -98,7 +98,7 @@ void Cleric::uniqueAttack(Game* game, float angle) {
         // if one box is above the other
         if (p1ULY >= p2BRY || p2ULY >= p1BRY) continue;
 
-        if (!canAttack(game->players[i])) {
+        if (!canAttack(game->players[i]) && game->players[i]->getHp() > 0) {
             int oldHp = game->players[i]->getHp();
             game->players[i]->hpIncrement(HEALING_AURA_HEALING_AMOUNT);
             int incAmount = game->players[i]->getHp() - oldHp;
