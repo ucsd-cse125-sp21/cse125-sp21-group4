@@ -263,8 +263,8 @@ bool GamePlayer::canMoveTo(Game* game, PlayerPosition position) {
         return false;
     }
 
-    // if destination position collides other players, cannot move
-    if (isCollidingPlayer(game, position)) return false;
+    // Removing player collision detection
+    // if (isCollidingPlayer(game, position)) return false;
 
     // if destination position collides obstacles, cannot move
     if (isCollidingObstacle(game, position)) return false;
