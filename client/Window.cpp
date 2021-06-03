@@ -620,6 +620,8 @@ void Window::displayCallback(GLFWwindow* window)
 			for(int i = 0; i < PLAYER_NUM - 1; i++) {
 				if(i == client->getId()) continue;
 
+				if (chars[i] == nullptr) continue;
+
 				// If the other player's hp is <= 0, we can revive them.
 				if (chars[i]->getHp() <= 0 && glm::distance(clientChar->pos, chars[i]->pos) <= REVIVE_DISTANCE) {
 					time_t currTime = clock();
