@@ -11,10 +11,10 @@
 class BeaconBar {
 
 private:
-    const NVGcolor monsterBeaconColor = nvgRGBA(243, 30, 243, BEACON_BAR_ALPHA);
-    const NVGcolor hunterBeaconColor = nvgRGBA(30, 243, 30, BEACON_BAR_ALPHA);
-    const NVGcolor monsterTeamColor = nvgRGBA(243, 30, 243, 255 - BEACON_BAR_ALPHA);
-    const NVGcolor hunterTeamColor = nvgRGBA(30, 243, 30, 255 - BEACON_BAR_ALPHA);
+    const NVGcolor monsterBeaconColor = nvgRGBA(75,41,65, BEACON_BAR_ALPHA);
+    const NVGcolor hunterBeaconColor = nvgRGBA(55, 70, 38, BEACON_BAR_ALPHA);
+    const NVGcolor monsterTeamColor = nvgRGBA(75,41,65, 255 - BEACON_BAR_ALPHA);
+    const NVGcolor hunterTeamColor = nvgRGBA(55, 70, 38, 255 - BEACON_BAR_ALPHA);
 
 public:
     int image,  imgWidth, imgHeight;

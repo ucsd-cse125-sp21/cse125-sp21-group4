@@ -27,7 +27,8 @@ Character* Window::clientChar;
 
 // Interaction Variables
 bool LeftDown, RightDown;
-int MouseX, MouseY;
+int prevX = 0, prevY = 0;
+int MouseX = 0, MouseY = 0;
 
 // Cursor
 Cursor* Window::cursor;
@@ -39,6 +40,7 @@ GLuint Window::phongTexShader; //Phong lighting shader with texture
 GLuint Window::texShader;     //shader for model with textures. NOTE, it also calculates texture alphas
 GLuint Window::groundShader;  //array instance shader that draw multiple objects using same set of data
 GLuint Window::satTextureShader; // shader for monster's saturation levels
+GLuint Window::phongSaturatedTexShader;
 
 // projection Matrices 
 glm::mat4 Window::projection;
@@ -65,9 +67,11 @@ GUIManager* Window::guiManager;
 AudioProgram* Window::audioProgram;
 vector<PlayerType> Window::playerJobs {UNKNOWN, UNKNOWN, UNKNOWN, MONSTER};
 std::chrono::steady_clock::time_point lastCombatMusicPlayTime;
+bool isLastCombatMusicPlayTime;
 
 // Material Manager
 MaterialManager Window::materialManager;
+steady_clock::time_point Window::endTime;
 
 
 bool Window::initializeProgram() {
@@ -77,6 +81,7 @@ bool Window::initializeProgram() {
 	groundShader = LoadShaders("shaders/shader/groundShader.vert", "shaders/shader/groundShader.frag");
 	phongTexShader = LoadShaders("shaders/shader/phongTexture.vert", "shaders/shader/phongTexture.frag");
 	satTextureShader = LoadShaders("shaders/shader/texture.vert", "shaders/shader/satTexture.frag");
+	phongSaturatedTexShader = LoadShaders("shaders/shader/phongTexture.vert", "shaders/shader/phongTextureSaturated.frag");
 	// Check the shader program.
 	if (!shaderProgram)
 	{
@@ -147,10 +152,25 @@ bool Window::initializeObjects(GLFWwindow* window)
 		glm::vec3(247.f, 10.f, 308.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 2.f , &materialManager,  glm::vec3(1.f, 1.f, 1.f)); 
 	table.insert(env);
 
+	
+	// EnvElement* cliffTest1 = new EnvElement("shaders/environment/lowpolycliff.obj", &projection, &view, phongTexShader, &eyePos,
+	// 	glm::vec3(40.f, 6.f, 40.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 4.f , &materialManager,  glm::vec3(1.f, 1.f, 1.f)); 
+	// table.insert(cliffTest1);
+	
+	
+	// EnvElement* cliffTest2 = new EnvElement("shaders/environment/lowpolycliffwithtree.obj", &projection, &view, phongTexShader, &eyePos,
+	// 	glm::vec3(25.f, 6.f, 25.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 4.f , &materialManager,  glm::vec3(0.f, 0.f, 0.f)); 
+	// table.insert(cliffTest2);
+
+	EnvElement* tileTest = new EnvElement("shaders/environment/lowpolytilepatch.obj", &projection, &view, phongTexShader, &eyePos,
+		glm::vec3(50.f, 1.f, 50.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f , &materialManager,  glm::vec3(0.f, 0.f, 0.f)); 
+	table.insert(tileTest);
 	#endif
 	/* ===== end of #ifndef (no-server client) code ==== */
 
+	#ifdef RENDER_CHARACTERS
 	initCharacters(window);
+	#endif
 
 	//  ==========  End of Character Initialization ========== 
 
@@ -158,10 +178,15 @@ bool Window::initializeObjects(GLFWwindow* window)
 	guiManager->setConnectingScreenVisible(true);
 	guiManager->setSplashScreenVisible(true); 
 	guiManager->setSplashLoaded(true);
+
+	// AFTER all initobjects
 	#ifndef SERVER_ENABLED
 	guiManager->setConnectingScreenVisible(false);
 	guiManager->setSplashScreenVisible(false); 
+	guiManager->monsterStageText->setVisible(true);
+	guiManager->monsterStageText->flashMonsterEvolveEvent(2);
 	#endif
+	guiManager->monsterStageText->setVisible(true);
 	guiManager->setLoadingScreenVisible(false);
 	return true;
 }
@@ -172,6 +197,53 @@ void Window::initMap(GLFWwindow * window) {
 	ground = new Ground("shaders/environment/ground.obj", &projection, &view, groundShader,
 		"shaders/environment/dry_grass_red_3x3.png", "shaders/environment/cracked_tile_texture_3x3.png", 3.0f);
 
+	// Init tile ground
+	
+    ifstream map_ground_file("../assets/layout/map_ground.csv");
+    string t_line;
+    string t_id;
+	const int width = GROUND_WIDTH / TILE_SIZE;
+	const int length = GROUND_WIDTH / TILE_SIZE;
+	float tileSize = 2.f * 3.f;
+
+    int i = 0;
+    int j = 0;
+	
+	const int num_tiles = 3;
+	string tileStringPaths[num_tiles] = {
+								"shaders/environment/lowpolytiles.obj",
+								 "shaders/environment/lowpolysnakepath.obj",
+								 "shaders/environment/lowpolytilepatch.obj",
+	};
+    while(getline(map_ground_file, t_line)) {
+        stringstream ss(t_line);
+         
+        while(getline(ss, t_id, ',')) {
+			// j = x, i = y.
+            int objID = std::stoi(t_id);
+
+			// populate the models for each tiles
+			switch(objID) {
+				case CRACKED_TILE_ID: {
+					const int randomTileIndex = rand() % num_tiles;
+					const int randomRotation = rand() % 360;
+					EnvElement* tileTest = new EnvElement(tileStringPaths[randomTileIndex], &projection, &view, phongSaturatedTexShader, &eyePos,
+						glm::vec3(j * tileSize, -0.5f, i * tileSize), glm::vec3(0.f, 1.f, 0.f), glm::radians((float)randomRotation), 1.f , &materialManager,  glm::vec3(0.f, 0.f, 0.f)); 
+					table.insert(tileTest);
+					
+					break;
+				}
+			}
+            j++;
+        }
+        j = 0;
+        i++;
+    }
+
+
+
+
+
 	ifstream map_file("../assets/layout/map_client.csv");
 	ifstream temp_file("../assets/layout/map_client.csv");
     string line;
@@ -180,17 +252,28 @@ void Window::initMap(GLFWwindow * window) {
 
 	const int num_live_trees = 2;
 	const int num_dead_trees = 4;
+	const int num_pillars = 2;
+	const int num_cliffs = 2;
 	string liveTreeStringPaths[num_live_trees] = {"shaders/environment/lowpolypine.obj",
-								 "shaders/environment/lowpolypine.obj"
+								 "shaders/environment/lowpolypinegreen.obj"
 								};
 	string deadTreeStringPaths[num_dead_trees] = {
 								"shaders/environment/lowpolydeadtree.obj",
 								 "shaders/environment/lowpolydeadtree2.obj",
 								 "shaders/environment/lowpolydeadtreepair.obj",
-								 "shaders/environment/lowpolyblackenedtree.obj"
-
-		
+								 "shaders/environment/lowpolyblackenedtree.obj"		
 	};
+	string pillarStringPaths[num_pillars] = {
+								"shaders/environment/lowpolypillar.obj",
+								 "shaders/environment/lowpolypillarpair.obj",	
+	};
+	string cliffStringPaths[num_cliffs] = {
+								"shaders/environment/lowpolycliff.obj",
+								 "shaders/environment/lowpolycliffwithtree.obj",	
+	};
+
+
+
 
 	int line_count = 0;
 	while(getline(temp_file, line)) {
@@ -226,6 +309,8 @@ void Window::initMap(GLFWwindow * window) {
 		float height = fields[3];
 		float randomRotateDegree = fields[4];
 
+		// printf("%s\n", objName.c_str());
+
 		// Spawn the obstacles based on their name
 		
 		// Green wall = hedge
@@ -242,10 +327,11 @@ void Window::initMap(GLFWwindow * window) {
 
 		// White cube ==  pillar
 		} else if (strcmp(objName.c_str(), "pillar") == 0) {
+			int randomPillarIndex = rand() % num_pillars;
 			objX += width / 2;
 			objY += height / 2;
-			EnvElement* e = new EnvElement("shaders/environment/lowpolypillar.obj", &projection, &view, phongTexShader, &eyePos,
-				glm::vec3(objX, 3.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(randomRotateDegree),  width / 2, &materialManager, glm::vec3(1.f, 1.f, 1.f)); 
+			EnvElement* e = new EnvElement(pillarStringPaths[randomPillarIndex], &projection, &view, phongTexShader, &eyePos,
+				glm::vec3(objX, 4.5f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(randomRotateDegree),  width / 1.5, &materialManager, glm::vec3(1.f, 1.f, 1.f)); 
 			table.insert(e);
 
 		// Green Tree ==   tree_live
@@ -279,7 +365,7 @@ void Window::initMap(GLFWwindow * window) {
 			objY += height / 2;
 
 			EnvElement* e = new EnvElement("shaders/environment/lowpolyrock1.obj", &projection, &view, shaderProgram, &eyePos,
-				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(randomRotateDegree),  width * 2.f, glm::vec3(0.3f, 0.3f, 0.3f));
+				glm::vec3(objX, 1.5f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(randomRotateDegree),  width * 3.f, glm::vec3(0.4f, 0.4f, 0.4f));
 			table.insert(e);
 
 		// Red cube ==  wall
@@ -295,6 +381,43 @@ void Window::initMap(GLFWwindow * window) {
 
 				}
 			}
+
+		// Cliffs
+		} else if (strcmp(objName.c_str(), "cliff_horizontal") == 0) {
+			int randomCliffIndex = rand() % num_cliffs;
+			objX += width / 2;
+			objY += height / 2;
+
+			float displacementFromGroundPlane = 4.5f;
+
+			// For the model with the tree, we need to displace it higher
+			if(randomCliffIndex == 1) {
+				displacementFromGroundPlane += 2.f;
+			}
+			
+			EnvElement* cliff = new EnvElement(cliffStringPaths[randomCliffIndex], &projection, &view, phongSaturatedTexShader, &eyePos,
+				glm::vec3(objX, displacementFromGroundPlane, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 4.f , &materialManager,  glm::vec3(1.f, 1.f, 1.f)); 
+			table.insert(cliff);
+	
+	
+		} else if (strcmp(objName.c_str(), "cliff_vertical") == 0) {
+			int randomCliffIndex = rand() % num_cliffs;
+			objX += width / 2;
+			objY += height / 2;
+			
+			float displacementFromGroundPlane = 4.5f;
+
+			// For the model with the tree, we need to displace it higher
+			if(randomCliffIndex == 1) {
+				displacementFromGroundPlane += 2.f;
+			}
+			
+
+			EnvElement* cliff = new EnvElement(cliffStringPaths[randomCliffIndex], &projection, &view, phongSaturatedTexShader, &eyePos,
+				glm::vec3(objX, displacementFromGroundPlane, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(90.f), 4.f , &materialManager,  glm::vec3(1.f, 1.f, 1.f)); 
+			table.insert(cliff);
+	
+	
 		}
 		
 	} 
@@ -323,7 +446,7 @@ void Window::initCharacters(GLFWwindow * window) {
 
 
 	playerTypeToCharacterMap[MONSTER] = (new Character("shaders/character/monster_billboard.obj", &projection, &view, &eyePos, satTextureShader,
-		glm::vec3(0.f, 2.f, 0.f), 
+		glm::vec3(0.f, 3.f, 0.f), 
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MONSTER"));
 
 	
@@ -339,6 +462,7 @@ void Window::initCharacters(GLFWwindow * window) {
 	chars[3] = playerTypeToCharacterMap[MONSTER];
 	chars[3]->moveTo(glm::vec3(SPAWN_POSITIONS[3][0], 1.5f, SPAWN_POSITIONS[3][1]));
 	chars[3]->setSaturationLevel(0.1f);
+	chars[3]->setHp(MONSTER_MAX_HP);
 }
 
 void Window::shuffleLoadingScreen(GLFWwindow * window) {
@@ -441,7 +565,9 @@ GLFWwindow* Window::createWindow(int width, int height, AudioProgram* audioProgr
 
 	// setup audio program
 	Window::audioProgram = audioProgram;
-	audioProgram->setMusicVolume(0.55);
+	
+	// Should be set in TitleWindow
+	// audioProgram->setMusicVolume(0.55);
 
 
 	// Display once to show splash screen, then we can deal with connecting window.
@@ -456,7 +582,7 @@ GLFWwindow* Window::createWindow(int width, int height, AudioProgram* audioProgr
 	/* ===== THIS #ifndef CODE IS ONLY FOR NON-CONNECTED CLIENTS TO IMPROVE GRAPHICS DEVELOPMENT ==== */
 #ifndef SERVER_ENABLED // Client-only (no server)	
 	guiManager->setConnectingScreenVisible(false);
-	guiManager->beaconBar->setAmount(18.f);
+	guiManager->beaconBar->setAmount(-8.f);
 	guiManager->evoBar->setEvo(2.65f);
 	guiManager->setSelectScreenVisible(false);
 	guiManager->setGameEndVisible(false);
@@ -617,28 +743,7 @@ void Window::displayCallback(GLFWwindow* window)
 
 		// Checks if the hunter is near another dead hunter
 		if(client->getId() != 3 && clientChar->getState() != spectating) {
-			for(int i = 0; i < PLAYER_NUM - 1; i++) {
-				if(i == client->getId()) continue;
-
-				if (chars[i] == nullptr) continue;
-
-				// If the other player's hp is <= 0, we can revive them.
-				if (chars[i]->getHp() <= 0 && glm::distance(clientChar->pos, chars[i]->pos) <= REVIVE_DISTANCE) {
-					time_t currTime = clock();
-					float deathTimeDiff = (float) (currTime - chars[i]->getDeathTime()) / CLOCKS_PER_SEC * 1000;
-					
-					// Revivable
-					if(deathTimeDiff > REVIVE_TIME_INTERVAL) {
-						std::string revivalText = "Press F to revive Player " + std::to_string(i);
-						guiManager->drawCenterText(revivalText, width, height);
-
-					// not revivable
-					} else {
-						std::string revivalText = "Wait " + std::to_string(deathTimeDiff / 1000) + " before reviving Player " + std::to_string(i);
-						guiManager->drawCenterText(revivalText, width, height);
-					}
-				}
-			}
+			checkNearDeadHunter();
 		}
 
 	} 
@@ -680,13 +785,18 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		}
 		
 		if (gameEnded) {
-			gameEnded = false;
-			guiManager->setConnectingScreenVisible(true);
-			guiManager->setSplashScreenVisible(true);
-			guiManager->setGameEndVisible(false);
+			// has enough time passed for delay?
+			auto duration = duration_cast<milliseconds>(steady_clock::now() - endTime);
+			if(duration.count() > END_GAME_DELAY_INPUT) {
 
-			audioProgram->stopAllAudio();
-			audioProgram->playAudioWithLooping(TITLE_MUSIC);
+				gameEnded = false;
+				guiManager->setConnectingScreenVisible(true);
+				guiManager->setSplashScreenVisible(true);
+				guiManager->setGameEndVisible(false);
+
+				audioProgram->stopAllAudio();
+				audioProgram->playAudioWithLooping(TITLE_MUSIC);
+			}
 		}
 
 	 // Check for a key release.
@@ -725,9 +835,8 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 
 	if(gameStarted) {
 		int maxDelta = 100;
-		int dx = glm::clamp((int)currX - MouseX, -maxDelta, maxDelta);
-		int dy = glm::clamp(-((int)currY - MouseY), -maxDelta, maxDelta);
-
+		int dx = glm::clamp((int)currX - prevX, -maxDelta, maxDelta);
+		int dy = glm::clamp(-((int)currY - prevY), -maxDelta, maxDelta);
 		float zoomFactor = cameraOffset.y / MAX_CAMERA_Y_OFFSET; // smaller = more zoomed in.
 
 		// float minWidth = -width / 50.0 * zoomFactor;
@@ -743,14 +852,21 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 		// printf("%f, %f, %f, %f\n", minWidth, maxWidth, minHeight, maxHeight);
 		// printf("%f, %f\n", cursorOffsetX, cursorOffsetY);
 
-		currX = glm::clamp(currX, 0.0, (double)width);
-		currY = glm::clamp(currY, 0.0, (double)height);
+		// currX = glm::clamp(currX, 0.0, (double)width);
+		// currY = glm::clamp(currY, 0.0, (double)height);
 
-		MouseX = (int)currX;
-		MouseY = (int)currY;
+
+		// printf("dx: %d, dy: %d, \n", dx, dy);
+
+		prevX = (int)currX;
+		prevY = (int)currY;
+		MouseX = glm::clamp(MouseX + dx, 0, width);
+		MouseY = glm::clamp(MouseY - dy, 0, height);
+
 
 		float dx2 = width / 2 - MouseX;
 		float dy2 = MouseY - height / 2;
+
 
 		// printf("%f, %f, \n", dx2, dy2);
 
@@ -960,6 +1076,7 @@ void Window::handleUpdate(GameUpdate update) {
 			// If the player was near this player (or is this player) play combat music
 			if (distanceToPlayer < MAX_HEARING_DISTANCE && std::chrono::duration_cast<std::chrono::seconds>(duration).count() > audioProgram->getSoundLength(COMBAT_MUSIC)) {
 				audioProgram->playAudioWithoutLooping(COMBAT_MUSIC);
+				audioProgram->stopAudio(TITLE_MUSIC);
 				lastCombatMusicPlayTime = now;
 			}
 
@@ -1090,7 +1207,7 @@ void Window::handleUpdate(GameUpdate update) {
 				guiManager->evoBar->isMonster = false;
 			}
 
-			audioProgram->stopAudio(TITLE_MUSIC);
+			// audioProgram->stopAudio(TITLE_MUSIC);
 			break;
 		case ROLE_CLAIMED:
 			Window::handleRoleClaim(update);
@@ -1148,10 +1265,16 @@ void Window::handleUpdate(GameUpdate update) {
 		case PLAYER_PREV_SPECT:
 			printf("Calling handleSpectateRequest\n");
 			handleSpectateRequest(update);
+			break;
 
 		case MONSTER_EVO_UP:
 			if(abs((int)update.newEvoLevel - (int)guiManager->evoBar->evoLevel) >= 1 && update.newEvoLevel <= MONSTER_FIFTH_STAGE_THRESHOLD) {
+				update.newEvoLevel = std::fmin(4.9f, update.newEvoLevel);
+				// printf("Monster Saturation Level: %f\n", update.newEvoLevel / MONSTER_FIFTH_STAGE_THRESHOLD);
 				chars[3]->setSaturationLevel(update.newEvoLevel / MONSTER_FIFTH_STAGE_THRESHOLD);
+				if(guiManager->monsterStageText->flashMonsterEvolveEvent(update.newEvoLevel)) {
+					// audioProgram->playAudioWithoutLooping(EVO_UP_SOUND);
+				}
 			}
 			guiManager->evoBar->setEvo(update.newEvoLevel);
 			break;
@@ -1295,7 +1418,7 @@ void Window::updateLastInput() {
 	// SD key together
 	} else if(keyboard[GLFW_KEY_S] && keyboard[GLFW_KEY_D]) {
 		if (mouse[MOUSE_LEFT_INDEX]) lastInput = MOVE_DOWNRIGHT_ATTACK;
-		else if (mouse[MOUSE_RIGHT_INDEX]) lastInput =MOVE_DOWNRIGHT_UNIQUE_ATTACK;
+		else if (mouse[MOUSE_RIGHT_INDEX]) lastInput = MOVE_DOWNRIGHT_UNIQUE_ATTACK;
 		else lastInput = MOVE_DOWNRIGHT;
 
 	// W key
@@ -1546,6 +1669,8 @@ void Window::endGame() {
 	chars[3]->moveTo(glm::vec3(SPAWN_POSITIONS[3][0], 1.5f, SPAWN_POSITIONS[3][1]));
 
 	gameEnded = true;
+	endTime = steady_clock::now();
+	guiManager->endScreen->setEndTime(endTime);
 }
 
 void Window::checkNearObjectiveText(ObjElement* obj) {
@@ -1564,7 +1689,11 @@ void Window::checkNearObjectiveText(ObjElement* obj) {
 					if (guiManager->healthBar->hp >= guiManager->healthBar->maxHp) {
 						guiManager->drawCenterText(std::string("Cannot pickup health (MAX HP)."), width, height);
 					} else {
-						guiManager->drawCenterText(std::string("Press E to pickup the health (+50 HP until MAX)."), width, height);
+						if(restriction == R_MONSTER) {
+							guiManager->drawCenterText(std::string("Press E to pickup the health (+100 HP until MAX)."), width, height);
+						} else {
+							guiManager->drawCenterText(std::string("Press E to pickup the health (+50 HP until MAX)."), width, height);
+						}
 					}
 				}
 				break;
@@ -1617,6 +1746,32 @@ void Window::checkNearObjectiveText(ObjElement* obj) {
 				break;
 			default:
 				break;
+		}
+	}
+}
+
+void Window::checkNearDeadHunter() {
+	
+	for(int i = 0; i < PLAYER_NUM - 1; i++) {
+		if(i == client->getId()) continue;
+
+		if (chars[i] == nullptr) continue;
+
+		// If the other player's hp is <= 0, we can revive them.
+		if (chars[i]->getHp() <= 0 && glm::distance(clientChar->pos, chars[i]->pos) <= REVIVE_DISTANCE) {
+			steady_clock::time_point currTime = steady_clock::now();
+			auto duration = duration_cast<milliseconds>(currTime - chars[i]->getDeathTime());
+			
+			// Revivable
+			if(duration.count() > REVIVE_TIME_INTERVAL) {
+				std::string revivalText = "Press F to revive Player " + std::to_string(i);
+				guiManager->drawCenterText(revivalText, width, height);
+
+			// not revivable
+			} else {
+				std::string revivalText = "Wait " + std::to_string((REVIVE_TIME_INTERVAL - duration.count()) / 1000) + " seconds before reviving Player " + std::to_string(i);
+				guiManager->drawCenterText(revivalText, width, height);
+			}
 		}
 	}
 }

@@ -26,7 +26,7 @@ void LoadingScreen::draw(float windowWidth, float windowHeight) {
 	nvgSave(vg); 
 
 
-    NVGpaint imgPaint =  nvgImagePattern(vg, 0, 0, windowWidth, windowHeight, 0.0f/180.0f*NVG_PI, this->image[imgIndex % NUM_IMAGES], 1.f);
+    NVGpaint imgPaint =  nvgImagePattern(vg, 0, 0, windowWidth, windowHeight, 0.0f/180.0f*NVG_PI, this->image[imgIndex % NUM_LOADING_IMAGES], 1.f);
     nvgBeginPath(vg);
     nvgRoundedRect(vg,  0, 0, windowWidth, windowHeight, 5);
     nvgFillPaint(vg, imgPaint);
@@ -41,5 +41,5 @@ void LoadingScreen::setVisible(bool visible) {
 
 void LoadingScreen::nextScreen() {
     imgIndex++;
-    printf("Next loading screen [Index: %d mod %d]\n", imgIndex, NUM_IMAGES);
+    printf("Next loading screen [Index: %d mod %d]\n", imgIndex, NUM_LOADING_IMAGES);
 }

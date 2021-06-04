@@ -479,7 +479,6 @@ PlayerPosition GamePlayer::bfsSearchNonCollidingPosition(Game* game) {
             newPosition.y = position.y;
             positionQueue.pop();
         }
-        printf("%d, %d\n", position.x, position.y);
     }
     return newPosition;
 }

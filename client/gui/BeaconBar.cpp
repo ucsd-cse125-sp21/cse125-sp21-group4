@@ -62,7 +62,7 @@ void BeaconBar::draw(float x, float y, float w, float h) {
 	float barHeight = h / 8.5;
 	float barWidth = w * 3.92 / 6;
 	float barX = x + w / 7.2;
-	float barY = y + h / 3.1;
+	float barY = y + h / 3.0;
 
 
 	// purple bar for monster

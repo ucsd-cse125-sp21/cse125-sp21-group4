@@ -35,6 +35,7 @@ enum Sound {
     SELECT_SOUND,
     HEALTH_PICKUP_SOUND,
     DAMAGE_TAKEN_SOUND,
+    EVO_UP_SOUND,
 
 };
 

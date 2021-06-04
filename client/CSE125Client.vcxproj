@@ -158,6 +158,7 @@
     <ClCompile Include="gui\InGameMenu.cpp" />
     <ClCompile Include="gui\LoadingScreen.cpp" />
     <ClCompile Include="gui\MiniMap.cpp" />
+    <ClCompile Include="gui\MonsterStageText.cpp" />
     <ClCompile Include="gui\SelectScreen.cpp" />
     <ClCompile Include="gui\ConnectingScreen.cpp" />
     <ClCompile Include="gui\SplashScreen.cpp" />
@@ -232,6 +233,7 @@
     <ClInclude Include="gui\InGameMenu.h" />
     <ClInclude Include="gui\LoadingScreen.h" />
     <ClInclude Include="gui\MiniMap.h" />
+    <ClInclude Include="gui\MonsterStageText.h" />
     <ClInclude Include="gui\SelectScreen.h" />
     <ClInclude Include="gui\ConnectingScreen.h" />
     <ClInclude Include="gui\SplashScreen.h" />

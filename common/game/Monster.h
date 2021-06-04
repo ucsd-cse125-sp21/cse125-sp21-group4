@@ -11,6 +11,7 @@ private:
     std::chrono::steady_clock::time_point lastAttackTime;
     float clientSideEvo;
     float evo;
+    bool onFire;
 public:
     Monster(); // Constructor for GameComponent
     Monster(PlayerPosition position); // Constructor for GameComponent
@@ -21,6 +22,8 @@ public:
     void updateEvo(Game* game, float evoLevel);
     void setEvo(float evo);
     float getEvo();
+    void setFire(bool onFire);
+    bool isOnFire();
 };
 
 #endif

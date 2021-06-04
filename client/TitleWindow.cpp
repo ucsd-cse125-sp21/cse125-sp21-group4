@@ -150,8 +150,36 @@ void TitleWindow::displayCallback(GLFWwindow* window)
 
 void TitleWindow::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	if(action == GLFW_PRESS) {
-		launchGame = true;
-		glfwSetWindowShouldClose(window, 1); // closes the title screen.
+		// launchGame = true;
+		// glfwSetWindowShouldClose(window, 1); // closes the title screen.
+		audioProgram->playAudioWithoutLooping(SELECT_SOUND);
+		guiManager->titleScreen->handleKeyPress(key);
+
+		if(key == GLFW_KEY_M) {
+			audioProgram->toggleMute();
+		}
+		
+		if(key == GLFW_KEY_ENTER) {
+
+			switch(guiManager->titleScreen->currentState) {
+				case MENU_SCREEN_ENTER:
+					launchGame = true;
+					glfwSetWindowShouldClose(window, 1); // closes the title screen.
+					break;
+				case MENU_SCREEN_EXIT:
+					launchGame = false;
+					glfwSetWindowShouldClose(window, 1); // closes the title screen.
+					break;
+				case MENU_SCREEN_HELP:
+					guiManager->titleScreen->currentState = HOW_TO_PLAY_SCREEN;
+					break;
+				case MENU_SCREEN_STORY:
+					guiManager->titleScreen->currentState = STORY_SCREEN;
+					break;
+				default:
+					break;
+			}
+		}
 	}
 }
 void TitleWindow::mouse_callback(GLFWwindow* window, int button, int action, int mods)

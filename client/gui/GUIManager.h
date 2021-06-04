@@ -14,6 +14,7 @@
 #include "LoadingScreen.h"
 #include "TitleScreen.h"
 #include "InGameMenu.h"
+#include "MonsterStageText.h"
 #include "../nanovg/nanovg.h"
 
 #define NUM_COOLDOWNS 2
@@ -45,6 +46,7 @@ public:
     LoadingScreen* loadingScreen;
     TitleScreen* titleScreen;
     InGameMenu* inGameMenu;
+    MonsterStageText* monsterStageText;
     CooldownIcon* cooldownIcons[NUM_COOLDOWNS]; // 2 because there's attack and unique attack.
 
     GUIManager(int width, int height, int fbWidth, int fbHeight);

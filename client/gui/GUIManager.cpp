@@ -34,7 +34,8 @@ GUIManager::GUIManager(int width, int height, int fbWidth, int fbHeight) {
 	loadingScreen = new LoadingScreen(vg);
 	titleScreen = new TitleScreen(vg);
 	inGameMenu = new InGameMenu(vg);
-	
+	monsterStageText = new MonsterStageText(vg);
+
 	// Will be initialized later
 	for (int i = 0; i < NUM_COOLDOWNS; i++) {
 		cooldownIcons[i] = nullptr;
@@ -46,7 +47,7 @@ void GUIManager::draw() {
 	nvgBeginFrame(vg, this->windowWidth, this->windowHeight, this->pixelRatio);
 	// starter code window: this->drawWindow("Test", 50, 50, this->windowWidth / 4, this->windowHeight / 4);
 	healthBar->draw(30, 14.5 * this->windowHeight / 16, this->windowWidth / 2.5, this->windowHeight / 16);
-	beaconBar->draw(this->windowWidth / 2 - (this->windowWidth / 2.5) / 2, this->windowHeight / 16, this->windowWidth / 2.5, this->windowHeight / 16);
+	beaconBar->draw(this->windowWidth / 2 - (this->windowWidth / 2.5) / 2, this->windowHeight / 14, this->windowWidth / 2.5, this->windowHeight / 16);
 	evoBar->draw(30, 13.5 * this->windowHeight / 16, this->windowWidth / 2.5, this->windowHeight / 16);
 	for(int i = 0; i < NUM_COOLDOWNS; i++) {
 		if(cooldownIcons[i] != nullptr) {
@@ -54,6 +55,7 @@ void GUIManager::draw() {
 		}
 	}
 	miniMap->draw(this->windowWidth - (MAP_WIDTH / 2), this->windowHeight - (MAP_HEIGHT / 2), (MAP_WIDTH / 2), (MAP_HEIGHT / 2));
+	monsterStageText->draw(this->windowWidth, this->windowHeight);
 	selectScreen->draw(this->windowWidth, this->windowHeight);
 	splashScreen->draw(this->windowWidth, this->windowHeight);
 	loadingScreen->draw(this->windowWidth, this->windowHeight);
@@ -220,22 +222,22 @@ void GUIManager::setSplashLoaded(bool loaded) {
 void GUIManager::initCooldownIcons(PlayerType type) {
 	switch(type) {
 		case FIGHTER:
-			cooldownIcons[NORMAL_ATTACK] = new CooldownIcon(vg, "Slash", FIGHTER, FIGHTER_ATTACK_TIME_INTERVAL);
+			cooldownIcons[NORMAL_ATTACK] = new CooldownIcon(vg, "shaders/hud_elements/slash_button.png", FIGHTER, FIGHTER_ATTACK_TIME_INTERVAL);
 			break;
 		case MAGE:
-			cooldownIcons[NORMAL_ATTACK] = new CooldownIcon(vg, "Fire Arrow", MAGE, MAGE_ATTACK_TIME_INTERVAL);
-			cooldownIcons[UNIQUE_ATTACK] = new CooldownIcon(vg, "Fire Ball", MAGE, FIREBALL_TIME_INTERVAL);
+			cooldownIcons[NORMAL_ATTACK] = new CooldownIcon(vg, "shaders/hud_elements/fire_arrow_button.png", MAGE, MAGE_ATTACK_TIME_INTERVAL);
+			cooldownIcons[UNIQUE_ATTACK] = new CooldownIcon(vg, "shaders/hud_elements/fireball_button.png", MAGE, FIREBALL_TIME_INTERVAL);
 			break;
 		case CLERIC:
-			cooldownIcons[NORMAL_ATTACK] = new CooldownIcon(vg, "Light Ball", CLERIC, CLERIC_ATTACK_TIME_INTERVAL);
-			cooldownIcons[UNIQUE_ATTACK] = new CooldownIcon(vg, "Area Heal", CLERIC, HEALING_AURA_TIME_INTERVAL);
+			cooldownIcons[NORMAL_ATTACK] = new CooldownIcon(vg, "shaders/hud_elements/light_ball_button.png", CLERIC, CLERIC_ATTACK_TIME_INTERVAL);
+			cooldownIcons[UNIQUE_ATTACK] = new CooldownIcon(vg, "shaders/hud_elements/area_heal_button.png", CLERIC, HEALING_AURA_TIME_INTERVAL);
 			break;
 		case ROGUE:
-			cooldownIcons[NORMAL_ATTACK] = new CooldownIcon(vg, "Arrow", ROGUE, ROGUE_ATTACK_TIME_INTERVAL);
+			cooldownIcons[NORMAL_ATTACK] = new CooldownIcon(vg, "shaders/hud_elements/arrow_button.png", ROGUE, ROGUE_ATTACK_TIME_INTERVAL);
 			break;
 		case MONSTER:
-			cooldownIcons[NORMAL_ATTACK] = new CooldownIcon(vg, "Throw", MONSTER, MONSTER_ATTACK_TIME_INTERVAL);
-			cooldownIcons[UNIQUE_ATTACK] = new CooldownIcon(vg, "Claw", MONSTER, MONSTER_ATTACK_TIME_INTERVAL);
+			cooldownIcons[NORMAL_ATTACK] = new CooldownIcon(vg, "shaders/hud_elements/throw_button.png", MONSTER, MONSTER_ATTACK_TIME_INTERVAL);
+			cooldownIcons[UNIQUE_ATTACK] = new CooldownIcon(vg, "shaders/hud_elements/claw_button.png", MONSTER, MONSTER_ATTACK_TIME_INTERVAL);
 			break;
 		default:
 			printf("Error in init cooldown icons\n");

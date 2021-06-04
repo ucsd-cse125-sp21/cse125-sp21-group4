@@ -192,6 +192,9 @@
     <ClCompile Include="gui\InGameMenu.cpp">
       <Filter>Source Files\gui</Filter>
     </ClCompile>
+    <ClCompile Include="gui\MonsterStageText.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Character.h">
@@ -429,6 +432,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\InGameMenu.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\MonsterStageText.h">
       <Filter>Header Files\gui</Filter>
     </ClInclude>
   </ItemGroup>

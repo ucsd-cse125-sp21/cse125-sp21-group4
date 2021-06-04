@@ -7,7 +7,7 @@
 #include <string>
 #include <chrono>
 
-#define COOLDOWN_ICON_ALPHA 222.f
+#define COOLDOWN_ICON_ALPHA 192.f
 
 
 class CooldownIcon {
@@ -18,13 +18,14 @@ private:
     const NVGcolor lightColor = nvgRGBA(200, 200, 200, 255);
 
 public:
-    std::string actionName;
     NVGcontext* vg;
     bool isVisible;
     std::chrono::steady_clock::time_point lastActionTimePoint;
     std::chrono::steady_clock::time_point actionReadyTimePoint;
     PlayerType playerType;
     unsigned int cooldownInMilliseconds;
+
+    int image, imgWidth, imgHeight;
 
 
     CooldownIcon(NVGcontext* vg, std::string actionName, PlayerType type, unsigned int cooldown_ms);

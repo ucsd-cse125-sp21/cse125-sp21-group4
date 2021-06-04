@@ -7,6 +7,7 @@
 #define MOUSE_RIGHT_INDEX 1
 #define SERVER_ENABLED
 #define RENDER_MAP
+#define RENDER_CHARACTERS
 #define _USE_MATH_DEFINES
 #define SPATIAL_HASH_SEARCH_DISTANCE 20.0
 
@@ -18,6 +19,7 @@
 #define MAX_CAMERA_X_OFFSET 0.f
 #define MAX_CAMERA_Y_OFFSET 20.f
 #define MAX_CAMERA_Z_OFFSET 16.f
+
 
 #include "Main.h"
 #include "shader.h"
@@ -43,7 +45,7 @@
 #include <unordered_map>
 #include <iostream>
 #include <cmath>
-
+#include <chrono>
 
 class Window
 {
@@ -76,6 +78,7 @@ public:
 	static GLuint texShader;
 	static GLuint groundShader;
 	static GLuint satTextureShader;
+	static GLuint phongSaturatedTexShader;
 
 	// Audio Program
 	static AudioProgram* audioProgram;
@@ -106,6 +109,7 @@ public:
 	static bool gameStarted;
 	static bool doneInitialRender;
 	static bool gameEnded;
+	static steady_clock::time_point endTime;
 
 	// GUI Manager (HUD)
 	static GUIManager* guiManager;
@@ -163,6 +167,7 @@ public:
 	static void Window::handleSpectateRequest(GameUpdate update);
 
 	static void shuffleLoadingScreen(GLFWwindow *);
+	static void checkNearDeadHunter();
 
 };
 

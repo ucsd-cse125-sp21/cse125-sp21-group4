@@ -431,7 +431,7 @@ void EnvElement::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
 	}
 
 	// simple calculation to check if the object is blocking the character
-	bool isCloseToObstructing = glm::distance(clientPos, pos) < 10.f && pos.z > clientPos.z && pos.z - clientPos.z > abs(pos.x - clientPos.x) && pos.y >= 3.f;
+	bool isCloseToObstructing = glm::distance(clientPos, pos) < 12.f && pos.z > clientPos.z && pos.z - clientPos.z > abs(pos.x - clientPos.x) && pos.y >= 3.f;
 	if(isCloseToObstructing) {
 		// printf("EnvElement is blocking the character.\n");
 		glDepthMask(GL_FALSE);
@@ -444,23 +444,33 @@ void EnvElement::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
 	// }
 	
 	int sum = 0;
-	for(int i = 0; i < materialSize.size(); i++) {
-		if (i < materials.size()) {
-			glUniform3fv(glGetUniformLocation(shader, "viewPos"), 1, glm::value_ptr(*eyep));
-			glUniform3fv(glGetUniformLocation(shader, "ambientColor"), 1, glm::value_ptr(materials[i].diffuse));
-			glUniform3fv(glGetUniformLocation(shader, "diffuseFactor"), 1, glm::value_ptr(materials[i].diffuse));
-			glUniform3fv(glGetUniformLocation(shader, "specColor"), 1, glm::value_ptr(materials[i].specular));
-			glUniform1f(glGetUniformLocation(shader, "specHighlight"), materials[i].shininess);
-			glUniform1f(glGetUniformLocation(shader, "dissolve"), materials[i].dissolve);
+	if(hasMaterial) {
+		for(int i = 1; i < materialSize.size(); i++) {
+			if (i - 1 < materials.size()) {
+				glUniform3fv(glGetUniformLocation(shader, "viewPos"), 1, glm::value_ptr(*eyep));
+				glUniform3fv(glGetUniformLocation(shader, "ambientColor"), 1, glm::value_ptr(materials[i-1].diffuse));
+				glUniform3fv(glGetUniformLocation(shader, "diffuseFactor"), 1, glm::value_ptr(materials[i-1].diffuse));
+				glUniform3fv(glGetUniformLocation(shader, "specColor"), 1, glm::value_ptr(materials[i-1].specular));
+				glUniform1f(glGetUniformLocation(shader, "specHighlight"), materials[i-1].shininess);
+				glUniform1f(glGetUniformLocation(shader, "dissolve"), materials[i-1].dissolve);
+			}
+			if (isCloseToObstructing) {
+				glUniform3fv(glGetUniformLocation(shader, "specColor"), 1, glm::value_ptr(glm::vec3(0)));
+				glUniform1f(glGetUniformLocation(shader, "specHighlight"), 0);
+				glUniform1f(glGetUniformLocation(shader, "dissolve"), 0.01f);
+			}
+			glDrawElements(GL_TRIANGLES, 3 * materialSize[i], GL_UNSIGNED_INT, (GLvoid*) (sizeof(GLuint) * sum));
+			sum += 3*materialSize[i];
 		}
+	} else {
 		if (isCloseToObstructing) {
 			glUniform3fv(glGetUniformLocation(shader, "specColor"), 1, glm::value_ptr(glm::vec3(0)));
 			glUniform1f(glGetUniformLocation(shader, "specHighlight"), 0);
 			glUniform1f(glGetUniformLocation(shader, "dissolve"), 0.01f);
 		}
-		glDrawElements(GL_TRIANGLES, 3 * materialSize[i], GL_UNSIGNED_INT, (GLvoid*) (sizeof(GLuint) * sum));
-		sum += 3*materialSize[i];
+		glDrawElements(GL_TRIANGLES, 3 * materialSize[0], GL_UNSIGNED_INT, (GLvoid*) (sizeof(GLuint) * sum));
 	}
+	
 	// glDrawElements(GL_TRIANGLES, 3 * triangles.size(), GL_UNSIGNED_INT, 0);
 	
 	if (isCloseToObstructing) {

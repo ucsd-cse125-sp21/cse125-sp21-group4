@@ -4,6 +4,7 @@
 #include "Object.h"
 #include "../common/game/GameConstants.h"
 #include <time.h>
+#include <chrono>
 
 #define IDLE_ANIMATION_INTERVAL 0.2
 #define ATTACK_ANIMATION_INTERVAL 0.075
@@ -21,6 +22,7 @@ enum CharState {
 	spectating
 	//add more for other actions
 };
+using namespace std::chrono;
 
 class Character : public Object {
 private:
@@ -95,7 +97,7 @@ private:
 
 	// used to determine revive UI and maybe other stuff in the future
 	int hp;
-	time_t deathTime;
+	steady_clock::time_point deathTime;
 
 public:
 	//character specific status such as positions, stats etc
@@ -139,7 +141,7 @@ public:
 	void setHp(int newHp);
 	void decrementHp(int damage);
 	void incrementHp(int heal);
-	long long getDeathTime();
+	steady_clock::time_point getDeathTime();
 };
 
 #endif

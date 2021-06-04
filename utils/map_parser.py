@@ -27,6 +27,7 @@ MAP_HEIGHT = 600
 grid = np.zeros((MAP_WIDTH, MAP_HEIGHT))
 
 
+# for each object
 for object in objects:
     # print(object)
     objectX = int(object["x"] / ratio)
@@ -81,6 +82,7 @@ for object in objects:
         x_count += 1
     x_count = 0
 
+# write the logical obstacles to the server csv
 for y in range (MAP_HEIGHT):
     for x in range (MAP_WIDTH):
         if x == 499:
@@ -90,6 +92,7 @@ for y in range (MAP_HEIGHT):
     serverCSV.write("\n")
 
 
+# write the ground's tile textures
 tile_grid = np.zeros((int(MAP_WIDTH / 5), int(MAP_HEIGHT / 5)))
 for tile in tiles:
     # print(object)

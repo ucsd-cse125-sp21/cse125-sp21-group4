@@ -51,7 +51,7 @@ char * crackedTileTextFile, float tileScale) {
     }
 
 	//build the ground
-	roadTiles = new GroundTile("shaders/environment/ground.obj", crackedTileTextFile, proj, v, s,
+	roadTiles = new GroundTile("shaders/environment/ground.obj", grassTextFile, proj, v, s,
 		tileScale, &roadTileTrans);
 	grassTiles = new GroundTile("shaders/environment/ground.obj", grassTextFile, proj, v, s,
 		tileScale, &grassTileTrans);

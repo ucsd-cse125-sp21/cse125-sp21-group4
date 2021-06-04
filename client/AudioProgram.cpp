@@ -72,6 +72,7 @@ void AudioProgram::initializeAllAudioFiles() {
     SoLoud::Wav* damageTakenEffect =  new SoLoud::Wav();
     damageTakenEffect->load("audio/game_mp3/damage_effect.mp3");
     effectMap[DAMAGE_TAKEN_SOUND] = damageTakenEffect;
+    
 }
 
 
