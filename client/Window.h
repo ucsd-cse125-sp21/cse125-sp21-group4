@@ -9,7 +9,7 @@
 #define RENDER_MAP
 #define RENDER_CHARACTERS
 #define _USE_MATH_DEFINES
-#define SPATIAL_HASH_SEARCH_DISTANCE 20.0
+#define SPATIAL_HASH_SEARCH_DISTANCE 30.0
 
 
 // camera offsets for player

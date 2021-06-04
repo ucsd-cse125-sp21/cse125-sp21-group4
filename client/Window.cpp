@@ -67,7 +67,7 @@ GUIManager* Window::guiManager;
 AudioProgram* Window::audioProgram;
 vector<PlayerType> Window::playerJobs {UNKNOWN, UNKNOWN, UNKNOWN, MONSTER};
 std::chrono::steady_clock::time_point lastCombatMusicPlayTime;
-bool isLastCombatMusicPlayTime;
+bool hasCombatMusicPlayed = false;
 
 // Material Manager
 MaterialManager Window::materialManager;
@@ -141,7 +141,7 @@ bool Window::initializeObjects(GLFWwindow* window)
 	#ifndef SERVER_ENABLED
 	chars[0] = new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 		glm::vec3(SPAWN_POSITIONS[0][0], 1.5f, SPAWN_POSITIONS[0][1]), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
-		"shaders/character/MAGE");	
+		"shaders/character/MONSTER");	
 	clientChar = chars[0];
 	Window::gameStarted = true;
 	guiManager->healthBar->flashHealthBar();
@@ -184,7 +184,7 @@ bool Window::initializeObjects(GLFWwindow* window)
 	guiManager->setConnectingScreenVisible(false);
 	guiManager->setSplashScreenVisible(false); 
 	guiManager->monsterStageText->setVisible(true);
-	guiManager->monsterStageText->flashMonsterEvolveEvent(2);
+	guiManager->monsterStageText->flashMonsterEvolveEvent(1);
 	#endif
 	guiManager->monsterStageText->setVisible(true);
 	guiManager->setLoadingScreenVisible(false);
@@ -198,7 +198,6 @@ void Window::initMap(GLFWwindow * window) {
 		"shaders/environment/dry_grass_red_3x3.png", "shaders/environment/cracked_tile_texture_3x3.png", 3.0f);
 
 	// Init tile ground
-	
     ifstream map_ground_file("../assets/layout/map_ground.csv");
     string t_line;
     string t_id;
@@ -228,7 +227,7 @@ void Window::initMap(GLFWwindow * window) {
 					const int randomTileIndex = rand() % num_tiles;
 					const int randomRotation = rand() % 360;
 					EnvElement* tileTest = new EnvElement(tileStringPaths[randomTileIndex], &projection, &view, phongSaturatedTexShader, &eyePos,
-						glm::vec3(j * tileSize, -0.5f, i * tileSize), glm::vec3(0.f, 1.f, 0.f), glm::radians((float)randomRotation), 1.f , &materialManager,  glm::vec3(0.f, 0.f, 0.f)); 
+						glm::vec3(j * tileSize, 0.f, i * tileSize), glm::vec3(0.f, 1.f, 0.f), glm::radians((float)randomRotation), 1.f , &materialManager,  glm::vec3(0.f, 0.f, 0.f)); 
 					table.insert(tileTest);
 					
 					break;
@@ -421,6 +420,10 @@ void Window::initMap(GLFWwindow * window) {
 		}
 		
 	} 
+
+	// backdrop image
+	envs.push_back(new EnvElement("shaders/character/backdrop_billboard.obj", &projection, &view, texShader,
+					&eyePos, glm::vec3(-150.f, -305.f, -600.f), glm::vec3(1.f, 0.f, 0.f), glm::radians(-70.f), 600.f, glm::vec3(0.f, 1.f, 0.f), "shaders/fullscreen_elements/BLANK.png"));
 }
 
 void Window::initCharacters(GLFWwindow * window) {
@@ -520,8 +523,8 @@ GLFWwindow* Window::createWindow(int width, int height, AudioProgram* audioProgr
 	}
 	
 	// Old windowed mode
-	// glfwWindowHint(GLFW_SAMPLES, 4);
-	// GLFWwindow* window = glfwCreateWindow(width, height, windowTitle, NULL, NULL);
+	//glfwWindowHint(GLFW_SAMPLES, 4);
+	//GLFWwindow* window = glfwCreateWindow(width, height, windowTitle, NULL, NULL);
 	
 	// Fullscreen mode
 	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
@@ -668,6 +671,14 @@ void Window::idleCallback()
 		cursor->pos = clientChar->pos + glm::vec3(cursorOffsetX, 0, cursorOffsetY);
 	}
 	guiManager->updateHUDPositions();
+
+	// If combat music played and has finished, then we want to play the title music. hasCombatMusicPlayed is set when combat plays. It is cleared here.
+	auto now = std::chrono::steady_clock::now();
+	std::chrono::duration<float> duration = now - lastCombatMusicPlayTime;
+	if (gameStarted && std::chrono::duration_cast<std::chrono::seconds>(duration).count() > audioProgram->getSoundLength(COMBAT_MUSIC) && hasCombatMusicPlayed) {
+		audioProgram->playAudioWithLooping(TITLE_MUSIC);
+		hasCombatMusicPlayed = false;
+	}
 }
 
 void Window::displayCallback(GLFWwindow* window)
@@ -796,6 +807,8 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 
 				audioProgram->stopAllAudio();
 				audioProgram->playAudioWithLooping(TITLE_MUSIC);
+
+				glfwSetWindowShouldClose(window, 1);
 			}
 		}
 
@@ -1078,6 +1091,7 @@ void Window::handleUpdate(GameUpdate update) {
 				audioProgram->playAudioWithoutLooping(COMBAT_MUSIC);
 				audioProgram->stopAudio(TITLE_MUSIC);
 				lastCombatMusicPlayTime = now;
+				hasCombatMusicPlayed = true;
 			}
 
 			// Play the Damage taken audio
@@ -1269,12 +1283,12 @@ void Window::handleUpdate(GameUpdate update) {
 
 		case MONSTER_EVO_UP:
 			if(abs((int)update.newEvoLevel - (int)guiManager->evoBar->evoLevel) >= 1 && update.newEvoLevel <= MONSTER_FIFTH_STAGE_THRESHOLD) {
-				update.newEvoLevel = std::fmin(4.9f, update.newEvoLevel);
+				update.newEvoLevel = std::fmin(5.01f, update.newEvoLevel);
 				// printf("Monster Saturation Level: %f\n", update.newEvoLevel / MONSTER_FIFTH_STAGE_THRESHOLD);
 				chars[3]->setSaturationLevel(update.newEvoLevel / MONSTER_FIFTH_STAGE_THRESHOLD);
-				if(guiManager->monsterStageText->flashMonsterEvolveEvent(update.newEvoLevel)) {
-					// audioProgram->playAudioWithoutLooping(EVO_UP_SOUND);
-				}
+			}
+			if(guiManager->monsterStageText->flashMonsterEvolveEvent( (int) update.newEvoLevel)) {
+				// audioProgram->playAudioWithoutLooping(EVO_UP_SOUND);
 			}
 			guiManager->evoBar->setEvo(update.newEvoLevel);
 			break;
@@ -1285,6 +1299,11 @@ void Window::handleUpdate(GameUpdate update) {
 			guiManager->setConnectingScreenVisible(false);
 			guiManager->setSelectScreenVisible(false);
 			guiManager->setGameEndVisible(true);
+			if(update.endStatus == 1) {
+				guiManager->endScreen->setWinner(HUNTER_WINNER_COND);
+			} else if (update.endStatus == 2) {
+				guiManager->endScreen->setWinner(MONSTER_WINNER_COND);
+			} 
 			break;
         default:
             printf("Not Handled Update Type: %d\n", update.updateType);

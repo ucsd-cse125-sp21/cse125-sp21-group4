@@ -933,6 +933,10 @@ void Game::attackPlayersOutsideSafeRegion () {
             float damage = 0;
             if (players[i]->getType() == MONSTER) damage = SAFE_REGION_MONSTER_DAMAGE;
             else damage = SAFE_REGION_HUNTER_DAMAGE;
+
+            // If players are dead don't keep damaging them.
+            if (players[i]->getHp() == 0) continue;
+
             players[i]->hpDecrement(damage, true);
             // queue this update to be send to other players
             GameUpdate gameUpdate;
