@@ -228,6 +228,7 @@ void Window::initMap(GLFWwindow * window) {
 					const int randomRotation = rand() % 360;
 					EnvElement* tileTest = new EnvElement(tileStringPaths[randomTileIndex], &projection, &view, phongSaturatedTexShader, &eyePos,
 						glm::vec3(j * tileSize, 0.f, i * tileSize), glm::vec3(0.f, 1.f, 0.f), glm::radians((float)randomRotation), 1.f , &materialManager,  glm::vec3(0.f, 0.f, 0.f)); 
+					tileTest->setSaturationFactor(5.f);
 					table.insert(tileTest);
 					
 					break;
@@ -329,8 +330,9 @@ void Window::initMap(GLFWwindow * window) {
 			int randomPillarIndex = rand() % num_pillars;
 			objX += width / 2;
 			objY += height / 2;
-			EnvElement* e = new EnvElement(pillarStringPaths[randomPillarIndex], &projection, &view, phongTexShader, &eyePos,
+			EnvElement* e = new EnvElement(pillarStringPaths[randomPillarIndex], &projection, &view, phongSaturatedTexShader, &eyePos,
 				glm::vec3(objX, 4.5f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(randomRotateDegree),  width / 1.5, &materialManager, glm::vec3(1.f, 1.f, 1.f)); 
+			e->setSaturationFactor(3.f);
 			table.insert(e);
 
 		// Green Tree ==   tree_live
@@ -396,6 +398,7 @@ void Window::initMap(GLFWwindow * window) {
 			
 			EnvElement* cliff = new EnvElement(cliffStringPaths[randomCliffIndex], &projection, &view, phongSaturatedTexShader, &eyePos,
 				glm::vec3(objX, displacementFromGroundPlane, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 4.f , &materialManager,  glm::vec3(1.f, 1.f, 1.f)); 
+			cliff->setSaturationFactor(5.f);
 			table.insert(cliff);
 	
 	
@@ -414,6 +417,7 @@ void Window::initMap(GLFWwindow * window) {
 
 			EnvElement* cliff = new EnvElement(cliffStringPaths[randomCliffIndex], &projection, &view, phongSaturatedTexShader, &eyePos,
 				glm::vec3(objX, displacementFromGroundPlane, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(90.f), 4.f , &materialManager,  glm::vec3(1.f, 1.f, 1.f)); 
+			cliff->setSaturationFactor(5.f);
 			table.insert(cliff);
 	
 	

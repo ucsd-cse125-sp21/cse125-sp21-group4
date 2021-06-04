@@ -28,6 +28,7 @@ EnvElement::EnvElement(string fileName, glm::mat4 * p, glm::mat4 * v, GLuint s, 
 	// if path is NOT given at construction time, hasTexture will be false.
 	hasTexture = loadTexture(textFile);
 	hasMaterial = false; // will be loaded at another time.
+	saturationFactor = 1.f;
 
 	std::vector<glm::vec3> normalp;
 	std::vector<glm::vec3> pointsp;
@@ -178,7 +179,7 @@ EnvElement::EnvElement(string fileName, glm::mat4 * p, glm::mat4 * v, GLuint s, 
 	glBindVertexArray(0);
 }
 
-
+	
 // EnvElement with material constructor
 EnvElement::EnvElement(string fileName, glm::mat4 * p, glm::mat4 * v, GLuint s, glm::vec3* vPos, 
 	glm::vec3 trans, glm::vec3 rotAxis, float rotRad, float scale, MaterialManager* matManager, glm::vec3 c) {
@@ -198,6 +199,7 @@ EnvElement::EnvElement(string fileName, glm::mat4 * p, glm::mat4 * v, GLuint s, 
 	// hasTexture = loadTexture("shaders/environment/lowpolypine_texture.png");
 	hasTexture = false;
 	hasMaterial = false; // will be loaded at another time.
+	saturationFactor = 1.f;
 
 	std::vector<glm::vec3> normalp;
 	std::vector<glm::vec3> pointsp;
@@ -415,6 +417,7 @@ void EnvElement::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
 	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, glm::value_ptr(m));
 	glUniform3fv(glGetUniformLocation(shader, "viewPos"), 1, glm::value_ptr(*eyep));
 	glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(color));
+	glUniform1f(glGetUniformLocation(shader, "saturationFactor"), saturationFactor);
 
 	//Bind the VAO
 	glBindVertexArray(VAO);
@@ -530,4 +533,8 @@ bool EnvElement::loadTexture(char* texturePath) {
 void EnvElement::setMaterialList(std::map<std::string, Material> * materialListPtr) {
 	materialList = materialListPtr;
 	hasMaterial = true;
+}
+
+void EnvElement::setSaturationFactor(float factor) {
+	saturationFactor = factor;
 }

@@ -12,6 +12,7 @@ uniform vec3 ambientColor; //ka
 uniform vec3 specColor;  //ks
 uniform float specHighlight; //ns, the larger this value is, the more apparent the light dot on the surface
 uniform float dissolve; //d
+uniform float saturationFactor;
 
 // You can output many things. The first vec4 type output determines the color of the fragment
 in vec3 normalOutput;
@@ -37,6 +38,6 @@ void main()
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), specHighlight);
 	vec3 specular = specularStrength * spec * specColor; 
 	
-	vec3 result = ambientColor * 5 + diffuse + specular;
+	vec3 result = ambientColor * saturationFactor + diffuse + specular;
 	fragColor = vec4(result, dissolve);
 }
