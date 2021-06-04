@@ -19,9 +19,9 @@ GUIManager::GUIManager(int width, int height, int fbWidth, int fbHeight) {
 	if(vg == NULL) {
 		printf("Could not init nanovg.\n");
 	}
-	nvgCreateFont(vg, "sans-bold", "./nanovg/Roboto-Bold.ttf");
-	nvgCreateFont(vg, "sans", "./nanovg/Roboto-Regular.ttf");
-	nvgCreateFont(vg, "sans-light", "./nanovg/Roboto-Light.ttf");
+	nvgCreateFont(vg, "sans-bold", "./nanovg/SticksAndStones-xgyq.ttf");
+	nvgCreateFont(vg, "sans", "./nanovg/SticksAndStones-xgyq.ttf");
+	nvgCreateFont(vg, "sans-light", "./nanovg/SticksAndStones-xgyq.ttf");
 
 	healthBar = new HealthBar(vg);
 	beaconBar = new BeaconBar(vg);

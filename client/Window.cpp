@@ -67,7 +67,7 @@ GUIManager* Window::guiManager;
 AudioProgram* Window::audioProgram;
 vector<PlayerType> Window::playerJobs {UNKNOWN, UNKNOWN, UNKNOWN, MONSTER};
 std::chrono::steady_clock::time_point lastCombatMusicPlayTime;
-bool isLastCombatMusicPlayTime;
+bool hasCombatMusicPlayed = false;
 
 // Material Manager
 MaterialManager Window::materialManager;
@@ -668,6 +668,14 @@ void Window::idleCallback()
 		cursor->pos = clientChar->pos + glm::vec3(cursorOffsetX, 0, cursorOffsetY);
 	}
 	guiManager->updateHUDPositions();
+
+	// If combat music played and has finished, then we want to play the title music. hasCombatMusicPlayed is set when combat plays. It is cleared here.
+	auto now = std::chrono::steady_clock::now();
+	std::chrono::duration<float> duration = now - lastCombatMusicPlayTime;
+	if (gameStarted && std::chrono::duration_cast<std::chrono::seconds>(duration).count() > audioProgram->getSoundLength(COMBAT_MUSIC) && hasCombatMusicPlayed) {
+		audioProgram->playAudioWithLooping(TITLE_MUSIC);
+		hasCombatMusicPlayed = false;
+	}
 }
 
 void Window::displayCallback(GLFWwindow* window)
@@ -1080,6 +1088,7 @@ void Window::handleUpdate(GameUpdate update) {
 				audioProgram->playAudioWithoutLooping(COMBAT_MUSIC);
 				audioProgram->stopAudio(TITLE_MUSIC);
 				lastCombatMusicPlayTime = now;
+				hasCombatMusicPlayed = true;
 			}
 
 			// Play the Damage taken audio
@@ -1271,12 +1280,12 @@ void Window::handleUpdate(GameUpdate update) {
 
 		case MONSTER_EVO_UP:
 			if(abs((int)update.newEvoLevel - (int)guiManager->evoBar->evoLevel) >= 1 && update.newEvoLevel <= MONSTER_FIFTH_STAGE_THRESHOLD) {
-				update.newEvoLevel = std::fmin(4.9f, update.newEvoLevel);
+				update.newEvoLevel = std::fmin(5.01f, update.newEvoLevel);
 				// printf("Monster Saturation Level: %f\n", update.newEvoLevel / MONSTER_FIFTH_STAGE_THRESHOLD);
 				chars[3]->setSaturationLevel(update.newEvoLevel / MONSTER_FIFTH_STAGE_THRESHOLD);
-				if(guiManager->monsterStageText->flashMonsterEvolveEvent(update.newEvoLevel)) {
-					// audioProgram->playAudioWithoutLooping(EVO_UP_SOUND);
-				}
+			}
+			if(guiManager->monsterStageText->flashMonsterEvolveEvent( (int) update.newEvoLevel)) {
+				// audioProgram->playAudioWithoutLooping(EVO_UP_SOUND);
 			}
 			guiManager->evoBar->setEvo(update.newEvoLevel);
 			break;

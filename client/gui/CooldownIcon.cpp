@@ -68,7 +68,7 @@ void CooldownIcon::draw(float x, float y, float w, float h) {
 
 	nvgFontBlur(vg, 0);
 	nvgFillColor(vg, lightColor);
-	nvgText(vg, x + w/2, y + 3 * h/4, cooldownText.c_str(), NULL);
+	nvgText(vg, x + w/2, y + 4 * h/5, cooldownText.c_str(), NULL);
 
 	nvgRestore(vg);
 }

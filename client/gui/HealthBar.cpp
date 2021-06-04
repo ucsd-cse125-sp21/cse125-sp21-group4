@@ -156,7 +156,7 @@ void HealthBar::draw(float x, float y, float w, float h) {
 	nvgFontBlur(vg, 0);
 	nvgFillColor(vg, nvgRGBA(200, 200, 200, 255));
 	std::string hpText = "HP : " + std::to_string(hp) + "/" + std::to_string(maxHp);
-	nvgText(vg, barX + 5, barY + barHeight / 2, hpText.c_str(), NULL);
+	nvgText(vg, barX + 5, barY + barHeight * 2 / 3, hpText.c_str(), NULL);
     
 
 	nvgRestore(vg);

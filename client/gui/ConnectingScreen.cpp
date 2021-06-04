@@ -91,7 +91,7 @@ void ConnectingScreen::draw(float windowWidth, float windowHeight) {
         
         nvgFontBlur(vg, 0);
         nvgFillColor(vg, nvgRGBA(200, 200, 200, 255));
-        nvgText(vg, windowWidth / 2 - 50, windowHeight / 2 + 175, inputtedText.c_str(), NULL);
+        nvgText(vg, windowWidth / 2 - 50, windowHeight / 2 + 200, inputtedText.c_str(), NULL);
 
         // If currently connecting, print awaiting server response.
         if(connecting) {
