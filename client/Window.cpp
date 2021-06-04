@@ -717,7 +717,10 @@ void Window::displayCallback(GLFWwindow* window)
 			for (k = 0; k < 5; k++) {
 				glm::vec3 loc = base1 + base2;
 				if(clientChar != nullptr) {
-					loc += clientChar->pos;
+					if (clientChar->getState() == spectating)
+						loc += chars[clientChar->getViewingSpecID()]->pos;
+					else
+						loc += clientChar->pos;
 				}
 				Cell* cell = table.getCell(loc);
 				if (cell != NULL && cell->items.size() != 0)
