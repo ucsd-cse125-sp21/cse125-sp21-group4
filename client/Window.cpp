@@ -332,7 +332,10 @@ void Window::initMap(GLFWwindow * window) {
 			objY += height / 2;
 			EnvElement* e = new EnvElement(pillarStringPaths[randomPillarIndex], &projection, &view, phongSaturatedTexShader, &eyePos,
 				glm::vec3(objX, 4.5f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(randomRotateDegree),  width / 1.5, &materialManager, glm::vec3(1.f, 1.f, 1.f)); 
-			e->setSaturationFactor(3.f);
+			e->setSaturationFactor(5.f);
+			if(randomPillarIndex == 0) {
+				e->setSaturationFactor(2.75f);
+			}
 			table.insert(e);
 
 		// Green Tree ==   tree_live
@@ -467,7 +470,7 @@ void Window::initCharacters(GLFWwindow * window) {
 
 	// Set the last character's vector to the monster character object
 	chars[3] = playerTypeToCharacterMap[MONSTER];
-	chars[3]->moveTo(glm::vec3(SPAWN_POSITIONS[3][0], 1.5f, SPAWN_POSITIONS[3][1]));
+	chars[3]->moveTo(glm::vec3(SPAWN_POSITIONS[3][0], 2.5f, SPAWN_POSITIONS[3][1]));
 	chars[3]->setSaturationLevel(0.1f);
 	chars[3]->setHp(MONSTER_MAX_HP);
 }
