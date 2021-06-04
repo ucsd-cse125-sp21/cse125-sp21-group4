@@ -5138,8 +5138,8 @@
                  "type":"obstacle",
                  "visible":true,
                  "width":16,
-                 "x":4128,
-                 "y":4784
+                 "x":4192,
+                 "y":4720
                 }, 
                 {
                  "height":16,
@@ -5149,8 +5149,8 @@
                  "type":"obstacle",
                  "visible":true,
                  "width":16,
-                 "x":4128,
-                 "y":4816
+                 "x":4224,
+                 "y":4752
                 }, 
                 {
                  "height":16,
@@ -5710,8 +5710,8 @@
                  "type":"obstacle",
                  "visible":true,
                  "width":48,
-                 "x":3728,
-                 "y":7008
+                 "x":3744,
+                 "y":6976
                 }, 
                 {
                  "height":48,
@@ -5820,8 +5820,8 @@
                  "type":"obstacle",
                  "visible":true,
                  "width":48,
-                 "x":4128,
-                 "y":5152
+                 "x":4112,
+                 "y":5200
                 }, 
                 {
                  "height":48,
@@ -6051,8 +6051,8 @@
                  "type":"obstacle",
                  "visible":true,
                  "width":48,
-                 "x":4176,
-                 "y":5200
+                 "x":4160,
+                 "y":5136
                 }, 
                 {
                  "height":48,
@@ -29967,6 +29967,138 @@
                  "width":176,
                  "x":3872,
                  "y":4944
+                }, 
+                {
+                 "height":96,
+                 "id":3279,
+                 "name":"cliff_horizontal",
+                 "rotation":0,
+                 "type":"obstacle",
+                 "visible":true,
+                 "width":288,
+                 "x":592,
+                 "y":1040
+                }, 
+                {
+                 "height":96,
+                 "id":3281,
+                 "name":"cliff_horizontal",
+                 "rotation":0,
+                 "type":"obstacle",
+                 "visible":true,
+                 "width":288,
+                 "x":2032,
+                 "y":1376
+                }, 
+                {
+                 "height":96,
+                 "id":3282,
+                 "name":"cliff_horizontal",
+                 "rotation":0,
+                 "type":"obstacle",
+                 "visible":true,
+                 "width":288,
+                 "x":1824,
+                 "y":6592
+                }, 
+                {
+                 "height":96,
+                 "id":3283,
+                 "name":"cliff_horizontal",
+                 "rotation":0,
+                 "type":"obstacle",
+                 "visible":true,
+                 "width":288,
+                 "x":5616,
+                 "y":6608
+                }, 
+                {
+                 "height":96,
+                 "id":3284,
+                 "name":"cliff_horizontal",
+                 "rotation":0,
+                 "type":"obstacle",
+                 "visible":true,
+                 "width":288,
+                 "x":5152,
+                 "y":7376
+                }, 
+                {
+                 "height":96,
+                 "id":3285,
+                 "name":"cliff_horizontal",
+                 "rotation":0,
+                 "type":"obstacle",
+                 "visible":true,
+                 "width":288,
+                 "x":2704,
+                 "y":5904
+                }, 
+                {
+                 "height":96,
+                 "id":3286,
+                 "name":"cliff_horizontal",
+                 "rotation":0,
+                 "type":"obstacle",
+                 "visible":true,
+                 "width":288,
+                 "x":2816,
+                 "y":4496
+                }, 
+                {
+                 "height":96,
+                 "id":3287,
+                 "name":"cliff_horizontal",
+                 "rotation":0,
+                 "type":"obstacle",
+                 "visible":true,
+                 "width":288,
+                 "x":5120,
+                 "y":3856
+                }, 
+                {
+                 "height":288,
+                 "id":3291,
+                 "name":"cliff_vertical",
+                 "rotation":0,
+                 "type":"obstacle",
+                 "visible":true,
+                 "width":96,
+                 "x":2064,
+                 "y":3840
+                }, 
+                {
+                 "height":288,
+                 "id":3293,
+                 "name":"cliff_vertical",
+                 "rotation":0,
+                 "type":"obstacle",
+                 "visible":true,
+                 "width":96,
+                 "x":6224,
+                 "y":2896
+                }, 
+                {
+                 "height":288,
+                 "id":3294,
+                 "name":"cliff_vertical",
+                 "rotation":0,
+                 "type":"obstacle",
+                 "visible":true,
+                 "width":96,
+                 "x":3952,
+                 "y":2368
+                }, 
+                {
+                 "height":48,
+                 "id":3295,
+                 "name":"pillar",
+                 "rotation":0,
+                 "type":"obstacle",
+                 "visible":true,
+                 "width":48,
+                 "x":4256,
+                 "y":6768
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -29975,7 +30107,7 @@
          "y":0
         }],
  "nextlayerid":39,
- "nextobjectid":3278,
+ "nextobjectid":3296,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.6.0",

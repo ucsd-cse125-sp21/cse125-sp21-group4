@@ -431,7 +431,7 @@ void EnvElement::drawIfNotObstructing(glm::vec3 clientPos, glm::mat4 c) {
 	}
 
 	// simple calculation to check if the object is blocking the character
-	bool isCloseToObstructing = glm::distance(clientPos, pos) < 10.f && pos.z > clientPos.z && pos.z - clientPos.z > abs(pos.x - clientPos.x) && pos.y >= 3.f;
+	bool isCloseToObstructing = glm::distance(clientPos, pos) < 12.f && pos.z > clientPos.z && pos.z - clientPos.z > abs(pos.x - clientPos.x) && pos.y >= 3.f;
 	if(isCloseToObstructing) {
 		// printf("EnvElement is blocking the character.\n");
 		glDepthMask(GL_FALSE);

@@ -149,6 +149,19 @@ bool Window::initializeObjects(GLFWwindow* window)
 		glm::vec3(247.f, 10.f, 308.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 2.f , &materialManager,  glm::vec3(1.f, 1.f, 1.f)); 
 	table.insert(env);
 
+	
+	// EnvElement* cliffTest1 = new EnvElement("shaders/environment/lowpolycliff.obj", &projection, &view, phongTexShader, &eyePos,
+	// 	glm::vec3(40.f, 6.f, 40.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 4.f , &materialManager,  glm::vec3(1.f, 1.f, 1.f)); 
+	// table.insert(cliffTest1);
+	
+	
+	// EnvElement* cliffTest2 = new EnvElement("shaders/environment/lowpolycliffwithtree.obj", &projection, &view, phongTexShader, &eyePos,
+	// 	glm::vec3(25.f, 6.f, 25.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 4.f , &materialManager,  glm::vec3(0.f, 0.f, 0.f)); 
+	// table.insert(cliffTest2);
+
+	EnvElement* tileTest = new EnvElement("shaders/environment/lowpolytilepatch.obj", &projection, &view, phongTexShader, &eyePos,
+		glm::vec3(50.f, 1.f, 50.f), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 1.f , &materialManager,  glm::vec3(0.f, 0.f, 0.f)); 
+	table.insert(tileTest);
 	#endif
 	/* ===== end of #ifndef (no-server client) code ==== */
 
@@ -190,6 +203,7 @@ void Window::initMap(GLFWwindow * window) {
 	const int num_live_trees = 2;
 	const int num_dead_trees = 4;
 	const int num_pillars = 2;
+	const int num_cliffs = 2;
 	string liveTreeStringPaths[num_live_trees] = {"shaders/environment/lowpolypine.obj",
 								 "shaders/environment/lowpolypinegreen.obj"
 								};
@@ -202,6 +216,10 @@ void Window::initMap(GLFWwindow * window) {
 	string pillarStringPaths[num_pillars] = {
 								"shaders/environment/lowpolypillar.obj",
 								 "shaders/environment/lowpolypillarpair.obj",	
+	};
+	string cliffStringPaths[num_cliffs] = {
+								"shaders/environment/lowpolycliff.obj",
+								 "shaders/environment/lowpolycliffwithtree.obj",	
 	};
 
 
@@ -240,6 +258,8 @@ void Window::initMap(GLFWwindow * window) {
 		float width = fields[2];
 		float height = fields[3];
 		float randomRotateDegree = fields[4];
+
+		// printf("%s\n", objName.c_str());
 
 		// Spawn the obstacles based on their name
 		
@@ -311,6 +331,28 @@ void Window::initMap(GLFWwindow * window) {
 
 				}
 			}
+
+		// Cliffs
+		} else if (strcmp(objName.c_str(), "cliff_horizontal") == 0) {
+			int randomCliffIndex = rand() % num_cliffs;
+			objX += width / 2;
+			objY += height / 2;
+			
+			EnvElement* cliff = new EnvElement(cliffStringPaths[randomCliffIndex], &projection, &view, phongTexShader, &eyePos,
+				glm::vec3(objX, 4.5f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 4.f , &materialManager,  glm::vec3(1.f, 1.f, 1.f)); 
+			table.insert(cliff);
+	
+	
+		} else if (strcmp(objName.c_str(), "cliff_vertical") == 0) {
+			int randomCliffIndex = rand() % num_cliffs;
+			objX += width / 2;
+			objY += height / 2;
+			
+			EnvElement* cliff = new EnvElement(cliffStringPaths[randomCliffIndex], &projection, &view, phongTexShader, &eyePos,
+				glm::vec3(objX, 4.5f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(90.f), 4.f , &materialManager,  glm::vec3(1.f, 1.f, 1.f)); 
+			table.insert(cliff);
+	
+	
 		}
 		
 	} 
