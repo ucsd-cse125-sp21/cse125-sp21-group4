@@ -136,7 +136,24 @@ void ConnectingScreen::handleKeyInput(int glfwKey, GLFWwindow * window) {
 
         // Display connecting...
         if(!hasConnectedToServer) {
-            bool establishedConnection =  Window::connectCommClient(inputtedText);
+            std::string convertedString = inputtedText.c_str();
+            if (strcmp(inputtedText.c_str(), "239") == 0) {
+                convertedString = "137.110.111.239";
+            }
+            else if (strcmp(inputtedText.c_str(), "154") == 0) {
+                convertedString = "137.110.115.154";
+            }
+            else if (strcmp(inputtedText.c_str(), "157") == 0) {
+                convertedString = "137.110.115.157";
+            }
+            else if (strcmp(inputtedText.c_str(), "89") == 0) {
+                convertedString = "137.110.115.89";
+            }
+            else if (strcmp(inputtedText.c_str(), "1") == 0) {
+                convertedString = "127.0.0.1";
+            }
+
+            bool establishedConnection =  Window::connectCommClient(convertedString);
             if(establishedConnection) {
                 hasConnectedToServer = true;
             } 

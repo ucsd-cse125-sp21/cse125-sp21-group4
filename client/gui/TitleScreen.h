@@ -11,8 +11,8 @@ const int PRESS_ANY_KEY_SCREEN = 0,
             HOW_TO_PLAY_SCREEN = 1,
             STORY_SCREEN = 2,
             MENU_SCREEN_ENTER = 3,
-            MENU_SCREEN_EXIT = 4,
-            MENU_SCREEN_HELP = 5,
+            MENU_SCREEN_HELP = 4,
+            MENU_SCREEN_EXIT = 5,
             MENU_SCREEN_STORY = 6;
 class TitleScreen {
 

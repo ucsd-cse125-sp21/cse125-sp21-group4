@@ -141,7 +141,7 @@ bool Window::initializeObjects(GLFWwindow* window)
 	#ifndef SERVER_ENABLED
 	chars[0] = new Character("shaders/character/billboard.obj", &projection, &view, &eyePos, texShader,
 		glm::vec3(SPAWN_POSITIONS[0][0], 1.5f, SPAWN_POSITIONS[0][1]), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f),
-		"shaders/character/MAGE");	
+		"shaders/character/MONSTER");	
 	clientChar = chars[0];
 	Window::gameStarted = true;
 	guiManager->healthBar->flashHealthBar();
@@ -198,7 +198,6 @@ void Window::initMap(GLFWwindow * window) {
 		"shaders/environment/dry_grass_red_3x3.png", "shaders/environment/cracked_tile_texture_3x3.png", 3.0f);
 
 	// Init tile ground
-	
     ifstream map_ground_file("../assets/layout/map_ground.csv");
     string t_line;
     string t_id;
@@ -228,7 +227,7 @@ void Window::initMap(GLFWwindow * window) {
 					const int randomTileIndex = rand() % num_tiles;
 					const int randomRotation = rand() % 360;
 					EnvElement* tileTest = new EnvElement(tileStringPaths[randomTileIndex], &projection, &view, phongSaturatedTexShader, &eyePos,
-						glm::vec3(j * tileSize, -0.5f, i * tileSize), glm::vec3(0.f, 1.f, 0.f), glm::radians((float)randomRotation), 1.f , &materialManager,  glm::vec3(0.f, 0.f, 0.f)); 
+						glm::vec3(j * tileSize, 0.f, i * tileSize), glm::vec3(0.f, 1.f, 0.f), glm::radians((float)randomRotation), 1.f , &materialManager,  glm::vec3(0.f, 0.f, 0.f)); 
 					table.insert(tileTest);
 					
 					break;
@@ -421,6 +420,10 @@ void Window::initMap(GLFWwindow * window) {
 		}
 		
 	} 
+
+	// backdrop image
+	envs.push_back(new EnvElement("shaders/character/backdrop_billboard.obj", &projection, &view, texShader,
+					&eyePos, glm::vec3(-150.f, -305.f, -600.f), glm::vec3(1.f, 0.f, 0.f), glm::radians(-70.f), 600.f, glm::vec3(0.f, 1.f, 0.f), "shaders/fullscreen_elements/BLANK.png"));
 }
 
 void Window::initCharacters(GLFWwindow * window) {
@@ -520,8 +523,8 @@ GLFWwindow* Window::createWindow(int width, int height, AudioProgram* audioProgr
 	}
 	
 	// Old windowed mode
-	// glfwWindowHint(GLFW_SAMPLES, 4);
-	// GLFWwindow* window = glfwCreateWindow(width, height, windowTitle, NULL, NULL);
+	//glfwWindowHint(GLFW_SAMPLES, 4);
+	//GLFWwindow* window = glfwCreateWindow(width, height, windowTitle, NULL, NULL);
 	
 	// Fullscreen mode
 	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
@@ -1296,6 +1299,11 @@ void Window::handleUpdate(GameUpdate update) {
 			guiManager->setConnectingScreenVisible(false);
 			guiManager->setSelectScreenVisible(false);
 			guiManager->setGameEndVisible(true);
+			if(update.endStatus == 1) {
+				guiManager->endScreen->setWinner(HUNTER_WINNER_COND);
+			} else if (update.endStatus == 2) {
+				guiManager->endScreen->setWinner(MONSTER_WINNER_COND);
+			} 
 			break;
         default:
             printf("Not Handled Update Type: %d\n", update.updateType);
