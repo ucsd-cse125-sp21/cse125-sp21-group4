@@ -31,9 +31,9 @@ void MonsterStageText::draw(float windowWidth, float windowHeight) {
 		// nvgRoundedRect(vg, windowWidth / 4.2,  -windowHeight / 19, windowWidth/2, windowHeight/2, 5);
 		// nvgFillPaint(vg, imgPaint);
 		// nvgFill(vg);
-		NVGpaint imgPaint =  nvgImagePattern(vg, 0, windowHeight / 64, windowWidth, windowHeight, 0.0f/180.0f*NVG_PI, this->image[currentStage - 1], 255.f);
+		NVGpaint imgPaint =  nvgImagePattern(vg, 0, 0, windowWidth, windowHeight, 0.0f/180.0f*NVG_PI, this->image[currentStage - 1], 255.f);
 		nvgBeginPath(vg);
-		nvgRoundedRect(vg, 0,  windowHeight / 64, windowWidth, windowHeight, 5);
+		nvgRoundedRect(vg, 0,  0, windowWidth, windowHeight, 5);
 		nvgFillPaint(vg, imgPaint);
 		nvgFill(vg);
 	}

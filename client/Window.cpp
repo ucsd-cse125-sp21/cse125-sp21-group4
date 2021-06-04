@@ -184,7 +184,7 @@ bool Window::initializeObjects(GLFWwindow* window)
 	guiManager->setConnectingScreenVisible(false);
 	guiManager->setSplashScreenVisible(false); 
 	guiManager->monsterStageText->setVisible(true);
-	guiManager->monsterStageText->flashMonsterEvolveEvent(2);
+	guiManager->monsterStageText->flashMonsterEvolveEvent(1);
 	#endif
 	guiManager->monsterStageText->setVisible(true);
 	guiManager->setLoadingScreenVisible(false);
@@ -796,6 +796,8 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 
 				audioProgram->stopAllAudio();
 				audioProgram->playAudioWithLooping(TITLE_MUSIC);
+
+				glfwSetWindowShouldClose(window, 1);
 			}
 		}
 

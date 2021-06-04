@@ -5,7 +5,7 @@ EndScreen::EndScreen(NVGcontext* vg) {
     this->isVisible = false;
     this->endTime = steady_clock::now();
 
-    this->image = nvgCreateImage(vg, "shaders/fullscreen_elements/game_over.png", NVG_IMAGE_REPEATY | NVG_IMAGE_REPEATX);
+    this->image = nvgCreateImage(vg, "shaders/fullscreen_elements/game_over.png", 0);
     nvgImageSize(vg, image, &imgWidth, &imgHeight);
 }
 
@@ -27,7 +27,7 @@ void EndScreen::draw(float windowWidth, float windowHeight) {
     // nvgFill(vg);
     auto duration = duration_cast<milliseconds>(steady_clock::now() - endTime);
     float alpha = std::fmin( ((float)duration.count()) / END_GAME_DELAY_INPUT, 1.0f);
-    NVGpaint imgPaint =  nvgImagePattern(vg, 0, 0, imgWidth, imgHeight, 0.0f/180.0f*NVG_PI, this->image, alpha);
+    NVGpaint imgPaint =  nvgImagePattern(vg, 0, 0, windowWidth, windowHeight, 0.0f/180.0f*NVG_PI, this->image, alpha);
     nvgBeginPath(vg);
     nvgRoundedRect(vg,  0, 0, windowWidth, windowHeight, 5);
     nvgFillPaint(vg, imgPaint);
