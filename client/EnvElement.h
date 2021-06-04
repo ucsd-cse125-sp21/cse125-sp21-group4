@@ -35,6 +35,8 @@ private:
 	glm::vec3 *eyep;
 	glm::vec3 color;
 
+	float saturationFactor;
+
 
 public:
 
@@ -60,6 +62,7 @@ public:
 	bool loadTexture(char* texturePath);
 
 	void setMaterialList(std::map<std::string, Material> *);
+	void setSaturationFactor(float);
 };
 
 #endif
