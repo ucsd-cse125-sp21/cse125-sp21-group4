@@ -40,6 +40,7 @@ GLuint Window::phongTexShader; //Phong lighting shader with texture
 GLuint Window::texShader;     //shader for model with textures. NOTE, it also calculates texture alphas
 GLuint Window::groundShader;  //array instance shader that draw multiple objects using same set of data
 GLuint Window::satTextureShader; // shader for monster's saturation levels
+GLuint Window::phongSaturatedTexShader;
 
 // projection Matrices 
 glm::mat4 Window::projection;
@@ -66,6 +67,7 @@ GUIManager* Window::guiManager;
 AudioProgram* Window::audioProgram;
 vector<PlayerType> Window::playerJobs {UNKNOWN, UNKNOWN, UNKNOWN, MONSTER};
 std::chrono::steady_clock::time_point lastCombatMusicPlayTime;
+bool isLastCombatMusicPlayTime;
 
 // Material Manager
 MaterialManager Window::materialManager;
@@ -79,6 +81,7 @@ bool Window::initializeProgram() {
 	groundShader = LoadShaders("shaders/shader/groundShader.vert", "shaders/shader/groundShader.frag");
 	phongTexShader = LoadShaders("shaders/shader/phongTexture.vert", "shaders/shader/phongTexture.frag");
 	satTextureShader = LoadShaders("shaders/shader/texture.vert", "shaders/shader/satTexture.frag");
+	phongSaturatedTexShader = LoadShaders("shaders/shader/phongTexture.vert", "shaders/shader/phongTextureSaturated.frag");
 	// Check the shader program.
 	if (!shaderProgram)
 	{
@@ -194,6 +197,53 @@ void Window::initMap(GLFWwindow * window) {
 	ground = new Ground("shaders/environment/ground.obj", &projection, &view, groundShader,
 		"shaders/environment/dry_grass_red_3x3.png", "shaders/environment/cracked_tile_texture_3x3.png", 3.0f);
 
+	// Init tile ground
+	
+    ifstream map_ground_file("../assets/layout/map_ground.csv");
+    string t_line;
+    string t_id;
+	const int width = GROUND_WIDTH / TILE_SIZE;
+	const int length = GROUND_WIDTH / TILE_SIZE;
+	float tileSize = 2.f * 3.f;
+
+    int i = 0;
+    int j = 0;
+	
+	const int num_tiles = 3;
+	string tileStringPaths[num_tiles] = {
+								"shaders/environment/lowpolytiles.obj",
+								 "shaders/environment/lowpolysnakepath.obj",
+								 "shaders/environment/lowpolytilepatch.obj",
+	};
+    while(getline(map_ground_file, t_line)) {
+        stringstream ss(t_line);
+         
+        while(getline(ss, t_id, ',')) {
+			// j = x, i = y.
+            int objID = std::stoi(t_id);
+
+			// populate the models for each tiles
+			switch(objID) {
+				case CRACKED_TILE_ID: {
+					const int randomTileIndex = rand() % num_tiles;
+					const int randomRotation = rand() % 360;
+					EnvElement* tileTest = new EnvElement(tileStringPaths[randomTileIndex], &projection, &view, phongSaturatedTexShader, &eyePos,
+						glm::vec3(j * tileSize, -0.5f, i * tileSize), glm::vec3(0.f, 1.f, 0.f), glm::radians((float)randomRotation), 1.f , &materialManager,  glm::vec3(0.f, 0.f, 0.f)); 
+					table.insert(tileTest);
+					
+					break;
+				}
+			}
+            j++;
+        }
+        j = 0;
+        i++;
+    }
+
+
+
+
+
 	ifstream map_file("../assets/layout/map_client.csv");
 	ifstream temp_file("../assets/layout/map_client.csv");
     string line;
@@ -281,7 +331,7 @@ void Window::initMap(GLFWwindow * window) {
 			objX += width / 2;
 			objY += height / 2;
 			EnvElement* e = new EnvElement(pillarStringPaths[randomPillarIndex], &projection, &view, phongTexShader, &eyePos,
-				glm::vec3(objX, 3.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(randomRotateDegree),  width / 2, &materialManager, glm::vec3(1.f, 1.f, 1.f)); 
+				glm::vec3(objX, 4.5f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(randomRotateDegree),  width / 1.5, &materialManager, glm::vec3(1.f, 1.f, 1.f)); 
 			table.insert(e);
 
 		// Green Tree ==   tree_live
@@ -315,7 +365,7 @@ void Window::initMap(GLFWwindow * window) {
 			objY += height / 2;
 
 			EnvElement* e = new EnvElement("shaders/environment/lowpolyrock1.obj", &projection, &view, shaderProgram, &eyePos,
-				glm::vec3(objX, 1.f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(randomRotateDegree),  width * 2.f, glm::vec3(0.3f, 0.3f, 0.3f));
+				glm::vec3(objX, 1.5f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(randomRotateDegree),  width * 3.f, glm::vec3(0.4f, 0.4f, 0.4f));
 			table.insert(e);
 
 		// Red cube ==  wall
@@ -337,9 +387,16 @@ void Window::initMap(GLFWwindow * window) {
 			int randomCliffIndex = rand() % num_cliffs;
 			objX += width / 2;
 			objY += height / 2;
+
+			float displacementFromGroundPlane = 4.5f;
+
+			// For the model with the tree, we need to displace it higher
+			if(randomCliffIndex == 1) {
+				displacementFromGroundPlane += 2.f;
+			}
 			
-			EnvElement* cliff = new EnvElement(cliffStringPaths[randomCliffIndex], &projection, &view, phongTexShader, &eyePos,
-				glm::vec3(objX, 4.5f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 4.f , &materialManager,  glm::vec3(1.f, 1.f, 1.f)); 
+			EnvElement* cliff = new EnvElement(cliffStringPaths[randomCliffIndex], &projection, &view, phongSaturatedTexShader, &eyePos,
+				glm::vec3(objX, displacementFromGroundPlane, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 4.f , &materialManager,  glm::vec3(1.f, 1.f, 1.f)); 
 			table.insert(cliff);
 	
 	
@@ -348,8 +405,16 @@ void Window::initMap(GLFWwindow * window) {
 			objX += width / 2;
 			objY += height / 2;
 			
-			EnvElement* cliff = new EnvElement(cliffStringPaths[randomCliffIndex], &projection, &view, phongTexShader, &eyePos,
-				glm::vec3(objX, 4.5f, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(90.f), 4.f , &materialManager,  glm::vec3(1.f, 1.f, 1.f)); 
+			float displacementFromGroundPlane = 4.5f;
+
+			// For the model with the tree, we need to displace it higher
+			if(randomCliffIndex == 1) {
+				displacementFromGroundPlane += 2.f;
+			}
+			
+
+			EnvElement* cliff = new EnvElement(cliffStringPaths[randomCliffIndex], &projection, &view, phongSaturatedTexShader, &eyePos,
+				glm::vec3(objX, displacementFromGroundPlane, objY), glm::vec3(0.f, 1.f, 0.f), glm::radians(90.f), 4.f , &materialManager,  glm::vec3(1.f, 1.f, 1.f)); 
 			table.insert(cliff);
 	
 	
@@ -381,7 +446,7 @@ void Window::initCharacters(GLFWwindow * window) {
 
 
 	playerTypeToCharacterMap[MONSTER] = (new Character("shaders/character/monster_billboard.obj", &projection, &view, &eyePos, satTextureShader,
-		glm::vec3(0.f, 2.f, 0.f), 
+		glm::vec3(0.f, 3.f, 0.f), 
 		glm::vec3(0.f, 1.f, 0.f), glm::radians(0.f), 5.f, glm::vec3(1.f, .5f, .5f), "shaders/character/MONSTER"));
 
 	
@@ -517,7 +582,7 @@ GLFWwindow* Window::createWindow(int width, int height, AudioProgram* audioProgr
 	/* ===== THIS #ifndef CODE IS ONLY FOR NON-CONNECTED CLIENTS TO IMPROVE GRAPHICS DEVELOPMENT ==== */
 #ifndef SERVER_ENABLED // Client-only (no server)	
 	guiManager->setConnectingScreenVisible(false);
-	guiManager->beaconBar->setAmount(-18.f);
+	guiManager->beaconBar->setAmount(-8.f);
 	guiManager->evoBar->setEvo(2.65f);
 	guiManager->setSelectScreenVisible(false);
 	guiManager->setGameEndVisible(false);
@@ -1011,6 +1076,7 @@ void Window::handleUpdate(GameUpdate update) {
 			// If the player was near this player (or is this player) play combat music
 			if (distanceToPlayer < MAX_HEARING_DISTANCE && std::chrono::duration_cast<std::chrono::seconds>(duration).count() > audioProgram->getSoundLength(COMBAT_MUSIC)) {
 				audioProgram->playAudioWithoutLooping(COMBAT_MUSIC);
+				audioProgram->stopAudio(TITLE_MUSIC);
 				lastCombatMusicPlayTime = now;
 			}
 
@@ -1141,7 +1207,7 @@ void Window::handleUpdate(GameUpdate update) {
 				guiManager->evoBar->isMonster = false;
 			}
 
-			audioProgram->stopAudio(TITLE_MUSIC);
+			// audioProgram->stopAudio(TITLE_MUSIC);
 			break;
 		case ROLE_CLAIMED:
 			Window::handleRoleClaim(update);
@@ -1623,7 +1689,11 @@ void Window::checkNearObjectiveText(ObjElement* obj) {
 					if (guiManager->healthBar->hp >= guiManager->healthBar->maxHp) {
 						guiManager->drawCenterText(std::string("Cannot pickup health (MAX HP)."), width, height);
 					} else {
-						guiManager->drawCenterText(std::string("Press E to pickup the health (+50 HP until MAX)."), width, height);
+						if(restriction == R_MONSTER) {
+							guiManager->drawCenterText(std::string("Press E to pickup the health (+100 HP until MAX)."), width, height);
+						} else {
+							guiManager->drawCenterText(std::string("Press E to pickup the health (+50 HP until MAX)."), width, height);
+						}
 					}
 				}
 				break;
